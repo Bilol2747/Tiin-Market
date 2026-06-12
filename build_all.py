@@ -5,7 +5,7 @@ build_all.py — Yangi oy ma'lumotlari bilan sales.html ni qayta qurish.
 Foydalanish:
     python build_all.py --sales sotuv.xlsx --products tovarlar.xlsx
 """
-import json, math, re, argparse, sys
+import json, math, re, argparse, sys, shutil
 from collections import defaultdict, Counter
 from datetime import datetime, date
 from pathlib import Path
@@ -781,6 +781,14 @@ def build(sales_path, products_path, html_path=None):
     template = ROOT / "sales.html"
     embed_html(html_path, invdata, p2data, p3data, dailydata, p1data,
                template_path=template if template != html_path else None)
+
+    # Vercel uchun: index.html ni sales.html dan nusxalash (root sahifa)
+    index_path = ROOT / "index.html"
+    try:
+        shutil.copyfile(html_path, index_path)
+        print(f"      index.html yangilandi (Vercel uchun)")
+    except Exception as e:
+        print(f"      ! index.html nusxalashda xato: {e}")
 
     title = min_d.strftime("%B %Y")
     return {

@@ -26,7 +26,7 @@ function lgUnlock(){
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
-let ZITEMS=null,zCurFilter="all";
+let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sup:"",type:"",abc:""},zFilled=false;
 async function showPage(btn){document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
@@ -56,8 +56,9 @@ function _zClassify(d,stock){
   let signal=null,reason="";
   if(di>=7&&wasGoodSeller){
     // Yaxshi sotilardi, keyin sotuv to'xtadi — stokka qarab ajratamiz
-    if(stock<=0){signal="kritik";reason="Avval barqaror sotilardi, stok tugadi";}
-    else{signal="tekshir";reason="Sotilishi kerak, lekin stok turibdi — yo'qolgan/qolib ketgan bo'lishi mumkin";}
+    if(stock===0){signal="kritik";reason="Avval barqaror sotilardi, stok tugadi — darhol zakas";}
+    else if(stock>0){signal="tekshir";reason="Sotilishi kerak, lekin stok turibdi — yo'qolgan/qolib ketgan bo'lishi mumkin";}
+    else{signal="tekshir";reason="Manfiy stok — kirim kiritilmagan, hisobni tekshiring";}
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft<=7&&di<7){
     signal="urgent";reason="Faol sotilyapti, stok "+daysLeft+" kunda tugaydi";
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft>90){
@@ -76,12 +77,13 @@ function _buildZItems(){
     if(!d)return;
     const c=_zClassify(d,stock);
     if(!c)return;
-    ZITEMS.push({name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",rev:v.rev||0,...c});
+    ZITEMS.push({name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
   });
   const cnt={kritik:0,tekshir:0,urgent:0,excess:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
   const s=(id,n)=>{const el=document.getElementById(id);if(el)el.textContent=n.toLocaleString();};
   s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);
+  zFilled=false;zFillSelects();
 }
 function zFilter(f){
   zCurFilter=f;
@@ -90,9 +92,54 @@ function zFilter(f){
   if(f!=="all"){const el=document.getElementById("zc-"+f);if(el)el.classList.add("z-selected");}
   renderZaxira();
 }
+function zSearchInput(){
+  const inp=document.getElementById("z-q");
+  zQuery=(inp?inp.value:"").toLowerCase().trim();
+  const cl=document.getElementById("z-clear");if(cl)cl.classList.toggle("show",zQuery.length>0);
+  renderZaxira();
+}
+function zFillSelects(){
+  if(zFilled||!ZITEMS)return;
+  const fill=(id,key)=>{
+    const sel=document.getElementById(id);if(!sel)return;
+    const opts=[...new Set(ZITEMS.map(v=>v[key]).filter(x=>x))].sort((a,b)=>String(a).localeCompare(String(b),"ru"));
+    opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});
+  };
+  fill("zf-cat","cat");fill("zf-sup","sup");fill("zf-type","itype");
+  zFilled=true;
+}
+function zFToggle(e){if(e)e.stopPropagation();const p=document.getElementById("z-fpop");if(p)p.classList.toggle("open");}
+function zFApply(){
+  zF.cat=document.getElementById("zf-cat").value;
+  zF.sup=document.getElementById("zf-sup").value;
+  zF.type=document.getElementById("zf-type").value;
+  zF.abc=document.getElementById("zf-abc").value;
+  let n=0;["zf-cat","zf-sup","zf-type","zf-abc"].forEach(id=>{const e=document.getElementById(id);if(e){if(e.value)n++;e.classList.toggle("on",!!e.value);}});
+  const b=document.getElementById("z-fcount");if(b)b.textContent=n?"("+n+")":"";
+  const btn=document.getElementById("z-fbtn");if(btn)btn.classList.toggle("has",n>0);
+  renderZaxira();
+}
+function zFClearAll(){
+  ["zf-cat","zf-sup","zf-type","zf-abc"].forEach(id=>{const e=document.getElementById(id);if(e){e.value="";e.classList.remove("on");}});
+  zF={cat:"",sup:"",type:"",abc:""};
+  const b=document.getElementById("z-fcount");if(b)b.textContent="";
+  const btn=document.getElementById("z-fbtn");if(btn)btn.classList.remove("has");
+  renderZaxira();
+}
+function zClear(){
+  const inp=document.getElementById("z-q");if(inp)inp.value="";
+  zQuery="";
+  const cl=document.getElementById("z-clear");if(cl)cl.classList.remove("show");
+  renderZaxira();
+}
 function renderZaxira(){
   if(!ZITEMS)return;
   let items=zCurFilter==="all"?[...ZITEMS]:ZITEMS.filter(v=>v.signal===zCurFilter);
+  if(zQuery){items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));}
+  if(zF.cat) items=items.filter(v=>v.cat===zF.cat);
+  if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
+  if(zF.type)items=items.filter(v=>v.itype===zF.type);
+  if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
   const ord={kritik:0,tekshir:1,urgent:2,excess:3};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
@@ -123,7 +170,7 @@ function renderZaxira(){
     const dailyTxt=v.dailyAvg>0?v.dailyAvg+" ta/kun":"—";
     h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td style="max-width:300px"><div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
-  if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">Bu filtrda ma'lumot yo'q</td></tr>`;
+  if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
   document.getElementById("z-tbody").innerHTML=h;
 }
 function sortP4(k){if(p4sk===k)p4sa=!p4sa;else{p4sk=k;p4sa=false;}const s=[...P4].sort((a,b)=>{if(k==="n")return p4sa?a.n.localeCompare(b.n):b.n.localeCompare(a.n);const va=k==="a"?Math.round(a.v/a.r):k==="mx"?a.mx:a[k];const vb=k==="a"?Math.round(b.v/b.r):k==="mx"?b.mx:b[k];return p4sa?va-vb:vb-va;});renderP4Table(s);document.getElementById("p4hint").textContent={v:"tushum",r:"cheklar soni",a:"o'rtacha chek",mx:"max chek",n:"ism"}[k]+" bo'yicha";}
@@ -515,3 +562,4 @@ function openUpload(){if(confirm("Yangi oy ma'lumotini yuklashga o'tasizmi?")){w
 function p2FCount(){const ids=["pf-cat","pf-sub","pf-type","pf-sup","pf-amt","pf-abc"];let n=0;ids.forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++;});const b=document.getElementById("p2-fcount");if(b)b.textContent=n?"("+n+")":"";const btn=document.getElementById("p2-fbtn");if(btn)btn.classList.toggle("has",n>0);}
 function p2FToggle(e){if(e)e.stopPropagation();const p=document.getElementById("p2-fpop");if(p)p.classList.toggle("open");p2FCount();}
 document.addEventListener("click",function(e){const w=document.querySelector(".p2-fwrap");const p=document.getElementById("p2-fpop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});
+document.addEventListener("click",function(e){const b=document.getElementById("z-fbtn");const p=document.getElementById("z-fpop");if(b&&p&&!b.contains(e.target)&&!p.contains(e.target))p.classList.remove("open");});
