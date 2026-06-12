@@ -234,6 +234,7 @@ _winDaily();
 renderP1();
 if(P2){_winArr(P2);if(typeof p2CloseG==='function')p2CloseG();if(typeof p2Filter==='function')p2Filter();}
 if(P3&&typeof initP3==='function'){initP3();}
+if(ZITEMS!==null){_buildZItems();renderZaxira();}
 const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&P1FULL.dates){st.value=P1FULL.dates[a];en.value=P1FULL.dates[b];}
 const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?"Butun davr ko'rsatilmoqda.":"Barcha sahifalar tanlangan oraliq bo'yicha aniq hisoblandi.";
 }
