@@ -1,5 +1,5 @@
 // ─── Login (statik) ───
-const LG_PHONE="777777777",LG_PASS="123321";
+const LG_PHONE="910758080",LG_PASS="tiin_market";
 function lgEye(){const i=document.getElementById("lg-pass");i.type=i.type==="password"?"text":"password";}
 function lgSubmit(e){
   e.preventDefault();
