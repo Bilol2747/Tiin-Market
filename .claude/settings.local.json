@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Item \"C:\\\\Tiim Market Base Loyihasi\\\\data_mahsulotlar.json\"\\).Length / 1MB)",
+      "PowerShell(\\(Get-Item \"C:\\\\Tiim Market Base Loyihasi\\\\data_abc.json\"\\).Length / 1MB)",
+      "PowerShell(\\(Get-Item \"C:\\\\Tiim Market Base Loyihasi\\\\tiin_dashboard.html\"\\).Length / 1MB)",
+      "Skill(run)",
+      "PowerShell(Start-Process \"C:\\\\Tiim Market Base Loyihasi\\\\tiin_dashboard.html\")",
+      "PowerShell(& \"C:\\\\Tiim Market Base Loyihasi\\\\fix2.ps1\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\build_all.py\" --sales \"sotuv_excel.xlsx\" --products \"������ \\(6\\).xlsx\" --output \"_test_sales.html\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_verify.py\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_show.py\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_acc.py\")",
+      "PowerShell(Select-String -Path \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\" -Pattern \"invdata|INV\\\\b|supplier|SUPPLIER|RETAIL_PRICE\" -CaseSensitive:$false)",
+      "PowerShell(Select-String -Path \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\" -Pattern \"itype|iprice|\\\\.sup\\\\b|SUPPLIER|RETAIL_PRICE\" -CaseSensitive:$false)",
+      "PowerShell(Select-String -Path \"C:\\\\Tiim Market Base Loyihasi\\\\sales.html\" -Pattern \"xurmo 250x24\" -CaseSensitive:$false)",
+      "PowerShell(Select-String -Path \"C:\\\\Tiim Market Base Loyihasi\\\\sales.html\" -Pattern \"Tiin Supermarket|>Tiin<\" -CaseSensitive:$false)",
+      "PowerShell(Start-Process \"C:\\\\Tiim Market Base Loyihasi\\\\stok_tugagan.xlsx\")",
+      "PowerShell(node --check \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\")",
+      "PowerShell(if \\($?\\) { \"JS: OK\" } else { \"JS: XATO\" })"
+    ]
+  }
+}

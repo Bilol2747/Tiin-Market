@@ -1,0 +1,23 @@
+{
+  "mode": "local-fallback",
+  "analytics_api": {
+    "base_url": "http://127.0.0.1:8765/api/v1",
+    "timeout_ms": 8000
+  },
+  "upstream": {
+    "sales_url": "",
+    "products_url": "",
+    "stocks_url": "",
+    "orders_url": "",
+    "suppliers_url": "",
+    "auth_type": "bearer",
+    "token_env": "TIIN_API_TOKEN"
+  },
+  "sync": {
+    "sales_minutes": 5,
+    "stocks_minutes": 5,
+    "products_hours": 24,
+    "orders_minutes": 15,
+    "suppliers_hours": 24
+  }
+}

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>Toza O'rtacha — Ulgurji Aniqlash Tizimi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:#F4F6F9;color:#1D2939;}
+
+/* HEADER */
+.header{background:linear-gradient(135deg,#1D9E75,#0d6e51);color:#fff;padding:32px 48px;display:flex;align-items:center;justify-content:space-between;}
+.header-title{font-size:22px;font-weight:700;margin-bottom:4px;}
+.header-sub{font-size:13px;opacity:.8;}
+.header-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:8px 18px;font-size:12px;font-weight:600;}
+
+.wrap{max-width:1100px;margin:0 auto;padding:32px 24px;}
+
+/* MUAMMO / YECHIM */
+.top-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:32px;}
+.tc{background:#fff;border-radius:14px;padding:22px;border-top:4px solid #ddd;}
+.tc.red{border-top-color:#E24B4A;}
+.tc.blue{border-top-color:#378ADD;}
+.tc.green{border-top-color:#1D9E75;}
+.tc-icon{font-size:28px;margin-bottom:10px;}
+.tc-title{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.tc-text{font-size:13px;color:#444;line-height:1.6;}
+
+/* DEMO SECTION */
+.demo-card{background:#fff;border-radius:14px;padding:28px;margin-bottom:24px;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.demo-title{font-size:16px;font-weight:700;color:#1D2939;margin-bottom:6px;}
+.demo-sub{font-size:12px;color:#888;margin-bottom:20px;}
+
+/* RESULT BOXES */
+.result-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+.rbox{border-radius:12px;padding:20px 24px;text-align:center;}
+.rbox.wrong{background:#FEF2F2;border:2px solid #FECACA;}
+.rbox.right{background:#F0FDF4;border:2px solid #86EFAC;}
+.rbox-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.rbox.wrong .rbox-label{color:#DC2626;}
+.rbox.right .rbox-label{color:#16A34A;}
+.rbox-val{font-size:36px;font-weight:800;margin-bottom:4px;}
+.rbox.wrong .rbox-val{color:#DC2626;}
+.rbox.right .rbox-val{color:#16A34A;}
+.rbox-note{font-size:11px;color:#888;}
+.rbox-diff{font-size:12px;font-weight:700;margin-top:6px;}
+.rbox.wrong .rbox-diff{color:#DC2626;}
+.rbox.right .rbox-diff{color:#16A34A;}
+
+/* CHART LEGEND */
+.chart-legend{display:flex;gap:20px;margin-bottom:14px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#555;}
+.leg-dot{width:14px;height:14px;border-radius:3px;flex-shrink:0;}
+
+/* FORMULA STEPS */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+.step{background:#fff;border-radius:12px;padding:16px 14px;text-align:center;position:relative;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.step-num{width:28px;height:28px;border-radius:50%;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.step-title{font-size:11px;font-weight:700;color:#1D2939;margin-bottom:6px;}
+.step-body{font-size:10.5px;color:#666;line-height:1.5;}
+.step-arrow{position:absolute;right:-8px;top:50%;transform:translateY(-50%);color:#1D9E75;font-size:16px;font-weight:700;z-index:1;}
+.step:last-child .step-arrow{display:none;}
+.step-formula{background:#F4F6F9;border-radius:6px;padding:6px 8px;margin-top:8px;font-size:10px;font-family:monospace;color:#1D2939;}
+
+/* THRESHOLD */
+.threshold-box{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FCD34D;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;margin-top:16px;}
+.thr-icon{font-size:24px;}
+.thr-text{font-size:12px;color:#92400E;line-height:1.6;}
+.thr-text strong{color:#78350F;}
+
+/* ADAPTIVE */
+.adaptive-section{margin-bottom:32px;}
+.adaptive-title{font-size:15px;font-weight:700;margin-bottom:14px;}
+.adaptive-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.adap-card{background:#fff;border-radius:12px;padding:18px;border-left:4px solid #1D9E75;}
+.adap-card.orange{border-left-color:#EF9F27;}
+.adap-label{font-size:10px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;}
+.adap-row{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid #f5f5f0;}
+.adap-row:last-child{border:none;}
+.adap-key{color:#666;}
+.adap-val{font-weight:700;color:#1D2939;}
+
+/* FOOTER */
+.footer{text-align:center;padding:24px;font-size:11px;color:#aaa;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">Toza O'rtacha — Ulgurji Savdoni Avtomatik Aniqlash</div>
+    <div class="header-sub">Zakas miqdorini to'g'ri hisoblash uchun statistik tizim</div>
+  </div>
+  <div class="header-badge">Tiin Supermarket · 2026</div>
+</div>
+
+<div class="wrap">
+
+  <!-- MUAMMO -->
+  <div class="top-cards">
+    <div class="tc red">
+      <div class="tc-icon">⚠️</div>
+      <div class="tc-title">Muammo</div>
+      <div class="tc-text">Ulgurji savdo oddiy o'rtachani <strong>10–50x</strong> oshirib yuboradi. Bu asosda zakas berilsa — haddan ziyod tovar buyurtma qilinadi.</div>
+    </div>
+    <div class="tc blue">
+      <div class="tc-icon">🔍</div>
+      <div class="tc-title">Yechim</div>
+      <div class="tc-text">Har bir mahsulotning <strong>tabiiy o'zgaruvchanligini</strong> hisobga olib, ulgurji kunlarni avtomatik aniqlash va chiqarib tashlash.</div>
+    </div>
+    <div class="tc green">
+      <div class="tc-icon">✅</div>
+      <div class="tc-title">Natija</div>
+      <div class="tc-text">Retail savdoning <strong>haqiqiy o'rtachasi</strong> aniqlanadi — zakas uchun ishonchli asos. Dona va KG mahsulotlarda ishlaydi.</div>
+    </div>
+  </div>
+
+  <!-- DEMO CHART -->
+  <div class="demo-card">
+    <div class="demo-title">📊 Namuna: Mahsulot A — May 2026 kunlik savdo</div>
+    <div class="demo-sub">31 kunlik savdo ma'lumoti · 1 ta ulgurji kun avtomatik aniqlangan</div>
+
+    <div class="chart-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(83,74,183,0.6)"></div>Retail savdo (oddiy)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#EF9F27"></div>Ulgurji savdo (aniqlangan)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#E24B4A;height:3px;border-radius:2px;width:20px;"></div>Oddiy o'rtacha (noto'g'ri)</div>
+      <div class="leg-item"><div class="leg-dot" style="background:#1D9E75;height:3px;border-radius:2px;width:20px;"></div>Toza o'rtacha (zakas uchun)</div>
+    </div>
+
+    <div style="position:relative;height:280px;">
+      <canvas id="demoChart"></canvas>
+    </div>
+
+    <div class="result-row">
+      <div class="rbox wrong">
+        <div class="rbox-label">❌ Oddiy o'rtacha</div>
+        <div class="rbox-val">18.1</div>
+        <div class="rbox-note">dona/kun</div>
+        <div class="rbox-diff">Ulgurji hisobga olingan → NOTO'G'RI</div>
+      </div>
+      <div class="rbox right">
+        <div class="rbox-label">✅ Toza o'rtacha (zakas uchun)</div>
+        <div class="rbox-val">6.1</div>
+        <div class="rbox-note">dona/kun</div>
+        <div class="rbox-diff">Ulgurji chiqarilgan → TO'G'RI</div>
+      </div>
+    </div>
+
+    <div class="threshold-box" style="margin-top:16px;">
+      <div class="thr-icon">💡</div>
+      <div class="thr-text">
+        <strong>Ulgurji kun qanday aniqlandi?</strong><br>
+        18-may kuni 380 dona sotilgan · Mediana = 6 · MAD = 1<br>
+        Z-score = 0.6745 × (380 − 6) / 1 = <strong>252</strong> → Chegara 3.5 dan ancha yuqori → ULGURJI ✅
+      </div>
+    </div>
+  </div>
+
+  <!-- FORMULA STEPS -->
+  <div class="demo-card">
+    <div class="demo-title">⚙️ Formula — 5 qadam</div>
+    <div class="demo-sub" style="margin-bottom:20px;">Har bir mahsulot uchun avtomatik hisoblanadi · Dona va KG uchun bir xil ishlaydi</div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-arrow">›</div>
+        <div class="step-num">1</div>
+        <div class="step-title">0 kunlarni chiqar</div>
+        <div class="step-body">Sotilmagan kunlar hisobga olinmaydi</div>
+        <div class="step-formula">[ 6, 5, 0, 7 ] → [ 6, 5, 7 ]</div>
+      </div>
+      <div class="step">
+        <div class="step-arrow">›</div>
+        <div class="step-num">2</div>
+        <div class="step-title">Mediana</div>
+        <div class="step-body">Kunlarni saralab o'rtasidagini ol</div>
+        <div class="step-formula">[ 5, 6, 6, 7, 8 ] → M = 6</div>
+      </div>
+      <div class="step">
+        <div class="step-arrow">›</div>
+        <div class="step-num">3</div>
+        <div class="step-title">MAD</div>
+        <div class="step-body">Tabiiy o'zgaruvchanlik darajasi</div>
+        <div class="step-formula">|kun − M| larning medianasi</div>
+      </div>
+      <div class="step">
+        <div class="step-arrow">›</div>
+        <div class="step-num">4</div>
+        <div class="step-title">Z-score</div>
+        <div class="step-body">Har kun uchun anomaliya darajasi</div>
+        <div class="step-formula">0.6745×(kun−M)/MAD > 3.5 ?</div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-title">Toza o'rtacha</div>
+        <div class="step-body">Ulgurji kunlarni chiqarib hisoblash</div>
+        <div class="step-formula">(Jami − Ulgurji) ÷ (31 − n)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADAPTIVE -->
+  <div class="demo-card">
+    <div class="demo-title">🎯 Formula har mahsulotga moslashadi</div>
+    <div class="demo-sub">MAD har mahsulotning o'z tabiatini o'lchaydi — bir xil chegara ishlatilmaydi</div>
+
+    <div class="adaptive-grid">
+      <div class="adap-card">
+        <div class="adap-label">Barqaror mahsulot (past MAD)</div>
+        <div class="adap-row"><span class="adap-key">Normal savdo</span><span class="adap-val">5–7 dona/kun</span></div>
+        <div class="adap-row"><span class="adap-key">Mediana</span><span class="adap-val">6 dona</span></div>
+        <div class="adap-row"><span class="adap-key">MAD</span><span class="adap-val">1 (kichik)</span></div>
+        <div class="adap-row"><span class="adap-key">Ulgurji chegara</span><span class="adap-val">> 11 dona</span></div>
+        <div class="adap-row"><span class="adap-key">60 dona kelsa</span><span class="adap-val" style="color:#E24B4A;">⚠️ ULGURJI</span></div>
+      </div>
+      <div class="adap-card orange">
+        <div class="adap-label">O'zgaruvchan mahsulot (yuqori MAD)</div>
+        <div class="adap-row"><span class="adap-key">Normal savdo</span><span class="adap-val">3–20 dona/kun</span></div>
+        <div class="adap-row"><span class="adap-key">Mediana</span><span class="adap-val">10 dona</span></div>
+        <div class="adap-row"><span class="adap-key">MAD</span><span class="adap-val">6 (katta)</span></div>
+        <div class="adap-row"><span class="adap-key">Ulgurji chegara</span><span class="adap-val">> 41 dona</span></div>
+        <div class="adap-row"><span class="adap-key">60 dona kelsa</span><span class="adap-val" style="color:#E24B4A;">⚠️ ULGURJI</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;padding:14px 18px;background:#F0FDF4;border-radius:10px;border:1px solid #86EFAC;font-size:12px;color:#166534;line-height:1.7;">
+      <strong>Natija:</strong> Barqaror mahsulotda 11 donadan ko'p → ulgurji · O'zgaruvchan mahsulotda 41 donagacha normal hisoblanadi. Formula <strong>avtomatik moslashadi</strong> — qo'lda sozlash kerak emas.
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">Tiin Supermarket · Zakas Optimallashtirish Tizimi · 2026</div>
+
+<script>
+const days = Array.from({length:31},(_,i)=>String(i+1).padStart(2,'0'));
+const data = [6,5,7,5,6,0,8,6,5,7,6,5,7,0,6,5,4,380,6,5,7,6,5,8,0,6,5,7,6,5,6];
+
+const colors = data.map(v => v === 380 ? '#EF9F27' : 'rgba(83,74,183,0.55)');
+const borders = data.map(v => v === 380 ? '#c47a10' : 'rgba(83,74,183,0.8)');
+
+const avgAll = data.reduce((a,b)=>a+b,0) / 31;
+const cleanData = data.filter((_,i) => data[i] !== 380);
+const cleanSum = cleanData.reduce((a,b)=>a+b,0);
+const cleanAvg = cleanSum / 30;
+
+new Chart(document.getElementById('demoChart'), {
+  type: 'bar',
+  data: {
+    labels: days,
+    datasets: [
+      {
+        label: 'Savdo',
+        data: data,
+        backgroundColor: colors,
+        borderColor: borders,
+        borderWidth: 1,
+        borderRadius: 3,
+        order: 2
+      },
+      {
+        label: 'Oddiy o\'rtacha',
+        data: new Array(31).fill(avgAll),
+        type: 'line',
+        borderColor: '#E24B4A',
+        borderWidth: 2,
+        borderDash: [6,4],
+        pointRadius: 0,
+        tension: 0,
+        order: 1
+      },
+      {
+        label: 'Toza o\'rtacha',
+        data: new Array(31).fill(cleanAvg),
+        type: 'line',
+        borderColor: '#1D9E75',
+        borderWidth: 2.5,
+        pointRadius: 0,
+        tension: 0,
+        order: 0
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            if(ctx.dataset.type === 'line') return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1);
+            const v = ctx.parsed.y;
+            return v === 380 ? '⚠️ Ulgurji: ' + v + ' dona' : 'Retail: ' + v + ' dona';
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>

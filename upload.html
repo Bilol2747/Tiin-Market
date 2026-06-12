@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tiin Market — Yangi oy ma'lumoti</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F0F4F8;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#fff;border-radius:16px;padding:36px 40px;width:100%;max-width:520px;box-shadow:0 4px 24px rgba(0,0,0,.10)}
+.logo{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-dot{width:32px;height:32px;background:#1D9E75;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:16px}
+.logo-txt{font-size:18px;font-weight:700;color:#1a1a2e}
+.logo-sub{font-size:12px;color:#64748B;margin-top:1px}
+h2{font-size:17px;font-weight:700;color:#1a1a2e;margin-bottom:6px}
+.desc{font-size:13px;color:#64748B;margin-bottom:24px;line-height:1.5}
+.drop-zone{border:2px dashed #CBD5E1;border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;transition:.2s;margin-bottom:12px;position:relative}
+.drop-zone:hover,.drop-zone.drag-over{border-color:#1D9E75;background:#F0FDF9}
+.drop-zone.has-file{border-color:#1D9E75;background:#F0FDF9;border-style:solid}
+.dz-icon{font-size:28px;margin-bottom:6px}
+.dz-label{font-size:13px;font-weight:600;color:#374151;margin-bottom:2px}
+.dz-hint{font-size:11px;color:#94A3B8}
+.dz-fname{font-size:12px;color:#1D9E75;font-weight:600;margin-top:4px;word-break:break-all}
+input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.btn{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:.2s;margin-top:8px}
+.btn:hover:not(:disabled){background:#178A63}
+.btn:disabled{background:#94A3B8;cursor:not-allowed}
+.progress{display:none;margin-top:16px}
+.prog-bar-wrap{background:#E2E8F0;border-radius:99px;height:8px;overflow:hidden;margin-bottom:8px}
+.prog-bar{height:100%;background:#1D9E75;border-radius:99px;transition:width .3s;width:0%}
+.prog-txt{font-size:12px;color:#64748B;text-align:center}
+.result{display:none;margin-top:16px;padding:14px 16px;border-radius:10px;font-size:13px}
+.result.ok{background:#F0FDF9;border:1px solid #6EE7B7;color:#065F46}
+.result.err{background:#FEF2F2;border:1px solid #FCA5A5;color:#991B1B}
+.result pre{font-size:11px;margin-top:8px;white-space:pre-wrap;opacity:.8}
+.open-link{display:none;text-align:center;margin-top:14px}
+.open-link a{color:#1D9E75;font-weight:700;font-size:14px;text-decoration:none}
+.open-link a:hover{text-decoration:underline}
+.rules{margin-top:20px;padding:12px 14px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0}
+.rules p{font-size:11px;color:#64748B;margin-bottom:4px;font-weight:600}
+.rules ul{padding-left:16px}
+.rules li{font-size:11px;color:#94A3B8;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-dot">T</div>
+    <div>
+      <div class="logo-txt">Tiin Market</div>
+      <div class="logo-sub">Yangi oy ma'lumotini yuklash</div>
+    </div>
+  </div>
+
+  <h2>Yangi oy Excel fayllarini yuklang</h2>
+  <p class="desc">Ikkita faylni tanlang — tizim avtomatik ravishda barcha ko'rsatkichlarni qayta hisoblab, dashboardni yangilaydi.</p>
+
+  <div class="drop-zone" id="dz-sales">
+    <input type="file" id="f-sales" accept=".xlsx,.xls" onchange="fileSelected('sales',this)">
+    <div class="dz-icon">📊</div>
+    <div class="dz-label">Sotuv Excel</div>
+    <div class="dz-hint">sotuv_iyun.xlsx va shunga o'xshash</div>
+    <div class="dz-fname" id="fn-sales"></div>
+  </div>
+
+  <div class="drop-zone" id="dz-products">
+    <input type="file" id="f-products" accept=".xlsx,.xls" onchange="fileSelected('products',this)">
+    <div class="dz-icon">📦</div>
+    <div class="dz-label">Tovarlar Excel</div>
+    <div class="dz-hint">mahsulotlar ro'yxati (SKU, narx, yetkazuvchi)</div>
+    <div class="dz-fname" id="fn-products"></div>
+  </div>
+
+  <button class="btn" id="btn-upload" disabled onclick="startUpload()">Dashboardni yangilash</button>
+
+  <div class="progress" id="progress">
+    <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar"></div></div>
+    <div class="prog-txt" id="prog-txt">Yuklanmoqda...</div>
+  </div>
+
+  <div class="result" id="result"></div>
+  <div class="open-link" id="open-link"><a href="/sales.html" target="_blank">→ Dashboardni ochish</a></div>
+
+  <div class="rules">
+    <p>Kerakli ustunlar:</p>
+    <ul>
+      <li><b>Sotuv:</b> Date · Sale Type · Receipt# · Sku · Item · Qty · Total Price · Customer · TIN · Employee</li>
+      <li><b>Tovarlar:</b> sku · name · category · sub_category · type · supplier · retail_price · amount</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const files = { sales: null, products: null };
+
+function fileSelected(type, input) {
+  const file = input.files[0];
+  if (!file) return;
+  files[type] = file;
+  const dz = document.getElementById('dz-' + type);
+  const fn = document.getElementById('fn-' + type);
+  dz.classList.add('has-file');
+  fn.textContent = '✓ ' + file.name;
+  document.getElementById('btn-upload').disabled = !(files.sales && files.products);
+}
+
+// drag & drop
+['sales','products'].forEach(type => {
+  const dz = document.getElementById('dz-' + type);
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const inp = document.getElementById('f-' + type);
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    inp.files = dt.files;
+    fileSelected(type, inp);
+  });
+});
+
+let progTimer = null;
+
+function animateProgress(pct, txt) {
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-txt').textContent = txt;
+}
+
+async function startUpload() {
+  const btn = document.getElementById('btn-upload');
+  btn.disabled = true;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('open-link').style.display = 'none';
+
+  const prog = document.getElementById('progress');
+  prog.style.display = 'block';
+  animateProgress(5, 'Fayllar yuklanmoqda...');
+
+  // Simulate progress while waiting
+  const steps = [
+    [15, 'Sotuv ma\'lumotlari o\'qilmoqda...'],
+    [30, 'Tovarlar o\'qilmoqda...'],
+    [50, 'Ulgurji savdolar aniqlanmoqda...'],
+    [65, 'Kunlik tahlil qurilmoqda...'],
+    [80, 'Savat tahlili hisoblanmoqda...'],
+    [90, 'ABC klassifikatsiyasi...'],
+    [95, 'Dashboard yangilanmoqda...'],
+  ];
+  let si = 0;
+  progTimer = setInterval(() => {
+    if (si < steps.length) {
+      animateProgress(steps[si][0], steps[si][1]);
+      si++;
+    }
+  }, 3000);
+
+  const form = new FormData();
+  form.append('sales',    files.sales);
+  form.append('products', files.products);
+
+  try {
+    const resp = await fetch('/api/v1/upload', { method: 'POST', body: form });
+    clearInterval(progTimer);
+    const data = await resp.json();
+
+    if (resp.ok && data.status === 'ok') {
+      animateProgress(100, 'Tayyor!');
+      showResult('ok', '✅ Dashboard muvaffaqiyatli yangilandi!\n\n' + (data.output || ''));
+      document.getElementById('open-link').style.display = 'block';
+    } else {
+      animateProgress(0, '');
+      showResult('err', '❌ Xato:\n' + (data.error || JSON.stringify(data)));
+      btn.disabled = false;
+    }
+  } catch (e) {
+    clearInterval(progTimer);
+    animateProgress(0, '');
+    showResult('err', '❌ Server bilan bog\'lanib bo\'lmadi.\npython api_server.py ishga tushirilganmi?');
+    btn.disabled = false;
+  }
+}
+
+function showResult(type, msg) {
+  const el = document.getElementById('result');
+  el.style.display = 'block';
+  el.className = 'result ' + type;
+  const parts = msg.split('\n\n');
+  el.innerHTML = parts[0].replace(/\n/g,'<br>') + (parts[1] ? '<pre>' + parts.slice(1).join('\n\n') + '</pre>' : '');
+}
+</script>
+</body>
+</html>
