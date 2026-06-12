@@ -17,7 +17,10 @@
       "PowerShell(Select-String -Path \"C:\\\\Tiim Market Base Loyihasi\\\\sales.html\" -Pattern \"Tiin Supermarket|>Tiin<\" -CaseSensitive:$false)",
       "PowerShell(Start-Process \"C:\\\\Tiim Market Base Loyihasi\\\\stok_tugagan.xlsx\")",
       "PowerShell(node --check \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\")",
-      "PowerShell(if \\($?\\) { \"JS: OK\" } else { \"JS: XATO\" })"
+      "PowerShell(if \\($?\\) { \"JS: OK\" } else { \"JS: XATO\" })",
+      "PowerShell(cd \"C:\\\\Tiim Market Base Loyihasi\"; git --version; Write-Output \"---GIT BORMI---\"; if \\(Test-Path \".git\"\\) { \"Git repo: BOR\" } else { \"Git repo: YO'Q\" }; Write-Output \"---KATTA FAYLLAR \\(MB\\)---\"; Get-ChildItem -File | Sort-Object Length -Descending | Select-Object -First 15 | ForEach-Object { \"{0,8:N1} MB  {1}\" -f \\($_.Length/1MB\\), $_.Name })",
+      "PowerShell(cd \"C:\\\\Tiim Market Base Loyihasi\"; Write-Output \"---KUZATILAYOTGAN FAYLLAR SONI---\"; \\(git ls-files | Measure-Object -Line\\).Lines; Write-Output \"---sales.html kuzatilganmi?---\"; git ls-files sales.html sales_runtime.js build_all.py 2>&1; Write-Output \"---HAMMA O'ZGARISH \\(untracked ham\\)---\"; git status --short --untracked-files=all 2>&1 | Select-Object -First 20)",
+      "PowerShell(cd \"C:\\\\Tiim Market Base Loyihasi\"; Write-Output \"---KUZATILAYOTGAN MAXFIY/KATTA FAYLLAR---\"; git ls-files | Where-Object { $_ -match '\\\\.\\(xlsx|json|html\\)$' } | ForEach-Object { $sz = \\(Get-Item $_ -ErrorAction SilentlyContinue\\).Length/1MB; \"{0,7:N1} MB  {1}\" -f $sz, $_ })"
     ]
   }
 }
