@@ -102,7 +102,8 @@ function _zClassify(d,stock,smartDaily,calAvg){
   }else if(stock>0&&dailyAvg<=0&&(plainAvg>0||histActive>0)&&stock>EXCESS_FLOOR){
     signal="excess";reason="Retail talab deyarli yo'q, ko'p stok turibdi — ortiqcha/o'lik zaxira";
   }else if(stock>0&&totalQty>0){
-    signal="normal";reason="Sotuv barqaror, stok yetarli — harakat kerak emas";
+    if(daysLeft!=null&&daysLeft>100&&stock>10){signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik zaxira — ortiqcha";}
+    else{signal="normal";reason="Sotuv barqaror, stok yetarli — harakat kerak emas";}
   }else{
     return null;  // sotilmagan / ma'lumot yo'q — baholab bo'lmaydi
   }
@@ -218,7 +219,8 @@ function renderZaxira(){
       const pct=Math.min(100,Math.round(v.daysLeft/MAX_DAYS*100));
       const cls=v.daysLeft<=7?"z-bar-red":v.daysLeft<=14?"z-bar-orange":v.daysLeft<=30?"z-bar-yellow":"z-bar-green";
       const dc=v.daysLeft<=7?"#E24B4A":v.daysLeft<=14?"#EF9F27":v.daysLeft<=30?"#d4a017":"#1D9E75";
-      barHtml=`<div class="z-bar-wrap"><div class="z-bar ${cls}"><div class="z-bar-fill" style="width:${pct}%"></div></div><span class="z-bar-days" style="color:${dc}">${v.daysLeft} kun</span></div>`;
+      const _df=d=>d>=365?+(d/365).toFixed(1)+" yil":d>=30?+(d/30).toFixed(1)+" oy":d+" kun";
+      barHtml=`<div class="z-bar-wrap"><div class="z-bar ${cls}"><div class="z-bar-fill" style="width:${pct}%"></div></div><span class="z-bar-days" style="color:${dc}">${_df(v.daysLeft)}</span></div>`;
     }else{
       barHtml=`<span style="color:#bbb">—</span>`;
     }
