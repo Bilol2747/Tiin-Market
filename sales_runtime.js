@@ -192,7 +192,7 @@ function renderZaxira(){
   if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
   if(zF.type)items=items.filter(v=>v.itype===zF.type);
   if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
-  const ord={kritik:0,tekshir:1,urgent:2,excess:3,normal:4};
+  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
     if(a.daysLeft!=null&&b.daysLeft!=null)return a.daysLeft-b.daysLeft;
