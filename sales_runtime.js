@@ -78,16 +78,21 @@ function _zClassify(d,stock,smartDaily,calAvg){
   // YOKI kuniga o'rtacha 2+ dona, 6+ faol kun
   const wasGoodSeller=(histRatio>=0.35&&histActive>=4)||(plainAvg>=2&&activeDays>=6);
   // qancha kunga yetadi (aqlli velocity bo'yicha)
-  const daysLeft=(stock>0&&dailyAvg>0)?Math.round(stock/dailyAvg):(stock<=0?0:null);
+  const daysLeft=(stock>0&&dailyAvg>0)?Math.round(stock/dailyAvg):(stock===0?0:null);
   const LOW_BUFFER=5;       // shu va undan kam stok = xavfli (keyingi oy ko'proq ketsa tugaydi)
   const EXCESS_FLOOR=10;    // shu miqdorgacha stok ortiqcha emas (sekin tovar uchun zarar yo'q)
   const excessMin=Math.max(EXCESS_FLOOR,totalQty*2);  // ortiqcha bo'lishi uchun minimal stok
   let signal=null,reason="";
-  if(di>=7&&wasGoodSeller){
+  if(stock<0){
+    signal="tekshir";reason="Manfiy stok — haqiqiy qoldiq noma'lum, kirim va hisobni tekshiring";
+  }else if(stock===0&&totalQty>0){
+    signal="kritik";reason="Stok tugagan, mahsulot sotilgan — darhol zakas";
+  }else if(stock>0&&daysLeft===0){
+    signal="kritik";reason="Stok amalda tugash darajasida — darhol zakas";
+  }else if(di>=7&&wasGoodSeller){
     // Yaxshi sotilardi, keyin sotuv to'xtadi — stokka qarab ajratamiz
-    if(stock===0){signal="kritik";reason="Avval barqaror sotilardi, stok tugadi — darhol zakas";}
+    if(stock>0&&stock<=LOW_BUFFER){signal="kritik";reason="Stok amalda tugash darajasida — darhol zakas";}
     else if(stock>0){signal="tekshir";reason="Sotilishi kerak, lekin stok turibdi — yo'qolgan/qolib ketgan bo'lishi mumkin";}
-    else{signal="tekshir";reason="Manfiy stok — kirim kiritilmagan, hisobni tekshiring";}
   }else if(stock>0&&totalQty>0&&stock<=LOW_BUFFER){
     signal="urgent";reason="Stok juda kam — keyingi oy ko'proq ketsa tugab qoladi";
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft<=10&&di<7){
@@ -205,8 +210,10 @@ function renderZaxira(){
     const abcBadge=v.abc?`<span class="p2-abc p2-abc-${v.abc}">${v.abc}</span>`:"—";
     const stockTxt=v.stock===0?`<span style="color:#E24B4A;font-weight:700">0</span>`:v.stock<0?`<span style="color:#E24B4A">-${Math.abs(v.stock).toLocaleString()}</span>`:v.stock.toLocaleString();
     let barHtml;
-    if(v.stock<=0||v.daysLeft===0){
+    if(v.stock===0||v.daysLeft===0){
       barHtml=`<div class="z-bar-wrap"><div class="z-bar z-bar-red"><div class="z-bar-fill" style="width:100%"></div></div><span class="z-bar-days" style="color:#E24B4A">Tugagan</span></div>`;
+    }else if(v.stock<0){
+      barHtml=`<div class="z-bar-wrap"><div class="z-bar" style="background:#ece9f8"><div class="z-bar-fill" style="width:100%;background:#8B7FD1"></div></div><span class="z-bar-days" style="color:#534AB7">Noma'lum</span></div>`;
     }else if(v.daysLeft!==null){
       const pct=Math.min(100,Math.round(v.daysLeft/MAX_DAYS*100));
       const cls=v.daysLeft<=7?"z-bar-red":v.daysLeft<=14?"z-bar-orange":v.daysLeft<=30?"z-bar-yellow":"z-bar-green";
