@@ -28,14 +28,30 @@ let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
-let zDays=30;
-function openZakas(){if(!ZITEMS)return;document.getElementById("zk-modal").style.display="flex";buildZakas();}
+let zDays=30,zKFilter="all",zKSup="";
+function openZakas(){
+  if(!ZITEMS)return;
+  document.getElementById("zk-modal").style.display="flex";
+  _zkFillSupSel();
+  buildZakas();
+}
 function closeZakas(){document.getElementById("zk-modal").style.display="none";}
 function setZakasDays(d){zDays=d;const inp=document.getElementById("zk-days-inp");if(inp)inp.value=d;document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===d+" kun"));buildZakas();}
 function zkDaysInput(){const v=parseInt(document.getElementById("zk-days-inp").value)||30;zDays=Math.max(1,Math.min(365,v));document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===zDays+" kun"));buildZakas();}
+function setZKFilter(f){zKFilter=f;document.querySelectorAll(".zk-ftab").forEach(b=>b.classList.toggle("active",b.dataset.zf===f));buildZakas();}
+function setZKSup(v){zKSup=v;buildZakas();}
+function _zkFillSupSel(){
+  const sel=document.getElementById("zk-sup-sel");if(!sel||!ZITEMS)return;
+  const sups=[...new Set(ZITEMS.filter(v=>v.signal==="kritik"||v.signal==="urgent").map(v=>v.sup||"Noma'lum").filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Barcha yetkazib beruvchilar</option>';
+  sups.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
+  if(sups.includes(cur))sel.value=cur;
+}
 function _zkCalc(){
   if(!ZITEMS)return[];
-  return ZITEMS.filter(v=>v.signal==="kritik"||v.signal==="urgent").map(v=>{
+  const base=zKFilter==="all"?["kritik","urgent"]:[zKFilter];
+  return ZITEMS.filter(v=>base.includes(v.signal)&&(!zKSup||(v.sup||"Noma'lum")===zKSup)).map(v=>{
     const stock=Math.max(0,v.stock||0);
     const daily=v.dailyAvg||0;
     const orderQty=Math.max(1,Math.ceil(daily*zDays)-stock);
