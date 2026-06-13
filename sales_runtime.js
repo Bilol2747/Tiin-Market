@@ -27,10 +27,29 @@ let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false;
-async function showPage(btn){document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
+// Zaxira qatoriga bosilganda → Mahsulotlar bo'limida o'sha mahsulotni ochish
+async function zToProduct(zi){
+  const z=ZITEMS&&ZITEMS[zi];if(!z)return;
+  const p2btn=document.querySelector('.sb-item[data-page="p2"]');
+  if(p2btn)await showPage(p2btn);
+  if(!P2)return;
+  let idx=-1;
+  if(z.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(z.sku));
+  if(idx<0)idx=P2.findIndex(v=>v.name===z.name);
+  if(idx<0){const pq0=document.getElementById("pf-q");if(pq0){pq0.value=z.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}return;}
+  const pq=document.getElementById("pf-q");if(pq){pq.value=P2[idx].name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
+  if(typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
+  const bb=document.getElementById("z-back");if(bb)bb.style.display="inline-flex";
+}
+function zBack(){
+  const bb=document.getElementById("z-back");if(bb)bb.style.display="none";
+  const zbtn=document.querySelector('.sb-item[data-page="p5"]');
+  if(zbtn)showPage(zbtn);
+}
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
 function _zClassify(d,stock,smartDaily,calAvg){
   // d: kunlik miqdor massivi (range aktiv bo'lsa kesilgan)
@@ -94,7 +113,7 @@ function _buildZItems(){
     if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(smartDaily==null&&_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
     const c=_zClassify(d,stock,smartDaily,calAvg);
     if(!c)return;
-    ZITEMS.push({name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
+    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
   });
   const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
@@ -192,7 +211,7 @@ function renderZaxira(){
     const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
-    h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
+    h+=`<tr class="z-row" onclick="zToProduct(${v._zi})" title="Mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
   if(total>RENDER_CAP)h+=`<tr><td colspan="8" style="text-align:center;padding:16px;color:#999;background:#fafaf5">Birinchi ${RENDER_CAP} ta ko'rsatildi (jami ${total.toLocaleString()} ta). Aniqroq topish uchun filtr yoki qidiruvdan foydalaning.</td></tr>`;
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
