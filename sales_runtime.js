@@ -78,7 +78,7 @@ function _zClassify(d,stock,smartDaily,calAvg){
   const wasGoodSeller=(histRatio>=0.35&&histActive>=4)||(plainAvg>=2&&activeDays>=6);
   // qancha kunga yetadi (aqlli velocity bo'yicha)
   const daysLeft=(stock>0&&dailyAvg>0)?Math.round(stock/dailyAvg):(stock<=0?0:null);
-  const LOW_BUFFER=2;       // shu va undan kam stok = xavfli (keyingi oy ko'proq ketsa tugaydi)
+  const LOW_BUFFER=5;       // shu va undan kam stok = xavfli (keyingi oy ko'proq ketsa tugaydi)
   const EXCESS_FLOOR=10;    // shu miqdorgacha stok ortiqcha emas (sekin tovar uchun zarar yo'q)
   const excessMin=Math.max(EXCESS_FLOOR,totalQty*2);  // ortiqcha bo'lishi uchun minimal stok
   let signal=null,reason="";
@@ -89,7 +89,7 @@ function _zClassify(d,stock,smartDaily,calAvg){
     else{signal="tekshir";reason="Manfiy stok — kirim kiritilmagan, hisobni tekshiring";}
   }else if(stock>0&&totalQty>0&&stock<=LOW_BUFFER){
     signal="urgent";reason="Stok juda kam — keyingi oy ko'proq ketsa tugab qoladi";
-  }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft<=7&&di<7){
+  }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft<=10&&di<7){
     signal="urgent";reason="Faol sotilyapti, stok "+daysLeft+" kunda tugaydi";
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft>90&&stock>excessMin){
     signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik zaxira — ortiqcha";
