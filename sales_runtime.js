@@ -76,7 +76,7 @@ function buildZakas(){
     prods.forEach((p,i)=>{
       const stTxt=p._stock<=0?`<span style="color:#E24B4A;font-weight:700">0</span>`:p._stock.toLocaleString();
       const dTxt=p.dailyAvg>0?(p.dailyAvg>=1?Math.round(p.dailyAvg*10)/10:p.dailyAvg)+" ta/kun":"—";
-      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
+      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
     });
     h+=`</tbody></table></div>`;
   });
