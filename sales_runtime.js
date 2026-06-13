@@ -28,6 +28,70 @@ let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
+let zDays=30;
+function openZakas(){if(!ZITEMS)return;document.getElementById("zk-modal").style.display="flex";buildZakas();}
+function closeZakas(){document.getElementById("zk-modal").style.display="none";}
+function setZakasDays(d){zDays=d;const inp=document.getElementById("zk-days-inp");if(inp)inp.value=d;document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===d+" kun"));buildZakas();}
+function zkDaysInput(){const v=parseInt(document.getElementById("zk-days-inp").value)||30;zDays=Math.max(1,Math.min(365,v));document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===zDays+" kun"));buildZakas();}
+function _zkCalc(){
+  if(!ZITEMS)return[];
+  return ZITEMS.filter(v=>v.signal==="kritik"||v.signal==="urgent").map(v=>{
+    const stock=Math.max(0,v.stock||0);
+    const daily=v.dailyAvg||0;
+    const orderQty=Math.max(1,Math.ceil(daily*zDays)-stock);
+    return {...v,orderQty,_stock:v.stock};
+  }).filter(v=>v.orderQty>0||v._stock<=0);
+}
+function buildZakas(){
+  if(!ZITEMS)return;
+  const items=_zkCalc();
+  const bySupp={};
+  items.forEach(v=>{const s=v.sup||"Noma'lum yetkazib beruvchi";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
+  const suppList=Object.keys(bySupp).sort();
+  const sm=document.getElementById("zk-summary");
+  if(!suppList.length){document.getElementById("zk-body").innerHTML='<div class="zk-empty">Shoshilinch yoki tugashga yaqin mahsulot yo\'q</div>';if(sm)sm.textContent="";return;}
+  if(sm)sm.textContent=suppList.length+" ta yetkazib beruvchi · "+items.length+" ta mahsulot";
+  const sigBadge={kritik:'<span class="z-sig-kritik">Shoshilinch</span>',urgent:'<span class="z-sig-urgent">Tugashga yaqin</span>'};
+  let h="";
+  suppList.forEach(sup=>{
+    const prods=bySupp[sup];
+    const tot=prods.reduce((s,p)=>s+p.orderQty,0);
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>🏪 ${esc(sup)}</span><span style="color:#534AB7">${prods.length} ta mahsulot &nbsp;·&nbsp; Jami: <b>${tot.toLocaleString()} dona</b></span></div><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th>Kategoriya</th><th style="text-align:right">Joriy stok</th><th style="text-align:right">Kunlik sotuv</th><th style="text-align:right">${zDays} kunlik zakas</th><th>Holat</th></tr></thead><tbody>`;
+    prods.forEach((p,i)=>{
+      const stTxt=p._stock<=0?`<span style="color:#E24B4A;font-weight:700">0</span>`:p._stock.toLocaleString();
+      const dTxt=p.dailyAvg>0?(p.dailyAvg>=1?Math.round(p.dailyAvg*10)/10:p.dailyAvg)+" ta/kun":"—";
+      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
+    });
+    h+=`</tbody></table></div>`;
+  });
+  document.getElementById("zk-body").innerHTML=h;
+}
+function exportZakasCSV(){
+  const items=_zkCalc();
+  const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
+  let csv="﻿";
+  csv+="Yetkazib beruvchi,SKU,Mahsulot,Kategoriya,Joriy stok,Kunlik sotuv,"+zDays+" kunlik zakas,Holat\r\n";
+  Object.keys(bySupp).sort().forEach(sup=>{
+    bySupp[sup].forEach(p=>{
+      const sig=p.signal==="kritik"?"Shoshilinch zakas":"Tugashga yaqin";
+      csv+=`"${sup}","${p.sku||""}","${p.name}","${p.cat||""}",${Math.max(0,p._stock)},${p.dailyAvg||0},${p.orderQty},"${sig}"\r\n`;
+    });
+  });
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${zDays}kun.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+function copyZakas(){
+  const items=_zkCalc();
+  const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
+  let txt=`ZAKAS RO'YXATI (${zDays} kunlik) — Tiin Market\n`;
+  txt+=`Sana: ${new Date().toLocaleDateString("uz-UZ")}\n${"=".repeat(40)}\n\n`;
+  Object.keys(bySupp).sort().forEach(sup=>{
+    const prods=bySupp[sup];const tot=prods.reduce((s,p)=>s+p.orderQty,0);
+    txt+=`YETKAZIB BERUVCHI: ${sup}\n${"-".repeat(36)}\n`;
+    prods.forEach((p,i)=>txt+=`${i+1}. ${p.name}\n   Stok: ${Math.max(0,p._stock)} | Zakas: ${p.orderQty} dona\n`);
+    txt+=`Jami: ${tot} dona\n\n`;
+  });
+  navigator.clipboard.writeText(txt).then(()=>{const b=document.querySelector(".zk-btn-copy");if(b){const o=b.innerHTML;b.innerHTML="✓ Nusxalandi!";setTimeout(()=>b.innerHTML=o,2000);}});
+}
 async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
