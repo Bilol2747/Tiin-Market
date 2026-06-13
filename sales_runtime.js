@@ -92,6 +92,8 @@ function zFilter(f){
   if(f!=="all"){const el=document.getElementById("zc-"+f);if(el)el.classList.add("z-selected");}
   renderZaxira();
 }
+function pfQToggle(){const i=document.getElementById("pf-q"),c=document.getElementById("pf-q-clear");if(c)c.classList.toggle("show",!!(i&&i.value));}
+function pfQClear(){const i=document.getElementById("pf-q");if(i)i.value="";const c=document.getElementById("pf-q-clear");if(c)c.classList.remove("show");if(typeof p2Filter==='function')p2Filter();}
 function zSearchInput(){
   const inp=document.getElementById("z-q");
   zQuery=(inp?inp.value:"").toLowerCase().trim();
