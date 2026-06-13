@@ -102,7 +102,7 @@ function _zClassify(d,stock,smartDaily,calAvg){
   }else if(stock>0&&dailyAvg<=0&&(plainAvg>0||histActive>0)&&stock>EXCESS_FLOOR){
     signal="excess";reason="Retail talab deyarli yo'q, ko'p stok turibdi — ortiqcha/o'lik zaxira";
   }else if(stock>0&&totalQty>0){
-    if(daysLeft!=null&&daysLeft>100&&stock>10){signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik zaxira — ortiqcha";}
+    if(daysLeft!=null&&daysLeft>90){signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik (3 oydan ortiq) zaxira — ortiqcha";}
     else{signal="normal";reason="Sotuv barqaror, stok yetarli — harakat kerak emas";}
   }else{
     return null;  // sotilmagan / ma'lumot yo'q — baholab bo'lmaydi
@@ -196,7 +196,8 @@ function renderZaxira(){
   const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
-    if(a.daysLeft!=null&&b.daysLeft!=null)return a.daysLeft-b.daysLeft;
+    // Ortiqcha: eng uzun muddatli (eng ko'p stok) birinchi; qolganlar: eng qisqa muddatli birinchi
+    if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
     return (b.di||0)-(a.di||0);
   });
   const el=document.getElementById("z-cnt");if(el)el.textContent=items.length.toLocaleString()+" ta mahsulot";
