@@ -32,10 +32,12 @@ if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textConte
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
-function _zClassify(d,stock){
+function _zClassify(d,stock,smartDaily){
   // d: kunlik miqdor massivi (range aktiv bo'lsa kesilgan)
+  // smartDaily: aqlli tizim velocity (retail + recency) — build_all.py "daily"
+  const rangeActive=(GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1));
   let arr=d;
-  if(GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1)){arr=d.slice(GRA,GRB+1);}
+  if(rangeActive){arr=d.slice(GRA,GRB+1);}
   const n=arr.length;
   if(n===0)return null;
   // oxirgi sotuv kuni
@@ -43,15 +45,17 @@ function _zClassify(d,stock){
   const di=last<0?999:(n-1-last);                // sotuvsiz kunlar (oxiridan)
   const totalQty=arr.reduce((a,b)=>a+b,0);
   const activeDays=arr.filter(x=>x>0).length;
-  const dailyAvg=n>0?totalQty/n:0;
+  const plainAvg=n>0?totalQty/n:0;
+  // VELOCITY: butun davr bo'lsa — aqlli daily (retail+recency, 0 ham haqiqiy qiymat); oraliq bo'lsa — o'sha oraliq o'rtachasi
+  const dailyAvg=(!rangeActive&&smartDaily!=null)?smartDaily:plainAvg;
   // tarix oynasi: sotuv to'xtaganga qadar bo'lgan davr (0..last)
   let histActive=0;const histLen=last>=0?last+1:0;
   for(let i=0;i<=last;i++){if(arr[i]>0)histActive++;}
   const histRatio=histLen>0?histActive/histLen:0;
   // "Yaxshi/barqaror sotuvchi"mi? — faol kunlarining 35%+ ida sotilgan VA yetarli nuqta bor
   // YOKI kuniga o'rtacha 2+ dona, 6+ faol kun
-  const wasGoodSeller=(histRatio>=0.35&&histActive>=4)||(dailyAvg>=2&&activeDays>=6);
-  // qancha kunga yetadi
+  const wasGoodSeller=(histRatio>=0.35&&histActive>=4)||(plainAvg>=2&&activeDays>=6);
+  // qancha kunga yetadi (aqlli velocity bo'yicha)
   const daysLeft=(stock>0&&dailyAvg>0)?Math.round(stock/dailyAvg):(stock<=0?0:null);
   let signal=null,reason="";
   if(di>=7&&wasGoodSeller){
@@ -63,6 +67,8 @@ function _zClassify(d,stock){
     signal="urgent";reason="Faol sotilyapti, stok "+daysLeft+" kunda tugaydi";
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft>90){
     signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik zaxira — ortiqcha";
+  }else if(stock>0&&dailyAvg<=0&&(plainAvg>0||histActive>0)){
+    signal="excess";reason="Retail talab deyarli yo'q, stok turibdi — ortiqcha/o'lik zaxira";
   }else{
     return null;  // tabiatan kam talab yoki normal — e'tiborsiz
   }
@@ -75,7 +81,10 @@ function _buildZItems(){
     if(stock===null||isNaN(stock))return;
     const d=Array.isArray(v.d)?v.d:null;
     if(!d)return;
-    const c=_zClassify(d,stock);
+    // aqlli velocity: avval p2data "da", bo'lmasa dailydata m.daily
+    let smartDaily=(v.da!=null)?v.da:null;
+    if(smartDaily==null&&typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m&&_di.m.daily!=null)smartDaily=_di.m.daily;}
+    const c=_zClassify(d,stock,smartDaily);
     if(!c)return;
     ZITEMS.push({name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
   });

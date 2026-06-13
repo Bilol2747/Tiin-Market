@@ -217,11 +217,24 @@ def build_dailydata(receipts, pnames, pskus, min_d, max_d, rules):
     days   = (max_d - min_d).days + 1
     labels = [(min_d.fromordinal(min_d.toordinal() + k)).isoformat() for k in range(days)]
 
+    # ─── dinamik "oddiy mijoz" qutqarish parametrlari ───
+    RESCUE_R       = 1.5   # qty < thr × R bo'lsa (mahsulotning o'z chegarasiga nisbatan biroz ko'p)
+    RESCUE_BASKET  = 8     # savatda kamida shuncha xil tovar bo'lsa (keng savat = oddiy mijoz)
+
     item_data = {}
     for rc in receipts.values():
         di      = (rc["date"] - min_d).days
         explicit = is_wholesale(rc["customer"], rc["tin"])
-        for pk, qty in rc["items"].items():
+        items    = rc["items"]
+        # chek konteksti: savat kengligi va nechta tovar "ko'tarilgan" (qty>=thr)
+        basket_n   = len(items)
+        elevated_n = 0
+        if not explicit:
+            for _pk, _q in items.items():
+                _r = rules.get(_pk)
+                if _r and _q >= _r["thr"]:
+                    elevated_n += 1
+        for pk, qty in items.items():
             it = item_data.setdefault(pk, {
                 "sku": pskus.get(pk, ""),
                 "q": [0.0]*days, "r": [0]*days,
@@ -245,10 +258,15 @@ def build_dailydata(receipts, pnames, pskus, min_d, max_d, rules):
                 continue
             rule = rules.get(pk, {"cap": qty, "thr": float("inf"), "med": qty, "p90": qty, "sample": 0})
             if qty >= rule["thr"]:
-                it["i"][di]  += max(0, qty - rule["cap"])
-                it["wr"][di] += 1
-                if rule["cap"] > 0: it["rr"][di] += 1
-                it["inf_rec"] += 1
+                # DINAMIK qutqarish: mahsulotning o'z chegarasidan biroz oshgan (thr×R dan kam) +
+                # chekда yolg'iz ko'tarilgan + keng savat → oddiy mijoz (bayram/uy xaridi) → RETAIL
+                if qty < rule["thr"] * RESCUE_R and elevated_n == 1 and basket_n >= RESCUE_BASKET:
+                    it["rr"][di] += 1
+                else:
+                    it["i"][di]  += max(0, qty - rule["cap"])
+                    it["wr"][di] += 1
+                    if rule["cap"] > 0: it["rr"][di] += 1
+                    it["inf_rec"] += 1
             else:
                 it["rr"][di] += 1
 
@@ -442,6 +460,7 @@ def build_p2data(receipts, pnames, pskus, daily_data, products, min_d, max_d):
             "abc":  abc_map.get(pk, "C"),
             "b":    b_out,
             "d":    it["q"],
+            "da":   it["m"]["daily"],   # aqlli kunlik velocity (retail + recency)
             "name": name,
             "sku":  sku,
         })
