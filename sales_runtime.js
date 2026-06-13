@@ -32,9 +32,9 @@ if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textConte
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
-function _zClassify(d,stock,smartDaily){
+function _zClassify(d,stock,smartDaily,calAvg){
   // d: kunlik miqdor massivi (range aktiv bo'lsa kesilgan)
-  // smartDaily: aqlli tizim velocity (retail + recency) — build_all.py "daily"
+  // smartDaily: aqlli velocity (retail + recency) — "daily"; calAvg: retail oylik o'rtacha — "calendarAvg"
   const rangeActive=(GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1));
   let arr=d;
   if(rangeActive){arr=d.slice(GRA,GRB+1);}
@@ -46,8 +46,9 @@ function _zClassify(d,stock,smartDaily){
   const totalQty=arr.reduce((a,b)=>a+b,0);
   const activeDays=arr.filter(x=>x>0).length;
   const plainAvg=n>0?totalQty/n:0;
-  // VELOCITY: butun davr bo'lsa — aqlli daily (retail+recency, 0 ham haqiqiy qiymat); oraliq bo'lsa — o'sha oraliq o'rtachasi
-  const dailyAvg=(!rangeActive&&smartDaily!=null)?smartDaily:plainAvg;
+  // VELOCITY: butun davr bo'lsa — max(aqlli recency, retail oylik o'rtacha) → sekin tovar 0 ga tushmaydi,
+  //           ulgurji ham aralashmaydi; oraliq bo'lsa — o'sha oraliq o'rtachasi
+  const dailyAvg=rangeActive?plainAvg:Math.max(smartDaily||0,calAvg||0);
   // tarix oynasi: sotuv to'xtaganga qadar bo'lgan davr (0..last)
   let histActive=0;const histLen=last>=0?last+1:0;
   for(let i=0;i<=last;i++){if(arr[i]>0)histActive++;}
@@ -79,7 +80,7 @@ function _zClassify(d,stock,smartDaily){
   }else{
     return null;  // sotilmagan / ma'lumot yo'q — baholab bo'lmaydi
   }
-  return {signal,reason,di,dailyAvg:Math.round(dailyAvg*10)/10,daysLeft,stock,wasGoodSeller,histRatio:Math.round(histRatio*100)};
+  return {signal,reason,di,dailyAvg:Math.round(dailyAvg*100)/100,daysLeft,stock,wasGoodSeller,histRatio:Math.round(histRatio*100)};
 }
 function _buildZItems(){
   ZITEMS=[];
@@ -88,17 +89,17 @@ function _buildZItems(){
     if(stock===null||isNaN(stock))return;
     const d=Array.isArray(v.d)?v.d:null;
     if(!d)return;
-    // aqlli velocity: avval p2data "da", bo'lmasa dailydata m.daily
-    let smartDaily=(v.da!=null)?v.da:null;
-    if(smartDaily==null&&typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m&&_di.m.daily!=null)smartDaily=_di.m.daily;}
-    const c=_zClassify(d,stock,smartDaily);
+    // aqlli velocity (m.daily) + retail oylik o'rtacha (m.calendarAvg) — dailydata'dan
+    let smartDaily=(v.da!=null)?v.da:null, calAvg=null;
+    if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(smartDaily==null&&_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
+    const c=_zClassify(d,stock,smartDaily,calAvg);
     if(!c)return;
     ZITEMS.push({name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
   });
-  const cnt={kritik:0,tekshir:0,urgent:0,excess:0};
+  const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
   const s=(id,n)=>{const el=document.getElementById(id);if(el)el.textContent=n.toLocaleString();};
-  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);
+  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);s("z-n-normal",cnt.normal);
   zFilled=false;zFillSelects();
 }
 function zFilter(f){
@@ -190,7 +191,7 @@ function renderZaxira(){
     const diColor=v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
     const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
-    const dailyTxt=v.dailyAvg>0?v.dailyAvg+" ta/kun":"—";
+    const dailyTxt=v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
   if(total>RENDER_CAP)h+=`<tr><td colspan="8" style="text-align:center;padding:16px;color:#999;background:#fafaf5">Birinchi ${RENDER_CAP} ta ko'rsatildi (jami ${total.toLocaleString()} ta). Aniqroq topish uchun filtr yoki qidiruvdan foydalaning.</td></tr>`;
