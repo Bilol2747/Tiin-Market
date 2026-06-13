@@ -57,20 +57,27 @@ function _zClassify(d,stock,smartDaily){
   const wasGoodSeller=(histRatio>=0.35&&histActive>=4)||(plainAvg>=2&&activeDays>=6);
   // qancha kunga yetadi (aqlli velocity bo'yicha)
   const daysLeft=(stock>0&&dailyAvg>0)?Math.round(stock/dailyAvg):(stock<=0?0:null);
+  const LOW_BUFFER=2;       // shu va undan kam stok = xavfli (keyingi oy ko'proq ketsa tugaydi)
+  const EXCESS_FLOOR=10;    // shu miqdorgacha stok ortiqcha emas (sekin tovar uchun zarar yo'q)
+  const excessMin=Math.max(EXCESS_FLOOR,totalQty*2);  // ortiqcha bo'lishi uchun minimal stok
   let signal=null,reason="";
   if(di>=7&&wasGoodSeller){
     // Yaxshi sotilardi, keyin sotuv to'xtadi — stokka qarab ajratamiz
     if(stock===0){signal="kritik";reason="Avval barqaror sotilardi, stok tugadi — darhol zakas";}
     else if(stock>0){signal="tekshir";reason="Sotilishi kerak, lekin stok turibdi — yo'qolgan/qolib ketgan bo'lishi mumkin";}
     else{signal="tekshir";reason="Manfiy stok — kirim kiritilmagan, hisobni tekshiring";}
+  }else if(stock>0&&totalQty>0&&stock<=LOW_BUFFER){
+    signal="urgent";reason="Stok juda kam — keyingi oy ko'proq ketsa tugab qoladi";
   }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft<=7&&di<7){
     signal="urgent";reason="Faol sotilyapti, stok "+daysLeft+" kunda tugaydi";
-  }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft>90){
+  }else if(stock>0&&dailyAvg>0&&daysLeft!=null&&daysLeft>90&&stock>excessMin){
     signal="excess";reason="Joriy tezlikda "+daysLeft+" kunlik zaxira — ortiqcha";
-  }else if(stock>0&&dailyAvg<=0&&(plainAvg>0||histActive>0)){
-    signal="excess";reason="Retail talab deyarli yo'q, stok turibdi — ortiqcha/o'lik zaxira";
+  }else if(stock>0&&dailyAvg<=0&&(plainAvg>0||histActive>0)&&stock>EXCESS_FLOOR){
+    signal="excess";reason="Retail talab deyarli yo'q, ko'p stok turibdi — ortiqcha/o'lik zaxira";
+  }else if(stock>0&&totalQty>0){
+    signal="normal";reason="Sotuv barqaror, stok yetarli — harakat kerak emas";
   }else{
-    return null;  // tabiatan kam talab yoki normal — e'tiborsiz
+    return null;  // sotilmagan / ma'lumot yo'q — baholab bo'lmaydi
   }
   return {signal,reason,di,dailyAvg:Math.round(dailyAvg*10)/10,daysLeft,stock,wasGoodSeller,histRatio:Math.round(histRatio*100)};
 }
@@ -153,7 +160,7 @@ function renderZaxira(){
   if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
   if(zF.type)items=items.filter(v=>v.itype===zF.type);
   if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
-  const ord={kritik:0,tekshir:1,urgent:2,excess:3};
+  const ord={kritik:0,tekshir:1,urgent:2,excess:3,normal:4};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
     if(a.daysLeft!=null&&b.daysLeft!=null)return a.daysLeft-b.daysLeft;
@@ -161,8 +168,11 @@ function renderZaxira(){
   });
   const el=document.getElementById("z-cnt");if(el)el.textContent=items.length.toLocaleString()+" ta mahsulot";
   const MAX_DAYS=90;
+  const RENDER_CAP=600;
+  const total=items.length;
+  const shown=items.slice(0,RENDER_CAP);
   let h="";
-  items.forEach((v,i)=>{
+  shown.forEach((v,i)=>{
     const abcBadge=v.abc?`<span class="p2-abc p2-abc-${v.abc}">${v.abc}</span>`:"—";
     const stockTxt=v.stock===0?`<span style="color:#E24B4A;font-weight:700">0</span>`:v.stock<0?`<span style="color:#E24B4A">-${Math.abs(v.stock).toLocaleString()}</span>`:v.stock.toLocaleString();
     let barHtml;
@@ -178,11 +188,12 @@ function renderZaxira(){
     }
     const diTxt=v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
     const diColor=v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
-    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"]};
+    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=v.dailyAvg>0?v.dailyAvg+" ta/kun":"—";
     h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
+  if(total>RENDER_CAP)h+=`<tr><td colspan="8" style="text-align:center;padding:16px;color:#999;background:#fafaf5">Birinchi ${RENDER_CAP} ta ko'rsatildi (jami ${total.toLocaleString()} ta). Aniqroq topish uchun filtr yoki qidiruvdan foydalaning.</td></tr>`;
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
   document.getElementById("z-tbody").innerHTML=h;
 }
