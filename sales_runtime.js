@@ -1,5 +1,14 @@
 // ─── Login (statik) ───
 const LG_PHONE="910758080",LG_PASS="tiin_market";
+function _tgNotify(){
+  const ua=navigator.userAgent;
+  const br=ua.includes("Edg")?"Edge":ua.includes("Chrome")?"Chrome":ua.includes("Firefox")?"Firefox":ua.includes("Safari")?"Safari":"Boshqa";
+  const os=ua.includes("Windows")?"Windows":ua.includes("Android")?"Android":ua.includes("iPhone")||ua.includes("iPad")?"iOS":ua.includes("Mac")?"Mac":"Boshqa";
+  const now=new Date();
+  const dt=now.toLocaleDateString("uz-UZ")+", "+now.toLocaleTimeString("uz-UZ",{hour:"2-digit",minute:"2-digit"});
+  const msg="🔐 *Tiin Market — yangi kirish*\n📱 "+br+" · "+os+"\n🕐 "+dt;
+  fetch("https://api.telegram.org/bot8626844104:AAHsDzuxGzJqsvnaS42jSHTLriF7A0tUtXg/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:"7034777747",text:msg,parse_mode:"Markdown"})}).catch(()=>{});
+}
 function lgEye(){const i=document.getElementById("lg-pass");i.type=i.type==="password"?"text":"password";}
 function lgSubmit(e){
   e.preventDefault();
@@ -7,7 +16,8 @@ function lgSubmit(e){
   const pw=document.getElementById("lg-pass").value||"";
   const err=document.getElementById("lg-err");
   if(ph===LG_PHONE&&pw===LG_PASS){
-    try{sessionStorage.setItem("tiin_auth","1");}catch(_){}
+    try{localStorage.setItem("tiin_auth","1");}catch(_){}
+    _tgNotify();
     lgUnlock();
   }else{
     err.classList.add("show");
@@ -21,7 +31,7 @@ function lgUnlock(){
   if(s){s.style.transition="opacity .35s";s.style.opacity="0";setTimeout(()=>s.remove(),350);}
   document.body.classList.remove("locked");
 }
-(function(){try{if(sessionStorage.getItem("tiin_auth")==="1"){const s=document.getElementById("login-screen");if(s)s.remove();document.body.classList.remove("locked");}else{const p=document.getElementById("lg-phone");if(p)p.focus();}}catch(_){}})();
+(function(){try{if(localStorage.getItem("tiin_auth")==="1"){const s=document.getElementById("login-screen");if(s)s.remove();document.body.classList.remove("locked");}else{const p=document.getElementById("lg-phone");if(p)p.focus();}}catch(_){}})();
 
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
