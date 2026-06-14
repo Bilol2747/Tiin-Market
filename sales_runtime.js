@@ -575,7 +575,7 @@ function renderP2(idx){
   document.getElementById("hint").textContent="";
   document.getElementById("qunit").textContent=u;
 
-  const basket=v.b||[];
+  const basket=(v.b||[]).filter(x=>!/^paket tiin\b/i.test(x.n));
   document.getElementById("bcnt").textContent=basket.length+" ta";
   document.getElementById("blist").innerHTML=basket.length
     ?basket.map((x,i)=>'<div class="prod-row"><div class="pn">'+(i+1)+'</div><div class="pname">'+esc(x.n)+'</div><div class="pbar-w"><div class="pbar" style="width:'+Math.min(100,x.c)+'%;background:#1D9E75"></div></div><div class="ppct">'+x.c+'%</div></div>').join("")
