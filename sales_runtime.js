@@ -65,7 +65,9 @@ function _zkCalc(){
   return ZITEMS.filter(v=>base.includes(v.signal)&&(!zKSup||(v.sup||"Noma'lum")===zKSup)).map(v=>{
     const stock=Math.max(0,v.stock||0);
     const daily=v.dailyAvg||0;
-    const orderQty=Math.max(1,Math.ceil(daily*zDays)-stock);
+    // Tokcha minimal: oy oxirida kamida SHELF_MIN dona turishi kerak (ko'rinish + talab o'zgarishi uchun bufer)
+    const SHELF_MIN=3;
+    const orderQty=daily>0?Math.max(1,Math.ceil(daily*zDays+SHELF_MIN-stock)):Math.max(1,SHELF_MIN-stock);
     return {...v,orderQty,_stock:v.stock};
   }).filter(v=>v.orderQty>0||v._stock<=0);
 }
