@@ -28,7 +28,12 @@
       "PowerShell(cd \"C:\\\\Tiim Market Base Loyihasi\"; Write-Output \"---VERCEL/CONFIG FAYLLAR---\"; Get-ChildItem -File | Where-Object { $_.Name -match 'vercel|index|\\\\.json$' -and $_.Name -notmatch 'data_|Customer|TIN|package-lock' } | Select-Object Name; Write-Output \"---index.html bormi---\"; if \\(Test-Path \"index.html\"\\) { \"BOR\" } else { \"YO'Q\" }; if \\(Test-Path \"vercel.json\"\\) { \"vercel.json: BOR\" } else { \"vercel.json: YO'Q\" }; Write-Output \"---build_all.py output target---\"; Select-String -Path \"build_all.py\" -Pattern \"sales\\\\.html|index\\\\.html|out_path|template_path|embed_html\" | Select-Object LineNumber, Line | Select-Object -First 12)",
       "PowerShell(cd \"C:\\\\Tiim Market Base Loyihasi\"; Copy-Item \"sales.html\" \"index.html\" -Force; if \\(Test-Path \"index.html\"\\) { $sz = \\(Get-Item \"index.html\"\\).Length/1MB; \"index.html yaratildi: {0:N1} MB\" -f $sz } ; python -c \"import ast; ast.parse\\(open\\(r'build_all.py',encoding='utf-8'\\).read\\(\\)\\); print\\('build_all.py: OK'\\)\")",
       "Bash(node --check \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\")",
-      "Bash(python -c ' *)"
+      "Bash(python -c ' *)",
+      "Bash(python)",
+      "Bash(node --check \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\" && cp \"C:\\\\Tiim Market Base Loyihasi\\\\sales.html\" \"C:\\\\Tiim Market Base Loyihasi\\\\index.html\" && echo OK)"
+    ],
+    "additionalDirectories": [
+      "C:\\Tiim Market Base Loyihasi"
     ]
   }
 }
