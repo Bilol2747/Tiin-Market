@@ -36,6 +36,7 @@ function lgUnlock(){
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
+let p2LastI=null;
 let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
 let zDays=30,zKFilter="all",zKSup="";
@@ -118,7 +119,7 @@ function copyZakas(){
   });
   navigator.clipboard.writeText(txt).then(()=>{const b=document.querySelector(".zk-btn-copy");if(b){const o=b.innerHTML;b.innerHTML="✓ Nusxalandi!";setTimeout(()=>b.innerHTML=o,2000);}});
 }
-async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
@@ -142,10 +143,23 @@ function zBack(){
   const zbtn=document.querySelector('.sb-item[data-page="p5"]');
   if(zbtn)showPage(zbtn);
 }
+function p5Back(){
+  const bb=document.getElementById("p5-back");if(bb)bb.style.display="none";
+  const p2btn=document.querySelector('.sb-item[data-page="p2"]');
+  if(p2btn)showPage(p2btn);
+  if(p2LastI!=null){
+    setTimeout(()=>{
+      document.querySelectorAll('#pf-tbody tr.p2-row-sel').forEach(r=>r.classList.remove('p2-row-sel'));
+      const sr=document.querySelector('#pf-tbody tr[data-pi="'+p2LastI+'"]');
+      if(sr){sr.classList.add('p2-row-sel');sr.scrollIntoView({block:'center',behavior:'smooth'});}
+    },80);
+  }
+}
 async function p2ToZaxira(i){
   const v=P2&&P2[i];if(!v)return;
   const zbtn=document.querySelector('.sb-item[data-page="p5"]');
   if(zbtn)await showPage(zbtn);
+  const pb=document.getElementById("p5-back");if(pb)pb.style.display="inline-flex";
   if(!ZITEMS)return;
   let zi=-1;
   if(v.sku)zi=ZITEMS.findIndex(z=>String(z.sku)===String(v.sku));
@@ -490,10 +504,18 @@ function p2UniqWhere(kf,skip){const s=new Set();P2.forEach(v=>{if(p2Match(v,skip
 function p2RebuildSel(id,opts,cur){const sel=document.getElementById(id);sel.innerHTML="";const o0=document.createElement("option");o0.value="";o0.textContent="Barchasi";sel.appendChild(o0);opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});sel.value=(cur&&opts.includes(cur))?cur:"";sel.className=sel.value?"on":"";}
 function p2gv(id){return document.getElementById(id).value;}
 function p2Filter(){P2FF.forEach(f=>{const cur=p2gv(f.id);const opts=p2UniqWhere(f.k,f.id);p2RebuildSel(f.id,opts,cur);});["pf-cat","pf-amt","pf-abc"].forEach(id=>{const e=document.getElementById(id);e.className=e.value?"on":"";});const q=document.getElementById("pf-q").value.trim().toLowerCase();p2rows=P2.filter(v=>{if(!v.sku)return false;if(_rangeActive()&&(v.qty||0)<=0)return false;if(!p2Match(v,null))return false;if(q&&!v.name.toLowerCase().includes(q)&&!String(v.sku||"").includes(q))return false;return true;});p2page=1;document.getElementById("pf-cnt").textContent=p2rows.length.toLocaleString()+" ta mahsulot";renderP2Table();}
-function renderP2Table(){const tb=document.getElementById("pf-tbody");const ro=(p2page-1)*P2PS;const pg=p2rows.slice(ro,ro+P2PS);if(!pg.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:34px;color:#bbb">Mahsulot topilmadi &mdash; filtrlarni o\'zgartiring</td></tr>';document.getElementById("pf-pag").innerHTML="";return;}const END=new Date((DMETA&&DMETA.end)?DMETA.end:'2026-05-31');let h="";pg.forEach((v,i)=>{const abc=v.abc||"";let di=v.di;if(di===undefined||di===null){if(v.ld){const d=new Date(v.ld);di=Math.max(0,Math.round((END-d)/86400000));}else{di=999;}}const[sc,stTxt]=sotuv(di);const price=v.iprice||0;h+=`<tr onclick="p2Open(${v._i})" ondblclick="p2ToZaxira(${v._i})" title="Ikki marta bosing — Zaxirada koʻrish"><td style="color:#bbb">${ro+i+1}</td><td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600" title="${esc(v.name)}">${esc(v.name)}${v.kg&&!v.name.toLowerCase().includes('kg')?' <span class="sug-kg">KG</span>':''}</td><td style="color:#999">${v.sku||"—"}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#777" title="${esc(v.cat||"")}">${esc(v.cat||"—")}</td><td style="color:#888;white-space:nowrap">${esc(v.itype||"—")}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888" title="${esc(v.sup||"")}">${esc(v.sup||"—")}</td><td style="white-space:nowrap">${price?price.toLocaleString()+" so'm":"—"}</td><td><span class="badge ${sc}">${stTxt}</span></td><td>${abc?'<span class="p2-abc p2-abc-'+abc+'">'+abc+'</span>':'—'}</td></tr>`;});tb.innerHTML=h;renderP2Pag();}
+function renderP2Table(){const tb=document.getElementById("pf-tbody");const ro=(p2page-1)*P2PS;const pg=p2rows.slice(ro,ro+P2PS);if(!pg.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:34px;color:#bbb">Mahsulot topilmadi &mdash; filtrlarni o\'zgartiring</td></tr>';document.getElementById("pf-pag").innerHTML="";return;}const END=new Date((DMETA&&DMETA.end)?DMETA.end:'2026-05-31');let h="";pg.forEach((v,i)=>{const abc=v.abc||"";let di=v.di;if(di===undefined||di===null){if(v.ld){const d=new Date(v.ld);di=Math.max(0,Math.round((END-d)/86400000));}else{di=999;}}const[sc,stTxt]=sotuv(di);const price=v.iprice||0;h+=`<tr data-pi="${v._i}" onclick="p2Open(${v._i})" ondblclick="p2ToZaxira(${v._i})" title="Ikki marta bosing — Zaxirada koʻrish"><td style="color:#bbb">${ro+i+1}</td><td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600" title="${esc(v.name)}">${esc(v.name)}${v.kg&&!v.name.toLowerCase().includes('kg')?' <span class="sug-kg">KG</span>':''}</td><td style="color:#999">${v.sku||"—"}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#777" title="${esc(v.cat||"")}">${esc(v.cat||"—")}</td><td style="color:#888;white-space:nowrap">${esc(v.itype||"—")}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888" title="${esc(v.sup||"")}">${esc(v.sup||"—")}</td><td style="white-space:nowrap">${price?price.toLocaleString()+" so'm":"—"}</td><td><span class="badge ${sc}">${stTxt}</span></td><td>${abc?'<span class="p2-abc p2-abc-'+abc+'">'+abc+'</span>':'—'}</td></tr>`;});tb.innerHTML=h;renderP2Pag();}
 function renderP2Pag(){const tot=Math.ceil(p2rows.length/P2PS);const pag=document.getElementById("pf-pag");if(tot<=1){pag.innerHTML="";return;}let h="";const mk=(l,p,d,a)=>`<button ${d?"disabled":""} ${a?'class="active"':""} onclick="p2Go(${p})">${l}</button>`;h+=mk("‹",p2page-1,p2page<=1,false);let s=Math.max(1,p2page-2),e=Math.min(tot,p2page+2);if(s>1){h+=mk("1",1,false,p2page===1);if(s>2)h+='<button disabled>…</button>';}for(let p=s;p<=e;p++)h+=mk(p,p,false,p===p2page);if(e<tot){if(e<tot-1)h+='<button disabled>…</button>';h+=mk(tot,tot,false,p2page===tot);}h+=mk("›",p2page+1,p2page>=tot,false);pag.innerHTML=h;}
 function p2Go(p){p2page=p;renderP2Table();const sc=document.querySelector(".p2-tbl-scroll");if(sc)sc.scrollTop=0;}
-function p2Open(i){renderP2(i);document.getElementById("p2graphs").style.display="";window.scrollTo({top:0,behavior:"smooth"});}
+function p2Open(i){
+  p2LastI=i;
+  renderP2(i);
+  document.getElementById("p2graphs").style.display="";
+  window.scrollTo({top:0,behavior:"smooth"});
+  document.querySelectorAll('#pf-tbody tr.p2-row-sel').forEach(r=>r.classList.remove('p2-row-sel'));
+  const sr=document.querySelector('#pf-tbody tr[data-pi="'+i+'"]');
+  if(sr){sr.classList.add('p2-row-sel');setTimeout(()=>sr.scrollIntoView({block:'nearest',behavior:'smooth'}),50);}
+}
 function p2CloseG(){document.getElementById("p2graphs").style.display="none";}
 function p2Clear(){["pf-cat","pf-sub","pf-type","pf-sup","pf-amt","pf-abc"].forEach(id=>document.getElementById(id).value="");document.getElementById("pf-q").value="";p2Filter();}
 function onIn(){if(!P2)return;const q=document.getElementById("si").value.toLowerCase().trim();const sb=document.getElementById("sug");if(q.length<2){sb.style.display="none";return;}const h=P2.filter(v=>v.name.toLowerCase().includes(q)).slice(0,10);if(!h.length){sb.style.display="none";return;}sb.innerHTML=h.map(v=>'<div class="sug-item" onclick="selItem('+P2.indexOf(v)+')" style="display:flex;align-items:center;justify-content:space-between;gap:8px;"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;">'+esc(v.name)+(v.kg&&!v.name.toLowerCase().includes('kg')?'<span class="sug-kg">KG</span>':'')+'</div><span class="sug-abc abc-'+v.abc+'-p">'+v.abc+'</span></div>').join("");sb.style.display="block";}
