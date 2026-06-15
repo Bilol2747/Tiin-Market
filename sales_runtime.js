@@ -161,13 +161,31 @@ async function p2ToZaxira(i){
   if(zbtn)await showPage(zbtn);
   const pb=document.getElementById("p5-back");if(pb)pb.style.display="inline-flex";
   if(!ZITEMS)return;
+  // Filtrlarni tozalash
+  zCurFilter="all";zQuery="";zF={cat:"",sub:"",sup:"",type:"",abc:""};
+  document.querySelectorAll(".z-ftab").forEach(b=>b.classList.toggle("active",b.dataset.filter==="all"));
+  const zinp=document.getElementById("z-q");if(zinp)zinp.value="";
+  // Mahsulotni ZITEMS dan topish
   let zi=-1;
   if(v.sku)zi=ZITEMS.findIndex(z=>String(z.sku)===String(v.sku));
   if(zi<0)zi=ZITEMS.findIndex(z=>z.name===v.name);
-  if(zi<0){zLastZi=null;return;}
+  if(zi<0){
+    // ZITEMS da yo'q — stok ma'lumoti yo'q yoki klassifikatsiya qilinmagan
+    zLastZi=null;zPage=1;renderZaxira();
+    const tb=document.getElementById("z-tbody");
+    if(tb)tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:30px;color:#bbb">'+esc(v.name||"")+' — Zaxira malumoti topilmadi (stok kiritilmagan bolishi mumkin)</td></tr>';
+    return;
+  }
   zLastZi=zi;
-  zCurFilter="all";zPage=1;
-  document.querySelectorAll(".z-ftab").forEach(b=>b.classList.toggle("active",b.dataset.filter==="all"));
+  // To'g'ri sahifani hisoblash
+  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4};
+  const sorted=[...ZITEMS].sort((a,b)=>{
+    if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
+    if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
+    return (b.di||0)-(a.di||0);
+  });
+  const selIdx=sorted.findIndex(s=>s._zi===zi);
+  zPage=selIdx>=0?Math.ceil((selIdx+1)/ZPS):1;
   renderZaxira();
 }
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
