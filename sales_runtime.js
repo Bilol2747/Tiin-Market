@@ -39,13 +39,15 @@ let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,
 let p2LastI=null;
 let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
-let zDays=30,zKFilter="all",zKSup="";
+let zDays=30,zKFilter="all",zKSup="",zKQuery="";
 function openZakas(){
   if(!ZITEMS)return;
+  zKQuery="";const si=document.getElementById("zk-search");if(si)si.value="";
   document.getElementById("zk-modal").style.display="flex";
   _zkFillSupSel();
   buildZakas();
 }
+function setZKQuery(v){zKQuery=v.toLowerCase().trim();buildZakas();}
 function closeZakas(){document.getElementById("zk-modal").style.display="none";}
 function setZakasDays(d){zDays=d;const inp=document.getElementById("zk-days-inp");if(inp)inp.value=d;document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===d+" kun"));buildZakas();}
 function zkDaysInput(){const v=parseInt(document.getElementById("zk-days-inp").value)||30;zDays=Math.max(1,Math.min(365,v));document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===zDays+" kun"));buildZakas();}
@@ -62,7 +64,7 @@ function _zkFillSupSel(){
 function _zkCalc(){
   if(!ZITEMS)return[];
   const base=zKFilter==="all"?["kritik","urgent"]:[zKFilter];
-  return ZITEMS.filter(v=>base.includes(v.signal)&&(!zKSup||(v.sup||"Noma'lum")===zKSup)).map(v=>{
+  return ZITEMS.filter(v=>base.includes(v.signal)&&(!zKSup||(v.sup||"Noma'lum")===zKSup)&&(!zKQuery||(v.name||"").toLowerCase().includes(zKQuery)||(v.sku||"").toLowerCase().includes(zKQuery))).map(v=>{
     const stock=Math.max(0,v.stock||0);
     const daily=v.dailyAvg||0;
     // Tokcha minimal: oy oxirida kamida SHELF_MIN dona turishi kerak (ko'rinish + talab o'zgarishi uchun bufer)
