@@ -137,7 +137,7 @@ async function zToProduct(zi){
   let idx=-1;
   if(z.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(z.sku));
   if(idx<0)idx=P2.findIndex(v=>v.name===z.name);
-  if(idx<0){const pq0=document.getElementById("pf-q");if(pq0){pq0.value=z.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}return;}
+  if(idx<0){const pq0=document.getElementById("pf-q");if(pq0){pq0.value=z.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}const bb=document.getElementById("z-back");if(bb)bb.style.display="inline-flex";return;}
   const pq=document.getElementById("pf-q");if(pq){pq.value=P2[idx].name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
   if(typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
   const bb=document.getElementById("z-back");if(bb)bb.style.display="inline-flex";
