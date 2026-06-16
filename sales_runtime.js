@@ -272,7 +272,7 @@ function _buildZItems(){
       if(p2norms.has(key))return;
       const stock=parseFloat(iv.a||0);if(stock<=0)return;
       const price=parseFloat(iv.p||0);const frozenVal=Math.round(stock*price);
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:"Stokda bor, hech sotilmagan",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:"May oyida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
@@ -363,6 +363,7 @@ function renderZaxira(){
   });
   const el=document.getElementById("z-cnt");if(el)el.textContent=items.length.toLocaleString()+" ta mahsulot";
   const thDays=document.querySelector(".z-tbl thead th:nth-child(6)");if(thDays)thDays.textContent=zCurFilter==="muzlagan"?"Muzlagan qiymat":"Kunga yetadi";
+  const thAvg=document.querySelector(".z-tbl thead th:nth-child(5)");if(thAvg)thAvg.textContent=zCurFilter==="muzlagan"?"Narx (1 dona)":"Kunlik o'rtacha";
   const MAX_DAYS=90;
   const total=items.length;
   const totalPages=Math.max(1,Math.ceil(total/ZPS));
@@ -391,11 +392,11 @@ function renderZaxira(){
     }else{
       barHtml=`<span style="color:#bbb">—</span>`;
     }
-    const diTxt=v.signal==="muzlagan"?"Hech sotilmagan":v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
+    const diTxt=v.signal==="muzlagan"?"May'da sotilmagan":v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
     const diColor=v.signal==="muzlagan"?"#7C3AED":v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
     const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"],muzlagan:["z-sig-muzlagan","💤 Muzlagan"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
-    const dailyTxt=v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
+    const dailyTxt=v.signal==="muzlagan"?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
     h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
