@@ -37,7 +37,7 @@ let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let p2LastI=null;
-let ZITEMS=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
+let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
 let zDays=30,zKFilter="all",zKSup="",zKQuery="";
 function openZakas(){
@@ -263,10 +263,29 @@ function _buildZItems(){
     if(!c)return;
     ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
   });
-  const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0};
+  if(INVDATA){
+    const p2skus=new Set(P2.filter(v=>v.sku).map(v=>String(v.sku)));
+    const p2norms=new Set(P2.map(v=>nn2(v.name)));
+    let mzCap=0;
+    Object.entries(INVDATA).forEach(([key,iv])=>{
+      if(iv.sku&&p2skus.has(String(iv.sku)))return;
+      if(p2norms.has(key))return;
+      const stock=parseFloat(iv.a||0);if(stock<=0)return;
+      const price=parseFloat(iv.p||0);const frozenVal=Math.round(stock*price);
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:"Stokda bor, hech sotilmagan",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+      mzCap+=frozenVal;
+    });
+    const fvEl=document.getElementById("z-frozen-val");
+    if(fvEl){const m=mzCap/1e6;fvEl.textContent=m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd":Math.round(m).toLocaleString()+" mln";}
+    const _fmtCap=(m)=>m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd so'm":Math.round(m).toLocaleString()+" mln so'm";
+    const fvBnr=document.getElementById("z-mz-total");if(fvBnr){const m=mzCap/1e6;fvBnr.textContent=_fmtCap(m);}
+    const fvBnr2=document.getElementById("z-mz-total2");if(fvBnr2){const m=mzCap/1e6;fvBnr2.textContent=_fmtCap(m);}
+  }
+  const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0,muzlagan:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
   const s=(id,n)=>{const el=document.getElementById(id);if(el)el.textContent=n.toLocaleString();};
-  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);s("z-n-normal",cnt.normal);
+  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);s("z-n-normal",cnt.normal);s("z-n-muzlagan",cnt.muzlagan);
+  const bnr=document.getElementById("z-mz-cnt");if(bnr)bnr.textContent=cnt.muzlagan.toLocaleString();
   zFilled=false;zFillSelects();
 }
 function zFilter(f){
@@ -275,6 +294,7 @@ function zFilter(f){
   document.querySelectorAll(".z-ftab").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
   document.querySelectorAll(".z-card").forEach(c=>c.classList.remove("z-selected"));
   if(f!=="all"){const el=document.getElementById("zc-"+f);if(el)el.classList.add("z-selected");}
+  const bnr=document.getElementById("z-mz-banner");if(bnr)bnr.style.display=f==="muzlagan"?"flex":"none";
   renderZaxira();
 }
 function pfQToggle(){const i=document.getElementById("pf-q"),c=document.getElementById("pf-q-clear");if(c)c.classList.toggle("show",!!(i&&i.value));}
@@ -333,14 +353,16 @@ function renderZaxira(){
   if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
   if(zF.type)items=items.filter(v=>v.itype===zF.type);
   if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
-  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4};
+  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4,muzlagan:5};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
+    if(a.signal==="muzlagan")return (b.frozenVal||0)-(a.frozenVal||0);
     // Ortiqcha: eng uzun muddatli (eng ko'p stok) birinchi; qolganlar: eng qisqa muddatli birinchi
     if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
     return (b.di||0)-(a.di||0);
   });
   const el=document.getElementById("z-cnt");if(el)el.textContent=items.length.toLocaleString()+" ta mahsulot";
+  const thDays=document.querySelector(".z-tbl thead th:nth-child(6)");if(thDays)thDays.textContent=zCurFilter==="muzlagan"?"Muzlagan qiymat":"Kunga yetadi";
   const MAX_DAYS=90;
   const total=items.length;
   const totalPages=Math.max(1,Math.ceil(total/ZPS));
@@ -352,7 +374,11 @@ function renderZaxira(){
     const abcBadge=v.abc?`<span class="p2-abc p2-abc-${v.abc}">${v.abc}</span>`:"—";
     const stockTxt=v.stock===0?`<span style="color:#E24B4A;font-weight:700">0</span>`:v.stock<0?`<span style="color:#E24B4A">-${Math.abs(v.stock).toLocaleString()}</span>`:v.stock.toLocaleString();
     let barHtml;
-    if(v.stock===0||v.daysLeft===0){
+    if(v.signal==="muzlagan"){
+      const fv=v.frozenVal||0;const m=fv/1e6;
+      const fStr=m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd so'm":m>=1?(+m.toFixed(1)).toLocaleString()+" mln so'm":fv.toLocaleString()+" so'm";
+      barHtml=`<div style="color:#7C3AED;font-weight:700;font-size:13px">${fStr}</div>`;
+    }else if(v.stock===0||v.daysLeft===0){
       barHtml=`<div class="z-bar-wrap"><div class="z-bar z-bar-red"><div class="z-bar-fill" style="width:100%"></div></div><span class="z-bar-days" style="color:#E24B4A">Tugagan</span></div>`;
     }else if(v.stock<0){
       barHtml=`<div class="z-bar-wrap"><div class="z-bar" style="background:#ece9f8"><div class="z-bar-fill" style="width:100%;background:#8B7FD1"></div></div><span class="z-bar-days" style="color:#534AB7">Noma'lum</span></div>`;
@@ -365,9 +391,9 @@ function renderZaxira(){
     }else{
       barHtml=`<span style="color:#bbb">—</span>`;
     }
-    const diTxt=v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
-    const diColor=v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
-    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"]};
+    const diTxt=v.signal==="muzlagan"?"Hech sotilmagan":v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
+    const diColor=v.signal==="muzlagan"?"#7C3AED":v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
+    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"],muzlagan:["z-sig-muzlagan","💤 Muzlagan"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
@@ -518,7 +544,7 @@ const AS={"A":["#E1F5EE","#085041","A guruh","abc-A-d"],"B":["#FAEEDA","#633806"
 const DATES=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"];
 let p2page=1,P2PS=50,p2rows=[];
 function nn2(s){return String(s||"").replace(/\s+/g," ").trim().toLowerCase();}function dailyFor(v){if(!DAILY||!v)return null;const skuKey=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;const nameKey=DNAME?DNAME[nn2(v.name)]:null;return DAILY[skuKey]||DAILY[nameKey]||DAILY[nn2(v.name)]||null;}
-function initP2(apiData){try{const _dp=apiData&&apiData.demand?apiData.demand:JSON.parse(document.getElementById("dailydata").textContent);DAILYFULL=_dp.items;DSKU=_dp.skuAliases||{};DNAME=_dp.nameAliases||{};DMETAFULL=_dp.__meta__;_winDaily();const ph=document.getElementById("p2-period");if(ph)ph.textContent=(DMETA.title||"")+" · "+DMETA.days+" kun";}catch(e){DAILY=null;DSKU={};DNAME={};DMETA=null;}const INV=apiData&&apiData.inventory?apiData.inventory:JSON.parse(document.getElementById("invdata").textContent);JSON.parse(document.getElementById("invdata").textContent);const invKeys=Object.keys(INV);P2.forEach((v,i)=>{v._i=i;const norm=nn2(v.name);let iv=INV[norm];if(!iv){const pk=invKeys.find(k=>k.startsWith(norm));if(pk)iv=INV[pk];}if(iv){v.sku=iv.sku;v.iprice=iv.p;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;}});if(_rangeActive())_winArr(P2);p2FillCat();p2Filter();}
+function initP2(apiData){try{const _dp=apiData&&apiData.demand?apiData.demand:JSON.parse(document.getElementById("dailydata").textContent);DAILYFULL=_dp.items;DSKU=_dp.skuAliases||{};DNAME=_dp.nameAliases||{};DMETAFULL=_dp.__meta__;_winDaily();const ph=document.getElementById("p2-period");if(ph)ph.textContent=(DMETA.title||"")+" · "+DMETA.days+" kun";}catch(e){DAILY=null;DSKU={};DNAME={};DMETA=null;}const INV=apiData&&apiData.inventory?apiData.inventory:JSON.parse(document.getElementById("invdata").textContent);INVDATA=INV;JSON.parse(document.getElementById("invdata").textContent);const invKeys=Object.keys(INV);P2.forEach((v,i)=>{v._i=i;const norm=nn2(v.name);let iv=INV[norm];if(!iv){const pk=invKeys.find(k=>k.startsWith(norm));if(pk)iv=INV[pk];}if(iv){v.sku=iv.sku;v.iprice=iv.p;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;}});if(_rangeActive())_winArr(P2);p2FillCat();p2Filter();}
 const P2FF=[{id:"pf-sub",k:v=>v.sub},{id:"pf-type",k:v=>v.itype},{id:"pf-sup",k:v=>v.sup}];
 function p2FillCat(){const opts=[...new Set(P2.map(v=>v.cat).filter(x=>x))].sort((a,b)=>String(a).localeCompare(String(b),"ru"));const sel=document.getElementById("pf-cat");opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});}
 function p2Match(v,skip){const fc=p2gv("pf-cat"),fs=p2gv("pf-sub"),ft=p2gv("pf-type"),fp=p2gv("pf-sup"),fa=p2gv("pf-amt"),fb=p2gv("pf-abc");if(skip!=="pf-cat"&&fc&&v.cat!==fc)return false;if(skip!=="pf-sub"&&fs&&v.sub!==fs)return false;if(skip!=="pf-type"&&ft&&v.itype!==ft)return false;if(skip!=="pf-sup"&&fp&&v.sup!==fp)return false;if(skip!=="pf-abc"&&fb&&v.abc!==fb)return false;if(skip!=="pf-amt"&&fa){const a=v.amt;if(a===undefined)return false;if(fa==="pos"&&!(a>0))return false;if(fa==="zero"&&a!==0)return false;if(fa==="neg"&&!(a<0))return false;}return true;}
