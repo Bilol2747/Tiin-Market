@@ -32,7 +32,7 @@ p6_html = (
     '</div>\n'
     '<div class="p2-pag sp-pag" id="sp-pag"></div>\n'
     '<style>\n'
-    '.sp-header{padding:12px 24px 4px}\n'
+    '#p6{margin-left:195px;overflow-x:hidden}.sp-header{padding:12px 24px 4px}\n'
     '.sp-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}\n'
     '.sp-card{background:#fff;border:1.5px solid #eee;border-radius:12px;padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px}\n'
     '.sp-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.09)}\n'
