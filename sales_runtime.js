@@ -857,8 +857,18 @@ function p6SetFilter(f){
   renderP6();
 }
 function p6SearchInput(){
-  p6Q=(document.getElementById("sp-q")?document.getElementById("sp-q").value:"").toLowerCase().trim();
+  const inp=document.getElementById("sp-q");
+  p6Q=inp?inp.value.toLowerCase().trim():"";
+  const clr=document.getElementById("sp-clear");
+  if(clr)clr.style.display=p6Q?"inline-block":"none";
   p6Page=1;renderP6();
+}
+function p6ClearSearch(){
+  const inp=document.getElementById("sp-q");
+  if(inp){inp.value="";inp.focus();}
+  const clr=document.getElementById("sp-clear");
+  if(clr)clr.style.display="none";
+  p6Q="";p6Page=1;renderP6();
 }
 function p6Select(r){p6SelI=(p6SelI===r)?null:r;renderP6();}
 function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
