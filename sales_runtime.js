@@ -887,9 +887,9 @@ function renderP6(){
     h+=`<td><span class="sp-abc sp-abc-${abc.toLowerCase()}">${abc}</span></td>`;
     h+=`<td style="font-weight:700;white-space:nowrap;color:#1a1a1a">${revStr}</td>`;
     h+=`<td><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:#888">${s.rp}%</span></div></td>`;
-    const aB=s.abc_cnt.A?`<span class="sp-mc sp-mc-a">${s.abc_cnt.A}A</span>`:"";
-    const bB=s.abc_cnt.B?`<span class="sp-mc sp-mc-b">${s.abc_cnt.B}B</span>`:"";
-    const cB=s.abc_cnt.C?`<span class="sp-mc sp-mc-c">${s.abc_cnt.C}C</span>`:"";
+    const aB=`<span class="sp-mc sp-mc-a" style="min-width:28px;text-align:center">${s.abc_cnt.A||0}A</span>`;
+    const bB=`<span class="sp-mc sp-mc-b" style="min-width:28px;text-align:center">${s.abc_cnt.B||0}B</span>`;
+    const cB=`<span class="sp-mc sp-mc-c" style="min-width:28px;text-align:center">${s.abc_cnt.C||0}C</span>`;
     h+=`<td><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span> <span style="margin-left:5px;display:inline-flex;gap:3px">${aB}${bB}${cB}</span></td>`;
     h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
     h+=`</tr>`;
