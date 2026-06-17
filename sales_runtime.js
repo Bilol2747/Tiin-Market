@@ -839,6 +839,14 @@ function initP6(){
   const revB=d.suppliers.filter(x=>x.abc==="B").reduce((a,x)=>a+x.rev,0);
   const revC=d.suppliers.filter(x=>x.abc==="C").reduce((a,x)=>a+x.rev,0);
   s("sp-rev-a",fmt(revA));s("sp-rev-b",fmt(revB));s("sp-rev-c",fmt(revC));s("sp-rev-all",fmt(d.total_rev));
+  const totR=d.total_rev||1;
+  const pA=Math.round(revA/totR*100);
+  const pB=Math.round(revB/totR*100);
+  const pC=100-pA-pB;
+  s("sp-sub-a","Tushimning "+pA+"%");
+  s("sp-sub-b","Tushimning "+pB+"%");
+  s("sp-sub-c","Tushimning "+pC+"%");
+  s("sp-sub-all","Jami tushum");
   renderP6();
 }
 function p6SetFilter(f){
@@ -871,9 +879,6 @@ function renderP6(){
     const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
     const pct=Math.min(100,Math.round(s.rev/maxRev*100));
     const revStr=s.rev>=1e9?(s.rev/1e9).toFixed(2)+" mlrd":s.rev>=1e6?Math.round(s.rev/1e6)+" mln":s.rev.toLocaleString();
-    const aB=s.abc_cnt.A?`<span class="sp-mc sp-mc-a">${s.abc_cnt.A}A</span>`:"";
-    const bB=s.abc_cnt.B?`<span class="sp-mc sp-mc-b">${s.abc_cnt.B}B</span>`:"";
-    const cB=s.abc_cnt.C?`<span class="sp-mc sp-mc-c">${s.abc_cnt.C}C</span>`:"";
     const isSel=p6SelI===s.r;
     const selStyle=isSel?" sp-row-sel":"";
     h+=`<tr class="sp-row${selStyle}" onclick="p6Select(${s.r})">`;
@@ -882,7 +887,7 @@ function renderP6(){
     h+=`<td><span class="sp-abc sp-abc-${abc.toLowerCase()}">${abc}</span></td>`;
     h+=`<td style="font-weight:700;white-space:nowrap;color:#1a1a1a">${revStr}</td>`;
     h+=`<td><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:#888">${s.rp}%</span></div></td>`;
-    h+=`<td><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span> <span style="margin-left:5px;display:inline-flex;gap:3px">${aB}${bB}${cB}</span></td>`;
+    h+=`<td style="font-weight:600;color:#555">${s.cnt} ta</td>`;
     h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
     h+=`</tr>`;
     if(isSel&&s.top&&s.top.length){
