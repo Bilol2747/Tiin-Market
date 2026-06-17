@@ -1,4 +1,4 @@
-import json
+﻿import json
 
 with open(r'c:\Tiim Market Base Loyihasi\data_supplier.json', 'r', encoding='utf-8') as f:
     d = json.load(f)
@@ -55,13 +55,13 @@ p6_html = (
     '.sp-search input{padding:8px 14px 8px 36px;border:1.5px solid #e6e8ec;border-radius:20px;font-size:13px;outline:none;min-width:220px;background:#fafbfc;transition:all .15s}\n'
     '.sp-search input:focus{border-color:#1D9E75;background:#fff;box-shadow:0 0 0 3px rgba(29,158,117,.1)}\n'
     '.sp-cnt{font-size:12px;color:#999;white-space:nowrap;margin-left:auto}\n'
-    '.sp-tbl-wrap{padding:0 24px;overflow:auto;max-height:calc(100vh - 280px)}\n'
+    '.sp-tbl-wrap{padding:0 24px;overflow-x:hidden;overflow-y:auto;max-height:calc(100vh - 280px);width:100%;box-sizing:border-box}\n'
     '.sp-tbl{width:100%;border-collapse:collapse;font-size:13px}\n'
     '.sp-tbl th{padding:10px 10px;text-align:left;font-size:11px;font-weight:600;color:#999;border-bottom:1.5px solid #eee;position:sticky;top:0;z-index:2;background:#fafaf5;white-space:nowrap}\n'
     '.sp-tbl td{padding:10px 10px;border-bottom:1px solid #f5f5f0;vertical-align:middle}\n'
     '.sp-row{cursor:pointer;transition:background .1s}.sp-row:hover td{background:#f7f7f4}\n'
     '.sp-row-sel td{background:#FFFBF0!important}.sp-row-sel td:first-child{box-shadow:inset 3px 0 0 #EF9F27}\n'
-    '.sp-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:380px;color:#1a1a1a}\n'
+    '.sp-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px;color:#1a1a1a}\n'
     '.sp-abc{padding:3px 10px;border-radius:5px;font-size:12px;font-weight:800;display:inline-block}\n'
     '.sp-abc-a{background:#E1F5EE;color:#085041}.sp-abc-b{background:#EEF2FF;color:#3730A3}.sp-abc-c{background:#FFF4E0;color:#7C4D00}\n'
     '.sp-mc{font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;display:inline-block}\n'
