@@ -881,7 +881,7 @@ function renderP6(){
     h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     h+=`<td><span class="sp-abc sp-abc-${abc.toLowerCase()}">${abc}</span></td>`;
     h+=`<td style="font-weight:700;white-space:nowrap;color:#1a1a1a">${revStr}</td>`;
-    h+=`<td style="min-width:150px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px;transition:width .4s"></div></div><span style="font-size:12px;font-weight:600;color:#888;min-width:40px;text-align:right">${s.rp}%</span></div></td>`;
+    h+=`<td><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:#888">${s.rp}%</span></div></td>`;
     h+=`<td><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span> <span style="margin-left:5px;display:inline-flex;gap:3px">${aB}${bB}${cB}</span></td>`;
     h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
     h+=`</tr>`;
