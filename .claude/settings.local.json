@@ -31,7 +31,8 @@
       "Bash(python -c ' *)",
       "Bash(python)",
       "Bash(node --check \"C:\\\\Tiim Market Base Loyihasi\\\\sales_runtime.js\" && cp \"C:\\\\Tiim Market Base Loyihasi\\\\sales.html\" \"C:\\\\Tiim Market Base Loyihasi\\\\index.html\" && echo OK)",
-      "Bash(git show *)"
+      "Bash(git show *)",
+      "Bash(python \"c:\\\\Tiim Market Base Loyihasi\\\\build_p6.py\")"
     ],
     "additionalDirectories": [
       "C:\\Tiim Market Base Loyihasi"

@@ -40,6 +40,8 @@ let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
 const ZPS=50;
 let zDays=30,zKFilter="all",zKSup="",zKQuery="";
+let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null;
+const P6PS=50;
 function openZakas(){
   if(!ZITEMS)return;
   zKQuery="";const si=document.getElementById("zk-search");if(si)si.value="";
@@ -124,7 +126,8 @@ function copyZakas(){
   navigator.clipboard.writeText(txt).then(()=>{const b=document.querySelector(".zk-btn-copy");if(b){const o=b.innerHTML;b.innerHTML="✓ Nusxalandi!";setTimeout(()=>b.innerHTML=o,2000);}});
 }
 async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
-if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}};
+if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}
+if(pid==="p6"){if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}};};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Zaxira qatoriga bosilganda → Mahsulotlar bo'limida o'sha mahsulotni ochish
@@ -807,7 +810,7 @@ function analyzePattern(dd,tz,u){
   const wholesalePct=m.wholesalePct||0;
   if(tz.retailMonth<=0)return{type:"no_sales",label:"Retail savdo yo'q",color:"#888",confidence,msg:"Tanlangan davrda sof retail savdo aniqlanmadi.",rec:"Ulgurji savdo va retail savdoni alohida tekshiring."};
   if(active/days<0.25)return{type:"slow",label:"Sust retail talab",color:"#94A3B8",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Talab tezligini kalendar kun bo'yicha baholang."};
-  if(trend==="up")return{type:"grow",label:"Retail talab o'smoqda",color:"#1D9E75",confidence,msg:"So'nggi davr avvalgi davrdan yuqori.",rec:"7 va 30 kunlik prognozda so'nggi kunlarga ko'proq vazn berildi."};
+  if(trend==="up")return{type:"grow",label:"Retail talab o'smoqda",color:"#1D9E75",confidence,msg:"So'nggi davr avvalgi davrdan yuqori.",rec:"7 va 30 kunlik prognozda so'nggi kunlarga ko'proq vazn berildi."}; 
   if(trend==="down")return{type:"decline",label:"Retail talab pasaymoqda",color:"#E24B4A",confidence,msg:"So'nggi davr avvalgi davrdan past.",rec:"Prognoz pasaygan talabni hisobga oladi."};
   if(wholesalePct>0)return{type:"wholesale",label:"Retail va ulgurji ajratildi",color:"#EF9F27",confidence,msg:"Jami savdoning "+wholesalePct.toFixed(1)+"% ulgurji sifatida ajratildi.",rec:"Talab prognoziga faqat sof retail savdo kiritildi."};
   return{type:"stable",label:"Barqaror retail talab",color:"#1D9E75",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Kunlik, haftalik va 30 kunlik talab sof retail asosida hisoblandi."};
@@ -820,4 +823,86 @@ function openUpload(){if(confirm("Yangi oy ma'lumotini yuklashga o'tasizmi?")){w
 function p2FCount(){const ids=["pf-cat","pf-sub","pf-type","pf-sup","pf-amt","pf-abc"];let n=0;ids.forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++;});const b=document.getElementById("p2-fcount");if(b)b.textContent=n?"("+n+")":"";const btn=document.getElementById("p2-fbtn");if(btn)btn.classList.toggle("has",n>0);}
 function p2FToggle(e){if(e)e.stopPropagation();const p=document.getElementById("p2-fpop");if(p)p.classList.toggle("open");p2FCount();}
 document.addEventListener("click",function(e){const w=document.querySelector(".p2-fwrap");const p=document.getElementById("p2-fpop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});
-document.addEventListener("click",function(e){const b=document.getElementById("z-fbtn");const p=document.getElementById("z-fpop");if(b&&p&&!b.contains(e.target)&&!p.contains(e.target))p.classList.remove("open");});
+document.addEventListener("click",function(e){const b=document.getElementById("z-fbtn");const p=document.getElementById("z-fpop");if(b&&p&&!b.contains(e.target)&&!p.contains(e.target))p.classList.remove("open")   ;});
+
+// ─── P6 Supplier Tahlili ───
+function initP6(){
+  if(!P6)return;
+  const d=P6;
+  const fmt=(n)=>n>=1e9?(n/1e9).toFixed(2)+" mlrd":n>=1e6?Math.round(n/1e6)+" mln":n.toLocaleString();
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  s("sp-n-a",d.abc_cnt.A.toLocaleString());
+  s("sp-n-b",d.abc_cnt.B.toLocaleString());
+  s("sp-n-c",d.abc_cnt.C.toLocaleString());
+  s("sp-n-all",d.sup_count.toLocaleString());
+  const revA=d.suppliers.filter(x=>x.abc==="A").reduce((a,x)=>a+x.rev,0);
+  const revB=d.suppliers.filter(x=>x.abc==="B").reduce((a,x)=>a+x.rev,0);
+  const revC=d.suppliers.filter(x=>x.abc==="C").reduce((a,x)=>a+x.rev,0);
+  s("sp-rev-a",fmt(revA));s("sp-rev-b",fmt(revB));s("sp-rev-c",fmt(revC));s("sp-rev-all",fmt(d.total_rev));
+  renderP6();
+}
+function p6SetFilter(f){
+  p6CurF=f;p6Page=1;p6SelI=null;
+  document.querySelectorAll(".sp-ftab").forEach(b=>b.classList.toggle("active",b.dataset.f===f));
+  document.querySelectorAll(".sp-card").forEach(c=>c.classList.remove("sp-selected"));
+  if(f!=="all"){const el=document.getElementById("sp-card-"+f);if(el)el.classList.add("sp-selected");}
+  renderP6();
+}
+function p6SearchInput(){
+  p6Q=(document.getElementById("sp-q")?document.getElementById("sp-q").value:"").toLowerCase().trim();
+  p6Page=1;renderP6();
+}
+function p6Select(r){p6SelI=(p6SelI===r)?null:r;renderP6();}
+function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
+function renderP6(){
+  if(!P6)return;
+  let items=[...P6.suppliers];
+  if(p6CurF!=="all")items=items.filter(s=>s.abc===p6CurF);
+  if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
+  const cnt=document.getElementById("sp-cnt");if(cnt)cnt.textContent=items.length.toLocaleString()+" ta supplier";
+  const totalP=Math.max(1,Math.ceil(items.length/P6PS));
+  if(p6Page>totalP)p6Page=totalP;
+  const off=(p6Page-1)*P6PS;
+  const shown=items.slice(off,off+P6PS);
+  const maxRev=P6.suppliers[0].rev;
+  let h="";
+  shown.forEach((s,i)=>{
+    const abc=s.abc;
+    const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
+    const pct=Math.min(100,Math.round(s.rev/maxRev*100));
+    const revStr=s.rev>=1e9?(s.rev/1e9).toFixed(2)+" mlrd":s.rev>=1e6?Math.round(s.rev/1e6)+" mln":s.rev.toLocaleString();
+    const aB=s.abc_cnt.A?`<span class="sp-mc sp-mc-a">${s.abc_cnt.A}A</span>`:"";
+    const bB=s.abc_cnt.B?`<span class="sp-mc sp-mc-b">${s.abc_cnt.B}B</span>`:"";
+    const cB=s.abc_cnt.C?`<span class="sp-mc sp-mc-c">${s.abc_cnt.C}C</span>`:"";
+    const isSel=p6SelI===s.r;
+    const selStyle=isSel?" sp-row-sel":"";
+    h+=`<tr class="sp-row${selStyle}" onclick="p6Select(${s.r})">`;
+    h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
+    h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
+    h+=`<td><span class="sp-abc sp-abc-${abc.toLowerCase()}">${abc}</span></td>`;
+    h+=`<td style="font-weight:700;white-space:nowrap;color:#1a1a1a">${revStr}</td>`;
+    h+=`<td style="min-width:150px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px;transition:width .4s"></div></div><span style="font-size:12px;font-weight:600;color:#888;min-width:40px;text-align:right">${s.rp}%</span></div></td>`;
+    h+=`<td><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span> <span style="margin-left:5px;display:inline-flex;gap:3px">${aB}${bB}${cB}</span></td>`;
+    h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
+    h+=`</tr>`;
+    if(isSel&&s.top&&s.top.length){
+      const topH=s.top.map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
+      h+=`<tr class="sp-det-row"><td colspan="7"><div class="sp-det-wrap"><div class="sp-det-title">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div></div></td></tr>`;
+    }
+  });
+  if(!h)h=`<tr><td colspan="7" style="text-align:center;padding:40px;color:#bbb">Supplier topilmadi</td></tr>`;
+  document.getElementById("sp-tbody").innerHTML=h;
+  renderP6Pag(totalP);
+}
+function renderP6Pag(totalP){
+  const pag=document.getElementById("sp-pag");if(!pag)return;
+  if(totalP<=1){pag.innerHTML="";return;}
+  const mk=(l,p,d,a)=>`<button ${d?"disabled":""} ${a?'class="active"':""} onclick="p6Go(${p})">${l}</button>`;
+  let h=mk("‹",p6Page-1,p6Page<=1,false);
+  let s=Math.max(1,p6Page-2),e=Math.min(totalP,p6Page+2);
+  if(s>1){h+=mk("1",1,false,p6Page===1);if(s>2)h+='<button disabled>…</button>';}
+  for(let p=s;p<=e;p++)h+=mk(p,p,false,p===p6Page);
+  if(e<totalP){if(e<totalP-1)h+='<button disabled>…</button>';h+=mk(totalP,totalP,false,p6Page===totalP);}
+  h+=mk("›",p6Page+1,p6Page>=totalP,false);
+  pag.innerHTML=h;
+}
