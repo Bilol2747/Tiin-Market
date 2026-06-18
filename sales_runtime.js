@@ -297,8 +297,6 @@ function _buildZItems(){
       const shortNm=nm.length>28?nm.slice(0,26)+"…":nm;
       return `<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:#374151;font-weight:500">${shortNm}</span><span style="color:#7C3AED;font-weight:700">${vStr}</span></div><div style="height:5px;background:#ede9fe;border-radius:3px"><div style="height:100%;width:${pct}%;background:#7C3AED;border-radius:3px"></div></div></div>`;
     }).join("");
-    const supEl=document.getElementById("z-mz-sup-list");
-    if(supEl)supEl.innerHTML=barHtml(top5(supMap),mzCap);
     const catEl=document.getElementById("z-mz-cat-list");
     if(catEl)catEl.innerHTML=barHtml(top5(catMap),mzCap);
   }
