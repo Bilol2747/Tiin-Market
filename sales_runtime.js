@@ -119,39 +119,6 @@ function buildZakas(){
   });
   document.getElementById("zk-body").innerHTML=h;
 }
-function exportStockCSV(){
-  if(!ZITEMS)return;
-  let items=zCurFilter==="all"?[...ZITEMS]:ZITEMS.filter(v=>v.signal===zCurFilter);
-  if(zQuery){items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));}
-  if(zF.cat) items=items.filter(v=>v.cat===zF.cat);
-  if(zF.sub) items=items.filter(v=>v.sub===zF.sub);
-  if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
-  if(zF.type)items=items.filter(v=>v.itype===zF.type);
-  if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
-  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4,muzlagan:5};
-  items.sort((a,b)=>{
-    if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
-    if(a.signal==="muzlagan")return (b.frozenVal||0)-(a.frozenVal||0);
-    if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
-    return (b.di||0)-(a.di||0);
-  });
-  const sigLbl={kritik:"Kritik",urgent:"Shoshilinch",tekshir:"Tekshirish",excess:"Ortiqcha",normal:"Normal",muzlagan:"Muzlagan"};
-  let csv="﻿";
-  csv+="SKU,Mahsulot,Kategoriya,Sub-kategoriya,Yetkazib beruvchi,ABC,Stok,Kunlik o'rtacha,Kunga yetadi,Oxirgi sotuv (kun),Signal\r\n";
-  items.forEach(p=>{
-    const sig=sigLbl[p.signal]||p.signal||"";
-    const daysLeft=p.signal==="muzlagan"?"":(p.daysLeft!=null?p.daysLeft:"");
-    const dailyAvg=p.signal==="muzlagan"?(p.price!=null?p.price:""):(p.dailyAvg!=null?Math.round(p.dailyAvg):"");
-    const q=v=>'"'+String(v||"").replace(/"/g,'""')+'"';
-    csv+=`${q(p.sku||"")},${q(p.name||"")},${q(p.cat||"")},${q(p.sub||"")},${q(p.sup||"")},${q(p.abc||"")},${Math.max(0,p.stock||0)},${dailyAvg},${daysLeft},${p.di!=null?p.di:""},${q(sig)}\r\n`;
-  });
-  const d=new Date();
-  const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
-  const a=document.createElement("a");
-  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
-  a.download="stock_export_"+ds+".csv";
-  a.click();
-}
 function exportZakasCSV(){
   const items=_zkCalc();
   const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
@@ -954,6 +921,26 @@ function p6ClearSearch(){
 }
 function p6Select(r){p6SelI=(p6SelI===r)?null:r;renderP6();}
 function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
+function exportSuppliersCSV(){
+  if(!P6)return;
+  let items=[...P6.suppliers];
+  if(p6CurF!=="all")items=items.filter(s=>s.abc===p6CurF);
+  if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
+  const mzMap={};
+  if(ZITEMS){ZITEMS.filter(v=>v.signal==="muzlagan").forEach(v=>{if(v.sup)mzMap[v.sup]=(mzMap[v.sup]||0)+1;});}
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  let csv="﻿";
+  csv+="#,Firma nomi,ABC guruhi,Daromad (so'm),Daromad %,Jami tovar,A guruh,B guruh,C guruh,Sotilmay qolgan,Cheklar\r\n";
+  items.forEach((s,i)=>{
+    csv+=`${i+1},${q(s.name)},${q(s.abc)},${s.rev||0},${s.rp||0},${s.cnt||0},${s.abc_cnt&&s.abc_cnt.A!=null?s.abc_cnt.A:0},${s.abc_cnt&&s.abc_cnt.B!=null?s.abc_cnt.B:0},${s.abc_cnt&&s.abc_cnt.C!=null?s.abc_cnt.C:0},${mzMap[s.name]||0},${s.rec||0}\r\n`;
+  });
+  const d=new Date();
+  const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="suppliers_export_"+ds+".csv";
+  a.click();
+}
 function renderP6(){
   if(!P6)return;
   let items=[...P6.suppliers];
