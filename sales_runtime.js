@@ -109,11 +109,11 @@ function buildZakas(){
   suppList.forEach(sup=>{
     const prods=bySupp[sup];
     const tot=prods.reduce((s,p)=>s+p.orderQty,0);
-    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>🏪 ${esc(sup)}</span><span style="color:#534AB7">${prods.length} ta mahsulot &nbsp;·&nbsp; Jami: <b>${tot.toLocaleString()} dona</b></span></div><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th>Kategoriya</th><th style="text-align:right">Joriy stok</th><th style="text-align:right">Kunlik sotuv</th><th style="text-align:right">${zDays} kunlik zakas</th><th>Holat</th></tr></thead><tbody>`;
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>🏪 ${esc(sup)}</span><span style="color:#534AB7">${prods.length} ta mahsulot &nbsp;·&nbsp; Jami: <b>${tot.toLocaleString()} dona</b></span></div><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th>Kategoriya</th><th style="text-align:center">ABC</th><th style="text-align:right">Joriy stok</th><th style="text-align:right">Kunlik sotuv</th><th style="text-align:right">${zDays} kunlik zakas</th><th>Holat</th></tr></thead><tbody>`;
     prods.forEach((p,i)=>{
       const stTxt=p._stock<=0?`<span style="color:#E24B4A;font-weight:700">0</span>`:p._stock.toLocaleString();
       const dTxt=p.dailyAvg>0?(p.dailyAvg>=1?Math.round(p.dailyAvg*10)/10:p.dailyAvg)+" ta/kun":"—";
-      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
+      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${p.abc==="A"?"#e8f8f3":p.abc==="B"?"#eeebfb":"#fef3e2"};color:${p.abc==="A"?"#1D9E75":p.abc==="B"?"#534AB7":"#EF9F27"}">${p.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
     });
     h+=`</tbody></table></div>`;
   });
