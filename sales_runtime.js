@@ -127,7 +127,7 @@ function copyZakas(){
 }
 async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}
-if(pid==="p6"){if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}};};
+if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}};};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Zaxira qatoriga bosilganda → Mahsulotlar bo'limida o'sha mahsulotni ochish
