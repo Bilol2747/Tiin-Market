@@ -931,7 +931,7 @@ function exportSuppliersCSV(){
   if(ZITEMS){ZITEMS.filter(v=>v.signal==="muzlagan").forEach(v=>{if(v.sup)mzMap[v.sup]=(mzMap[v.sup]||0)+1;});}
   const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
   let csv="﻿";
-  csv+="#,Firma nomi,ABC guruhi,Daromad (so'm),Daromad %,Jami tovar,A guruh,B guruh,C guruh,Sotilmay qolgan,Cheklar\r\n";
+  csv+="#,Firma nomi,ABC guruhi,Tushum (so'm),Tushum %,Jami tovar,A guruh,B guruh,C guruh,Sotilmay qolgan,Cheklar\r\n";
   items.forEach((s,i)=>{
     csv+=`${i+1},${q(s.name)},${q(s.abc)},${s.rev||0},${s.rp||0},${s.cnt||0},${s.abc_cnt&&s.abc_cnt.A!=null?s.abc_cnt.A:0},${s.abc_cnt&&s.abc_cnt.B!=null?s.abc_cnt.B:0},${s.abc_cnt&&s.abc_cnt.C!=null?s.abc_cnt.C:0},${mzMap[s.name]||0},${s.rec||0}\r\n`;
   });
