@@ -119,6 +119,39 @@ function buildZakas(){
   });
   document.getElementById("zk-body").innerHTML=h;
 }
+function exportStockCSV(){
+  if(!ZITEMS)return;
+  let items=zCurFilter==="all"?[...ZITEMS]:ZITEMS.filter(v=>v.signal===zCurFilter);
+  if(zQuery){items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));}
+  if(zF.cat) items=items.filter(v=>v.cat===zF.cat);
+  if(zF.sub) items=items.filter(v=>v.sub===zF.sub);
+  if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
+  if(zF.type)items=items.filter(v=>v.itype===zF.type);
+  if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
+  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4,muzlagan:5};
+  items.sort((a,b)=>{
+    if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
+    if(a.signal==="muzlagan")return (b.frozenVal||0)-(a.frozenVal||0);
+    if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
+    return (b.di||0)-(a.di||0);
+  });
+  const sigLbl={kritik:"Kritik",urgent:"Shoshilinch",tekshir:"Tekshirish",excess:"Ortiqcha",normal:"Normal",muzlagan:"Muzlagan"};
+  let csv="﻿";
+  csv+="SKU,Mahsulot,Kategoriya,Sub-kategoriya,Yetkazib beruvchi,ABC,Stok,Kunlik o'rtacha,Kunga yetadi,Oxirgi sotuv (kun),Signal\r\n";
+  items.forEach(p=>{
+    const sig=sigLbl[p.signal]||p.signal||"";
+    const daysLeft=p.signal==="muzlagan"?"":(p.daysLeft!=null?p.daysLeft:"");
+    const dailyAvg=p.signal==="muzlagan"?(p.price!=null?p.price:""):(p.dailyAvg!=null?Math.round(p.dailyAvg):"");
+    const q=v=>'"'+String(v||"").replace(/"/g,'""')+'"';
+    csv+=`${q(p.sku||"")},${q(p.name||"")},${q(p.cat||"")},${q(p.sub||"")},${q(p.sup||"")},${q(p.abc||"")},${Math.max(0,p.stock||0)},${dailyAvg},${daysLeft},${p.di!=null?p.di:""},${q(sig)}\r\n`;
+  });
+  const d=new Date();
+  const ds=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  const a=document.createElement("a");
+  a.href="data:text/csv;charset=utf-8,"+encodeURIComponent(csv);
+  a.download="stock_export_"+ds+".csv";
+  a.click();
+}
 function exportZakasCSV(){
   const items=_zkCalc();
   const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
