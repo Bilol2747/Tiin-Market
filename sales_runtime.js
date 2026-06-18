@@ -336,6 +336,19 @@ function zFillSelects(){
   zFilled=true;
 }
 function zFToggle(e){if(e)e.stopPropagation();const p=document.getElementById("z-fpop");if(p)p.classList.toggle("open");}
+function zCatChanged(){
+  const cat=document.getElementById("zf-cat").value;
+  const sel=document.getElementById("zf-sub");
+  if(!sel)return;
+  while(sel.options.length>1)sel.remove(1);
+  sel.value="";
+  if(ZITEMS){
+    const items=cat?ZITEMS.filter(v=>v.cat===cat):ZITEMS;
+    const subs=[...new Set(items.map(v=>v.sub).filter(x=>x))].sort((a,b)=>String(a).localeCompare(String(b),"ru"));
+    subs.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});
+  }
+  zFApply();
+}
 function zFApply(){
   zF.cat=document.getElementById("zf-cat").value;
   zF.sub=document.getElementById("zf-sub").value;
