@@ -46,28 +46,40 @@ function openZakas(){
   if(!ZITEMS)return;
   zKQuery="";zKCat="";const si=document.getElementById("zk-search");if(si)si.value="";const cs=document.getElementById("zk-cat-sel");if(cs)cs.value="";
   document.getElementById("zk-modal").style.display="flex";
-  _zkFillSupSel();
+  _zkFillSelects("","");
   buildZakas();
 }
 function setZKQuery(v){zKQuery=v.toLowerCase().trim();buildZakas();}
-function setZKCat(v){zKCat=v;buildZakas();}
+function setZKCat(v){zKCat=v;_zkFillSelects(zKSup,v);buildZakas();}
 function closeZakas(){document.getElementById("zk-modal").style.display="none";}
 function setZakasDays(d){zDays=d;const inp=document.getElementById("zk-days-inp");if(inp)inp.value=d;document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===d+" kun"));buildZakas();}
 function zkDaysInput(){const v=parseInt(document.getElementById("zk-days-inp").value)||30;zDays=Math.max(1,Math.min(365,v));document.querySelectorAll(".zk-preset").forEach(b=>b.classList.toggle("active",b.textContent.trim()===zDays+" kun"));buildZakas();}
-function setZKFilter(f){zKFilter=f;document.querySelectorAll(".zk-ftab").forEach(b=>b.classList.toggle("active",b.dataset.zf===f));buildZakas();}
-function setZKSup(v){zKSup=v;buildZakas();}
-function _zkFillSupSel(){
-  const sel=document.getElementById("zk-sup-sel");if(!sel||!ZITEMS)return;
-  const sups=[...new Set(ZITEMS.filter(v=>v.signal==="kritik"||v.signal==="urgent").map(v=>v.sup||"Noma'lum").filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
-  const cur=sel.value;
-  sel.innerHTML='<option value="">Barcha yetkazib beruvchilar</option>';
-  sups.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);});
-  if(sups.includes(cur))sel.value=cur;
-  const csel=document.getElementById("zk-cat-sel");if(!csel)return;
-  const cats=[...new Set(ZITEMS.filter(v=>v.signal==="kritik"||v.signal==="urgent").map(v=>v.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
-  csel.innerHTML='<option value="">Barcha kategoriyalar</option>';
-  cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;csel.appendChild(o);});
+function setZKFilter(f){zKFilter=f;zKSup="";zKCat="";document.querySelectorAll(".zk-ftab").forEach(b=>b.classList.toggle("active",b.dataset.zf===f));const ss=document.getElementById("zk-sup-sel");const cs=document.getElementById("zk-cat-sel");if(ss)ss.value="";if(cs)cs.value="";_zkFillSelects("","");buildZakas();}
+function setZKSup(v){zKSup=v;_zkFillSelects(v,zKCat);buildZakas();}
+function _zkFillSelects(fixSup,fixCat){
+  if(!ZITEMS)return;
+  const base=zKFilter==="all"?["kritik","urgent"]:[zKFilter];
+  const all=ZITEMS.filter(v=>base.includes(v.signal));
+  const ssel=document.getElementById("zk-sup-sel");
+  const csel=document.getElementById("zk-cat-sel");
+  if(ssel){
+    const pool=fixCat?all.filter(v=>v.cat===fixCat):all;
+    const sups=[...new Set(pool.map(v=>v.sup||"Noma'lum").filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+    const cur=ssel.value;
+    ssel.innerHTML='<option value="">Suppliers</option>';
+    sups.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;ssel.appendChild(o);});
+    if(sups.includes(cur))ssel.value=cur;
+  }
+  if(csel){
+    const pool=fixSup?all.filter(v=>(v.sup||"Noma'lum")===fixSup):all;
+    const cats=[...new Set(pool.map(v=>v.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+    const cur=csel.value;
+    csel.innerHTML='<option value="">Category</option>';
+    cats.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;csel.appendChild(o);});
+    if(cats.includes(cur))csel.value=cur;
+  }
 }
+function _zkFillSupSel(){_zkFillSelects("","");}
 function _zkCalc(){
   if(!ZITEMS)return[];
   const base=zKFilter==="all"?["kritik","urgent"]:[zKFilter];
