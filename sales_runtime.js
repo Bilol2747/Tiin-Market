@@ -929,7 +929,7 @@ function renderP6(){
     const aB=`<span class="sp-mc sp-mc-a" style="min-width:28px;text-align:center">${s.abc_cnt.A||0}A</span>`;
     const bB=`<span class="sp-mc sp-mc-b" style="min-width:28px;text-align:center">${s.abc_cnt.B||0}B</span>`;
     const cB=`<span class="sp-mc sp-mc-c" style="min-width:28px;text-align:center">${s.abc_cnt.C||0}C</span>`;
-    h+=`<td><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span> <span style="margin-left:5px;display:inline-flex;gap:3px">${aB}${bB}${cB}</span></td>`;
+    h+=`<td><div style="display:flex;flex-direction:column;gap:3px"><div><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span></div><div style="height:1px;background:#e8e8e3;margin:0"></div><div style="display:flex;gap:3px">${aB}${bB}${cB}</div></div></td>`;
     h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
     h+=`</tr>`;
     if(isSel&&s.top&&s.top.length){
