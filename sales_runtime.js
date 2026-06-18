@@ -283,6 +283,24 @@ function _buildZItems(){
     const _fmtCap=(m)=>m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd so'm":Math.round(m).toLocaleString()+" mln so'm";
     const fvBnr=document.getElementById("z-mz-total");if(fvBnr){const m=mzCap/1e6;fvBnr.textContent=_fmtCap(m);}
     const fvBnr2=document.getElementById("z-mz-total2");if(fvBnr2){const m=mzCap/1e6;fvBnr2.textContent=_fmtCap(m);}
+    // Supplier va kategoriya bo'yicha muzlagan kapital
+    const mzItems=ZITEMS.filter(v=>v.signal==="muzlagan"&&v.frozenVal>0);
+    const supMap={},catMap={};
+    mzItems.forEach(v=>{
+      const s=v.sup||"Noma'lum";supMap[s]=(supMap[s]||0)+v.frozenVal;
+      const c=v.sub||"Noma'lum";catMap[c]=(catMap[c]||0)+v.frozenVal;
+    });
+    const top5=(obj)=>Object.entries(obj).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const barHtml=(entries,total)=>entries.map(([nm,val])=>{
+      const pct=Math.round(val/total*100);
+      const vStr=val>=1e9?(val/1e9).toFixed(2)+" mlrd":Math.round(val/1e6)+" mln";
+      const shortNm=nm.length>28?nm.slice(0,26)+"…":nm;
+      return `<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px"><span style="color:#374151;font-weight:500">${shortNm}</span><span style="color:#7C3AED;font-weight:700">${vStr}</span></div><div style="height:5px;background:#ede9fe;border-radius:3px"><div style="height:100%;width:${pct}%;background:#7C3AED;border-radius:3px"></div></div></div>`;
+    }).join("");
+    const supEl=document.getElementById("z-mz-sup-list");
+    if(supEl)supEl.innerHTML=barHtml(top5(supMap),mzCap);
+    const catEl=document.getElementById("z-mz-cat-list");
+    if(catEl)catEl.innerHTML=barHtml(top5(catMap),mzCap);
   }
   const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0,muzlagan:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
