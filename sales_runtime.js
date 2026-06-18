@@ -122,12 +122,13 @@ function buildZakas(){
 function exportZakasCSV(){
   const items=_zkCalc();
   const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
   let csv="﻿";
   csv+="Yetkazib beruvchi,SKU,Mahsulot,Kategoriya,ABC,Joriy stok,"+zDays+" kunlik zakas,Holat\r\n";
   Object.keys(bySupp).sort().forEach(sup=>{
     bySupp[sup].forEach(p=>{
       const sig=p.signal==="kritik"?"Shoshilinch zakas":"Tugashga yaqin";
-      csv+=`"${sup}","${p.sku||""}","${p.name}","${p.cat||""}","${p.abc||""}",${Math.max(0,p._stock)},${p.orderQty},"${sig}"\r\n`;
+      csv+=`${q(sup)},${q(p.sku||"")},${q(p.name)},${q(p.cat||"")},${q(p.abc||"")},${Math.max(0,p._stock||0)},${p.orderQty||0},${q(sig)}\r\n`;
     });
   });
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${zDays}kun.csv`;a.click();URL.revokeObjectURL(a.href);
