@@ -136,7 +136,7 @@ function exportZakasCSV(){
       const sig=p.signal==="kritik"?"Shoshilinch zakas":"Tugashga yaqin";
       const stk=p.kg?parseFloat(p._stock||0).toFixed(2):Math.max(0,p._stock||0);
       const oq=p.orderQty||0;
-      const unit=p.kg?"kg":"sht";
+      const unit=p.kg?"кг":"шт";
       csv+=`${q(sup)},${q(p.sku||"")},${q(p.name)},${q(p.cat||"")},${q(p.abc||"")},${q(unit)},${stk},${oq},${q(sig)}\r\n`;
     });
   });
