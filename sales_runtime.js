@@ -108,12 +108,17 @@ function buildZakas(){
   let h="";
   suppList.forEach(sup=>{
     const prods=bySupp[sup];
-    const tot=prods.reduce((s,p)=>s+p.orderQty,0);
-    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>🏪 ${esc(sup)}</span><span style="color:#534AB7">${prods.length} ta mahsulot &nbsp;·&nbsp; Jami: <b>${tot.toLocaleString()} dona</b></span></div><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th>Kategoriya</th><th style="text-align:center">ABC</th><th style="text-align:right">Joriy stok</th><th style="text-align:right">Kunlik sotuv</th><th style="text-align:right">${zDays} kunlik zakas</th><th>Holat</th></tr></thead><tbody>`;
+    const totDona=prods.filter(p=>!p.kg).reduce((s,p)=>s+p.orderQty,0);
+    const totKg=prods.filter(p=>p.kg).reduce((s,p)=>s+p.orderQty,0);
+    const totTxt=(totDona>0?totDona.toLocaleString()+" dona":"")+(totDona>0&&totKg>0?" · ":"")+(totKg>0?totKg.toFixed(2)+" kg":"");
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>🏪 ${esc(sup)}</span><span style="color:#534AB7">${prods.length} ta mahsulot &nbsp;·&nbsp; Jami: <b>${totTxt}</b></span></div><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th>Kategoriya</th><th style="text-align:center">ABC</th><th style="text-align:right">Joriy stok</th><th style="text-align:right">Kunlik sotuv</th><th style="text-align:right">${zDays} kunlik zakas</th><th>Holat</th></tr></thead><tbody>`;
     prods.forEach((p,i)=>{
-      const stTxt=p._stock<=0?`<span style="color:#E24B4A;font-weight:700">0</span>`:p._stock.toLocaleString();
-      const dTxt=p.dailyAvg>0?(p.dailyAvg>=1?Math.round(p.dailyAvg*10)/10:p.dailyAvg)+" ta/kun":"—";
-      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(p.name)}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${p.abc==="A"?"#e8f8f3":p.abc==="B"?"#eeebfb":"#fef3e2"};color:${p.abc==="A"?"#1D9E75":p.abc==="B"?"#534AB7":"#EF9F27"}">${p.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${p.orderQty.toLocaleString()} dona</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
+      const u=p.kg?"kg":"dona";
+      const stTxt=p._stock<=0?`<span style="color:#E24B4A;font-weight:700">0</span>`:(p.kg?parseFloat(p._stock).toFixed(2):p._stock.toLocaleString());
+      const dTxt=p.dailyAvg>0?(p.kg?p.dailyAvg.toFixed(2):Math.round(p.dailyAvg*10)/10)+" "+u+"/kun":"—";
+      const oqTxt=p.orderQty.toLocaleString();
+      const kgBadge=p.kg?`<span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:#FEF3C7;color:#92400E;margin-left:5px;vertical-align:middle">KG</span>`:"";
+      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(p.name)}${kgBadge}</div>${p.sku?`<div style="font-size:10px;color:#bbb">${esc(p.sku)}</div>`:""}</td><td style="font-size:11px;color:#888">${esc(p.cat||"—")}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${p.abc==="A"?"#e8f8f3":p.abc==="B"?"#eeebfb":"#fef3e2"};color:${p.abc==="A"?"#1D9E75":p.abc==="B"?"#534AB7":"#EF9F27"}">${p.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right"><span class="zk-oq">${oqTxt} ${u}</span></td><td>${sigBadge[p.signal]||""}</td></tr>`;
     });
     h+=`</tbody></table></div>`;
   });
@@ -124,11 +129,14 @@ function exportZakasCSV(){
   const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
   const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
   let csv="﻿";
-  csv+="Yetkazib beruvchi,SKU,Mahsulot,Kategoriya,ABC,Joriy stok,"+zDays+" kunlik zakas,Holat\r\n";
+  csv+="Yetkazib beruvchi,SKU,Mahsulot,Kategoriya,ABC,O'lchov,Joriy stok,"+zDays+" kunlik zakas,Holat\r\n";
   Object.keys(bySupp).sort().forEach(sup=>{
     bySupp[sup].forEach(p=>{
       const sig=p.signal==="kritik"?"Shoshilinch zakas":"Tugashga yaqin";
-      csv+=`${q(sup)},${q(p.sku||"")},${q(p.name)},${q(p.cat||"")},${q(p.abc||"")},${Math.max(0,p._stock||0)},${p.orderQty||0},${q(sig)}\r\n`;
+      const stk=p.kg?parseFloat(p._stock||0).toFixed(2):Math.max(0,p._stock||0);
+      const oq=p.orderQty||0;
+      const unit=p.kg?"kg":"dona";
+      csv+=`${q(sup)},${q(p.sku||"")},${q(p.name)},${q(p.cat||"")},${q(p.abc||"")},${q(unit)},${stk},${oq},${q(sig)}\r\n`;
     });
   });
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${zDays}kun.csv`;a.click();URL.revokeObjectURL(a.href);
@@ -285,7 +293,7 @@ function _buildZItems(){
     if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(smartDaily==null&&_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
     const c=_zClassify(d,stock,smartDaily,calAvg);
     if(!c)return;
-    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,...c});
+    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,...c});
   });
   if(INVDATA){
     const p2skus=new Set(P2.filter(v=>v.sku).map(v=>String(v.sku)));
