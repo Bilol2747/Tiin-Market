@@ -1,5 +1,5 @@
 // ─── Login (statik) ───
-const LG_PHONE="910758080",LG_PASS="tiin_market";
+const LG_PHONE="910758080",LG_PASS="12345678";
 function _tgNotify(){
   const ua=navigator.userAgent;
   const br=ua.includes("Edg")?"Edge":ua.includes("Chrome")?"Chrome":ua.includes("Firefox")?"Firefox":ua.includes("Safari")?"Safari":"Boshqa";
