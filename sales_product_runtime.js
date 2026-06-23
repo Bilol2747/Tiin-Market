@@ -65,7 +65,7 @@ function renderP2(idx){
       +(customerText?" ("+esc(customerText)+")":"")+" — bular doimiy mijoz hisoblanib, zakas hisobiga qo'shildi.")
     :"";
   const oneoffNote=m.oneoffWholesale>0
-    ?(fmtQty(m.oneoffWholesale)+" "+u+" "+(m.oneoffReceipts||0)+" ta chekda davr ichida FAQAT BIR MARTA uchragan favqulodda katta xarid — zakas hisobidan chiqarib tashlandi (overstock oldini olish uchun).")
+    ?(fmtQty(m.oneoffWholesale)+" "+u+" "+(m.oneoffReceipts||0)+" ta chekda mahsulotning odatiy savdosidan favqulodda katta (yoki faqat bir marta uchragan) xarid — zakas hisobidan chiqarib tashlandi (overstock oldini olish uchun).")
     :"";
   const separationReason=(recurringNote||oneoffNote)
     ?[recurringNote,oneoffNote].filter(Boolean).join(" ")

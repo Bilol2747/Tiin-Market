@@ -262,10 +262,19 @@ def build(input_path):
                 customer_label = receipt["customer"] or receipt["tin"] or "Korporativ xaridor"
                 item["wholesale_customers"][customer_label] += qty
                 recurring = len(explicit_customer_days[(product_key, customer_key)]) >= 2
-                # Bir martalik bo'lsa ham, miqdor mahsulotning o'z normal retail
-                # chegarasidan (cap) oshmasa - bu kichik, xavfsiz xarid, ajratilmaydi.
-                normal_cap = rules.get(product_key, {}).get("cap", 0)
-                if recurring or qty <= normal_cap:
+                product_rule = rules.get(product_key, {"cap": 0, "threshold": float("inf")})
+                normal_cap = product_rule.get("cap", 0)
+                extreme_threshold = product_rule.get("threshold", float("inf"))
+                if qty > extreme_threshold:
+                    # Mahsulotning o'z statistik favqulodda chegarasidan oshib ketgan -
+                    # takrorlangan bo'lsa ham, bu chinakam reseller/ulgurji xarid,
+                    # kunlik do'kon ehtiyojiga aloqasi yo'q - har doim ajratiladi.
+                    item["we"][day_index] += qty
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
+                elif recurring or qty <= normal_cap:
+                    # Bir martalik bo'lsa ham, miqdor mahsulotning o'z normal retail
+                    # chegarasidan (cap) oshmasa - bu kichik, xavfsiz xarid, ajratilmaydi.
                     item["wi"][day_index] += qty
                     item["wri"][day_index] += 1
                     item["recurring_receipts"] += 1
