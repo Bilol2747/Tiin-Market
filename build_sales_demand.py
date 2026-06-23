@@ -16,6 +16,10 @@ BUSINESS_WORDS = (
     "school", "maktab", "bank", "aj ",
 )
 NON_BUSINESS_CUSTOMERS = {"", "xodimlar", "nujda", "farrux"}
+# Mahsulotning o'z favqulodda-ulgurji chegarasidan (threshold) necha baravar
+# katta bo'lsa - takrorlangan bo'lsa ham, baribir chinakam bir martalik
+# reseller xaridi hisoblanib, zakas hisobidan har doim chiqariladi.
+EXTREME_MULTIPLIER = 5
 
 
 def normalize(value):
@@ -264,7 +268,7 @@ def build(input_path):
                 recurring = len(explicit_customer_days[(product_key, customer_key)]) >= 2
                 product_rule = rules.get(product_key, {"cap": 0, "threshold": float("inf")})
                 normal_cap = product_rule.get("cap", 0)
-                extreme_threshold = product_rule.get("threshold", float("inf"))
+                extreme_threshold = product_rule.get("threshold", float("inf")) * EXTREME_MULTIPLIER
                 if qty > extreme_threshold:
                     # Mahsulotning o'z statistik favqulodda chegarasidan oshib ketgan -
                     # takrorlangan bo'lsa ham, bu chinakam reseller/ulgurji xarid,
@@ -300,7 +304,8 @@ def build(input_path):
                     item["rr"][day_index] += 1
                 item["inferred_receipts"] += 1
                 recurring = len(inferred_product_days[product_key]) >= 2
-                if recurring:
+                extreme = threshold * EXTREME_MULTIPLIER
+                if recurring and qty <= extreme:
                     item["wi"][day_index] += excess
                     item["wri"][day_index] += 1
                     item["recurring_receipts"] += 1

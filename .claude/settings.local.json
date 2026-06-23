@@ -117,7 +117,8 @@
       "Bash(cat vercel.json)",
       "Bash(command -v vercel)",
       "Bash(rm -f _tmp_splice.py)",
-      "Bash(cp sales.html index.html)"
+      "Bash(cp sales.html index.html)",
+      "Bash(python _tmp_audit.py)"
     ],
     "additionalDirectories": [
       "C:\\Tiim Market Base Loyihasi",
