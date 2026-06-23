@@ -643,6 +643,10 @@ function renderP2(idx){
   const drr=dl?dl.rr:null;
   const dwr=dl?dl.wr:null;
   const dw=dl?dl.w:null;
+  const dwi=dl?dl.wi:null;
+  const dwe=dl?dl.we:null;
+  const dwri=dl?dl.wri:null;
+  const dwre=dl?dl.wre:null;
   const labels=(DMETA&&DMETA.labels&&DMETA.labels.length===dd.length)
     ?DMETA.labels.map(value=>value.slice(5))
     :dd.map((_,i)=>String(i+1).padStart(2,"0"));
@@ -654,11 +658,12 @@ function renderP2(idx){
     activeAvg:tz.clean_active_avg,
     activeDays:tz.retailDays,
     confidence:0,
-    wholesalePct:tz.total?tz.wSum/tz.total*100:0,
-    explicitWholesale:0,
-    inferredWholesale:tz.wSum,
+    wholesalePct:tz.total?tz.weSum/tz.total*100:0,
+    recurringWholesale:tz.wiSum,
+    oneoffWholesale:tz.weSum,
     trend:"stable"
   };
+  const pureRetailSum=tz.pureRetail?tz.pureRetail.reduce((a,b)=>a+b,0):tz.retailMonth;
   const pat=analyzePattern(dd,tz,u);
   const fmtQty=value=>v.kg?Number(value||0).toFixed(2):Math.round(value||0).toLocaleString();
   const fmtNeed=value=>{
@@ -690,22 +695,25 @@ function renderP2(idx){
     :fmtNeed(primaryForecast);
   const customerText=(m.wholesaleCustomers||[]).join(", ");
   const receiptAvg=m.totalReceipts?m.totalSold/m.totalReceipts:0;
-  const separationReason=m.explicitWholesale>0
-    ?(fmtQty(m.explicitWholesale)+" "+u+" "+m.explicitReceipts+" ta korporativ chekdan ajratildi"
-      +(customerText?": "+esc(customerText):"")+".")
-    :m.inferredWholesale>0
-      ?(m.inferredReceipts+" ta kam-chekli katta xaridda miqdor "+fmtQty(m.bulkThreshold)+" "+u+
-        "/chek chegarasidan oshgan. Normal "+fmtQty(m.retailCap)+" "+u+"/chek retailda qoldirildi.")
-      :("Jami "+m.totalReceipts+" chek, o'rtacha "+fmtQty(receiptAvg)+" "+u+
-        "/chek. Bu mahsulotning odatiy P90 ko'rsatkichi "+fmtQty(m.receiptP90)+" "+u+
-        "/chek bo'lgani uchun savdo retailda qoldirildi.");
+  const recurringNote=m.recurringWholesale>0
+    ?(fmtQty(m.recurringWholesale)+" "+u+" "+(m.recurringReceipts||0)+" ta chekda takrorlanuvchi ulgurji aniqlandi"
+      +(customerText?" ("+esc(customerText)+")":"")+" — bular doimiy mijoz hisoblanib, zakas hisobiga qo'shildi.")
+    :"";
+  const oneoffNote=m.oneoffWholesale>0
+    ?(fmtQty(m.oneoffWholesale)+" "+u+" "+(m.oneoffReceipts||0)+" ta chekda davr ichida FAQAT BIR MARTA uchragan favqulodda katta xarid — zakas hisobidan chiqarib tashlandi (overstock oldini olish uchun).")
+    :"";
+  const separationReason=(recurringNote||oneoffNote)
+    ?[recurringNote,oneoffNote].filter(Boolean).join(" ")
+    :("Jami "+m.totalReceipts+" chek, o'rtacha "+fmtQty(receiptAvg)+" "+u+
+      "/chek. Bu mahsulotning odatiy P90 ko'rsatkichi "+fmtQty(m.receiptP90)+" "+u+
+      "/chek bo'lgani uchun savdo retailda qoldirildi.");
   let lastSaleIndex=-1;
   for(let day=dd.length-1;day>=0;day--){
     if(dd[day]>0){lastSaleIndex=day;break;}
   }
   const lastSaleDate=lastSaleIndex>=0&&DMETA&&DMETA.labels
     ?DMETA.labels[lastSaleIndex]
-    :"Bu davrda sotuv yo'q";
+    :(v.ld||"-");
   const daysSinceSale=lastSaleIndex>=0?dd.length-1-lastSaleIndex:null;
   const lastSaleText=daysSinceSale===null
     ?"Savdo kuzatilmadi"
@@ -732,7 +740,7 @@ function renderP2(idx){
   document.getElementById("hint").textContent="";
   document.getElementById("qunit").textContent=u;
 
-  const basket=(v.b||[]).filter(x=>!/^paket tiin\b/i.test(x.n));
+  const basket=v.b||[];
   document.getElementById("bcnt").textContent=basket.length+" ta";
   document.getElementById("blist").innerHTML=basket.length
     ?basket.map((x,i)=>'<div class="prod-row"><div class="pn">'+(i+1)+'</div><div class="pname">'+esc(x.n)+'</div><div class="pbar-w"><div class="pbar" style="width:'+Math.min(100,x.c)+'%;background:#1D9E75"></div></div><div class="ppct">'+x.c+'%</div></div>').join("")
@@ -742,9 +750,10 @@ function renderP2(idx){
     '<div class="stat-grid">'+
       '<div class="sbox tz-sbox"><div class="slbl">'+primaryLabel+'</div><div class="sval">'+primaryDisplay+' '+u+'</div></div>'+
       '<div class="sbox"><div class="slbl">'+horizon+' kunlik ehtiyoj</div><div class="sval">'+demandDisplay+' '+u+'</div></div>'+
-      '<div class="sbox"><div class="slbl">Sof retail</div><div class="sval">'+fmtQty(tz.retailMonth)+' '+u+'</div></div>'+
-      '<div class="sbox"><div class="slbl">Ulgurji</div><div class="sval">'+fmtQty(tz.wSum)+' '+u+'</div></div>'+
-      '<div class="sbox" style="grid-column:1/-1;background:#F8FAFC;border:1px solid #E2E8F0;"><div class="slbl">'+(DMETA&&DMETA.days?DMETA.days+" kunlik savdo":"Jami savdo")+'</div><div class="sval">'+fmt(m.revenue||0)+' UZS · '+fmtQty(m.totalSold)+' '+u+'</div></div>'+
+      '<div class="sbox"><div class="slbl">Sof retail</div><div class="sval">'+fmtQty(pureRetailSum)+' '+u+'</div></div>'+
+      '<div class="sbox" style="border-left:3px solid #EF9F27"><div class="slbl">Doimiy ulgurji (zakasga qo\'shildi)</div><div class="sval">'+fmtQty(tz.wiSum)+' '+u+'</div></div>'+
+      '<div class="sbox" style="border-left:3px solid #E24B4A"><div class="slbl">Bir martalik ulgurji (chiqarildi)</div><div class="sval">'+fmtQty(tz.weSum)+' '+u+'</div></div>'+
+      '<div class="sbox" style="grid-column:1/-1;background:#F8FAFC;border:1px solid #E2E8F0;"><div class="slbl">Oylik savdo</div><div class="sval">'+fmt(m.revenue||0)+' UZS · '+fmtQty(m.totalSold)+' '+u+'</div></div>'+
     '</div>'+
     '<div style="margin-top:8px;padding:7px 10px;border-left:3px solid '+pat.color+';background:#F8FAFC;border-radius:0 7px 7px 0;font-size:10px;color:#4B5563;">'+
       '<b style="color:'+pat.color+'">Ajratish sababi:</b> '+separationReason+
@@ -756,8 +765,9 @@ function renderP2(idx){
   p2chart=new Chart(document.getElementById("dc"),{
     type:"bar",
     data:{labels,datasets:[
-      {label:"Retail — ko'p chek yoki normal miqdor",data:tz.retail,backgroundColor:"rgba(29,158,117,.72)",borderRadius:3,stack:"sales"},
-      {label:"Ulgurji — korporativ yoki kam chekda katta miqdor",data:dw||new Array(dd.length).fill(0),backgroundColor:"#EF9F27",borderRadius:3,stack:"sales"},
+      {label:"Retail — odatiy savdo",data:tz.pureRetail||new Array(dd.length).fill(0),backgroundColor:"rgba(29,158,117,.72)",borderRadius:3,stack:"sales"},
+      {label:"Doimiy ulgurji — takrorlanuvchi, zakasga qo'shilgan",data:dwi||new Array(dd.length).fill(0),backgroundColor:"#EF9F27",borderRadius:3,stack:"sales"},
+      {label:"Bir martalik ulgurji — favqulodda, zakasdan chiqarilgan",data:dwe||new Array(dd.length).fill(0),backgroundColor:"#E24B4A",borderRadius:3,stack:"sales"},
       {type:"line",label:"Kunlik talab: "+fmtRate(m.daily),data:new Array(dd.length).fill(m.daily),borderColor:"#534AB7",borderWidth:2,pointRadius:0,borderDash:[5,4]}
     ]},
     options:{
@@ -775,16 +785,17 @@ function renderP2(idx){
             afterBody:items=>{
               const day=items[0].dataIndex;
               return[
-                "Retail: "+fmtQty(tz.retail[day])+" "+u+" / retail qismi bor "+((drr&&drr[day])||0)+" chek",
-                "Ulgurji: "+fmtQty((dw&&dw[day])||0)+" "+u+" / shundan "+((dwr&&dwr[day])||0)+" chekda ulgurji qism",
+                "Retail: "+fmtQty((tz.pureRetail&&tz.pureRetail[day])||0)+" "+u+" / retail qismi bor "+((drr&&drr[day])||0)+" chek",
+                "Doimiy ulgurji: "+fmtQty((dwi&&dwi[day])||0)+" "+u+" / "+((dwri&&dwri[day])||0)+" chekda",
+                "Bir martalik ulgurji: "+fmtQty((dwe&&dwe[day])||0)+" "+u+" / "+((dwre&&dwre[day])||0)+" chekda",
                 "Jami sotilgan: "+fmtQty(dd[day])+" "+u,
                 "Jami noyob cheklar: "+((dr&&dr[day])||0)+" ta"
               ];
-            } 
+            }
           }
         }
       },
-      scales:{ 
+      scales:{
         x:{stacked:true,grid:{display:false},ticks:{font:{size:9},maxTicksLimit:12}},
         y:{stacked:true,grid:{color:"rgba(0,0,0,.05)"},ticks:{font:{size:9}}}
       }
@@ -835,26 +846,35 @@ function calcTozaOrtacha(dd,dr,dw,dl){
   const nd=dd.length;
   const total=dd.reduce((a,b)=>a+b,0);
   const wholesale=(dw&&dw.length===nd)?dw:new Array(nd).fill(0);
-  const retail=(dl&&dl.rt&&dl.rt.length===nd)
+  const recurring=(dl&&dl.wi&&dl.wi.length===nd)?dl.wi:new Array(nd).fill(0);
+  const oneoff=(dl&&dl.we&&dl.we.length===nd)?dl.we:new Array(nd).fill(0);
+  const pureRetail=(dl&&dl.rt&&dl.rt.length===nd)
     ?dl.rt
     :dd.map((value,index)=>Math.max(0,value-(wholesale[index]||0)));
-  const retailMonth=retail.reduce((a,b)=>a+b,0);
-  const retailDays=retail.filter(value=>value>0.001).length;
+  // Zakas hisobi: sof retail + DOIMIY (takrorlanuvchi) ulgurji. Bir martalik ulgurji kiritilmaydi.
+  const orderBasis=pureRetail.map((value,index)=>value+(recurring[index]||0));
+  const retailMonth=orderBasis.reduce((a,b)=>a+b,0);
+  const retailDays=orderBasis.filter(value=>value>0.001).length;
   const wholesaleRows=[];
   for(let day=0;day<nd;day++){
-    const explicit=dl&&dl.x?dl.x[day]||0:0;
-    const inferred=dl&&dl.i?dl.i[day]||0:0;
-    if(explicit>0)wholesaleRows.push({day,val:dd[day],wq:explicit,r:dr?dr[day]||0:0,src:"ANIQ"});
-    if(inferred>0)wholesaleRows.push({day,val:dd[day],wq:inferred,r:dr?dr[day]||0:0,src:"EHTIMOL"});
+    const rec=recurring[day]||0;
+    const one=oneoff[day]||0;
+    if(rec>0)wholesaleRows.push({day,val:dd[day],wq:rec,r:dr?dr[day]||0:0,src:"DOIMIY"});
+    if(one>0)wholesaleRows.push({day,val:dd[day],wq:one,r:dr?dr[day]||0:0,src:"BIR_MARTALIK"});
   }
   return{
     wholesale:wholesaleRows,
     wSum:wholesale.reduce((a,b)=>a+b,0),
+    wiSum:recurring.reduce((a,b)=>a+b,0),
+    weSum:oneoff.reduce((a,b)=>a+b,0),
     retailMonth,
     clean_avg:nd?retailMonth/nd:0,
     clean_active_avg:retailDays?retailMonth/retailDays:0,
     retailDays,
-    retail,
+    retail:orderBasis,
+    pureRetail,
+    recurring,
+    oneoff,
     total,
     metrics:dl&&dl.m?dl.m:null
   };
@@ -869,10 +889,10 @@ function analyzePattern(dd,tz,u){
   const wholesalePct=m.wholesalePct||0;
   if(tz.retailMonth<=0)return{type:"no_sales",label:"Retail savdo yo'q",color:"#888",confidence,msg:"Tanlangan davrda sof retail savdo aniqlanmadi.",rec:"Ulgurji savdo va retail savdoni alohida tekshiring."};
   if(active/days<0.25)return{type:"slow",label:"Sust retail talab",color:"#94A3B8",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Talab tezligini kalendar kun bo'yicha baholang."};
-  if(trend==="up")return{type:"grow",label:"Retail talab o'smoqda",color:"#1D9E75",confidence,msg:"So'nggi davr avvalgi davrdan yuqori.",rec:"7 va 30 kunlik prognozda so'nggi kunlarga ko'proq vazn berildi."}; 
+  if(trend==="up")return{type:"grow",label:"Retail talab o'smoqda",color:"#1D9E75",confidence,msg:"So'nggi davr avvalgi davrdan yuqori.",rec:"7 va 30 kunlik prognozda so'nggi kunlarga ko'proq vazn berildi."};
   if(trend==="down")return{type:"decline",label:"Retail talab pasaymoqda",color:"#E24B4A",confidence,msg:"So'nggi davr avvalgi davrdan past.",rec:"Prognoz pasaygan talabni hisobga oladi."};
-  if(wholesalePct>0)return{type:"wholesale",label:"Retail va ulgurji ajratildi",color:"#EF9F27",confidence,msg:"Jami savdoning "+wholesalePct.toFixed(1)+"% ulgurji sifatida ajratildi.",rec:"Talab prognoziga faqat sof retail savdo kiritildi."};
-  return{type:"stable",label:"Barqaror retail talab",color:"#1D9E75",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Kunlik, haftalik va 30 kunlik talab sof retail asosida hisoblandi."};
+  if(wholesalePct>0)return{type:"wholesale",label:"Bir martalik ulgurji ajratildi",color:"#E24B4A",confidence,msg:"Jami savdoning "+wholesalePct.toFixed(1)+"% favqulodda (bir martalik) ulgurji sifatida ajratildi.",rec:"Doimiy ulgurji zakas hisobiga qo'shildi, bir martalik ulgurji chiqarib tashlandi."};
+  return{type:"stable",label:"Barqaror retail talab",color:"#1D9E75",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Kunlik, haftalik va 30 kunlik talab sof retail + doimiy ulgurji asosida hisoblandi."};
 }
 function renderTable3(rows){const q=document.getElementById("srch3").value.toLowerCase().trim();let filtered=rows;if(q){filtered=P3.filter(v=>!v._off&&v.name.toLowerCase().includes(q));if(filtered.length>0){const fv=filtered[0];const tt=fv.sub==="C1"?"C1":fv.abc;if(tt!==curTab3){curTab3=tt;document.querySelectorAll(".atab").forEach(b=>b.className="atab");document.querySelectorAll(".atab").forEach(b=>{if(b.dataset.tab===tt)b.className="atab sel-"+tt;});curRows3=getRows3(tt);}}}document.getElementById("tcnt").textContent=filtered.length.toLocaleString()+" ta mahsulot";const max=Math.min(filtered.length,500);const rows2=[];for(let i=0;i<max;i++){const v=filtered[i];const idx=P3.indexOf(v);const[sc,st]=sotuv(v.di);const sub=v.sub?'<span class="badge '+(v.sub==="C1"?"b-c1":v.sub==="C2"?"b-c2":"b-c3")+'">'+v.sub+"</span>":"";rows2.push('<tr data-idx="'+idx+'" onclick="showDetail3('+idx+')"><td style="color:#bbb;">'+v.r+'</td><td style="font-weight:500;">'+esc(v.name)+'</td><td style="color:#888;">'+esc(v.cat.substring(0,20))+'</td><td style="font-weight:700;color:#1D9E75;">'+fmt(v.rev)+'</td><td>'+v.rec.toLocaleString()+'</td><td style="color:'+(v.di>7?"#E24B4A":"#1D9E75")+';">'+v.ld+'</td><td><span class="badge '+sc+'">'+st+'</span></td><td><span class="badge b-'+v.abc+'">'+v.abc+'</span></td></tr>');}if(!rows2.length)rows2.push('<tr><td colspan="8" style="text-align:center;padding:20px;color:#bbb;">Topilmadi</td></tr>');document.getElementById("tbody3").innerHTML=rows2.join("");document.getElementById("detail3").style.display="none";}
 function setTab(btn){const tab=btn.dataset.tab;curTab3=tab;document.querySelectorAll(".atab").forEach(b=>b.className="atab");btn.className="atab sel-"+tab;document.getElementById("srch3").value="";curRows3=getRows3(tab);renderTable3(curRows3);}

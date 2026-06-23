@@ -50,14 +50,17 @@ def is_explicit_wholesale(customer, tin):
     return any(word in customer_norm for word in BUSINESS_WORDS)
 
 
-def demand_metrics(retail, explicit_wholesale, inferred_wholesale, retail_cap, threshold):
-    days = len(retail)
-    total = sum(retail)
-    active_days = sum(value > 0.001 for value in retail)
+def demand_metrics(retail, recurring_wholesale, oneoff_wholesale, retail_cap, threshold):
+    # Zakas/ehtiyoj hisobi sof retail + DOIMIY (takrorlanuvchi) ulgurjiga asoslanadi.
+    # Bir martalik (oneoff) ulgurji bu hisobga kiritilmaydi - aks holda overstock paydo bo'ladi.
+    order_basis = [retail[i] + recurring_wholesale[i] for i in range(len(retail))]
+    days = len(order_basis)
+    total = sum(order_basis)
+    active_days = sum(value > 0.001 for value in order_basis)
     full_avg = total / days if days else 0
 
     def window_avg(size):
-        data = retail[-min(size, days):]
+        data = order_basis[-min(size, days):]
         return sum(data) / len(data) if data else 0
 
     avg7 = window_avg(7)
@@ -69,8 +72,8 @@ def demand_metrics(retail, explicit_wholesale, inferred_wholesale, retail_cap, t
     else:
         daily = full_avg
 
-    first = sum(retail[: max(1, days // 3)]) / max(1, days // 3)
-    last = sum(retail[-max(1, days // 3):]) / max(1, days // 3)
+    first = sum(order_basis[: max(1, days // 3)]) / max(1, days // 3)
+    last = sum(order_basis[-max(1, days // 3):]) / max(1, days // 3)
     if first <= 0 and last > 0:
         trend = "new"
     elif first > 0 and last / first >= 1.25:
@@ -80,8 +83,9 @@ def demand_metrics(retail, explicit_wholesale, inferred_wholesale, retail_cap, t
     else:
         trend = "stable"
 
-    observed = sum(retail) + sum(explicit_wholesale) + sum(inferred_wholesale)
-    wholesale = sum(explicit_wholesale) + sum(inferred_wholesale)
+    total_recurring = sum(recurring_wholesale)
+    total_oneoff = sum(oneoff_wholesale)
+    observed = total + total_oneoff
     coverage = min(1.0, days / 56)
     activity = active_days / days if days else 0
     sample_strength = min(1.0, math.log10(total + 1) / 2)
@@ -97,9 +101,9 @@ def demand_metrics(retail, explicit_wholesale, inferred_wholesale, retail_cap, t
         "activeDays": active_days,
         "confidence": max(0, min(100, confidence)),
         "trend": trend,
-        "wholesalePct": round(wholesale / observed * 100, 1) if observed else 0,
-        "explicitWholesale": round_quantity(sum(explicit_wholesale)),
-        "inferredWholesale": round_quantity(sum(inferred_wholesale)),
+        "wholesalePct": round(total_oneoff / observed * 100, 1) if observed else 0,
+        "recurringWholesale": round_quantity(total_recurring),
+        "oneoffWholesale": round_quantity(total_oneoff),
         "retailCap": round_quantity(retail_cap),
         "bulkThreshold": round_quantity(threshold),
     }
@@ -175,7 +179,7 @@ def build(input_path):
         for product_key, qty in receipt["items"].items():
             anonymous_quantities[product_key].append(qty)
 
-    rules = {}
+    rules: dict = {}
     for product_key, quantities in anonymous_quantities.items():
         med = median(quantities)
         deviations = [abs(value - med) for value in quantities]
@@ -205,10 +209,29 @@ def build(input_path):
             "sample": len(retail_sample),
         }
 
+    # Har bir ulgurji voqeasi necha XIL KUNDA takrorlanganini aniqlaymiz.
+    # Aniq (TIN/korporativ) holatda - har bir xaridor alohida kuzatiladi.
+    # Nomsiz (statistik chegaradan oshgan) holatda - mahsulot darajasida kuzatiladi,
+    # chunki xaridor identifikatori yo'q.
+    explicit_customer_days = defaultdict(set)
+    inferred_product_days = defaultdict(set)
+    for receipt in receipts.values():
+        day_index = (receipt["date"] - min_date).days
+        explicit = is_explicit_wholesale(receipt["customer"], receipt["tin"])
+        customer_key = receipt["tin"] or normalize(receipt["customer"])
+        for product_key, qty in receipt["items"].items():
+            if explicit:
+                explicit_customer_days[(product_key, customer_key)].add(day_index)
+            else:
+                rule = rules.get(product_key, {"cap": qty, "threshold": float("inf")})
+                if qty >= rule["threshold"]:
+                    inferred_product_days[product_key].add(day_index)
+
     item_data = {}
     for receipt in receipts.values():
         day_index = (receipt["date"] - min_date).days
         explicit = is_explicit_wholesale(receipt["customer"], receipt["tin"])
+        customer_key = receipt["tin"] or normalize(receipt["customer"])
         for product_key, qty in receipt["items"].items():
             item = item_data.setdefault(product_key, {
                 "sku": product_skus.get(product_key, ""),
@@ -216,11 +239,17 @@ def build(input_path):
                 "r": [0] * days,
                 "x": [0.0] * days,
                 "i": [0.0] * days,
+                "wi": [0.0] * days,
+                "we": [0.0] * days,
+                "wri": [0] * days,
+                "wre": [0] * days,
                 "rr": [0] * days,
                 "wr": [0] * days,
                 "revenue": 0.0,
                 "explicit_receipts": 0,
                 "inferred_receipts": 0,
+                "recurring_receipts": 0,
+                "oneoff_receipts": 0,
                 "wholesale_customers": defaultdict(float),
             })
             item["q"][day_index] += qty
@@ -232,6 +261,18 @@ def build(input_path):
                 item["explicit_receipts"] += 1
                 customer_label = receipt["customer"] or receipt["tin"] or "Korporativ xaridor"
                 item["wholesale_customers"][customer_label] += qty
+                recurring = len(explicit_customer_days[(product_key, customer_key)]) >= 2
+                # Bir martalik bo'lsa ham, miqdor mahsulotning o'z normal retail
+                # chegarasidan (cap) oshmasa - bu kichik, xavfsiz xarid, ajratilmaydi.
+                normal_cap = rules.get(product_key, {}).get("cap", 0)
+                if recurring or qty <= normal_cap:
+                    item["wi"][day_index] += qty
+                    item["wri"][day_index] += 1
+                    item["recurring_receipts"] += 1
+                else:
+                    item["we"][day_index] += qty
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
                 continue
             rule = rules.get(product_key, {
                 "cap": qty,
@@ -243,11 +284,21 @@ def build(input_path):
             cap = rule["cap"]
             threshold = rule["threshold"]
             if qty >= threshold:
-                item["i"][day_index] += max(0, qty - cap)
+                excess = max(0, qty - cap)
+                item["i"][day_index] += excess
                 item["wr"][day_index] += 1
                 if cap > 0:
                     item["rr"][day_index] += 1
                 item["inferred_receipts"] += 1
+                recurring = len(inferred_product_days[product_key]) >= 2
+                if recurring:
+                    item["wi"][day_index] += excess
+                    item["wri"][day_index] += 1
+                    item["recurring_receipts"] += 1
+                else:
+                    item["we"][day_index] += excess
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
             else:
                 item["rr"][day_index] += 1
 
@@ -265,10 +316,10 @@ def build(input_path):
         cap = rule["cap"]
         threshold = rule["threshold"]
         retail = [
-            max(0, item["q"][day] - item["x"][day] - item["i"][day])
+            max(0, item["q"][day] - item["wi"][day] - item["we"][day])
             for day in range(days)
         ]
-        wholesale = [item["x"][day] + item["i"][day] for day in range(days)]
+        wholesale = [item["wi"][day] + item["we"][day] for day in range(days)]
         canonical_name = product_names[product_key].most_common(1)[0][0]
         output_items[product_key] = {
             "name": canonical_name,
@@ -278,10 +329,14 @@ def build(input_path):
             "rr": item["rr"],
             "wr": item["wr"],
             "w": [round_quantity(value) for value in wholesale],
+            "wi": [round_quantity(value) for value in item["wi"]],
+            "we": [round_quantity(value) for value in item["we"]],
+            "wri": item["wri"],
+            "wre": item["wre"],
             "x": [round_quantity(value) for value in item["x"]],
             "i": [round_quantity(value) for value in item["i"]],
             "rt": [round_quantity(value) for value in retail],
-            "m": demand_metrics(retail, item["x"], item["i"], cap, threshold),
+            "m": demand_metrics(retail, item["wi"], item["we"], cap, threshold),
         }
         output_items[product_key]["m"]["receiptMedian"] = round_quantity(rule["median"])
         output_items[product_key]["m"]["receiptP90"] = round_quantity(rule["p90"])
@@ -289,8 +344,12 @@ def build(input_path):
         output_items[product_key]["m"]["revenue"] = round(item["revenue"])
         output_items[product_key]["m"]["totalSold"] = round_quantity(sum(item["q"]))
         output_items[product_key]["m"]["totalReceipts"] = sum(item["r"])
+        output_items[product_key]["m"]["explicitWholesale"] = round_quantity(sum(item["x"]))
+        output_items[product_key]["m"]["inferredWholesale"] = round_quantity(sum(item["i"]))
         output_items[product_key]["m"]["explicitReceipts"] = item["explicit_receipts"]
         output_items[product_key]["m"]["inferredReceipts"] = item["inferred_receipts"]
+        output_items[product_key]["m"]["recurringReceipts"] = item["recurring_receipts"]
+        output_items[product_key]["m"]["oneoffReceipts"] = item["oneoff_receipts"]
         output_items[product_key]["m"]["wholesaleCustomers"] = [
             customer for customer, _ in sorted(
                 item["wholesale_customers"].items(),
@@ -310,7 +369,7 @@ def build(input_path):
             "end": max_date.isoformat(),
             "title": min_date.strftime("%B %Y"),
             "labels": labels,
-            "method": "sku-customer-tin-dynamic-receipt-v3",
+            "method": "sku-customer-tin-recurring-v4",
         },
         "items": output_items,
         "skuAliases": sku_aliases,
