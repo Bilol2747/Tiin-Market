@@ -121,7 +121,8 @@
       "Bash(python _tmp_audit.py)",
       "Bash(python _tmp_audit2.py)",
       "Bash(python _tmp_fix_dblclick.py)",
-      "Bash(rm -f _tmp_out.txt)"
+      "Bash(rm -f _tmp_out.txt)",
+      "Bash(python _tmp_fix_priority.py)"
     ],
     "additionalDirectories": [
       "C:\\Tiim Market Base Loyihasi",

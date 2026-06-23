@@ -290,8 +290,9 @@ function _buildZItems(){
     const d=Array.isArray(v.d)?v.d:null;
     if(!d)return;
     // aqlli velocity (m.daily) + retail oylik o'rtacha (m.calendarAvg) — dailydata'dan
-    let smartDaily=(v.da!=null)?v.da:null, calAvg=null;
-    if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(smartDaily==null&&_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
+    let smartDaily=null, calAvg=null;
+    if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
+    if(smartDaily==null&&v.da!=null)smartDaily=v.da;
     const c=_zClassify(d,stock,smartDaily,calAvg);
     if(!c)return;
     ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,...c});
