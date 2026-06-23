@@ -118,7 +118,10 @@
       "Bash(command -v vercel)",
       "Bash(rm -f _tmp_splice.py)",
       "Bash(cp sales.html index.html)",
-      "Bash(python _tmp_audit.py)"
+      "Bash(python _tmp_audit.py)",
+      "Bash(python _tmp_audit2.py)",
+      "Bash(python _tmp_fix_dblclick.py)",
+      "Bash(rm -f _tmp_out.txt)"
     ],
     "additionalDirectories": [
       "C:\\Tiim Market Base Loyihasi",
