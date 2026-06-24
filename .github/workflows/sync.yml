@@ -17,7 +17,7 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 90
     steps:
       - name: Repo'ni olish
         uses: actions/checkout@v4
@@ -30,18 +30,9 @@ jobs:
       - name: Kutubxonalarni o'rnatish
         run: pip install requests openpyxl
 
-      - name: Invan API'ga ulanishni tekshirish (token'siz)
+      - name: Invan API'ga ulanishni tekshirish
         run: |
           curl -s -o /dev/null -w "HTTP holat: %{http_code}\n" --max-time 15 https://api.7i.uz/integration/v1/order || echo "ULANMADI (timeout/xato)"
-
-      - name: Invan API'ga ulanishni tekshirish (token bilan)
-        env:
-          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
-        run: |
-          curl -s -o /tmp/resp.json -w "HTTP holat: %{http_code}, vaqt: %{time_total}s\n" --max-time 20 \
-            -H "Authorization: Bearer $INVAN_API_TOKEN" \
-            "https://api.7i.uz/integration/v1/order?page=1&limit=5" || echo "ULANMADI (timeout/xato) - autentifikatsiyalangan so'rov javob bermadi"
-          head -c 500 /tmp/resp.json 2>/dev/null || true
 
       - name: API'dan sotuv va mahsulot ma'lumotlarini yuklash
         env:
