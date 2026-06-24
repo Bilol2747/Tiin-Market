@@ -1,8 +1,11 @@
 name: Invan API sinxronizatsiyasi
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
+  # VAQTINCHA O'CHIRILGAN: Turso bazasiga o'tish sinovi davom etayotgani uchun
+  # avtomatik jadval to'xtatildi (bir xil Invan tokenini ikkita jarayon talashmasligi
+  # uchun). Qayta yoqish uchun pastdagi qatorni tiklang:
+  # schedule:
+  #   - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       days:
