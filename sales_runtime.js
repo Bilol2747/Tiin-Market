@@ -311,10 +311,9 @@ function _buildZItems(){
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
-    if(fvEl){const m=mzCap/1e6;fvEl.textContent=m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd":Math.round(m).toLocaleString()+" mln";}
-    const _fmtCap=(m)=>m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd so'm":Math.round(m).toLocaleString()+" mln so'm";
-    const fvBnr=document.getElementById("z-mz-total");if(fvBnr){const m=mzCap/1e6;fvBnr.textContent=_fmtCap(m);}
-    const fvBnr2=document.getElementById("z-mz-total2");if(fvBnr2){const m=mzCap/1e6;fvBnr2.textContent=_fmtCap(m);}
+    if(fvEl){fvEl.textContent=Math.round(mzCap).toLocaleString();}
+    const fvBnr=document.getElementById("z-mz-total");if(fvBnr){fvBnr.textContent=Math.round(mzCap).toLocaleString()+" so'm";}
+    const fvBnr2=document.getElementById("z-mz-total2");if(fvBnr2){fvBnr2.textContent=Math.round(mzCap).toLocaleString()+" so'm";}
     // Supplier va kategoriya bo'yicha muzlagan kapital
     const mzItems=ZITEMS.filter(v=>v.signal==="muzlagan"&&v.frozenVal>0);
     const supMap={},catMap={};
