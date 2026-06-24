@@ -240,9 +240,10 @@ function _zClassify(d,stock,smartDaily,calAvg){
   const totalQty=arr.reduce((a,b)=>a+b,0);
   const activeDays=arr.filter(x=>x>0).length;
   const plainAvg=n>0?totalQty/n:0;
-  // VELOCITY: butun davr bo'lsa — max(aqlli recency, retail oylik o'rtacha) → sekin tovar 0 ga tushmaydi,
-  //           ulgurji ham aralashmaydi; oraliq bo'lsa — o'sha oraliq o'rtachasi
-  const dailyAvg=rangeActive?plainAvg:Math.max(smartDaily||0,calAvg||0);
+  // VELOCITY: zakas miqdori har doim aqlli (ulgurjisiz) tezlikdan olinadi - max(aqlli recency,
+  // retail oylik o'rtacha) - sana oralig'i tanlangan-tanlanmaganidan qat'i nazar. Aks holda
+  // bitta yirik ulgurji xaridi xom o'rtachani shishirib, noto'g'ri katta zakasga olib kelardi.
+  const dailyAvg=Math.max(smartDaily||0,calAvg||0);
   // tarix oynasi: sotuv to'xtaganga qadar bo'lgan davr (0..last)
   let histActive=0;const histLen=last>=0?last+1:0;
   for(let i=0;i<=last;i++){if(arr[i]>0)histActive++;}
