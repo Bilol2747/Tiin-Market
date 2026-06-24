@@ -54,5 +54,15 @@ jobs:
             echo "O'zgarish yo'q, commit qilinmaydi."
           else
             git commit -m "Avtomatik yangilanish: Invan API sotuv ma'lumotlari $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            for i in 1 2 3 4 5; do
+              if git push; then
+                echo "Push muvaffaqiyatli."
+                exit 0
+              fi
+              echo "Push rad etildi (boshqa o'zgarish kelib tushgan bo'lishi mumkin), pull --rebase qilib qayta urinilmoqda ($i/5)..."
+              git pull --rebase origin main
+              sleep 5
+            done
+            echo "5 marta urinishdan keyin ham push qilib bo'lmadi."
+            exit 1
           fi
