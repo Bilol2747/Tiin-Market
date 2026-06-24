@@ -20,7 +20,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from build_all import (
-    rq, build_invdata, build_p2data, build_p3data, build_p1data, embed_html,
+    rq, build_invdata, build_p2data, build_p3data, build_p1data, build_supplierdata, embed_html,
 )
 from build_sales_demand import api_records, safe_item_revenue, build as build_dailydata_improved
 
@@ -156,6 +156,7 @@ def build(orders_path, products_path, html_path=None):
     p2data = build_p2data(receipts, pnames, pskus, dailydata, products, min_d, max_d)
     p3data = build_p3data(p2data, dailydata, max_d)
     p1data = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
+    supplierdata = build_supplierdata(p2data, products)
     a_count = sum(1 for i in p2data if i["abc"] == "A")
     b_count = sum(1 for i in p2data if i["abc"] == "B")
     c_count = sum(1 for i in p2data if i["abc"] == "C")
@@ -170,10 +171,11 @@ def build(orders_path, products_path, html_path=None):
     _write_json("data_daily.json", dailydata)
     _write_json("data_mahsulotlar.json", p2data)
     _write_json("data_inv_new.json", invdata)
+    _write_json("data_supplier.json", supplierdata)
 
     print(f"[6/6] sales.html yangilanmoqda: {html_path.name}")
     template = ROOT / "sales.html"
-    embed_html(html_path, invdata, p2data, p3data, dailydata, p1data,
+    embed_html(html_path, invdata, p2data, p3data, dailydata, p1data, supplierdata,
                template_path=template if template != html_path else None)
 
     index_path = ROOT / "index.html"

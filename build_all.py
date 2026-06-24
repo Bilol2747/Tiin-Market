@@ -601,8 +601,63 @@ def build_p3data(p2data, daily_data, max_d):
     return result
 
 
+# ─── suppliers (P6) ma'lumotlari ───
+def build_supplierdata(p2data, products):
+    """Har bir mahsulotni o'z ta'minotchisiga (supplier) bog'lab, supplier kesimida
+    daromad/miqdor/chek/ABC taqsimotini hisoblaydi."""
+    groups = defaultdict(lambda: {"rev": 0.0, "qty": 0.0, "rec": 0, "cnt": 0,
+                                   "abc_cnt": {"A": 0, "B": 0, "C": 0}, "items": []})
+    for item in p2data:
+        supplier = products.get(item.get("sku", ""), {}).get("su") or "Noma'lum"
+        group = groups[supplier]
+        group["rev"] += item.get("rev", 0) or 0
+        group["qty"] += item.get("qty", 0) or 0
+        group["rec"] += item.get("rec", 0) or 0
+        group["cnt"] += 1
+        abc = item.get("abc", "C")
+        if abc in group["abc_cnt"]:
+            group["abc_cnt"][abc] += 1
+        group["items"].append(item)
+
+    total_rev = sum(g["rev"] for g in groups.values()) or 1
+    sorted_names = sorted(groups, key=lambda n: -groups[n]["rev"])
+
+    cumulative = 0.0
+    suppliers = []
+    abc_count = {"A": 0, "B": 0, "C": 0}
+    for rank, name in enumerate(sorted_names, 1):
+        group = groups[name]
+        cumulative += group["rev"]
+        pct = cumulative / total_rev
+        abc = "A" if pct <= 0.80 else ("B" if pct <= 0.95 else "C")
+        abc_count[abc] += 1
+        top_items = sorted(group["items"], key=lambda it: -(it.get("rev", 0) or 0))[:5]
+        suppliers.append({
+            "name": name,
+            "rev": round(group["rev"]),
+            "qty": rq(group["qty"]),
+            "rec": group["rec"],
+            "cnt": group["cnt"],
+            "abc_cnt": group["abc_cnt"],
+            "top": [
+                {"name": it["name"], "rev": it.get("rev", 0), "abc": it.get("abc", "C"), "sku": it.get("sku", "")}
+                for it in top_items
+            ],
+            "abc": abc,
+            "r": rank,
+            "rp": round(group["rev"] / total_rev * 100, 2),
+        })
+
+    return {
+        "total_rev": round(total_rev),
+        "sup_count": len(suppliers),
+        "abc_cnt": abc_count,
+        "suppliers": suppliers,
+    }
+
+
 # ─── sales.html ichiga joylashtirish ───
-def embed_html(html_path, invdata, p2data, p3data, dailydata, p1data=None, template_path=None):
+def embed_html(html_path, invdata, p2data, p3data, dailydata, p1data=None, supplierdata=None, template_path=None):
     # Shablon doim asosiy sales.html dan o'qiladi (formulalar o'zgarmaydi)
     src = template_path if template_path else html_path
     html = src.read_text(encoding="utf-8")
@@ -621,6 +676,8 @@ def embed_html(html_path, invdata, p2data, p3data, dailydata, p1data=None, templ
     replace_block("dailydata", dailydata)
     if p1data is not None:
         replace_block("p1data", p1data)
+    if supplierdata is not None:
+        replace_block("supplierdata", supplierdata)
 
     html_path.write_text(html, encoding="utf-8")
 
@@ -780,6 +837,7 @@ def build(sales_path, products_path, html_path=None):
     p2data  = build_p2data(receipts, pnames, pskus, dailydata, products, min_d, max_d)
     p3data  = build_p3data(p2data, dailydata, max_d)
     p1data  = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
+    supplierdata = build_supplierdata(p2data, products)
     A = sum(1 for i in p2data if i["abc"] == "A")
     B = sum(1 for i in p2data if i["abc"] == "B")
     C = sum(1 for i in p2data if i["abc"] == "C")
@@ -795,10 +853,11 @@ def build(sales_path, products_path, html_path=None):
     _write_json("data_daily.json",       dailydata)   # talab/kunlik
     _write_json("data_mahsulotlar.json", p2data)      # mahsulot kartochkalari (P2)
     _write_json("data_inv_new.json",     invdata)     # inventar/qoldiq
+    _write_json("data_supplier.json",    supplierdata)  # ta'minotchilar (P6)
 
     print(f"[6/6] sales.html yangilanmoqda: {html_path.name}")
     template = ROOT / "sales.html"
-    embed_html(html_path, invdata, p2data, p3data, dailydata, p1data,
+    embed_html(html_path, invdata, p2data, p3data, dailydata, p1data, supplierdata,
                template_path=template if template != html_path else None)
 
     # Vercel uchun: index.html ni sales.html dan nusxalash (root sahifa)
