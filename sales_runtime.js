@@ -497,7 +497,7 @@ function renderP1(){
 if(!P1||!P1.daily||!P1.daily.length){return;}
 const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
 const setH=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
-const kpiV=n=>{if(n>=1e9)return (n/1e9).toFixed(2)+'<span class="kpi-u"> mlrd</span>';if(n>=1e6)return (n/1e6).toFixed(1)+'<span class="kpi-u"> mln</span>';if(n>=1e3)return Math.round(n/1e3)+'<span class="kpi-u"> ming</span>';return Math.round(n)+'';};
+const kpiV=n=>Math.round(n).toLocaleString();
 setT("p1-period",P1.periodText||"");
 const _fd=s=>{if(!s)return"";const p=s.split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:s;};
 setT("nav-period-r",_fd(P1.start)+" – "+_fd(P1.end));
@@ -507,7 +507,7 @@ setT("kpi-rec",(P1.receipts||0).toLocaleString());
 setT("kpi-avg",(P1.avg_check||0).toLocaleString());
 setT("kpi-sku",(P1.sku||0).toLocaleString());
 setH("kpi-refund",(P1.refund_pct||0)+'<span class="kpi-u">%</span>');
-setT("kpi-refund-s",fmt(P1.refund||0)+" UZS refund");
+setT("kpi-refund-s",Math.round(P1.refund||0).toLocaleString()+" UZS refund");
 setT("kpi-staff",(P1.staff||0).toLocaleString());
 const bd=P1.best_day||{},wd=P1.worst_day||{};
 setT("p1-daily-insight","Eng yuqori: "+(bd.label||"-")+"-kun — "+fmt(bd.val||0)+" UZS · Eng past: "+(wd.label||"-")+"-kun — "+fmt(wd.val||0)+" UZS");
