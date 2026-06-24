@@ -51,8 +51,11 @@ def api_read_products(products_raw):
         cat = categories[0].get("name", "") if categories else ""
         shop_prices = p.get("shop_prices") or {}
         price = 0.0
+        supply_price = 0.0
         if shop_prices:
-            price = float(next(iter(shop_prices.values())).get("retail_price") or 0)
+            first_shop = next(iter(shop_prices.values()))
+            price = float(first_shop.get("retail_price") or 0)
+            supply_price = float(first_shop.get("supply_price") or 0)
         measurement_values = p.get("measurement_values") or {}
         amount = 0.0
         if measurement_values:
@@ -66,6 +69,7 @@ def api_read_products(products_raw):
             "tp": unit,
             "su": supplier,
             "p": price,
+            "sp": supply_price,
             "a": amount,
         }
     return products

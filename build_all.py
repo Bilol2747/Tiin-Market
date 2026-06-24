@@ -368,6 +368,7 @@ def build_invdata(products):
             "t":  p["tp"],
             "su": p["su"],
             "p":  rq(p["p"]),
+            "sp": rq(p.get("sp", 0)),
             "sb": p["sub"],
         }
     return result
