@@ -3,10 +3,12 @@ import json
 import math
 import re
 from collections import Counter, defaultdict
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import openpyxl
+
+TASHKENT_OFFSET = timedelta(hours=5)
 
 
 DUMMY_TINS = {"", "999999999", "888888888", "555555555"}
@@ -113,7 +115,8 @@ def demand_metrics(retail, recurring_wholesale, oneoff_wholesale, retail_cap, th
     }
 
 
-def build(input_path):
+def excel_records(input_path):
+    """sotuv_excel.xlsx dan o'qib, har bir sotuv qatorini umumiy formatga o'giradi."""
     workbook = openpyxl.load_workbook(input_path, read_only=True, data_only=True)
     sheet = workbook.active
     sheet.reset_dimensions()
@@ -125,11 +128,6 @@ def build(input_path):
     if missing:
         raise ValueError(f"Missing columns: {', '.join(sorted(missing))}")
 
-    receipts = {}
-    product_names = defaultdict(Counter)
-    product_skus = {}
-    min_date = None
-    max_date = None
     for row in rows:
         if normalize(row[index["Sale Type"]]) != "sale":
             continue
@@ -141,12 +139,85 @@ def build(input_path):
             sale_date = date_value.date()
         else:
             sale_date = datetime.fromisoformat(str(date_value)[:10]).date()
-        min_date = sale_date if min_date is None or sale_date < min_date else min_date
-        max_date = sale_date if max_date is None or sale_date > max_date else max_date
-
         receipt_id = str(row[index["Receipt#"]] or "").strip()
         if not receipt_id:
             continue
+        yield {
+            "date": sale_date,
+            "receipt_id": receipt_id,
+            "sku": str(row[index["Sku"]] or "").strip(),
+            "name": str(row[index["Item"]] or ""),
+            "qty": qty,
+            "total_price": float(row[index["Total Price"]] or 0),
+            "customer": str(row[index["Customer"]] or "").strip(),
+            "tin": str(row[index["TIN"]] or "").strip(),
+        }
+
+
+def safe_item_revenue(item, qty):
+    """total_price manfiy bo'lib qolishi mumkin (Invan tomonidagi izoxsiz xato,
+    masalan bitta buyurtmada -320mln ko'rilgan, holbuki narx*miqdor=to'lov summasiga
+    teng edi) - shu holatda narx*miqdordan qayta hisoblaymiz."""
+    total = float(item.get("total_price") or 0)
+    if total < 0 and qty > 0:
+        return float(item.get("price") or 0) * qty
+    return total
+
+
+def api_records(orders):
+    """Invan API'dan kelgan order ro'yxatini umumiy formatga o'giradi.
+
+    API javobida alohida TIN maydoni yo'q - shuning uchun tin har doim bo'sh
+    qaytariladi, is_explicit_wholesale() faqat xaridor nomidagi biznes-so'zlarga
+    tayanadi. create_time UTC'da keladi, Toshkent (UTC+5) mahalliy sanasiga
+    o'giriladi - chunki kunlik savdo kun chegarasi mahalliy vaqt bo'yicha bo'ladi.
+    """
+    for order in orders:
+        if order.get("type") != "sale":
+            continue
+        create_time = order.get("create_time")
+        if not create_time:
+            continue
+        try:
+            utc_dt = datetime.fromisoformat(create_time.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        sale_date = (utc_dt.replace(tzinfo=None) + TASHKENT_OFFSET).date()
+        receipt_id = order.get("id") or ""
+        if not receipt_id:
+            continue
+        client = order.get("client") or {}
+        customer = " ".join(
+            part for part in [client.get("first_name", ""), client.get("last_name", "")] if part
+        ).strip()
+        for it in order.get("items") or []:
+            qty = float(it.get("value") or 0)
+            if qty <= 0:
+                continue
+            yield {
+                "date": sale_date,
+                "receipt_id": receipt_id,
+                "sku": str(it.get("sku") or "").strip(),
+                "name": str(it.get("product_name") or ""),
+                "qty": qty,
+                "total_price": safe_item_revenue(it, qty),
+                "customer": customer,
+                "tin": "",
+            }
+
+
+def build(records):
+    receipts = {}
+    product_names = defaultdict(Counter)
+    product_skus = {}
+    min_date = None
+    max_date = None
+    for rec in records:
+        sale_date = rec["date"]
+        min_date = sale_date if min_date is None or sale_date < min_date else min_date
+        max_date = sale_date if max_date is None or sale_date > max_date else max_date
+
+        receipt_id = rec["receipt_id"]
         receipt = receipts.setdefault(receipt_id, {
             "date": sale_date,
             "customer": "",
@@ -157,21 +228,19 @@ def build(input_path):
             "item_revenue": defaultdict(float),
             "skus": {},
         })
-        customer = str(row[index["Customer"]] or "").strip()
-        tin = str(row[index["TIN"]] or "").strip()
-        if customer:
-            receipt["customer"] = customer
-        if tin:
-            receipt["tin"] = tin
-        receipt["total_qty"] += qty
-        receipt["total_price"] += float(row[index["Total Price"]] or 0)
-        name = normalize(row[index["Item"]])
-        sku = str(row[index["Sku"]] or "").strip()
+        if rec["customer"]:
+            receipt["customer"] = rec["customer"]
+        if rec["tin"]:
+            receipt["tin"] = rec["tin"]
+        receipt["total_qty"] += rec["qty"]
+        receipt["total_price"] += rec["total_price"]
+        name = normalize(rec["name"])
+        sku = rec["sku"]
         product_key = "sku:" + sku if sku else "name:" + name
         product_names[product_key][name] += 1
         product_skus[product_key] = sku
-        receipt["items"][product_key] += qty
-        receipt["item_revenue"][product_key] += float(row[index["Total Price"]] or 0)
+        receipt["items"][product_key] += rec["qty"]
+        receipt["item_revenue"][product_key] += rec["total_price"]
 
     days = (max_date - min_date).days + 1
     labels = [(min_date.fromordinal(min_date.toordinal() + offset)).isoformat() for offset in range(days)]
@@ -249,6 +318,7 @@ def build(input_path):
                 "wre": [0] * days,
                 "rr": [0] * days,
                 "wr": [0] * days,
+                "rev_d": [0.0] * days,
                 "revenue": 0.0,
                 "explicit_receipts": 0,
                 "inferred_receipts": 0,
@@ -258,7 +328,9 @@ def build(input_path):
             })
             item["q"][day_index] += qty
             item["r"][day_index] += 1
-            item["revenue"] += receipt["item_revenue"].get(product_key, 0)
+            item_revenue = receipt["item_revenue"].get(product_key, 0)
+            item["rev_d"][day_index] += item_revenue
+            item["revenue"] += item_revenue
             if explicit:
                 item["x"][day_index] += qty
                 item["wr"][day_index] += 1
@@ -350,6 +422,7 @@ def build(input_path):
             "x": [round_quantity(value) for value in item["x"]],
             "i": [round_quantity(value) for value in item["i"]],
             "rt": [round_quantity(value) for value in retail],
+            "rev": [round(value) for value in item["rev_d"]],
             "m": demand_metrics(retail, item["wi"], item["we"], cap, threshold),
         }
         output_items[product_key]["m"]["receiptMedian"] = round_quantity(rule["median"])
@@ -395,8 +468,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default="sotuv_excel.xlsx")
     parser.add_argument("--output", default="data_daily.json")
+    parser.add_argument("--source", choices=["excel", "api"], default="excel")
     args = parser.parse_args()
-    result = build(Path(args.input))
+    if args.source == "api":
+        orders = json.loads(Path(args.input).read_text(encoding="utf-8"))
+        records = api_records(orders)
+    else:
+        records = excel_records(Path(args.input))
+    result = build(records)
     Path(args.output).write_text(
         json.dumps(result, ensure_ascii=False, separators=(",", ":")),
         encoding="utf-8",

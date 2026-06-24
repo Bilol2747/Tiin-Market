@@ -1,0 +1,148 @@
+import argparse
+import json
+import os
+import sys
+import time
+from datetime import date, timedelta
+from pathlib import Path
+
+import requests
+
+ROOT = Path(__file__).parent
+BASE_URL = "https://api.7i.uz/integration/v1"
+TOKEN_PATH = ROOT / "api_token.txt"
+PAGE_SIZE = 300
+SESSION = requests.Session()
+
+
+def load_token():
+    env_token = os.environ.get("INVAN_API_TOKEN", "").strip()
+    if env_token:
+        return env_token
+    if not TOKEN_PATH.exists():
+        sys.exit(f"Token topilmadi: INVAN_API_TOKEN o'zgaruvchisi yoki {TOKEN_PATH} fayli kerak.")
+    token = TOKEN_PATH.read_text(encoding="utf-8").strip()
+    if not token:
+        sys.exit("api_token.txt bo'sh.")
+    return token
+
+
+def request_with_retry(method, url, **kwargs):
+    last_error = None
+    for attempt in range(1, 6):
+        try:
+            resp = method(url, **kwargs)
+            resp.raise_for_status()
+            return resp
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as exc:
+            last_error = exc
+            wait = attempt * 5
+            print(f"  ! Tarmoq xatosi ({exc.__class__.__name__}), {wait}s kutib qayta urinish ({attempt}/5)...")
+            time.sleep(wait)
+        except requests.exceptions.HTTPError as exc:
+            status = exc.response.status_code if exc.response is not None else 0
+            if status < 500:
+                raise
+            last_error = exc
+            wait = attempt * 5
+            print(f"  ! Server xatosi ({status}), {wait}s kutib qayta urinish ({attempt}/5)...")
+            time.sleep(wait)
+    raise last_error
+
+
+def fetch_orders(token, start_date, end_date):
+    headers = {"Authorization": f"Bearer {token}"}
+    checkpoint_path = ROOT / "api_raw_orders.partial.json"
+    orders = []
+    if checkpoint_path.exists():
+        orders = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(orders)} ta yozuv allaqachon bor")
+    page = len(orders) // PAGE_SIZE + 1
+    total = None
+    while True:
+        params = {
+            "page": page,
+            "limit": PAGE_SIZE,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+        resp = request_with_retry(SESSION.get, f"{BASE_URL}/order", headers=headers, params=params, timeout=60)
+        body = resp.json()
+        batch = body.get("data", [])
+        if total is None:
+            total = body.get("total", 0)
+            print(f"  Jami topilgan sotuvlar: {total}")
+        orders.extend(batch)
+        checkpoint_path.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
+        print(f"  {page}-sahifa: {len(batch)} ta yozuv (jami yig'ilgan: {len(orders)})")
+        if len(batch) < PAGE_SIZE or len(orders) >= total:
+            break
+        page += 1
+        time.sleep(0.05)
+    checkpoint_path.unlink(missing_ok=True)
+    return orders
+
+
+def fetch_products(token):
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    checkpoint_path = ROOT / "api_raw_products.partial.json"
+    products = []
+    if checkpoint_path.exists():
+        products = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(products)} ta mahsulot allaqachon bor")
+    page = len(products) // PAGE_SIZE + 1
+    total = None
+    while True:
+        params = {"page": page, "limit": PAGE_SIZE}
+        resp = request_with_retry(
+            SESSION.post, f"{BASE_URL}/products", headers=headers, params=params, json={"filters": []}, timeout=60
+        )
+        body = resp.json()
+        batch = body.get("data", [])
+        if total is None:
+            total = int(body.get("total", 0))
+            print(f"  Jami topilgan mahsulotlar: {total}")
+        products.extend(batch)
+        checkpoint_path.write_text(json.dumps(products, ensure_ascii=False), encoding="utf-8")
+        print(f"  {page}-sahifa: {len(batch)} ta mahsulot (jami yig'ilgan: {len(products)})")
+        if len(batch) < PAGE_SIZE or len(products) >= total:
+            break
+        page += 1
+        time.sleep(0.05)
+    checkpoint_path.unlink(missing_ok=True)
+    return products
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--days", type=int, default=30, help="Necha kunlik sotuv tarixini olish")
+    parser.add_argument("--skip-products", action="store_true")
+    args = parser.parse_args()
+
+    token = load_token()
+    end_date = date.today()
+    start_date = end_date - timedelta(days=args.days)
+
+    out_orders = ROOT / "api_raw_orders.json"
+    if out_orders.exists():
+        print(f"1) Sotuvlar allaqachon tayyor ({out_orders.name} mavjud) - qayta yuklanmaydi.\n")
+    else:
+        print(f"1) Sotuvlar yuklanmoqda: {start_date} dan {end_date} gacha...")
+        orders = fetch_orders(token, start_date.isoformat(), end_date.isoformat())
+        out_orders.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
+        print(f"   -> Saqlandi: {out_orders.name} ({len(orders)} ta sotuv)\n")
+
+    out_products = ROOT / "api_raw_products.json"
+    if out_products.exists():
+        print(f"2) Mahsulotlar allaqachon tayyor ({out_products.name} mavjud) - qayta yuklanmaydi.\n")
+    elif not args.skip_products:
+        print("2) Mahsulot katalogi yuklanmoqda...")
+        products = fetch_products(token)
+        out_products.write_text(json.dumps(products, ensure_ascii=False), encoding="utf-8")
+        print(f"   -> Saqlandi: {out_products.name} ({len(products)} ta mahsulot)\n")
+
+    print("Tugadi.")
+
+
+if __name__ == "__main__":
+    main()

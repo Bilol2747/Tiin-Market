@@ -542,7 +542,7 @@ GRA=a;GRB=b;
 P1=full?P1FULL:buildRangedP1(P1FULL,a,b);
 _winDaily();
 renderP1();
-if(P2){_winArr(P2);if(typeof p2CloseG==='function')p2CloseG();if(typeof p2Filter==='function')p2Filter();}
+if(P2){_winArr(P2);if(typeof p2Filter==='function')p2Filter();if(Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}
 if(P3&&typeof initP3==='function'){initP3();}
 if(ZITEMS!==null){_buildZItems();renderZaxira();}
 const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&P1FULL.dates){st.value=P1FULL.dates[a];en.value=P1FULL.dates[b];}
@@ -759,7 +759,7 @@ function renderP2(idx){
       '<div class="sbox"><div class="slbl">Sof retail</div><div class="sval">'+fmtQty(pureRetailSum)+' '+u+'</div></div>'+
       '<div class="sbox" style="border-left:3px solid #EF9F27"><div class="slbl">Doimiy ulgurji (zakasga qo\'shildi)</div><div class="sval">'+fmtQty(tz.wiSum)+' '+u+'</div></div>'+
       '<div class="sbox" style="border-left:3px solid #E24B4A"><div class="slbl">Bir martalik ulgurji (chiqarildi)</div><div class="sval">'+fmtQty(tz.weSum)+' '+u+'</div></div>'+
-      '<div class="sbox" style="grid-column:1/-1;background:#F8FAFC;border:1px solid #E2E8F0;"><div class="slbl">Oylik savdo</div><div class="sval">'+fmt(m.revenue||0)+' UZS · '+fmtQty(m.totalSold)+' '+u+'</div></div>'+
+      '<div class="sbox" style="grid-column:1/-1;background:#F8FAFC;border:1px solid #E2E8F0;"><div class="slbl">'+dd.length+' kunlik savdo</div><div class="sval">'+fmt(m.revenue||0)+' UZS · '+fmtQty(m.totalSold)+' '+u+'</div></div>'+
     '</div>'+
     '<div style="margin-top:8px;padding:7px 10px;border-left:3px solid '+pat.color+';background:#F8FAFC;border-radius:0 7px 7px 0;font-size:10px;color:#4B5563;">'+
       '<b style="color:'+pat.color+'">Ajratish sababi:</b> '+separationReason+
