@@ -643,7 +643,10 @@ function renderP2(idx){
   window.p2ActiveIndex=idx;
   const v=P2[idx];
   const u=v.kg?"kg":"dona";
-  const dl=dailyFor(v);
+  // Zakas/prognoz hisob-kitobi har doim TO'LIQ tarixiy ma'lumotdan olinadi (dailyForFull),
+  // boshqa bo'limda tanlangan sana-oralig'iga bog'liq emas - aks holda qisqa oraliq
+  // tanlanган paytda noto'g'ri (kam) prognoz asosida xato zakas berilishi mumkin edi.
+  const dl=dailyForFull(v);
   const dd=dl?dl.q:(v.d||[]);
   const dr=dl?dl.r:null;
   const drr=dl?dl.rr:null;
