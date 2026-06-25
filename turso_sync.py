@@ -37,7 +37,9 @@ def load_turso_creds():
     if not url or not token:
         sys.exit("Turso URL/token topilmadi: TURSO_DATABASE_URL / TURSO_AUTH_TOKEN "
                   "(yoki turso_url.txt / turso_token.txt) kerak.")
+    print(f"  [diag] url uzunligi={len(url)}, boshi={url[:12]!r}, token uzunligi={len(token)}")
     http_url = url.replace("libsql://", "https://")
+    print(f"  [diag] http_url uzunligi={len(http_url)}, boshi={http_url[:12]!r}")
     return http_url, token
 
 
