@@ -329,15 +329,17 @@ async function exportNoaktivXLSX(){
   });
   headerRow.height=22;
 
+  const _now=new Date();
   items.forEach((v,i)=>{
-    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",v.la||"Noma'lum"]);
+    const laRecent=v.la&&((_now-new Date(v.la))/86400000)<=STOCK_ACTIVE_DAYS?v.la:"";
+    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",laRecent]);
     r.getCell(3).numFmt='#,##0 "so\'m"';
     r.getCell(4).numFmt='#,##0 "so\'m"';
     r.getCell(5).numFmt=Number.isInteger(v.stock)?"#,##0":"#,##0.00";
     r.getCell(6).numFmt='#,##0 "so\'m"';
     r.getCell(6).font={bold:true,color:{argb:PURPLE}};
     r.getCell(7).font={color:{argb:"E24B4A"},italic:true};
-    r.getCell(8).font={color:v.la?{argb:"0E7490"}:{argb:"9CA3AF"},italic:!v.la};
+    r.getCell(8).font={color:{argb:"0E7490"},bold:!!laRecent};
     if(i%2===1){for(let c=1;c<=8;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
   });
 
@@ -700,12 +702,7 @@ function renderZaxira(){
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=(v.signal==="muzlagan"||v.signal==="sekin")?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
-    let arrivalTxt="";
-    if(v.la){
-      const laDi=Math.max(0,Math.round((_endRef-new Date(v.la))/86400000));
-      arrivalTxt=` <span style="color:#0E7490;font-weight:600">· ${t("oxirgi_kirim")}: ${v.la} (${laDi} ${t("kun_oldin")})</span>`;
-    }
-    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}${arrivalTxt}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
+    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
   document.getElementById("z-tbody").innerHTML=h;
