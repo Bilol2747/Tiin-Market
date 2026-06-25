@@ -526,11 +526,11 @@ setT("nav-period-r",_fd(P1.start)+" – "+_fd(P1.end));
 setT("p1-daily-hint",(P1.title||"")+", mln UZS");
 setH("kpi-gross",kpiV(P1.gross||0));
 setT("kpi-rec",(P1.receipts||0).toLocaleString());
-setT("kpi-avg",(P1.avg_check||0).toLocaleString());
+setT("kpi-avg",(P1.cost||0).toLocaleString());
 setT("kpi-sku",(P1.sku||0).toLocaleString());
 setH("kpi-refund",(P1.refund_pct||0)+'<span class="kpi-u">%</span>');
 setT("kpi-refund-s",Math.round(P1.refund||0).toLocaleString()+" UZS refund");
-setT("kpi-staff",(P1.staff||0).toLocaleString());
+setT("kpi-staff",(P1.profit||0).toLocaleString());
 const bd=P1.best_day||{},wd=P1.worst_day||{};
 setT("p1-daily-insight","Eng yuqori: "+(bd.label||"-")+"-kun — "+fmt(bd.val||0)+" UZS · Eng past: "+(wd.label||"-")+"-kun — "+fmt(wd.val||0)+" UZS");
 const wk=P1.weekly||[];
@@ -538,9 +538,9 @@ if(wk.length){let mx=wk[0],mn=wk[0];wk.forEach(w=>{if(w.val>mx.val)mx=w;if(w.val
 const ab=P1.abc||{};const tot=(ab.a_rev||0)+(ab.b_rev||0)+(ab.c_rev||0);const cpct=tot?Math.round((ab.c_rev||0)/tot*100):0;
 setT("p1-abc-insight","C guruh: "+(ab.c_count||0).toLocaleString()+" ta mahsulot — faqat "+cpct+"% tushum, lekin "+(P1.c_assort_pct||0)+"% assortiment");
 const ti=P1.top_items||[];
-setH("p1-top-items",ti.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'</div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
-const te=P1.top_emp||[];
-setH("p1-top-emp",te.map((e,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(e.name)+'<span class="rank-sub"> · '+(e.rec||0).toLocaleString()+' chek</span></div><div class="rank-val">'+fmt(e.val)+'</div></div>').join(""));
+setH("p1-top-items",ti.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · kelish: '+fmt(it.cost||0)+' · foyda: '+fmt(it.profit||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
+const tp=P1.top_items_profit||[];
+setH("p1-top-emp",tp.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · tushum: '+fmt(it.rev||0)+' · kelish: '+fmt(it.cost||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
 Object.values(_p1c).forEach(c=>{try{c.destroy();}catch(e){}});
 const dv=P1.daily.map(v=>v/1e6);
 const _dcv=document.getElementById("dailyChart");const _dctx=_dcv.getContext("2d");const _grad=_dctx.createLinearGradient(0,0,0,250);_grad.addColorStop(0,"rgba(59,130,246,0.32)");_grad.addColorStop(1,"rgba(59,130,246,0.01)");
@@ -553,7 +553,7 @@ const ab2=P1.abc||{};const at=(ab2.a_rev||0)+(ab2.b_rev||0)+(ab2.c_rev||0)||1;
 _p1c.abc=new Chart(document.getElementById("abcChart"),{type:"doughnut",data:{labels:["A - Lider","B - Potentsial","C - Aylanmada"],datasets:[{data:[(ab2.a_rev||0)/at*100,(ab2.b_rev||0)/at*100,(ab2.c_rev||0)/at*100],backgroundColor:["#1D9E75","#EF9F27","#E24B4A"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed.toFixed(1)+"%"}}}}});
 }
 renderP1();
-if(P1FULL&&P1FULL.days>30)dtPreset(30);  // baza 60 kunlik, lekin standart ko'rinish 30 kun
+if(P1FULL&&P1FULL.days>7)dtPreset(7);  // baza 60 kunlik, lekin standart ko'rinish so'nggi hafta
 // ── Sana oralig'i (date-range) ──
 function dtToggle(e){if(e)e.stopPropagation();const p=document.getElementById("dt-pop");if(p)p.classList.toggle("open");}
 document.addEventListener("click",function(e){const w=document.querySelector(".tb-dt");const p=document.getElementById("dt-pop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});
@@ -609,6 +609,8 @@ const rsum=arr=>(arr||[]).slice(a,b+1).reduce((x,y)=>x+(y||0),0);
 const days=b-a+1;
 const daily=rng(F.daily);
 const gross=daily.reduce((x,y)=>x+y,0);
+const cost=rsum(F.dailyCost);
+const profit=gross-cost;
 const recs=rsum(F.dailyRec);
 const refund=rsum(F.dailyRefund);
 const dates=rng(F.dates);
@@ -621,10 +623,18 @@ let bi=0,wi=0;for(let i=0;i<daily.length;i++){if(daily[i]>daily[bi])bi=i;if(dail
 const top_cats=Object.entries(F.catDaily||{}).map(([n,arr])=>({name:n,val:Math.round(arr.slice(a,b+1).reduce((x,y)=>x+(y||0),0))})).filter(c=>c.val>0).sort((x,y)=>y.val-x.val).slice(0,8);
 const erd=F.empRecDaily||{};
 const top_emp=Object.entries(F.empDaily||{}).map(([n,arr])=>({name:n,val:Math.round(arr.slice(a,b+1).reduce((x,y)=>x+(y||0),0)),rec:(erd[n]||[]).slice(a,b+1).reduce((x,y)=>x+(y||0),0)})).filter(e=>e.val>0).sort((x,y)=>y.val-x.val).slice(0,8);
-const top_items=(F.itemsDaily||[]).map(it=>({name:it.name,val:it.d.slice(a,b+1).reduce((x,y)=>x+(y||0),0)})).filter(it=>it.val>0).sort((x,y)=>y.val-x.val).slice(0,8);
+const itemsRanged=(F.itemsDaily||[]).map(it=>{
+  const rev=it.d.slice(a,b+1).reduce((x,y)=>x+(y||0),0);
+  const c=(it.c||[]).slice(a,b+1).reduce((x,y)=>x+(y||0),0);
+  return{name:it.name,rev:Math.round(rev),cost:Math.round(c),profit:Math.round(rev-c),hc:!!it.hc};
+});
+const top_items=itemsRanged.filter(it=>it.rev>0).sort((x,y)=>y.rev-x.rev).slice(0,8).map(it=>({name:it.name,val:it.rev,cost:it.cost,profit:it.profit}));
+// faqat kelish narxi ma'lum bo'lgan mahsulotlar - aks holda noma'lum tannarx 0
+// deb olinib, sun'iy "100% foyda" bo'lib chiqib qoladi
+const top_items_profit=itemsRanged.filter(it=>it.hc).sort((x,y)=>y.profit-x.profit).slice(0,8).map(it=>({name:it.name,val:it.profit,rev:it.rev,cost:it.cost}));
 const staff=Object.entries(F.empDaily||{}).filter(([n,arr])=>arr.slice(a,b+1).reduce((x,y)=>x+(y||0),0)>0&&n!=="Noma'lum").length;
 const _f=s=>{if(!s)return"";const p=s.split("-");return p.length===3?p[2]+"."+p[1]:s;};
-return{title:_f(dates[0])+" – "+_f(dates[days-1]),periodText:_f(dates[0])+" – "+_f(dates[days-1])+" · "+days+" kunlik oraliq",days:days,start:dates[0],end:dates[days-1],gross:Math.round(gross),refund:Math.round(refund),refund_pct:gross?Math.round(refund/gross*10000)/100:0,receipts:recs,avg_check:recs?Math.round(gross/recs):0,sku:F.sku,staff:staff||F.staff,daily:daily,dayLabels:dayLabels,weekly:weekly_out,top_cats:top_cats,top_emp:top_emp,top_items:top_items,abc:F.abc,c_assort_pct:F.c_assort_pct,best_day:{idx:bi,label:dayLabels[bi],val:Math.round(daily[bi])},worst_day:{idx:wi,label:dayLabels[wi],val:Math.round(daily[wi])}};
+return{title:_f(dates[0])+" – "+_f(dates[days-1]),periodText:_f(dates[0])+" – "+_f(dates[days-1])+" · "+days+" kunlik oraliq",days:days,start:dates[0],end:dates[days-1],gross:Math.round(gross),cost:Math.round(cost),profit:Math.round(profit),refund:Math.round(refund),refund_pct:gross?Math.round(refund/gross*10000)/100:0,receipts:recs,avg_check:recs?Math.round(gross/recs):0,sku:F.sku,staff:staff||F.staff,daily:daily,dayLabels:dayLabels,weekly:weekly_out,top_cats:top_cats,top_emp:top_emp,top_items:top_items,top_items_profit:top_items_profit,abc:F.abc,c_assort_pct:F.c_assort_pct,best_day:{idx:bi,label:dayLabels[bi],val:Math.round(daily[bi])},worst_day:{idx:wi,label:dayLabels[wi],val:Math.round(daily[wi])}};
 }
 (function dtInit(){const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&en&&P1FULL.dates&&P1FULL.dates.length){const f=P1FULL.dates[0],l=P1FULL.dates[P1FULL.dates.length-1];st.min=f;st.max=l;st.value=f;en.min=f;en.max=l;en.value=l;}})();
 const ADESC={"A":"A guruh - tushumning 80 foizini taminlaydi. Eng muhim mahsulot, stokdan chiqmasin!","B":"B guruh - tushumning 15 foizini taminlaydi. Orta muhimlik, promo bilan kuchaytiring.","C":"C guruh - tushumning 5 foizini taminlaydi. Kam sotiladi, assortimentni korib chiqing."};
