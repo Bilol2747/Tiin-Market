@@ -37,9 +37,7 @@ def load_turso_creds():
     if not url or not token:
         sys.exit("Turso URL/token topilmadi: TURSO_DATABASE_URL / TURSO_AUTH_TOKEN "
                   "(yoki turso_url.txt / turso_token.txt) kerak.")
-    print(f"  [diag] url uzunligi={len(url)}, boshi={url[:12]!r}, token uzunligi={len(token)}")
     http_url = url.replace("libsql://", "https://")
-    print(f"  [diag] http_url uzunligi={len(http_url)}, boshi={http_url[:12]!r}")
     return http_url, token
 
 
@@ -113,17 +111,41 @@ def fetch_and_sync_orders(client, token, start_date, end_date):
     return total_written
 
 
-def fetch_window(days):
-    """Bazadan so'nggi N kunlik buyurtmalarni o'qiydi (build skriptlari uchun)."""
+def fetch_window(days, chunk_size=5000):
+    """Bazadan so'nggi N kunlik buyurtmalarni o'qiydi (build skriptlari uchun).
+
+    Katta hajmni bir so'rovda emas, kichik bo'laklarda o'qiydi - bitta katta
+    HTTP javobda tarmoq uzilib qolish xavfini kamaytirish uchun. Har bo'lak
+    tarmoq xatosida bir necha marta qayta uriniladi."""
     client = get_client()
     ensure_schema(client)
     end_date = date.today() + timedelta(days=1)
     start_date = date.today() - timedelta(days=days)
-    rs = client.execute(
-        "SELECT data FROM orders WHERE create_time >= ? AND create_time < ? ORDER BY create_time",
-        [start_date.isoformat(), end_date.isoformat()]
-    )
-    orders = [json.loads(row["data"]) for row in rs.rows]
+    orders = []
+    offset = 0
+    while True:
+        last_error = None
+        rs = None
+        for attempt in range(1, 6):
+            try:
+                rs = client.execute(
+                    "SELECT data FROM orders WHERE create_time >= ? AND create_time < ? "
+                    "ORDER BY create_time, id LIMIT ? OFFSET ?",
+                    [start_date.isoformat(), end_date.isoformat(), chunk_size, offset]
+                )
+                break
+            except Exception as exc:
+                last_error = exc
+                wait = attempt * 3
+                print(f"  ! Turso'dan o'qishda tarmoq xatosi ({exc.__class__.__name__}), {wait}s kutib qayta urinish ({attempt}/5)...")
+                time.sleep(wait)
+        if rs is None:
+            raise last_error
+        batch = [json.loads(row["data"]) for row in rs.rows]
+        orders.extend(batch)
+        if len(batch) < chunk_size:
+            break
+        offset += chunk_size
     client.close()
     return orders
 
