@@ -37,17 +37,17 @@ jobs:
         run: |
           curl -s -o /dev/null -w "HTTP holat: %{http_code}\n" --max-time 15 https://api.7i.uz/integration/v1/order || echo "ULANMADI (timeout/xato)"
 
-      - name: Sotuvlarni Turso bazasiga sinxronlash
+      - name: API'dan mahsulot katalogini yuklash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+        run: python -u fetch_api_data.py --skip-orders
+
+      - name: Sotuvlarni Turso bazasiga sinxronlash (mahsulotdan keyin - vaqt farqini kamaytirish uchun)
         env:
           INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python -u turso_sync.py
-
-      - name: API'dan mahsulot katalogini yuklash
-        env:
-          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
-        run: python -u fetch_api_data.py --skip-orders
 
       - name: Butun saytni qayta qurish
         env:
