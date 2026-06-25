@@ -462,6 +462,7 @@ function zFilter(f){
     const aSec=document.getElementById("z-aktiv-section");if(aSec)aSec.style.display=wantTab==="aktiv"?"":"none";
     const nSec=document.getElementById("z-noaktiv-section");if(nSec)nSec.style.display=wantTab==="noaktiv"?"":"none";
     const ft=document.getElementById("z-filter-tabs-aktiv");if(ft)ft.style.display=wantTab==="aktiv"?"":"none";
+    const zkBtn=document.getElementById("zk-open-btn");if(zkBtn)zkBtn.style.display=wantTab==="aktiv"?"":"none";
   }
   document.querySelectorAll(".z-ftab").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
   document.querySelectorAll(".z-card").forEach(c=>c.classList.remove("z-selected"));
