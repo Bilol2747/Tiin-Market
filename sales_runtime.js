@@ -222,6 +222,26 @@ function exportZakasCSV(){
   });
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${zDays}kun.csv`;a.click();URL.revokeObjectURL(a.href);
 }
+function exportNoaktivCSV(){
+  if(!ZITEMS)return;
+  let items=ZITEMS.filter(v=>v.signal==="muzlagan");
+  if(zQuery)items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));
+  if(zF.cat)items=items.filter(v=>v.cat===zF.cat);
+  if(zF.sub)items=items.filter(v=>v.sub===zF.sub);
+  if(zF.sup)items=items.filter(v=>v.sup===zF.sup);
+  if(zF.type)items=items.filter(v=>v.itype===zF.type);
+  items.sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0));
+  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
+  const totalFrozen=items.reduce((s,v)=>s+(v.frozenVal||0),0);
+  let csv="﻿";
+  csv+=`${q("Jami muzlagan summa")},${Math.round(totalFrozen)}\r\n`;
+  csv+=`${q("Mahsulot soni")},${items.length}\r\n\r\n`;
+  csv+="SKU,Mahsulot nomi,Kelish narxi,Sotilish narxi,Stok,Jami muzlagan summa,Oxirgi sotuv\r\n";
+  items.forEach(v=>{
+    csv+=`${q(v.sku||"")},${q(v.name)},${Math.round(v.sp||0)},${Math.round(v.rp||0)},${v.stock},${Math.round(v.frozenVal||0)},${q(STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q")}\r\n`;
+  });
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`noaktiv_tovarlar_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
 function copyZakas(){
   const items=_zkCalc();
   const bySupp={};items.forEach(v=>{const s=v.sup||"Noma'lum";if(!bySupp[s])bySupp[s]=[];bySupp[s].push(v);});
@@ -389,14 +409,15 @@ function _buildZItems(){
       if(iv.sku&&p2skus.has(String(iv.sku)))return;
       if(p2norms.has(key))return;
       const stock=parseFloat(iv.a||0);if(stock<=0)return;
-      const price=parseFloat(iv.sp||iv.p||0);const frozenVal=Math.round(stock*price);
+      const sp=parseFloat(iv.sp||0),rp=parseFloat(iv.p||0);
+      const price=sp||rp;const frozenVal=Math.round(stock*price);
       if(iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp});
         return;
       }
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
