@@ -654,7 +654,12 @@ _winDaily();
 renderP1();
 if(P2){_winArr(P2);if(typeof p2Filter==='function')p2Filter();if(Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}
 if(P3&&typeof initP3==='function'){initP3();}
-if(ZITEMS!==null){_buildZItems();renderZaxira();}
+if(ZITEMS!==null){
+  _buildZItems();
+  renderZaxira();
+  const zkModal=document.getElementById("zk-modal");
+  if(zkModal&&zkModal.style.display==="flex"&&typeof buildZakas==="function")buildZakas();
+}
 const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&P1FULL.dates){st.value=P1FULL.dates[a];en.value=P1FULL.dates[b];}
 const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?t("dt_note_full"):t("dt_note_range");
 }
