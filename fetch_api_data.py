@@ -11,7 +11,8 @@ import requests
 ROOT = Path(__file__).parent
 BASE_URL = "https://api.7i.uz/integration/v1"
 TOKEN_PATH = ROOT / "api_token.txt"
-PAGE_SIZE = 300
+ORDER_PAGE_SIZE = 1000
+PRODUCT_PAGE_SIZE = 2000
 SESSION = requests.Session()
 
 
@@ -57,12 +58,12 @@ def fetch_orders(token, start_date, end_date):
     if checkpoint_path.exists():
         orders = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(orders)} ta yozuv allaqachon bor")
-    page = len(orders) // PAGE_SIZE + 1
+    page = len(orders) // ORDER_PAGE_SIZE + 1
     total = None
     while True:
         params = {
             "page": page,
-            "limit": PAGE_SIZE,
+            "limit": ORDER_PAGE_SIZE,
             "start_date": start_date,
             "end_date": end_date,
         }
@@ -75,7 +76,7 @@ def fetch_orders(token, start_date, end_date):
         orders.extend(batch)
         checkpoint_path.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
         print(f"  {page}-sahifa: {len(batch)} ta yozuv (jami yig'ilgan: {len(orders)})")
-        if len(batch) < PAGE_SIZE or len(orders) >= total:
+        if len(batch) < ORDER_PAGE_SIZE or len(orders) >= total:
             break
         page += 1
         time.sleep(0.05)
@@ -90,10 +91,10 @@ def fetch_products(token):
     if checkpoint_path.exists():
         products = json.loads(checkpoint_path.read_text(encoding="utf-8"))
         print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(products)} ta mahsulot allaqachon bor")
-    page = len(products) // PAGE_SIZE + 1
+    page = len(products) // PRODUCT_PAGE_SIZE + 1
     total = None
     while True:
-        params = {"page": page, "limit": PAGE_SIZE}
+        params = {"page": page, "limit": PRODUCT_PAGE_SIZE}
         resp = request_with_retry(
             SESSION.post, f"{BASE_URL}/products", headers=headers, params=params, json={"filters": []}, timeout=60
         )
@@ -105,7 +106,7 @@ def fetch_products(token):
         products.extend(batch)
         checkpoint_path.write_text(json.dumps(products, ensure_ascii=False), encoding="utf-8")
         print(f"  {page}-sahifa: {len(batch)} ta mahsulot (jami yig'ilgan: {len(products)})")
-        if len(batch) < PAGE_SIZE or len(products) >= total:
+        if len(batch) < PRODUCT_PAGE_SIZE or len(products) >= total:
             break
         page += 1
         time.sleep(0.05)
@@ -115,16 +116,25 @@ def fetch_products(token):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--days", type=int, default=30, help="Necha kunlik sotuv tarixini olish")
+    parser.add_argument("--days", type=int, default=30, help="Necha kunlik sotuv tarixini olish (bugundan orqaga)")
+    parser.add_argument("--start", type=str, default=None, help="Boshlanish sanasi (YYYY-MM-DD) - berilsa --days e'tiborga olinmaydi")
+    parser.add_argument("--end", type=str, default=None, help="Tugash sanasi (YYYY-MM-DD), standart - bugun")
     parser.add_argument("--skip-products", action="store_true")
+    parser.add_argument("--skip-orders", action="store_true", help="Sotuvlarni o'tkazib yuborish (Turso'dan o'qilganda kerak)")
     args = parser.parse_args()
 
     token = load_token()
-    end_date = date.today()
-    start_date = end_date - timedelta(days=args.days)
+    if args.start:
+        start_date = date.fromisoformat(args.start)
+        end_date = date.fromisoformat(args.end) if args.end else date.today()
+    else:
+        end_date = date.fromisoformat(args.end) if args.end else date.today()
+        start_date = end_date - timedelta(days=args.days)
 
     out_orders = ROOT / "api_raw_orders.json"
-    if out_orders.exists():
+    if args.skip_orders:
+        print("1) Sotuvlar o'tkazib yuborildi (--skip-orders).\n")
+    elif out_orders.exists():
         print(f"1) Sotuvlar allaqachon tayyor ({out_orders.name} mavjud) - qayta yuklanmaydi.\n")
     else:
         print(f"1) Sotuvlar yuklanmoqda: {start_date} dan {end_date} gacha...")

@@ -1,5 +1,7 @@
 Stock Tahlili/
 api_token.txt
+turso_url.txt
+turso_token.txt
 api_raw_orders.json
 api_raw_products.json
 api_raw_orders.partial.json

@@ -137,7 +137,7 @@ def api_read_sales(orders):
     return receipts, pnames, pskus, pcats, refund_total, refund_by_day, min_d, max_d
 
 
-def build(orders_path, products_path, html_path=None):
+def build(orders, products_path, html_path=None):
     if html_path is None:
         html_path = ROOT / "sales.html"
 
@@ -146,8 +146,7 @@ def build(orders_path, products_path, html_path=None):
     products = api_read_products(products_raw)
     print(f"      {len(products):,} mahsulot")
 
-    print(f"[2/6] Sotuvlar o'qilmoqda: {Path(orders_path).name}")
-    orders = json.loads(Path(orders_path).read_text(encoding="utf-8"))
+    print(f"[2/6] Sotuvlar tahlil qilinmoqda: {len(orders):,} ta buyurtma (Turso'dan)")
     receipts, pnames, pskus, pcats, refund_total, refund_by_day, min_d, max_d = api_read_sales(orders)
     print(f"      {len(receipts):,} chek  |  {min_d} -- {max_d}")
 
@@ -201,12 +200,17 @@ def build(orders_path, products_path, html_path=None):
 
 def main():
     parser = argparse.ArgumentParser(description="Invan API ma'lumoti bilan sales.html ni yangilash")
-    parser.add_argument("--orders", default="api_raw_orders.json")
     parser.add_argument("--products", default="api_raw_products.json")
     parser.add_argument("--output", default="sales.html")
+    parser.add_argument("--days", type=int, default=30, help="Turso bazasidan necha kunlik sotuv tarixini olish")
     args = parser.parse_args()
 
-    result = build(ROOT / args.orders, ROOT / args.products, ROOT / args.output)
+    from turso_sync import fetch_window
+    print(f"[0/6] Turso bazasidan so'nggi {args.days} kunlik buyurtmalar o'qilmoqda...")
+    orders = fetch_window(args.days)
+    print(f"      {len(orders):,} ta buyurtma olindi")
+
+    result = build(orders, ROOT / args.products, ROOT / args.output)
 
     print(f"\n{'='*40}")
     print(f"  TAYYOR! {result['period']}")

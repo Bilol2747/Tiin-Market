@@ -1,11 +1,8 @@
 name: Invan API sinxronizatsiyasi
 
 on:
-  # VAQTINCHA O'CHIRILGAN: Turso bazasiga o'tish sinovi davom etayotgani uchun
-  # avtomatik jadval to'xtatildi (bir xil Invan tokenini ikkita jarayon talashmasligi
-  # uchun). Qayta yoqish uchun pastdagi qatorni tiklang:
-  # schedule:
-  #   - cron: "*/30 * * * *"
+  schedule:
+    - cron: "*/30 * * * *"
   workflow_dispatch:
     inputs:
       days:
@@ -34,19 +31,29 @@ jobs:
           python-version: "3.12"
 
       - name: Kutubxonalarni o'rnatish
-        run: pip install requests openpyxl
+        run: pip install requests openpyxl libsql-client
 
       - name: Invan API'ga ulanishni tekshirish
         run: |
           curl -s -o /dev/null -w "HTTP holat: %{http_code}\n" --max-time 15 https://api.7i.uz/integration/v1/order || echo "ULANMADI (timeout/xato)"
 
-      - name: API'dan sotuv va mahsulot ma'lumotlarini yuklash
+      - name: Sotuvlarni Turso bazasiga sinxronlash
         env:
           INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
-        run: python -u fetch_api_data.py --days ${{ github.event.inputs.days || '30' }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u turso_sync.py
+
+      - name: API'dan mahsulot katalogini yuklash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+        run: python -u fetch_api_data.py --skip-orders
 
       - name: Butun saytni qayta qurish
-        run: python build_all_from_api.py
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python build_all_from_api.py --days ${{ github.event.inputs.days || '30' }}
 
       - name: O'zgarishlarni commit+push qilish
         run: |
