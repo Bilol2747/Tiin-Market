@@ -191,6 +191,7 @@ def build(orders, products_path, html_path=None, last_sale_60=None):
     p2data = build_p2data(receipts, pnames, pskus, dailydata, products, min_d, max_d)
     p3data = build_p3data(p2data, dailydata, max_d)
     p1data = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
+    p1data["builtAt"] = (datetime.utcnow() + TASHKENT_OFFSET).strftime("%H:%M, %d/%m/%Y")
     supplierdata = build_supplierdata(p2data, products)
     a_count = sum(1 for i in p2data if i["abc"] == "A")
     b_count = sum(1 for i in p2data if i["abc"] == "B")

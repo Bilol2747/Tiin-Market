@@ -33,6 +33,80 @@ function lgUnlock(){
 }
 (function(){try{if(localStorage.getItem("tiin_auth")==="1"){const s=document.getElementById("login-screen");if(s)s.remove();document.body.classList.remove("locked");}else{const p=document.getElementById("lg-phone");if(p)p.focus();}}catch(_){}})();
 
+// ─── Til almashtirish (i18n) — hozircha to'liq Bosh sahifa, qolgan sahifalar keyingi bosqichda ───
+const I18N={
+  nav_p1:{uz:"Bosh sahifa",en:"Home",ru:"Главная"},
+  nav_p2:{uz:"Mahsulotlar",en:"Products",ru:"Товары"},
+  nav_p3:{uz:"ABC tahlili",en:"ABC analysis",ru:"ABC-анализ"},
+  nav_p5:{uz:"Stock",en:"Stock",ru:"Склад"},
+  nav_p6:{uz:"Suppliers",en:"Suppliers",ru:"Поставщики"},
+  nav_upload:{uz:"Yangi oy yuklash",en:"Upload new month",ru:"Загрузить новый месяц"},
+  dt_all:{uz:"Butun davr",en:"Whole period",ru:"Весь период"},
+  dt_7:{uz:"So'nggi 7 kun",en:"Last 7 days",ru:"Последние 7 дней"},
+  dt_14:{uz:"So'nggi 14 kun",en:"Last 14 days",ru:"Последние 14 дней"},
+  dt_30:{uz:"So'nggi 30 kun",en:"Last 30 days",ru:"Последние 30 дней"},
+  dt_60:{uz:"So'nggi 60 kun",en:"Last 60 days",ru:"Последние 60 дней"},
+  dt_start:{uz:"Boshlanish",en:"Start",ru:"Начало"},
+  dt_end:{uz:"Tugash",en:"End",ru:"Конец"},
+  dt_apply:{uz:"Qo'llash",en:"Apply",ru:"Применить"},
+  dt_note_full:{uz:"Butun davr ko'rsatilmoqda.",en:"Showing the whole period.",ru:"Показан весь период."},
+  dt_note_range:{uz:"Barcha sahifalar tanlangan oraliq bo'yicha aniq hisoblandi.",en:"All pages are recalculated for the selected range.",ru:"Все страницы пересчитаны для выбранного периода."},
+  p1_title:{uz:"Umumiy ko'rsatkichlar",en:"Overview",ru:"Общие показатели"},
+  kpi_gross_l:{uz:"Jami tushum",en:"Gross sale",ru:"Общая выручка"},
+  kpi_gross_s:{uz:"UZS (brutto savdo)",en:"UZS (gross sale)",ru:"UZS (общая выручка)"},
+  kpi_cost_l:{uz:"Kelish narxi",en:"Cost",ru:"Себестоимость"},
+  kpi_cost_s:{uz:"UZS jami tannarx",en:"UZS total cost",ru:"UZS общая себестоимость"},
+  kpi_profit_l:{uz:"Foyda",en:"Gross profit",ru:"Прибыль"},
+  kpi_profit_s:{uz:"UZS jami foyda",en:"UZS total profit",ru:"UZS общая прибыль"},
+  kpi_refund_l:{uz:"Qaytarilgan",en:"Refund",ru:"Возврат"},
+  kpi_refund_s_suffix:{uz:"UZS refund",en:"UZS refunded",ru:"UZS возврат"},
+  kpi_sku_l:{uz:"Mahsulot turi",en:"Product types",ru:"Виды товара"},
+  kpi_sku_s:{uz:"xil tovar sotilgan",en:"items sold",ru:"видов товара продано"},
+  kpi_rec_l:{uz:"Jami cheklar",en:"Total receipts",ru:"Всего чеков"},
+  kpi_rec_s:{uz:"ta xarid amalga oshgan",en:"purchases made",ru:"покупок совершено"},
+  card_daily:{uz:"Kunlik tushum dinamikasi",en:"Daily sales trend",ru:"Динамика дневной выручки"},
+  card_cats:{uz:"Top kategoriyalar",en:"Top categories",ru:"Топ категории"},
+  card_cats_hint:{uz:"tushum bo'yicha",en:"by revenue",ru:"по выручке"},
+  card_top_items:{uz:"Top 8 mahsulot",en:"Top 8 products",ru:"Топ 8 товаров"},
+  card_top_items_hint:{uz:"eng ko'p tushum",en:"highest revenue",ru:"по выручке"},
+  card_top_profit:{uz:"Top 8 mahsulot",en:"Top 8 products",ru:"Топ 8 товаров"},
+  card_top_profit_hint:{uz:"eng ko'p foyda",en:"highest profit",ru:"по прибыли"},
+  card_week:{uz:"Hafta kunlari bo'yicha",en:"By day of week",ru:"По дням недели"},
+  card_week_hint:{uz:"eng kuchli/zaif kun",en:"strongest/weakest day",ru:"лучший/худший день"},
+  card_abc:{uz:"ABC tahlil ulushi",en:"ABC analysis share",ru:"Доля ABC-анализа"},
+  card_abc_hint:{uz:"tushum taqsimoti",en:"revenue distribution",ru:"распределение выручки"},
+  last_updated:{uz:"Oxirgi yangilangan",en:"Last updated",ru:"Последнее обновление"},
+  in_kun:{uz:"kun",en:"d",ru:"дн"},
+  eng_yuqori:{uz:"Eng yuqori savdo",en:"Highest sale",ru:"Макс. продажа"},
+  eng_past:{uz:"Eng past",en:"Lowest",ru:"Мин."},
+  eng_kuchli:{uz:"Eng kuchli",en:"Strongest",ru:"Лучший"},
+  eng_zaif:{uz:"Eng zaif",en:"Weakest",ru:"Худший"},
+  guruh:{uz:"guruh",en:"group",ru:"группа"},
+  ta_mahsulot:{uz:"ta mahsulot",en:"items",ru:"товаров"},
+  faqat:{uz:"faqat",en:"only",ru:"только"},
+  tushum_lc:{uz:"tushum",en:"revenue",ru:"выручка"},
+  lekin:{uz:"lekin",en:"but",ru:"но"},
+  assortiment:{uz:"assortiment",en:"of the assortment",ru:"ассортимента"},
+  kunlik_malumot:{uz:"kunlik ma'lumot",en:"days of data",ru:"дней данных"},
+};
+let LANG=(()=>{try{return localStorage.getItem("tiin_lang")||"uz";}catch(_){return "uz";}})();
+function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
+const WEEKDAYS_FULL={
+  uz:["Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba","Yakshanba"],
+  en:["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+  ru:["Понедельник","Вторник","Среда","Четверг","Пятница","Суббота","Воскресенье"]
+};
+function setLang(lang){
+  LANG=lang;
+  try{localStorage.setItem("tiin_lang",lang);}catch(_){}
+  document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
+  applyI18n();
+  if(typeof renderP1==="function"&&P1)renderP1();
+}
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
+}
+
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let curPageId="p1";const PAGE_DEFAULT_DAYS={p1:7,p2:30,p3:30,p5:30,p6:30};let pageRanges={};
@@ -514,45 +588,54 @@ function renderP4Table(d){const tot=P4.reduce((s,e)=>s+e.v,0);const mxV=Math.max
 function renderP4Heatmap(d){const wrap=document.getElementById("p4heatmap");if(!wrap)return;const s=[...d].sort((a,b)=>b.v-a.v);const days=Array.from({length:31},(_,i)=>i+1);let tbl='<table class="heat-tbl"><thead><tr><td class="heat-emp"></td>';days.forEach(dy=>tbl+=`<td class="heat-hdr">${dy}</td>`);tbl+='</tr></thead><tbody>';s.forEach(e=>{const mxD=Math.max(...e.d,1);tbl+=`<tr><td class="heat-emp" title="${esc(e.n)}">${esc(e.n.length>12?e.n.slice(0,12)+"…":e.n)}</td>`;e.d.forEach((v,i)=>{if(v>0){const op=Math.round((0.2+0.8*(v/mxD))*100)/100;const bg=`rgba(29,158,117,${op})`;tbl+=`<td style="background:${bg}" title="${e.n} — ${i+1}-may: ${fmt(v)} so'm"></td>`;}else{tbl+=`<td style="background:#f5f5f0"></td>`;}});tbl+='</tr>';});tbl+='</tbody></table>';wrap.innerHTML=tbl;}
 function fmt(n){if(n>=1e9)return(n/1e9).toFixed(2)+" mlrd";if(n>=1e6)return(n/1e6).toFixed(1)+" mln";if(n>=1e3)return Math.round(n/1e3)+" ming";return Math.round(n)+"";}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-const P1WD=["Dush","Sesh","Chor","Pay","Jum","Shan","Yak"];
+const P1WD_BY_LANG={uz:["Dush","Sesh","Chor","Pay","Jum","Shan","Yak"],en:["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],ru:["Пн","Вт","Ср","Чт","Пт","Сб","Вс"]};
 let _p1c={};
 function renderP1(){
 if(!P1||!P1.daily||!P1.daily.length){return;}
+applyI18n();
 const setT=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
 const setH=(id,v)=>{const e=document.getElementById(id);if(e)e.innerHTML=v;};
 const kpiV=n=>Math.round(n).toLocaleString();
-setT("p1-period",P1.periodText||"");
 const _fd=s=>{if(!s)return"";const p=s.split("-");return p.length===3?p[2]+"."+p[1]+"."+p[0]:s;};
+setT("p1-period",_fd(P1.start)+" — "+_fd(P1.end)+" · "+(P1.days||0)+" "+t("kunlik_malumot"));
 setT("nav-period-r",_fd(P1.start)+" – "+_fd(P1.end));
-setT("p1-daily-hint",(P1.title||"")+", mln UZS");
+setT("p1-daily-hint",(P1.days||0)+" "+t("kunlik_malumot")+", mln UZS");
 setH("kpi-gross",kpiV(P1.gross||0));
 setT("kpi-rec",(P1.receipts||0).toLocaleString());
 setT("kpi-avg",(P1.cost||0).toLocaleString());
 setT("kpi-sku",(P1.sku||0).toLocaleString());
 setH("kpi-refund",(P1.refund_pct||0)+'<span class="kpi-u">%</span>');
-setT("kpi-refund-s",Math.round(P1.refund||0).toLocaleString()+" UZS refund");
+setT("kpi-refund-s",Math.round(P1.refund||0).toLocaleString()+" "+t("kpi_refund_s_suffix"));
 setT("kpi-staff",(P1.profit||0).toLocaleString());
+setT("last-updated-val",(P1FULL&&P1FULL.builtAt)||"—");
 const bd=P1.best_day||{},wd=P1.worst_day||{};
-setT("p1-daily-insight","Eng yuqori: "+(bd.label||"-")+"-kun — "+fmt(bd.val||0)+" UZS · Eng past: "+(wd.label||"-")+"-kun — "+fmt(wd.val||0)+" UZS");
+setT("p1-daily-insight",t("eng_yuqori")+": "+(bd.label||"-")+"-"+t("in_kun")+" — "+fmt(bd.val||0)+" UZS · "+t("eng_past")+": "+(wd.label||"-")+"-"+t("in_kun")+" — "+fmt(wd.val||0)+" UZS");
 const wk=P1.weekly||[];
-if(wk.length){let mx=wk[0],mn=wk[0];wk.forEach(w=>{if(w.val>mx.val)mx=w;if(w.val<mn.val)mn=w;});setT("p1-week-insight","Eng kuchli: "+mx.day+" ("+fmt(mx.val)+") · Eng zaif: "+mn.day+" ("+fmt(mn.val)+")");}
+const WDF=WEEKDAYS_FULL[LANG]||WEEKDAYS_FULL.uz;
+if(wk.length){let mxi=0,mni=0;wk.forEach((w,i)=>{if(w.val>wk[mxi].val)mxi=i;if(w.val<wk[mni].val)mni=i;});setT("p1-week-insight",t("eng_kuchli")+": "+(WDF[mxi]||wk[mxi].day)+" ("+fmt(wk[mxi].val)+") · "+t("eng_zaif")+": "+(WDF[mni]||wk[mni].day)+" ("+fmt(wk[mni].val)+")");}
 const ab=P1.abc||{};const tot=(ab.a_rev||0)+(ab.b_rev||0)+(ab.c_rev||0);const cpct=tot?Math.round((ab.c_rev||0)/tot*100):0;
-setT("p1-abc-insight","C guruh: "+(ab.c_count||0).toLocaleString()+" ta mahsulot — faqat "+cpct+"% tushum, lekin "+(P1.c_assort_pct||0)+"% assortiment");
+setT("p1-abc-insight","C "+t("guruh")+": "+(ab.c_count||0).toLocaleString()+" "+t("ta_mahsulot")+" — "+t("faqat")+" "+cpct+"% "+t("tushum_lc")+", "+t("lekin")+" "+(P1.c_assort_pct||0)+"% "+t("assortiment"));
 const ti=P1.top_items||[];
-setH("p1-top-items",ti.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · kelish: '+fmt(it.cost||0)+' · foyda: '+fmt(it.profit||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
+const _kelish=LANG==="en"?"cost":LANG==="ru"?"себестоимость":"kelish";
+const _foyda=LANG==="en"?"profit":LANG==="ru"?"прибыль":"foyda";
+const _tushum=LANG==="en"?"revenue":LANG==="ru"?"выручка":"tushum";
+setH("p1-top-items",ti.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · '+_kelish+': '+fmt(it.cost||0)+' · '+_foyda+': '+fmt(it.profit||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
 const tp=P1.top_items_profit||[];
-setH("p1-top-emp",tp.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · tushum: '+fmt(it.rev||0)+' · kelish: '+fmt(it.cost||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
+setH("p1-top-emp",tp.map((it,i)=>'<div class="rank-row"><div class="rank-n'+(i===0?" top":"")+'">'+(i+1)+'</div><div class="rank-name">'+esc(it.name)+'<span class="rank-sub"> · '+_tushum+': '+fmt(it.rev||0)+' · '+_kelish+': '+fmt(it.cost||0)+'</span></div><div class="rank-val">'+fmt(it.val)+'</div></div>').join(""));
 Object.values(_p1c).forEach(c=>{try{c.destroy();}catch(e){}});
 const dv=P1.daily.map(v=>v/1e6);
 const _dcv=document.getElementById("dailyChart");const _dctx=_dcv.getContext("2d");const _grad=_dctx.createLinearGradient(0,0,0,250);_grad.addColorStop(0,"rgba(59,130,246,0.32)");_grad.addColorStop(1,"rgba(59,130,246,0.01)");
-_p1c.daily=new Chart(_dcv,{type:"line",data:{labels:P1.dayLabels||P1.daily.map((_,i)=>i+1),datasets:[{data:dv,borderColor:"#2563EB",borderWidth:2.5,backgroundColor:_grad,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:"#2563EB",pointHoverBorderColor:"#fff",pointHoverBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},hover:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>(items[0].label)+"-kun",label:c=>c.parsed.y.toFixed(1)+" mln UZS"}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxTicksLimit:16}},y:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:9},callback:v=>v+" mln"}}}}});
+_p1c.daily=new Chart(_dcv,{type:"line",data:{labels:P1.dayLabels||P1.daily.map((_,i)=>i+1),datasets:[{data:dv,borderColor:"#2563EB",borderWidth:2.5,backgroundColor:_grad,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:"#2563EB",pointHoverBorderColor:"#fff",pointHoverBorderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},hover:{mode:"index",intersect:false},plugins:{legend:{display:false},tooltip:{mode:"index",intersect:false,callbacks:{title:items=>(items[0].label)+"-"+t("in_kun"),label:c=>c.parsed.y.toFixed(1)+" mln UZS"}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxTicksLimit:16}},y:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:9},callback:v=>v+" mln"}}}}});
 const cats=P1.top_cats||[];const cv=cats.map(c=>c.val/1e6);
 _p1c.cat=new Chart(document.getElementById("catChart"),{type:"bar",data:{labels:cats.map(c=>c.name),datasets:[{data:cv,backgroundColor:"rgba(37,99,235,0.78)",borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(0)+" mln UZS"}}},scales:{x:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:8},callback:v=>v+" mln"}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
 const wv=(P1.weekly||[]).map(w=>w.val/1e6);const wmax=Math.max(...wv),wmin=Math.min(...wv);
-_p1c.week=new Chart(document.getElementById("weekChart"),{type:"bar",data:{labels:P1WD,datasets:[{data:wv,backgroundColor:wv.map(v=>v===wmax?"#2563EB":v===wmin?"#F87171":"rgba(37,99,235,0.4)"),borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(0)+" mln UZS"}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:9},callback:v=>v+" mln"}}}}});
+_p1c.week=new Chart(document.getElementById("weekChart"),{type:"bar",data:{labels:P1WD_BY_LANG[LANG]||P1WD_BY_LANG.uz,datasets:[{data:wv,backgroundColor:wv.map(v=>v===wmax?"#2563EB":v===wmin?"#F87171":"rgba(37,99,235,0.4)"),borderRadius:4,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.y.toFixed(0)+" mln UZS"}}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:"rgba(0,0,0,0.05)"},ticks:{font:{size:9},callback:v=>v+" mln"}}}}});
 const ab2=P1.abc||{};const at=(ab2.a_rev||0)+(ab2.b_rev||0)+(ab2.c_rev||0)||1;
-_p1c.abc=new Chart(document.getElementById("abcChart"),{type:"doughnut",data:{labels:["A - Lider","B - Potentsial","C - Aylanmada"],datasets:[{data:[(ab2.a_rev||0)/at*100,(ab2.b_rev||0)/at*100,(ab2.c_rev||0)/at*100],backgroundColor:["#1D9E75","#EF9F27","#E24B4A"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed.toFixed(1)+"%"}}}}});
+const ABC_LABELS={uz:["A - Lider","B - Potentsial","C - Aylanmada"],en:["A - Leader","B - Potential","C - Slow-moving"],ru:["A - Лидер","B - Потенциал","C - Медленный"]};
+_p1c.abc=new Chart(document.getElementById("abcChart"),{type:"doughnut",data:{labels:ABC_LABELS[LANG]||ABC_LABELS.uz,datasets:[{data:[(ab2.a_rev||0)/at*100,(ab2.b_rev||0)/at*100,(ab2.c_rev||0)/at*100],backgroundColor:["#1D9E75","#EF9F27","#E24B4A"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed.toFixed(1)+"%"}}}}});
 }
+document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
+applyI18n();
 renderP1();
 curPageId="p1";if(P1FULL&&P1FULL.days>1)_applyPageRange("p1");  // har bo'lim o'z standart oralig'i: Bosh sahifa 7 kun, qolganlari 30 kun
 // ── Sana oralig'i (date-range) ──
@@ -574,7 +657,7 @@ if(P2){_winArr(P2);if(typeof p2Filter==='function')p2Filter();if(Number.isIntege
 if(P3&&typeof initP3==='function'){initP3();}
 if(ZITEMS!==null){_buildZItems();renderZaxira();}
 const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&P1FULL.dates){st.value=P1FULL.dates[a];en.value=P1FULL.dates[b];}
-const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?"Butun davr ko'rsatilmoqda.":"Barcha sahifalar tanlangan oraliq bo'yicha aniq hisoblandi.";
+const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?t("dt_note_full"):t("dt_note_range");
 }
 function dailyForFull(v){if(!DAILYFULL||!v)return null;const sk=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;const nk=DNAME?DNAME[nn2(v.name)]:null;return DAILYFULL[sk]||DAILYFULL[nk]||DAILYFULL[nn2(v.name)]||null;}
 function _rangeActive(){return GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1);}
