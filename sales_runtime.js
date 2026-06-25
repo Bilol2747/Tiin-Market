@@ -318,13 +318,13 @@ async function exportNoaktivXLSX(){
   ws.getCell("A3").font={italic:true,size:10,color:{argb:"9CA3AF"}};
 
   const headerRow=ws.getRow(5);
-  const headers=["SKU","Mahsulot nomi","Kelish narxi","Sotilish narxi","Stok","Jami muzlagan summa","Oxirgi sotuv","Oxirgi kirim"];
+  const headers=["SKU","Mahsulot nomi","Kategoriya","Kelish narxi","Sotilish narxi","Stok","Jami muzlagan summa","Oxirgi sotuv","Oxirgi kirim"];
   headers.forEach((h,i)=>{
     const c=headerRow.getCell(i+1);
     c.value=h;
     c.font={bold:true,color:{argb:"FFFFFF"}};
     c.fill={type:"pattern",pattern:"solid",fgColor:{argb:PURPLE}};
-    c.alignment={vertical:"middle",horizontal:i>=2?"right":"left"};
+    c.alignment={vertical:"middle",horizontal:i>=3?"right":"left"};
     c.border={bottom:{style:"thin",color:{argb:PURPLE}}};
   });
   headerRow.height=22;
@@ -332,23 +332,23 @@ async function exportNoaktivXLSX(){
   const _now=new Date();
   items.forEach((v,i)=>{
     const laRecent=v.la&&((_now-new Date(v.la))/86400000)<=STOCK_ACTIVE_DAYS?v.la:"";
-    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",laRecent]);
-    r.getCell(3).numFmt='#,##0 "so\'m"';
+    const r=ws.addRow([v.sku||"",v.name,v.cat||"",Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",laRecent]);
     r.getCell(4).numFmt='#,##0 "so\'m"';
-    r.getCell(5).numFmt=Number.isInteger(v.stock)?"#,##0":"#,##0.00";
-    r.getCell(6).numFmt='#,##0 "so\'m"';
-    r.getCell(6).font={bold:true,color:{argb:PURPLE}};
-    r.getCell(7).font={color:{argb:"E24B4A"},italic:true};
-    r.getCell(8).font={color:{argb:"0E7490"},bold:!!laRecent};
-    if(i%2===1){for(let c=1;c<=8;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
+    r.getCell(5).numFmt='#,##0 "so\'m"';
+    r.getCell(6).numFmt=Number.isInteger(v.stock)?"#,##0":"#,##0.00";
+    r.getCell(7).numFmt='#,##0 "so\'m"';
+    r.getCell(7).font={bold:true,color:{argb:PURPLE}};
+    r.getCell(8).font={color:{argb:"E24B4A"},italic:true};
+    r.getCell(9).font={color:{argb:"0E7490"},bold:!!laRecent};
+    if(i%2===1){for(let c=1;c<=9;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
   });
 
-  ws.columns=[{width:11},{width:42},{width:15},{width:15},{width:11},{width:20},{width:24},{width:16}];
-  ws.getColumn(3).alignment={horizontal:"right"};
+  ws.columns=[{width:11},{width:42},{width:24},{width:15},{width:15},{width:11},{width:20},{width:24},{width:16}];
   ws.getColumn(4).alignment={horizontal:"right"};
   ws.getColumn(5).alignment={horizontal:"right"};
   ws.getColumn(6).alignment={horizontal:"right"};
-  ws.getColumn(8).alignment={horizontal:"right"};
+  ws.getColumn(7).alignment={horizontal:"right"};
+  ws.getColumn(9).alignment={horizontal:"right"};
 
   const buf=await wb.xlsx.writeBuffer();
   const a=document.createElement("a");
@@ -530,10 +530,10 @@ function _buildZItems(){
       if(iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
         return;
       }
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
