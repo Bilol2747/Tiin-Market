@@ -222,8 +222,8 @@ function exportZakasCSV(){
   });
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${zDays}kun.csv`;a.click();URL.revokeObjectURL(a.href);
 }
-function exportNoaktivCSV(){
-  if(!ZITEMS)return;
+async function exportNoaktivXLSX(){
+  if(!ZITEMS||typeof ExcelJS==="undefined")return;
   let items=ZITEMS.filter(v=>v.signal==="muzlagan");
   if(zQuery)items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));
   if(zF.cat)items=items.filter(v=>v.cat===zF.cat);
@@ -231,16 +231,55 @@ function exportNoaktivCSV(){
   if(zF.sup)items=items.filter(v=>v.sup===zF.sup);
   if(zF.type)items=items.filter(v=>v.itype===zF.type);
   items.sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0));
-  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
   const totalFrozen=items.reduce((s,v)=>s+(v.frozenVal||0),0);
-  let csv="﻿";
-  csv+=`${q("Jami muzlagan summa")},${Math.round(totalFrozen)}\r\n`;
-  csv+=`${q("Mahsulot soni")},${items.length}\r\n\r\n`;
-  csv+="SKU,Mahsulot nomi,Kelish narxi,Sotilish narxi,Stok,Jami muzlagan summa,Oxirgi sotuv\r\n";
-  items.forEach(v=>{
-    csv+=`${q(v.sku||"")},${q(v.name)},${Math.round(v.sp||0)},${Math.round(v.rp||0)},${v.stock},${Math.round(v.frozenVal||0)},${q(STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q")}\r\n`;
+
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet("Noaktiv tovarlar",{views:[{state:"frozen",ySplit:5}]});
+  const PURPLE="7C3AED",LIGHT="F3F0FF",DARK="3B2A6B";
+
+  ws.mergeCells("A1:B1");
+  ws.getCell("A1").value=`Jami muzlagan summa: ${Math.round(totalFrozen).toLocaleString("ru-RU")} so'm`;
+  ws.getCell("A1").font={bold:true,size:13,color:{argb:DARK}};
+  ws.getCell("A2").value=`Mahsulot soni: ${items.length} ta`;
+  ws.getCell("A2").font={bold:true,size:11,color:{argb:"6B7280"}};
+  ws.getCell("A3").value=`Holat: ${STOCK_ACTIVE_DAYS} kun ichida sotuv yo'q (${new Date().toLocaleDateString("uz-UZ")} holatiga)`;
+  ws.getCell("A3").font={italic:true,size:10,color:{argb:"9CA3AF"}};
+
+  const headerRow=ws.getRow(5);
+  const headers=["SKU","Mahsulot nomi","Kelish narxi","Sotilish narxi","Stok","Jami muzlagan summa","Oxirgi sotuv"];
+  headers.forEach((h,i)=>{
+    const c=headerRow.getCell(i+1);
+    c.value=h;
+    c.font={bold:true,color:{argb:"FFFFFF"}};
+    c.fill={type:"pattern",pattern:"solid",fgColor:{argb:PURPLE}};
+    c.alignment={vertical:"middle",horizontal:i>=2?"right":"left"};
+    c.border={bottom:{style:"thin",color:{argb:PURPLE}}};
   });
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`noaktiv_tovarlar_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+  headerRow.height=22;
+
+  items.forEach((v,i)=>{
+    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q"]);
+    r.getCell(3).numFmt='#,##0 "so\'m"';
+    r.getCell(4).numFmt='#,##0 "so\'m"';
+    r.getCell(5).numFmt=Number.isInteger(v.stock)?"#,##0":"#,##0.00";
+    r.getCell(6).numFmt='#,##0 "so\'m"';
+    r.getCell(6).font={bold:true,color:{argb:PURPLE}};
+    r.getCell(7).font={color:{argb:"E24B4A"},italic:true};
+    if(i%2===1){for(let c=1;c<=7;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
+  });
+
+  ws.columns=[{width:11},{width:42},{width:15},{width:15},{width:11},{width:20},{width:24}];
+  ws.getColumn(3).alignment={horizontal:"right"};
+  ws.getColumn(4).alignment={horizontal:"right"};
+  ws.getColumn(5).alignment={horizontal:"right"};
+  ws.getColumn(6).alignment={horizontal:"right"};
+
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  a.download=`noaktiv_tovarlar_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 function copyZakas(){
   const items=_zkCalc();
