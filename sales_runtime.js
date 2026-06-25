@@ -37,7 +37,7 @@ let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let p2LastI=null;
-let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1;
+let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
 let zDays=30,zKFilter="all",zKSup="",zKQuery="",zKCat="";
 let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null;
@@ -226,6 +226,7 @@ async function p2ToZaxira(i){
   renderZaxira();
 }
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
+const STOCK_ACTIVE_DAYS=60;  // Stock: aktiv/noaktiv ajratish chegarasi (kun)
 function _zClassify(d,stock,smartDaily,calAvg){
   // d: kunlik miqdor massivi (range aktiv bo'lsa kesilgan)
   // smartDaily: aqlli velocity (retail + recency) — "daily"; calAvg: retail oylik o'rtacha — "calendarAvg"
@@ -302,12 +303,19 @@ function _buildZItems(){
     const p2skus=new Set(P2.filter(v=>v.sku).map(v=>String(v.sku)));
     const p2norms=new Set(P2.map(v=>nn2(v.name)));
     let mzCap=0;
+    const _endRef=(DMETAFULL&&DMETAFULL.end)?new Date(DMETAFULL.end):new Date();
     Object.entries(INVDATA).forEach(([key,iv])=>{
       if(iv.sku&&p2skus.has(String(iv.sku)))return;
       if(p2norms.has(key))return;
       const stock=parseFloat(iv.a||0);if(stock<=0)return;
       const price=parseFloat(iv.sp||iv.p||0);const frozenVal=Math.round(stock*price);
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:"May oyida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+      if(iv.ld60){
+        // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
+        const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
+        return;
+      }
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
@@ -331,16 +339,28 @@ function _buildZItems(){
     const catEl=document.getElementById("z-mz-cat-list");
     if(catEl)catEl.innerHTML=barHtml(top5(catMap),mzCap);
   }
-  const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0,muzlagan:0};
+  const cnt={kritik:0,tekshir:0,urgent:0,excess:0,normal:0,sekin:0,muzlagan:0};
   ZITEMS.forEach(v=>{if(cnt[v.signal]!==undefined)cnt[v.signal]++;});
   const s=(id,n)=>{const el=document.getElementById(id);if(el)el.textContent=n.toLocaleString();};
-  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);s("z-n-normal",cnt.normal);s("z-n-muzlagan",cnt.muzlagan);
+  s("z-n-kritik",cnt.kritik);s("z-n-tekshir",cnt.tekshir);s("z-n-urgent",cnt.urgent);s("z-n-excess",cnt.excess);s("z-n-normal",cnt.normal);s("z-n-sekin",cnt.sekin);s("z-n-muzlagan",cnt.muzlagan);
   const bnr=document.getElementById("z-mz-cnt");if(bnr)bnr.textContent=cnt.muzlagan.toLocaleString();
+  const ntab=document.getElementById("z-noaktiv-cnt");if(ntab)ntab.textContent="("+cnt.muzlagan.toLocaleString()+")";
   zFilled=false;zFillSelects();
+}
+function zSuperTab(tab){
+  zFilter(tab==="noaktiv"?"muzlagan":"all");
 }
 function zFilter(f){
   zCurFilter=f;
   zPage=1;
+  const wantTab=f==="muzlagan"?"noaktiv":"aktiv";
+  if(wantTab!==zSuperTabCur){
+    zSuperTabCur=wantTab;
+    document.querySelectorAll(".z-stab").forEach(b=>b.classList.toggle("active",b.dataset.stab===wantTab));
+    const aSec=document.getElementById("z-aktiv-section");if(aSec)aSec.style.display=wantTab==="aktiv"?"":"none";
+    const nSec=document.getElementById("z-noaktiv-section");if(nSec)nSec.style.display=wantTab==="noaktiv"?"":"none";
+    const ft=document.getElementById("z-filter-tabs-aktiv");if(ft)ft.style.display=wantTab==="aktiv"?"":"none";
+  }
   document.querySelectorAll(".z-ftab").forEach(b=>b.classList.toggle("active",b.dataset.filter===f));
   document.querySelectorAll(".z-card").forEach(c=>c.classList.remove("z-selected"));
   if(f!=="all"){const el=document.getElementById("zc-"+f);if(el)el.classList.add("z-selected");}
@@ -409,24 +429,25 @@ function zClear(){
 }
 function renderZaxira(){
   if(!ZITEMS)return;
-  let items=zCurFilter==="all"?[...ZITEMS]:ZITEMS.filter(v=>v.signal===zCurFilter);
+  let items=zCurFilter==="all"?ZITEMS.filter(v=>v.signal!=="muzlagan"):ZITEMS.filter(v=>v.signal===zCurFilter);
   if(zQuery){items=items.filter(v=>(v.name&&v.name.toLowerCase().includes(zQuery))||(v.sku&&String(v.sku).toLowerCase().includes(zQuery)));}
   if(zF.cat) items=items.filter(v=>v.cat===zF.cat);
   if(zF.sub) items=items.filter(v=>v.sub===zF.sub);
   if(zF.sup) items=items.filter(v=>v.sup===zF.sup);
   if(zF.type)items=items.filter(v=>v.itype===zF.type);
   if(zF.abc) items=items.filter(v=>v.abc===zF.abc);
-  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4,muzlagan:5};
+  const ord={kritik:0,urgent:1,tekshir:2,excess:3,normal:4,sekin:5,muzlagan:6};
   items.sort((a,b)=>{
     if(ord[a.signal]!==ord[b.signal])return ord[a.signal]-ord[b.signal];
-    if(a.signal==="muzlagan")return (b.frozenVal||0)-(a.frozenVal||0);
+    if(a.signal==="muzlagan"||a.signal==="sekin")return (b.frozenVal||0)-(a.frozenVal||0)||(b.di||0)-(a.di||0);
     // Ortiqcha: eng uzun muddatli (eng ko'p stok) birinchi; qolganlar: eng qisqa muddatli birinchi
     if(a.daysLeft!=null&&b.daysLeft!=null)return a.signal==="excess"?b.daysLeft-a.daysLeft:a.daysLeft-b.daysLeft;
     return (b.di||0)-(a.di||0);
   });
   const el=document.getElementById("z-cnt");if(el)el.textContent=items.length.toLocaleString()+" ta mahsulot";
-  const thDays=document.querySelector(".z-tbl thead th:nth-child(6)");if(thDays)thDays.textContent=zCurFilter==="muzlagan"?"Muzlagan qiymat":"Kunga yetadi";
-  const thAvg=document.querySelector(".z-tbl thead th:nth-child(5)");if(thAvg)thAvg.textContent=zCurFilter==="muzlagan"?"Narx (1 dona)":"Kunlik o'rtacha";
+  const _frozenView=zCurFilter==="muzlagan"||zCurFilter==="sekin";
+  const thDays=document.querySelector(".z-tbl thead th:nth-child(6)");if(thDays)thDays.textContent=_frozenView?"Stok qiymati":"Kunga yetadi";
+  const thAvg=document.querySelector(".z-tbl thead th:nth-child(5)");if(thAvg)thAvg.textContent=_frozenView?"Narx (1 dona)":"Kunlik o'rtacha";
   const MAX_DAYS=90;
   const total=items.length;
   const totalPages=Math.max(1,Math.ceil(total/ZPS));
@@ -438,10 +459,11 @@ function renderZaxira(){
     const abcBadge=v.abc?`<span class="p2-abc p2-abc-${v.abc}">${v.abc}</span>`:"—";
     const stockTxt=v.stock===0?`<span style="color:#E24B4A;font-weight:700">0</span>`:v.stock<0?`<span style="color:#E24B4A">-${Math.abs(v.stock).toLocaleString()}</span>`:v.stock.toLocaleString();
     let barHtml;
-    if(v.signal==="muzlagan"){
+    if(v.signal==="muzlagan"||v.signal==="sekin"){
       const fv=v.frozenVal||0;const m=fv/1e6;
       const fStr=m>=1000?(+(m/1000).toFixed(2)).toLocaleString()+" mlrd so'm":m>=1?(+m.toFixed(1)).toLocaleString()+" mln so'm":fv.toLocaleString()+" so'm";
-      barHtml=`<div style="color:#7C3AED;font-weight:700;font-size:13px">${fStr}</div>`;
+      const fc=v.signal==="sekin"?"#0E7490":"#7C3AED";
+      barHtml=`<div style="color:${fc};font-weight:700;font-size:13px">${fStr}</div>`;
     }else if(v.stock===0||v.daysLeft===0){
       barHtml=`<div class="z-bar-wrap"><div class="z-bar z-bar-red"><div class="z-bar-fill" style="width:100%"></div></div><span class="z-bar-days" style="color:#E24B4A">Tugagan</span></div>`;
     }else if(v.stock<0){
@@ -455,11 +477,11 @@ function renderZaxira(){
     }else{
       barHtml=`<span style="color:#bbb">—</span>`;
     }
-    const diTxt=v.signal==="muzlagan"?"May'da sotilmagan":v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
-    const diColor=v.signal==="muzlagan"?"#7C3AED":v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
-    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"],muzlagan:["z-sig-muzlagan","💤 Muzlagan"]};
+    const diTxt=v.signal==="muzlagan"?(STOCK_ACTIVE_DAYS+" kunda sotilmagan"):v.signal==="sekin"?(v.di+" kun oldin sotilgan"):v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
+    const diColor=v.signal==="muzlagan"?"#7C3AED":v.signal==="sekin"?"#0E7490":v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
+    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"],sekin:["z-sig-sekin","🐢 Sekin"],muzlagan:["z-sig-muzlagan","💤 Muzlagan"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
-    const dailyTxt=v.signal==="muzlagan"?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
+    const dailyTxt=(v.signal==="muzlagan"||v.signal==="sekin")?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
     h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });

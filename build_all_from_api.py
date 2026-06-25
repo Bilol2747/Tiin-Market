@@ -16,7 +16,7 @@ import json
 import re
 import shutil
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from build_all import (
@@ -26,6 +26,7 @@ from build_sales_demand import api_records, safe_item_revenue, build as build_da
 
 ROOT = Path(__file__).parent
 TASHKENT_OFFSET = timedelta(hours=5)
+ACTIVE_WINDOW_DAYS = 60  # Stock: aktiv/noaktiv ajratish uchun chegara
 
 
 def norm(value):
@@ -137,7 +138,30 @@ def api_read_sales(orders):
     return receipts, pnames, pskus, pcats, refund_total, refund_by_day, min_d, max_d
 
 
-def build(orders, products_path, html_path=None):
+def compute_last_sale_dates(orders):
+    """Har bir mahsulot nomi uchun oxirgi sotuv sanasini topadi (kengroq oynada,
+    masalan 60 kun) - Stock'da aktiv/noaktiv ajratish uchun. Bu asosiy --days
+    oynasidan kengroq bo'lishi mumkin, shu sabab alohida hisoblanadi."""
+    last_sale = {}
+    for order in orders:
+        if order.get("type") != "sale":
+            continue
+        sale_date = parse_local_date(order.get("create_time"))
+        if sale_date is None:
+            continue
+        for it in order.get("items") or []:
+            qty = float(it.get("value") or 0)
+            if qty <= 0:
+                continue
+            name = norm(it.get("product_name"))
+            if not name:
+                continue
+            if name not in last_sale or sale_date > last_sale[name]:
+                last_sale[name] = sale_date
+    return last_sale
+
+
+def build(orders, products_path, html_path=None, last_sale_60=None):
     if html_path is None:
         html_path = ROOT / "sales.html"
 
@@ -156,6 +180,14 @@ def build(orders, products_path, html_path=None):
 
     print("[4/6] Mahsulot, inventar va ABC ma'lumotlari qurilmoqda...")
     invdata = build_invdata(products)
+    if last_sale_60:
+        matched = 0
+        for name, iv in invdata.items():
+            ld60 = last_sale_60.get(name)
+            if ld60:
+                iv["ld60"] = ld60.isoformat()
+                matched += 1
+        print(f"      {matched:,} mahsulotga {ACTIVE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi qo'shildi")
     p2data = build_p2data(receipts, pnames, pskus, dailydata, products, min_d, max_d)
     p3data = build_p3data(p2data, dailydata, max_d)
     p1data = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
@@ -206,11 +238,23 @@ def main():
     args = parser.parse_args()
 
     from turso_sync import fetch_window
-    print(f"[0/6] Turso bazasidan so'nggi {args.days} kunlik buyurtmalar o'qilmoqda...")
-    orders = fetch_window(args.days)
-    print(f"      {len(orders):,} ta buyurtma olindi")
+    window_days = max(args.days, ACTIVE_WINDOW_DAYS)
+    print(f"[0/6] Turso bazasidan so'nggi {window_days} kunlik buyurtmalar o'qilmoqda...")
+    orders_wide = fetch_window(window_days)
+    print(f"      {len(orders_wide):,} ta buyurtma olindi")
 
-    result = build(orders, ROOT / args.products, ROOT / args.output)
+    if window_days > args.days:
+        cutoff = date.today() - timedelta(days=args.days)
+        orders = [o for o in orders_wide
+                  if (parse_local_date(o.get("create_time")) or date.min) >= cutoff]
+        print(f"      {len(orders):,} ta buyurtma asosiy {args.days} kunlik oyna uchun ishlatiladi")
+    else:
+        orders = orders_wide
+
+    last_sale_60 = compute_last_sale_dates(orders_wide)
+    print(f"      {len(last_sale_60):,} mahsulot uchun {ACTIVE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi hisoblandi")
+
+    result = build(orders, ROOT / args.products, ROOT / args.output, last_sale_60=last_sale_60)
 
     print(f"\n{'='*40}")
     print(f"  TAYYOR! {result['period']}")
