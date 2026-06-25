@@ -292,8 +292,9 @@ function _buildZItems(){
     const d=Array.isArray(v.d)?v.d:null;
     if(!d)return;
     // aqlli velocity (m.daily) + retail oylik o'rtacha (m.calendarAvg) — dailydata'dan
+    // tanlangan sana oralig'iga (30/60 kun) qarab qayta hisoblanadi - prognozni solishtirish uchun
     let smartDaily=null, calAvg=null;
-    if(typeof dailyForFull==="function"){const _di=dailyForFull(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
+    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
     if(smartDaily==null&&v.da!=null)smartDaily=v.da;
     const c=_zClassify(d,stock,smartDaily,calAvg);
     if(!c)return;
