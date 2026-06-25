@@ -552,6 +552,7 @@ const ab2=P1.abc||{};const at=(ab2.a_rev||0)+(ab2.b_rev||0)+(ab2.c_rev||0)||1;
 _p1c.abc=new Chart(document.getElementById("abcChart"),{type:"doughnut",data:{labels:["A - Lider","B - Potentsial","C - Aylanmada"],datasets:[{data:[(ab2.a_rev||0)/at*100,(ab2.b_rev||0)/at*100,(ab2.c_rev||0)/at*100],backgroundColor:["#1D9E75","#EF9F27","#E24B4A"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed.toFixed(1)+"%"}}}}});
 }
 renderP1();
+if(P1FULL&&P1FULL.days>30)dtPreset(30);  // baza 60 kunlik, lekin standart ko'rinish 30 kun
 // ── Sana oralig'i (date-range) ──
 function dtToggle(e){if(e)e.stopPropagation();const p=document.getElementById("dt-pop");if(p)p.classList.toggle("open");}
 document.addEventListener("click",function(e){const w=document.querySelector(".tb-dt");const p=document.getElementById("dt-pop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});

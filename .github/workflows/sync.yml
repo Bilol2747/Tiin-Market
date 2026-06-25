@@ -4,11 +4,6 @@ on:
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
-    inputs:
-      days:
-        description: "Necha kunlik tarixni olish"
-        default: "30"
-        required: false
 
 concurrency:
   group: invan-sync
@@ -53,7 +48,7 @@ jobs:
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-        run: python build_all_from_api.py --days ${{ github.event.inputs.days || '30' }}
+        run: python build_all_from_api.py
 
       - name: O'zgarishlarni commit+push qilish
         run: |

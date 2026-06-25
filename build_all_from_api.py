@@ -16,7 +16,7 @@ import json
 import re
 import shutil
 from collections import Counter, defaultdict
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from build_all import (
@@ -234,24 +234,14 @@ def main():
     parser = argparse.ArgumentParser(description="Invan API ma'lumoti bilan sales.html ni yangilash")
     parser.add_argument("--products", default="api_raw_products.json")
     parser.add_argument("--output", default="sales.html")
-    parser.add_argument("--days", type=int, default=30, help="Turso bazasidan necha kunlik sotuv tarixini olish")
     args = parser.parse_args()
 
     from turso_sync import fetch_window
-    window_days = max(args.days, ACTIVE_WINDOW_DAYS)
-    print(f"[0/6] Turso bazasidan so'nggi {window_days} kunlik buyurtmalar o'qilmoqda...")
-    orders_wide = fetch_window(window_days)
-    print(f"      {len(orders_wide):,} ta buyurtma olindi")
+    print(f"[0/6] Turso bazasidan so'nggi {ACTIVE_WINDOW_DAYS} kunlik buyurtmalar o'qilmoqda...")
+    orders = fetch_window(ACTIVE_WINDOW_DAYS)
+    print(f"      {len(orders):,} ta buyurtma olindi")
 
-    if window_days > args.days:
-        cutoff = date.today() - timedelta(days=args.days)
-        orders = [o for o in orders_wide
-                  if (parse_local_date(o.get("create_time")) or date.min) >= cutoff]
-        print(f"      {len(orders):,} ta buyurtma asosiy {args.days} kunlik oyna uchun ishlatiladi")
-    else:
-        orders = orders_wide
-
-    last_sale_60 = compute_last_sale_dates(orders_wide)
+    last_sale_60 = compute_last_sale_dates(orders)
     print(f"      {len(last_sale_60):,} mahsulot uchun {ACTIVE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi hisoblandi")
 
     result = build(orders, ROOT / args.products, ROOT / args.output, last_sale_60=last_sale_60)
