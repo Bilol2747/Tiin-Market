@@ -87,6 +87,77 @@ const I18N={
   lekin:{uz:"lekin",en:"but",ru:"но"},
   assortiment:{uz:"assortiment",en:"of the assortment",ru:"ассортимента"},
   kunlik_malumot:{uz:"kunlik ma'lumot",en:"days of data",ru:"дней данных"},
+  // umumiy filtrlar (p2/p3/p5/zakas)
+  filt_btn:{uz:"Filtr",en:"Filter",ru:"Фильтр"},
+  filt_clear:{uz:"Filtrlarni tozalash",en:"Clear filters",ru:"Очистить фильтры"},
+  filt_all:{uz:"Barchasi",en:"All",ru:"Все"},
+  filt_cat:{uz:"KATEGORIYA",en:"CATEGORY",ru:"КАТЕГОРИЯ"},
+  filt_sub:{uz:"SUB-KATEGORIYA",en:"SUB-CATEGORY",ru:"ПОДКАТЕГОРИЯ"},
+  filt_type:{uz:"TUR",en:"TYPE",ru:"ТИП"},
+  filt_sup:{uz:"YETKAZIB BERUVCHI",en:"SUPPLIER",ru:"ПОСТАВЩИК"},
+  filt_abc:{uz:"ABC",en:"ABC",ru:"ABC"},
+  filt_amt:{uz:"QOLDIQ (TIIN OPTOM)",en:"STOCK (TIIN OPTOM)",ru:"ОСТАТОК (TIIN OPTOM)"},
+  amt_pos:{uz:"Musbat (>0)",en:"Positive (>0)",ru:"Положительный (>0)"},
+  amt_zero:{uz:"Nol (0)",en:"Zero (0)",ru:"Ноль (0)"},
+  amt_neg:{uz:"Manfiy (<0)",en:"Negative (<0)",ru:"Отрицательный (<0)"},
+  abc_a_opt:{uz:"A — Lider",en:"A — Leader",ru:"A — Лидер"},
+  abc_b_opt:{uz:"B — Potentsial",en:"B — Potential",ru:"B — Потенциал"},
+  abc_c_opt:{uz:"C — Aylanmada yo'q",en:"C — Out of rotation",ru:"C — Не в обороте"},
+  // Mahsulotlar (p2)
+  p2_search_ph:{uz:"Nom, SKU yoki barcode bo'yicha qidirish...",en:"Search by name, SKU or barcode...",ru:"Поиск по названию, SKU или штрихкоду..."},
+  close_graphs:{uz:"Grafiklarni yopish",en:"Close charts",ru:"Закрыть графики"},
+  card_birga:{uz:"Birga KO'P sotilgan",en:"Frequently bought together",ru:"Часто покупают вместе"},
+  card_retail_ulgurji:{uz:"Retail va ulgurji savdo dinamikasi",en:"Retail vs wholesale sales trend",ru:"Динамика розничных и оптовых продаж"},
+  necha_kunlik:{uz:"Necha kunlik:",en:"How many days:",ru:"Сколько дней:"},
+  card_mahsulot_malumoti:{uz:"Mahsulot ma'lumoti",en:"Product info",ru:"Информация о товаре"},
+  empty_mahsulot_tanlang:{uz:"Mahsulot tanlang",en:"Select a product",ru:"Выберите товар"},
+  kg_alert:{uz:"KG mahsulot — narx 1 kg uchun",en:"KG product — price is per 1 kg",ru:"Товар в КГ — цена за 1 кг"},
+  th_num:{uz:"#",en:"#",ru:"#"},
+  th_name:{uz:"MAHSULOT NOMI",en:"PRODUCT NAME",ru:"НАЗВАНИЕ ТОВАРА"},
+  th_sku:{uz:"SKU",en:"SKU",ru:"SKU"},
+  th_cat:{uz:"KATEGORIYA",en:"CATEGORY",ru:"КАТЕГОРИЯ"},
+  th_olchov:{uz:"O'LCHOV",en:"UNIT",ru:"ЕД. ИЗМ."},
+  th_taminotchi:{uz:"TA'MINOTCHI",en:"SUPPLIER",ru:"ПОСТАВЩИК"},
+  th_narxi:{uz:"NARXI",en:"PRICE",ru:"ЦЕНА"},
+  th_sotuv_holati:{uz:"SOTUV HOLATI",en:"SALE STATUS",ru:"СТАТУС ПРОДАЖ"},
+  th_abc:{uz:"ABC",en:"ABC",ru:"ABC"},
+  p2_not_found:{uz:"Mahsulot topilmadi — filtrlarni o'zgartiring",en:"No products found — try changing filters",ru:"Товары не найдены — измените фильтры"},
+  p2_cnt_suffix:{uz:"ta mahsulot",en:"products",ru:"товаров"},
+  kelish_lc:{uz:"kelish",en:"cost",ru:"закуп"},
+  sotuv_yoq_davr:{uz:"Bu davrda sotuv yo'q",en:"No sale in this period",ru:"Нет продаж за этот период"},
+  oxirgi_kuni_sotildi:{uz:"Oxirgi kuni sotildi",en:"Sold on the last day",ru:"Продано в последний день"},
+  kun_oldin:{uz:"kun oldin",en:"days ago",ru:"дн. назад"},
+  // ABC tahlili (p3)
+  abc3_a_lbl:{uz:"A guruh — Lider tovarlar",en:"Group A — Leader products",ru:"Группа A — Лидеры"},
+  abc3_b_lbl:{uz:"B guruh — Potentsial tovarlar",en:"Group B — Potential products",ru:"Группа B — Потенциальные"},
+  abc3_c_lbl:{uz:"C guruh — Aylanmada yo'q",en:"Group C — Out of rotation",ru:"Группа C — Не в обороте"},
+  abc3_unit:{uz:"ta mahsulot turi",en:"product types",ru:"видов товара"},
+  abc3_donut_h:{uz:"Tushum ulushi",en:"Revenue share",ru:"Доля выручки"},
+  abc3_bar_h:{uz:"Top 15 mahsulot — tushum bo'yicha (mln UZS)",en:"Top 15 products by revenue (mln UZS)",ru:"Топ 15 товаров по выручке (млн UZS)"},
+  abc3_tab_a:{uz:"Lider tovarlar — A",en:"Leader products — A",ru:"Лидеры — A"},
+  abc3_tab_b:{uz:"Potentsial tovarlar — B",en:"Potential products — B",ru:"Потенциальные — B"},
+  abc3_tab_c:{uz:"Aylanmada yo'q — C",en:"Out of rotation — C",ru:"Не в обороте — C"},
+  abc3_tab_c1:{uz:"Olib tashlash — C1",en:"To delist — C1",ru:"К удалению — C1"},
+  abc3_search_ph:{uz:"Istalgan guruhdan mahsulot qidiring...",en:"Search a product in any group...",ru:"Поиск товара в любой группе..."},
+  abc3_th_name:{uz:"Mahsulot nomi",en:"Product name",ru:"Название товара"},
+  filt_cat2:{uz:"Kategoriya",en:"Category",ru:"Категория"},
+  abc3_th_rev:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
+  abc3_th_rec:{uz:"Chek",en:"Receipts",ru:"Чеки"},
+  abc3_th_last:{uz:"Oxirgi kun",en:"Last day",ru:"Последний день"},
+  th_sotuv_holati2:{uz:"Sotuv holati",en:"Sale status",ru:"Статус продаж"},
+  oxirgi_kirim:{uz:"Oxirgi kirim",en:"Last arrival",ru:"Последнее поступление"},
+  topilmadi:{uz:"Topilmadi",en:"Not found",ru:"Не найдено"},
+  kg_tovar:{uz:"KG tovar",en:"KG product",ru:"Товар в КГ"},
+  jami_tushum:{uz:"Jami tushum",en:"Total revenue",ru:"Общая выручка"},
+  narxi_1:{uz:"Narxi (1",en:"Price (1",ru:"Цена (1"},
+  cheklar_soni:{uz:"Cheklar soni",en:"Number of receipts",ru:"Количество чеков"},
+  tushum_ulushi:{uz:"Tushum ulushi",en:"Revenue share",ru:"Доля выручки"},
+  oxirgi_sotilgan:{uz:"Oxirgi sotilgan",en:"Last sold",ru:"Последняя продажа"},
+  kunlik_ortacha:{uz:"Kunlik ortacha",en:"Daily average",ru:"Среднее в день"},
+  jami_sotilgan:{uz:"Jami sotilgan",en:"Total sold",ru:"Всего продано"},
+  nega_guruhda:{uz:"Nega",en:"Why is it in group",ru:"Почему в группе"},
+  guruhda_savol:{uz:"guruhda?",en:"?",ru:"?"},
+  nima_qk:{uz:"Nima qilish kerak?",en:"What should be done?",ru:"Что нужно делать?"},
 };
 let LANG=(()=>{try{return localStorage.getItem("tiin_lang")||"uz";}catch(_){return "uz";}})();
 function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
@@ -104,6 +175,7 @@ function setLang(lang){
 }
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{el.placeholder=t(el.dataset.i18nPh);});
 }
 
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
@@ -246,7 +318,7 @@ async function exportNoaktivXLSX(){
   ws.getCell("A3").font={italic:true,size:10,color:{argb:"9CA3AF"}};
 
   const headerRow=ws.getRow(5);
-  const headers=["SKU","Mahsulot nomi","Kelish narxi","Sotilish narxi","Stok","Jami muzlagan summa","Oxirgi sotuv"];
+  const headers=["SKU","Mahsulot nomi","Kelish narxi","Sotilish narxi","Stok","Jami muzlagan summa","Oxirgi sotuv","Oxirgi kirim"];
   headers.forEach((h,i)=>{
     const c=headerRow.getCell(i+1);
     c.value=h;
@@ -258,21 +330,23 @@ async function exportNoaktivXLSX(){
   headerRow.height=22;
 
   items.forEach((v,i)=>{
-    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q"]);
+    const r=ws.addRow([v.sku||"",v.name,Math.round(v.sp||0),Math.round(v.rp||0),v.stock,Math.round(v.frozenVal||0),STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",v.la||"Noma'lum"]);
     r.getCell(3).numFmt='#,##0 "so\'m"';
     r.getCell(4).numFmt='#,##0 "so\'m"';
     r.getCell(5).numFmt=Number.isInteger(v.stock)?"#,##0":"#,##0.00";
     r.getCell(6).numFmt='#,##0 "so\'m"';
     r.getCell(6).font={bold:true,color:{argb:PURPLE}};
     r.getCell(7).font={color:{argb:"E24B4A"},italic:true};
-    if(i%2===1){for(let c=1;c<=7;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
+    r.getCell(8).font={color:v.la?{argb:"0E7490"}:{argb:"9CA3AF"},italic:!v.la};
+    if(i%2===1){for(let c=1;c<=8;c++)r.getCell(c).fill={type:"pattern",pattern:"solid",fgColor:{argb:LIGHT}};}
   });
 
-  ws.columns=[{width:11},{width:42},{width:15},{width:15},{width:11},{width:20},{width:24}];
+  ws.columns=[{width:11},{width:42},{width:15},{width:15},{width:11},{width:20},{width:24},{width:16}];
   ws.getColumn(3).alignment={horizontal:"right"};
   ws.getColumn(4).alignment={horizontal:"right"};
   ws.getColumn(5).alignment={horizontal:"right"};
   ws.getColumn(6).alignment={horizontal:"right"};
+  ws.getColumn(8).alignment={horizontal:"right"};
 
   const buf=await wb.xlsx.writeBuffer();
   const a=document.createElement("a");
@@ -450,13 +524,14 @@ function _buildZItems(){
       const stock=parseFloat(iv.a||0);if(stock<=0)return;
       const sp=parseFloat(iv.sp||0),rp=parseFloat(iv.p||0);
       const price=sp||rp;const frozenVal=Math.round(stock*price);
+      const la=iv.la||null;
       if(iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
         return;
       }
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");
@@ -625,7 +700,12 @@ function renderZaxira(){
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=(v.signal==="muzlagan"||v.signal==="sekin")?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
-    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
+    let arrivalTxt="";
+    if(v.la){
+      const laDi=Math.max(0,Math.round((_endRef-new Date(v.la))/86400000));
+      arrivalTxt=` <span style="color:#0E7490;font-weight:600">· ${t("oxirgi_kirim")}: ${v.la} (${laDi} ${t("kun_oldin")})</span>`;
+    }
+    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}${arrivalTxt}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
   document.getElementById("z-tbody").innerHTML=h;
@@ -807,8 +887,8 @@ function p2Match(v,skip){const fc=p2gv("pf-cat"),fs=p2gv("pf-sub"),ft=p2gv("pf-t
 function p2UniqWhere(kf,skip){const s=new Set();P2.forEach(v=>{if(p2Match(v,skip)){const x=kf(v);if(x)s.add(x);}});return [...s].sort((a,b)=>String(a).localeCompare(String(b),"ru"));}
 function p2RebuildSel(id,opts,cur){const sel=document.getElementById(id);sel.innerHTML="";const o0=document.createElement("option");o0.value="";o0.textContent="Barchasi";sel.appendChild(o0);opts.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;sel.appendChild(o);});sel.value=(cur&&opts.includes(cur))?cur:"";sel.className=sel.value?"on":"";}
 function p2gv(id){return document.getElementById(id).value;}
-function p2Filter(){P2FF.forEach(f=>{const cur=p2gv(f.id);const opts=p2UniqWhere(f.k,f.id);p2RebuildSel(f.id,opts,cur);});["pf-cat","pf-amt","pf-abc"].forEach(id=>{const e=document.getElementById(id);e.className=e.value?"on":"";});const q=document.getElementById("pf-q").value.trim().toLowerCase();p2rows=P2.filter(v=>{if(!v.sku)return false;if(_rangeActive()&&(v.qty||0)<=0)return false;if(!p2Match(v,null))return false;if(q&&!v.name.toLowerCase().includes(q)&&!String(v.sku||"").includes(q))return false;return true;});p2page=1;document.getElementById("pf-cnt").textContent=p2rows.length.toLocaleString()+" ta mahsulot";renderP2Table();}
-function renderP2Table(){const tb=document.getElementById("pf-tbody");const ro=(p2page-1)*P2PS;const pg=p2rows.slice(ro,ro+P2PS);if(!pg.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:34px;color:#bbb">Mahsulot topilmadi &mdash; filtrlarni o\'zgartiring</td></tr>';document.getElementById("pf-pag").innerHTML="";return;}const END=new Date((DMETA&&DMETA.end)?DMETA.end:'2026-05-31');let h="";pg.forEach((v,i)=>{const abc=v.abc||"";let di=v.di;if(di===undefined||di===null){if(v.ld){const d=new Date(v.ld);di=Math.max(0,Math.round((END-d)/86400000));}else{di=999;}}const[sc,stTxt]=sotuv(di);const price=v.iprice||0;const suprice=v.suprice||0;const priceCell=price?price.toLocaleString()+" so'm"+(suprice?'<div style="font-size:10px;color:#999;margin-top:1px">kelish: '+suprice.toLocaleString()+" so'm</div>":""):"—";h+=`<tr data-pi="${v._i}" onclick="p2RowClick(${v._i})" title="Ikki marta bosing — Zaxirada koʻrish"><td style="color:#bbb">${ro+i+1}</td><td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600" title="${esc(v.name)}">${esc(v.name)}${v.kg&&!v.name.toLowerCase().includes('kg')?' <span class="sug-kg">KG</span>':''}</td><td style="color:#999">${v.sku||"—"}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#777" title="${esc(v.cat||"")}">${esc(v.cat||"—")}</td><td style="color:#888;white-space:nowrap">${esc(v.itype||"—")}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888" title="${esc(v.sup||"")}">${esc(v.sup||"—")}</td><td style="white-space:nowrap">${priceCell}</td><td><span class="badge ${sc}">${stTxt}</span></td><td>${abc?'<span class="p2-abc p2-abc-'+abc+'">'+abc+'</span>':'—'}</td></tr>`;});tb.innerHTML=h;renderP2Pag();}
+function p2Filter(){P2FF.forEach(f=>{const cur=p2gv(f.id);const opts=p2UniqWhere(f.k,f.id);p2RebuildSel(f.id,opts,cur);});["pf-cat","pf-amt","pf-abc"].forEach(id=>{const e=document.getElementById(id);e.className=e.value?"on":"";});const q=document.getElementById("pf-q").value.trim().toLowerCase();p2rows=P2.filter(v=>{if(!v.sku)return false;if(_rangeActive()&&(v.qty||0)<=0)return false;if(!p2Match(v,null))return false;if(q&&!v.name.toLowerCase().includes(q)&&!String(v.sku||"").includes(q))return false;return true;});p2page=1;document.getElementById("pf-cnt").textContent=p2rows.length.toLocaleString()+" "+t("p2_cnt_suffix");renderP2Table();}
+function renderP2Table(){const tb=document.getElementById("pf-tbody");const ro=(p2page-1)*P2PS;const pg=p2rows.slice(ro,ro+P2PS);if(!pg.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:34px;color:#bbb">'+t("p2_not_found")+'</td></tr>';document.getElementById("pf-pag").innerHTML="";return;}const END=new Date((DMETA&&DMETA.end)?DMETA.end:'2026-05-31');let h="";pg.forEach((v,i)=>{const abc=v.abc||"";let di=v.di;if(di===undefined||di===null){if(v.ld){const d=new Date(v.ld);di=Math.max(0,Math.round((END-d)/86400000));}else{di=999;}}const[sc,stTxt]=sotuv(di);const price=v.iprice||0;const suprice=v.suprice||0;const priceCell=price?price.toLocaleString()+" so'm"+(suprice?'<div style="font-size:10px;color:#999;margin-top:1px">'+t("kelish_lc")+': '+suprice.toLocaleString()+" so'm</div>":""):"—";h+=`<tr data-pi="${v._i}" onclick="p2RowClick(${v._i})" title="Ikki marta bosing — Zaxirada koʻrish"><td style="color:#bbb">${ro+i+1}</td><td style="max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600" title="${esc(v.name)}">${esc(v.name)}${v.kg&&!v.name.toLowerCase().includes('kg')?' <span class="sug-kg">KG</span>':''}</td><td style="color:#999">${v.sku||"—"}</td><td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#777" title="${esc(v.cat||"")}">${esc(v.cat||"—")}</td><td style="color:#888;white-space:nowrap">${esc(v.itype||"—")}</td><td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#888" title="${esc(v.sup||"")}">${esc(v.sup||"—")}</td><td style="white-space:nowrap">${priceCell}</td><td><span class="badge ${sc}">${stTxt}</span></td><td>${abc?'<span class="p2-abc p2-abc-'+abc+'">'+abc+'</span>':'—'}</td></tr>`;});tb.innerHTML=h;renderP2Pag();}
 function renderP2Pag(){const tot=Math.ceil(p2rows.length/P2PS);const pag=document.getElementById("pf-pag");if(tot<=1){pag.innerHTML="";return;}let h="";const mk=(l,p,d,a)=>`<button ${d?"disabled":""} ${a?'class="active"':""} onclick="p2Go(${p})">${l}</button>`;h+=mk("‹",p2page-1,p2page<=1,false);let s=Math.max(1,p2page-2),e=Math.min(tot,p2page+2);if(s>1){h+=mk("1",1,false,p2page===1);if(s>2)h+='<button disabled>…</button>';}for(let p=s;p<=e;p++)h+=mk(p,p,false,p===p2page);if(e<tot){if(e<tot-1)h+='<button disabled>…</button>';h+=mk(tot,tot,false,p2page===tot);}h+=mk("›",p2page+1,p2page>=tot,false);pag.innerHTML=h;}
 function p2Go(p){p2page=p;renderP2Table();const sc=document.querySelector(".p2-tbl-scroll");if(sc)sc.scrollTop=0;}
 let p2ClickTimer=null;
@@ -1042,7 +1122,7 @@ new Chart(document.getElementById("donut3"),{type:"doughnut",data:{labels:["A gu
 const top15=[...P3].filter(v=>!v._off&&(v.retRev||0)>0).sort((a,b)=>b.retRev-a.retRev).slice(0,15);new Chart(document.getElementById("bar15"),{type:"bar",data:{labels:top15.map(v=>v.name.slice(0,28)),datasets:[{data:top15.map(v=>+(v.retRev/1e6).toFixed(1)),backgroundColor:"rgba(83,74,183,0.7)",borderRadius:3,borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:"y",plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(1)+" mln UZS (retail)"}}},scales:{x:{grid:{color:"rgba(0,0,0,0.07)"},ticks:{font:{size:9},callback:v=>v+" mln"}},y:{grid:{display:false},ticks:{font:{size:9}}}}}});
 curRows3=getRows3("A");renderTable3(curRows3);}
 function getRows3(tab){if(tab==="A")return P3.filter(v=>v.abc==="A");if(tab==="B")return P3.filter(v=>v.abc==="B");if(tab==="C")return P3.filter(v=>v.abc==="C");return P3.filter(v=>v.sub==="C1");}
-function sotuv(di){if(di>=900)return["b-bad","Bu davrda sotuv yo'q"];if(di===0)return["b-ok","Oxirgi kuni sotildi"];if(di<=14)return["b-w",di+" kun oldin"];return["b-bad",di+" kun oldin"];}
+function sotuv(di){if(di>=900)return["b-bad",t("sotuv_yoq_davr")];if(di===0)return["b-ok",t("oxirgi_kuni_sotildi")];if(di<=14)return["b-w",di+" "+t("kun_oldin")];return["b-bad",di+" "+t("kun_oldin")];}
 function _med(a){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y);const m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;}
 function calcTozaOrtacha(dd,dr,dw,dl){
   const nd=dd.length;
@@ -1096,10 +1176,10 @@ function analyzePattern(dd,tz,u){
   if(wholesalePct>0)return{type:"wholesale",label:"Bir martalik ulgurji ajratildi",color:"#E24B4A",confidence,msg:"Jami savdoning "+wholesalePct.toFixed(1)+"% favqulodda (bir martalik) ulgurji sifatida ajratildi.",rec:"Doimiy ulgurji zakas hisobiga qo'shildi, bir martalik ulgurji chiqarib tashlandi."};
   return{type:"stable",label:"Barqaror retail talab",color:"#1D9E75",confidence,msg:active+" / "+days+" kun retail savdo bo'lgan.",rec:"Kunlik, haftalik va 30 kunlik talab sof retail + doimiy ulgurji asosida hisoblandi."};
 }
-function renderTable3(rows){const q=document.getElementById("srch3").value.toLowerCase().trim();let filtered=rows;if(q){filtered=P3.filter(v=>!v._off&&v.name.toLowerCase().includes(q));if(filtered.length>0){const fv=filtered[0];const tt=fv.sub==="C1"?"C1":fv.abc;if(tt!==curTab3){curTab3=tt;document.querySelectorAll(".atab").forEach(b=>b.className="atab");document.querySelectorAll(".atab").forEach(b=>{if(b.dataset.tab===tt)b.className="atab sel-"+tt;});curRows3=getRows3(tt);}}}document.getElementById("tcnt").textContent=filtered.length.toLocaleString()+" ta mahsulot";const max=Math.min(filtered.length,500);const rows2=[];for(let i=0;i<max;i++){const v=filtered[i];const idx=P3.indexOf(v);const[sc,st]=sotuv(v.di);const sub=v.sub?'<span class="badge '+(v.sub==="C1"?"b-c1":v.sub==="C2"?"b-c2":"b-c3")+'">'+v.sub+"</span>":"";rows2.push('<tr data-idx="'+idx+'" onclick="showDetail3('+idx+')"><td style="color:#bbb;">'+v.r+'</td><td style="font-weight:500;">'+esc(v.name)+'</td><td style="color:#888;">'+esc(v.cat.substring(0,20))+'</td><td style="font-weight:700;color:#1D9E75;">'+fmt(v.rev)+'</td><td>'+v.rec.toLocaleString()+'</td><td style="color:'+(v.di>7?"#E24B4A":"#1D9E75")+';">'+v.ld+'</td><td><span class="badge '+sc+'">'+st+'</span></td><td><span class="badge b-'+v.abc+'">'+v.abc+'</span></td></tr>');}if(!rows2.length)rows2.push('<tr><td colspan="8" style="text-align:center;padding:20px;color:#bbb;">Topilmadi</td></tr>');document.getElementById("tbody3").innerHTML=rows2.join("");document.getElementById("detail3").style.display="none";}
+function renderTable3(rows){const q=document.getElementById("srch3").value.toLowerCase().trim();let filtered=rows;if(q){filtered=P3.filter(v=>!v._off&&v.name.toLowerCase().includes(q));if(filtered.length>0){const fv=filtered[0];const tt=fv.sub==="C1"?"C1":fv.abc;if(tt!==curTab3){curTab3=tt;document.querySelectorAll(".atab").forEach(b=>b.className="atab");document.querySelectorAll(".atab").forEach(b=>{if(b.dataset.tab===tt)b.className="atab sel-"+tt;});curRows3=getRows3(tt);}}}document.getElementById("tcnt").textContent=filtered.length.toLocaleString()+" "+t("p2_cnt_suffix");const max=Math.min(filtered.length,500);const rows2=[];for(let i=0;i<max;i++){const v=filtered[i];const idx=P3.indexOf(v);const[sc,st]=sotuv(v.di);const sub=v.sub?'<span class="badge '+(v.sub==="C1"?"b-c1":v.sub==="C2"?"b-c2":"b-c3")+'">'+v.sub+"</span>":"";rows2.push('<tr data-idx="'+idx+'" onclick="showDetail3('+idx+')"><td style="color:#bbb;">'+v.r+'</td><td style="font-weight:500;">'+esc(v.name)+'</td><td style="color:#888;">'+esc(v.cat.substring(0,20))+'</td><td style="font-weight:700;color:#1D9E75;">'+fmt(v.rev)+'</td><td>'+v.rec.toLocaleString()+'</td><td style="color:'+(v.di>7?"#E24B4A":"#1D9E75")+';">'+v.ld+'</td><td><span class="badge '+sc+'">'+st+'</span></td><td><span class="badge b-'+v.abc+'">'+v.abc+'</span></td></tr>');}if(!rows2.length)rows2.push('<tr><td colspan="8" style="text-align:center;padding:20px;color:#bbb;">'+t("topilmadi")+'</td></tr>');document.getElementById("tbody3").innerHTML=rows2.join("");document.getElementById("detail3").style.display="none";}
 function setTab(btn){const tab=btn.dataset.tab;curTab3=tab;document.querySelectorAll(".atab").forEach(b=>b.className="atab");btn.className="atab sel-"+tab;document.getElementById("srch3").value="";curRows3=getRows3(tab);renderTable3(curRows3);}
 function filterTable(){renderTable3(curRows3);}
-function showDetail3(idx){const v=P3[idx];if(!v)return;const u=v.kg?"kg":"dona";const[sc,st]=sotuv(v.di);document.querySelectorAll("tr.sel").forEach(r=>r.classList.remove("sel"));const row=document.querySelector('tr[data-idx="'+idx+'"]');if(row){row.classList.add("sel");row.scrollIntoView({block:"nearest"});}document.getElementById("d3-name").textContent=v.name;document.getElementById("detail3").className="detail d"+v.abc;let bdg='<span class="badge b-'+v.abc+'" style="font-size:11px;padding:3px 9px;">'+v.abc+' guruh</span>';if(v.sub){const sc2=v.sub==="C1"?"b-c1":v.sub==="C2"?"b-c2":"b-c3";bdg+=' <span class="badge '+sc2+'" style="font-size:11px;padding:3px 9px;">'+v.sub+'</span>';}if(v.kg)bdg+=' <span class="badge" style="background:#EAF3DE;color:#27500A;font-size:11px;padding:3px 9px;">KG tovar</span>';document.getElementById("d3-badges").innerHTML=bdg;document.getElementById("d3-stats").innerHTML='<div class="ds"><div class="ds-l">Jami tushum</div><div class="ds-v" style="color:#1D9E75;">'+fmt(v.rev)+' UZS</div></div><div class="ds"><div class="ds-l">Narxi (1 '+u+')</div><div class="ds-v">'+v.p.toLocaleString()+' UZS</div></div><div class="ds"><div class="ds-l">Cheklar soni</div><div class="ds-v">'+v.rec.toLocaleString()+'</div></div><div class="ds"><div class="ds-l">Tushum ulushi</div><div class="ds-v">'+v.rp.toFixed(3)+'%</div></div><div class="ds"><div class="ds-l">Oxirgi sotilgan</div><div class="ds-v" style="color:'+(v.di>7?"#E24B4A":"#1D9E75")+';">'+v.ld+'</div></div><div class="ds"><div class="ds-l">Sotuv holati</div><div class="ds-v"><span class="badge '+sc+'">'+st+'</span></div></div><div class="ds"><div class="ds-l">Kunlik ortacha</div><div class="ds-v">'+(v.qty/((DMETA&&DMETA.days)||31)).toFixed(v.kg?2:1)+' '+u+'</div></div><div class="ds"><div class="ds-l">Jami sotilgan</div><div class="ds-v">'+v.qty.toFixed(v.kg?2:0)+' '+u+'</div></div>';const why=(v.why||[]).map(w=>'<div class="bx-item"><div class="bx-dot"></div><div class="bx-txt">'+esc(w)+'</div></div>').join("");const how=(v.how||[]).map((h,i)=>'<div class="bx-item"><div class="bx-num">'+(i+1)+'.</div><div class="bx-txt">'+esc(h)+'</div></div>').join("");document.getElementById("d3-ra").innerHTML='<div class="box bx-why"><div class="bx-t">Nega '+v.abc+' guruhda?</div>'+why+'</div><div class="box bx-'+v.abc+'"><div class="bx-t">Nima qilish kerak?</div>'+how+'</div>';const dw=document.getElementById("detail3");dw.style.display="block";setTimeout(()=>dw.scrollIntoView({behavior:"smooth",block:"nearest"}),50);}
+function showDetail3(idx){const v=P3[idx];if(!v)return;const u=v.kg?"kg":"dona";const[sc,st]=sotuv(v.di);document.querySelectorAll("tr.sel").forEach(r=>r.classList.remove("sel"));const row=document.querySelector('tr[data-idx="'+idx+'"]');if(row){row.classList.add("sel");row.scrollIntoView({block:"nearest"});}document.getElementById("d3-name").textContent=v.name;document.getElementById("detail3").className="detail d"+v.abc;let bdg='<span class="badge b-'+v.abc+'" style="font-size:11px;padding:3px 9px;">'+v.abc+' guruh</span>';if(v.sub){const sc2=v.sub==="C1"?"b-c1":v.sub==="C2"?"b-c2":"b-c3";bdg+=' <span class="badge '+sc2+'" style="font-size:11px;padding:3px 9px;">'+v.sub+'</span>';}if(v.kg)bdg+=' <span class="badge" style="background:#EAF3DE;color:#27500A;font-size:11px;padding:3px 9px;">'+t("kg_tovar")+'</span>';document.getElementById("d3-badges").innerHTML=bdg;document.getElementById("d3-stats").innerHTML='<div class="ds"><div class="ds-l">'+t("jami_tushum")+'</div><div class="ds-v" style="color:#1D9E75;">'+fmt(v.rev)+' UZS</div></div><div class="ds"><div class="ds-l">'+t("narxi_1")+' '+u+')</div><div class="ds-v">'+v.p.toLocaleString()+' UZS</div></div><div class="ds"><div class="ds-l">'+t("cheklar_soni")+'</div><div class="ds-v">'+v.rec.toLocaleString()+'</div></div><div class="ds"><div class="ds-l">'+t("tushum_ulushi")+'</div><div class="ds-v">'+v.rp.toFixed(3)+'%</div></div><div class="ds"><div class="ds-l">'+t("oxirgi_sotilgan")+'</div><div class="ds-v" style="color:'+(v.di>7?"#E24B4A":"#1D9E75")+';">'+v.ld+'</div></div><div class="ds"><div class="ds-l">'+t("th_sotuv_holati2")+'</div><div class="ds-v"><span class="badge '+sc+'">'+st+'</span></div></div><div class="ds"><div class="ds-l">'+t("kunlik_ortacha")+'</div><div class="ds-v">'+(v.qty/((DMETA&&DMETA.days)||31)).toFixed(v.kg?2:1)+' '+u+'</div></div><div class="ds"><div class="ds-l">'+t("jami_sotilgan")+'</div><div class="ds-v">'+v.qty.toFixed(v.kg?2:0)+' '+u+'</div></div>';const why=(v.why||[]).map(w=>'<div class="bx-item"><div class="bx-dot"></div><div class="bx-txt">'+esc(w)+'</div></div>').join("");const how=(v.how||[]).map((h,i)=>'<div class="bx-item"><div class="bx-num">'+(i+1)+'.</div><div class="bx-txt">'+esc(h)+'</div></div>').join("");document.getElementById("d3-ra").innerHTML='<div class="box bx-why"><div class="bx-t">'+t("nega_guruhda")+' '+v.abc+' '+t("guruhda_savol")+'</div>'+why+'</div><div class="box bx-'+v.abc+'"><div class="bx-t">'+t("nima_qk")+'</div>'+how+'</div>';const dw=document.getElementById("detail3");dw.style.display="block";setTimeout(()=>dw.scrollIntoView({behavior:"smooth",block:"nearest"}),50);}
 function p2FCount(){const ids=["pf-cat","pf-sub","pf-type","pf-sup","pf-amt","pf-abc"];let n=0;ids.forEach(id=>{const e=document.getElementById(id);if(e&&e.value)n++;});const b=document.getElementById("p2-fcount");if(b)b.textContent=n?"("+n+")":"";const btn=document.getElementById("p2-fbtn");if(btn)btn.classList.toggle("has",n>0);}
 function p2FToggle(e){if(e)e.stopPropagation();const p=document.getElementById("p2-fpop");if(p)p.classList.toggle("open");p2FCount();}
 document.addEventListener("click",function(e){const w=document.querySelector(".p2-fwrap");const p=document.getElementById("p2-fpop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});

@@ -356,13 +356,14 @@ def build_dailydata(receipts, pnames, pskus, min_d, max_d, rules):
 
 
 # ─── inventar ma'lumotlari ───
-def build_invdata(products):
+def build_invdata(products, arrivals=None):
+    arrivals = arrivals or {}
     result = {}
     for sku, p in products.items():
         name = p["name"]
         if not name:
             continue
-        result[name] = {
+        entry = {
             "a":  rq(p["a"]),
             "sku": sku,
             "t":  p["tp"],
@@ -371,6 +372,10 @@ def build_invdata(products):
             "sp": rq(p.get("sp", 0)),
             "sb": p["sub"],
         }
+        arr = arrivals.get(str(sku))
+        if arr and arr.get("date"):
+            entry["la"] = arr["date"]
+        result[name] = entry
     return result
 
 

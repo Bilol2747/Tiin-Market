@@ -179,7 +179,11 @@ def build(orders, products_path, html_path=None, last_sale_60=None):
     print(f"      {len(dailydata['items']):,} mahsulot")
 
     print("[4/6] Mahsulot, inventar va ABC ma'lumotlari qurilmoqda...")
-    invdata = build_invdata(products)
+    arrivals_path = ROOT / "arrival_data.json"
+    arrivals = json.loads(arrivals_path.read_text(encoding="utf-8")) if arrivals_path.exists() else {}
+    if arrivals:
+        print(f"      {len(arrivals):,} ta SKU uchun qo'lda import qilingan kirim sanasi qo'llanildi (arrival_data.json)")
+    invdata = build_invdata(products, arrivals)
     if last_sale_60:
         matched = 0
         for name, iv in invdata.items():
