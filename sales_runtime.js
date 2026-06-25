@@ -108,7 +108,13 @@ function applyI18n(){
 
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
-let curPageId="p1";const PAGE_DEFAULT_DAYS={p1:7,p2:30,p3:30,p5:30,p6:30};let pageRanges={};
+let curPageId="p1";
+// Mahsulotlar (p2) va Stock (p5) bitta umumiy oraliqni baham ko'radi (Zakas ro'yxati ham shu
+// orqali yangilanadi) - biridan o'zgartirilsa, ikkinchisi qayta tashrif buyurganda eskisiga
+// qaytib ketmaydi. Bosh sahifa va boshqalar mustaqil o'z oralig'ini saqlaydi.
+const PAGE_GROUP={p1:"p1",p2:"p2p5",p5:"p2p5",p3:"p3",p6:"p6"};
+const PAGE_DEFAULT_DAYS={p1:7,p2p5:30,p3:30,p6:30};
+let pageRanges={};
 let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
@@ -643,12 +649,12 @@ document.addEventListener("click",function(e){const w=document.querySelector(".t
 function _dtIdx(iso){return (P1FULL.dates||[]).indexOf(iso);}
 function dtPreset(kind){const n=P1FULL.days;let a,b=n-1;if(kind==="all"){a=0;}else{a=Math.max(0,n-(+kind));}_dtApplyRange(a,b);const p=document.getElementById("dt-pop");if(p)p.classList.remove("open");}
 function dtApply(){const s=document.getElementById("dt-start").value,e=document.getElementById("dt-end").value;let a=s?_dtIdx(s):0,b=e?_dtIdx(e):P1FULL.days-1;if(a<0)a=0;if(b<0)b=P1FULL.days-1;if(a>b){const t=a;a=b;b=t;}_dtApplyRange(a,b);const p=document.getElementById("dt-pop");if(p)p.classList.remove("open");}
-function _pageDefaultRange(pid){const n=P1FULL?P1FULL.days:0;const days=PAGE_DEFAULT_DAYS[pid]||30;return [Math.max(0,n-days),n-1];}
-function _applyPageRange(pid){if(!P1FULL)return;const r=pageRanges[pid]||_pageDefaultRange(pid);if(r[0]!==GRA||r[1]!==GRB)_dtApplyRange(r[0],r[1]);}
+function _pageDefaultRange(pid){const n=P1FULL?P1FULL.days:0;const grp=PAGE_GROUP[pid]||pid;const days=PAGE_DEFAULT_DAYS[grp]||30;return [Math.max(0,n-days),n-1];}
+function _applyPageRange(pid){if(!P1FULL)return;const grp=PAGE_GROUP[pid]||pid;const r=pageRanges[grp]||_pageDefaultRange(pid);if(r[0]!==GRA||r[1]!==GRB)_dtApplyRange(r[0],r[1]);}
 function _dtApplyRange(a,b){
 const full=(a===0&&b===P1FULL.days-1);
 GRA=a;GRB=b;
-if(curPageId)pageRanges[curPageId]=[a,b];
+if(curPageId){const grp=PAGE_GROUP[curPageId]||curPageId;pageRanges[grp]=[a,b];}
 P1=full?P1FULL:buildRangedP1(P1FULL,a,b);
 _winDaily();
 renderP1();
