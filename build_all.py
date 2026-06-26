@@ -372,6 +372,7 @@ def build_invdata(products, arrivals=None):
             "sp": rq(p.get("sp", 0)),
             "sb": p["sub"],
             "cat": p.get("cat", ""),
+            "catTop": p.get("catTop", "") or p.get("cat", ""),
         }
         arr = arrivals.get(str(sku))
         if arr and arr.get("date"):

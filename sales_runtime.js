@@ -158,6 +158,38 @@ const I18N={
   nega_guruhda:{uz:"Nega",en:"Why is it in group",ru:"Почему в группе"},
   guruhda_savol:{uz:"guruhda?",en:"?",ru:"?"},
   nima_qk:{uz:"Nima qilish kerak?",en:"What should be done?",ru:"Что нужно делать?"},
+  // Stock (p5)
+  p5_back:{uz:"Mahsulotlarga qaytish",en:"Back to Products",ru:"Назад к товарам"},
+  p5_aktiv:{uz:"Aktiv",en:"Active",ru:"Активные"},
+  p5_noaktiv:{uz:"Noaktiv",en:"Inactive",ru:"Неактивные"},
+  sig_kritik:{uz:"Shoshilinch zakas",en:"Urgent reorder",ru:"Срочный заказ"},
+  sig_kritik_sub:{uz:"Sotildi → to'xtadi → stok yo'q",en:"Sold → stopped → out of stock",ru:"Продавалось → остановилось → нет на складе"},
+  sig_urgent:{uz:"Tugashga yaqin",en:"Running low",ru:"Заканчивается"},
+  sig_urgent_sub:{uz:"Stok ≤5 yoki ≤10 kunda tugaydi",en:"Stock ≤5 or runs out in ≤10 days",ru:"Остаток ≤5 или закончится за ≤10 дней"},
+  sig_tekshir:{uz:"Tekshirish kerak",en:"Needs check",ru:"Нужна проверка"},
+  sig_tekshir_sub:{uz:"Stok bor, sotuv yo'q",en:"In stock, no sales",ru:"Есть на складе, нет продаж"},
+  sig_excess:{uz:"Ortiqcha stok",en:"Excess stock",ru:"Избыток на складе"},
+  sig_excess_sub:{uz:"90+ kunlik zaxira",en:"90+ days of stock",ru:"Запас на 90+ дней"},
+  sig_normal:{uz:"Normal",en:"Normal",ru:"Норма"},
+  sig_normal_sub:{uz:"Stok yetarli, harakat kerak emas",en:"Stock sufficient, no action needed",ru:"Запас достаточен, действий не требуется"},
+  sig_sekin:{uz:"Sekin sotiladi",en:"Slow seller",ru:"Медленные продажи"},
+  sig_sekin_sub:{uz:"30 kunda emas, 31-60 kunda sotilgan",en:"Not in 30 days, sold in days 31-60",ru:"Не за 30 дней, продано за 31-60 дней"},
+  sig_muzlagan:{uz:"Muzlagan kapital",en:"Frozen capital",ru:"Замороженный капитал"},
+  mz_banner_sub:{uz:"ta mahsulot stokda bor, lekin 60 kunda sotilmagan.",en:"products are in stock but haven't sold in 60 days.",ru:"товаров в наличии, но не продавались 60 дней."},
+  stok_qiymati:{uz:"Stok qiymati",en:"Stock value",ru:"Стоимость запаса"},
+  export_btn:{uz:"Export",en:"Export",ru:"Экспорт"},
+  mz_top_cats:{uz:"Top kategoriyalar (muzlagan kapital)",en:"Top categories (frozen capital)",ru:"Топ категорий (замороженный капитал)"},
+  ftab_tekshir:{uz:"Tekshirish",en:"Check",ru:"Проверка"},
+  ftab_ortiqcha:{uz:"Ortiqcha",en:"Excess",ru:"Избыток"},
+  z_search_ph:{uz:"Mahsulot, SKU qidirish...",en:"Search product, SKU...",ru:"Поиск товара, SKU..."},
+  zk_open:{uz:"Zakas ro'yxati",en:"Reorder list",ru:"Список заказа"},
+  z_th_mahsulot:{uz:"Mahsulot",en:"Product",ru:"Товар"},
+  z_th_stok:{uz:"Stok",en:"Stock",ru:"Остаток"},
+  z_th_kunlik:{uz:"Kunlik o'rtacha",en:"Daily average",ru:"Среднее в день"},
+  z_th_yetadi:{uz:"Kunga yetadi",en:"Days left",ru:"Хватит на (дней)"},
+  z_th_oxirgi:{uz:"Oxirgi sotuv",en:"Last sale",ru:"Последняя продажа"},
+  z_th_signal:{uz:"Signal",en:"Signal",ru:"Сигнал"},
+  yuklanmoqda:{uz:"Yuklanmoqda...",en:"Loading...",ru:"Загрузка..."},
 };
 let LANG=(()=>{try{return localStorage.getItem("tiin_lang")||"uz";}catch(_){return "uz";}})();
 function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
@@ -530,10 +562,10 @@ function _buildZItems(){
       if(iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reason:"So'nggi 30 kunda sotilmagan, "+di60+" kun oldin sotilgan — sekinlashgan, kuzating",di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
         return;
       }
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",abc:"",cat:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"muzlagan",reason:STOCK_ACTIVE_DAYS+" kun ichida sotuv yo'q",di:999,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,la});
       mzCap+=frozenVal;
     });
     const fvEl=document.getElementById("z-frozen-val");

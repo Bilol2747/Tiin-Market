@@ -42,7 +42,17 @@ def parse_local_date(create_time):
 
 
 def api_read_products(products_raw):
-    """api_raw_products.json -> {sku: {name, cat, sub, tp, su, p, a}} (build_all.read_products bilan bir xil shakl)."""
+    """api_raw_products.json -> {sku: {name, cat, catTop, sub, tp, su, p, a}} (build_all.read_products bilan bir xil shakl)."""
+    # Invan kategoriyalari daraxti: categories[0] odatda KICHIK (leaf/sub) kategoriya,
+    # parent_id orqali KENG (top-level) kategoriyaga bog'langan. Avval butun katalog
+    # bo'yicha id->nom xaritasini quramiz, shu orqali har bir mahsulot uchun eng
+    # yuqori (top-level) kategoriya nomini topamiz - Noaktiv guruhlash uchun kerak.
+    id_to_name = {}
+    for p in products_raw:
+        for c in (p.get("categories") or []):
+            if c.get("id"):
+                id_to_name[c["id"]] = c.get("name", "")
+
     products = {}
     for p in products_raw:
         sku = str(p.get("sku") or "").strip()
@@ -50,6 +60,8 @@ def api_read_products(products_raw):
             continue
         categories = p.get("categories") or []
         cat = categories[0].get("name", "") if categories else ""
+        parent_id = categories[0].get("parent_id", "") if categories else ""
+        cat_top = id_to_name.get(parent_id, "") or cat
         shop_prices = p.get("shop_prices") or {}
         price = 0.0
         supply_price = 0.0
@@ -66,6 +78,7 @@ def api_read_products(products_raw):
         products[sku] = {
             "name": norm(p.get("name")),
             "cat": cat,
+            "catTop": cat_top,
             "sub": "",
             "tp": unit,
             "su": supplier,
