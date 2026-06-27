@@ -85,28 +85,34 @@ def fetch_orders(token, start_date, end_date):
 
 
 def fetch_products(token):
+    """Faqat faol (is_active) mahsulotlarni yuklaydi. Faol emas (sotuvdan chiqarilgan)
+    tovarlar zakas/stok hisob-kitobiga kerak emas - API'ga active_for_sale filtri
+    yuboriladi (so'rovlar sonini kamaytirish uchun), va har holda Python tomonda
+    is_active bo'yicha qayta filtrlanadi (server filtri e'tiborga olinmasa ham
+    natija to'g'ri bo'lishi uchun)."""
     headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
     checkpoint_path = ROOT / "api_raw_products.partial.json"
     products = []
+    page = 1
     if checkpoint_path.exists():
-        products = json.loads(checkpoint_path.read_text(encoding="utf-8"))
-        print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(products)} ta mahsulot allaqachon bor")
-    page = len(products) // PRODUCT_PAGE_SIZE + 1
-    total = None
+        ckpt = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        products = ckpt.get("products", [])
+        page = ckpt.get("next_page", 1)
+        print(f"  Avvalgi to'xtagan joydan davom etamiz: {len(products)} ta mahsulot allaqachon bor ({page}-sahifadan)")
     while True:
-        params = {"page": page, "limit": PRODUCT_PAGE_SIZE}
+        params = {"page": page, "limit": PRODUCT_PAGE_SIZE, "active_for_sale": "active"}
         resp = request_with_retry(
             SESSION.post, f"{BASE_URL}/products", headers=headers, params=params, json={"filters": []}, timeout=60
         )
         body = resp.json()
         batch = body.get("data", [])
-        if total is None:
-            total = int(body.get("total", 0))
-            print(f"  Jami topilgan mahsulotlar: {total}")
-        products.extend(batch)
-        checkpoint_path.write_text(json.dumps(products, ensure_ascii=False), encoding="utf-8")
-        print(f"  {page}-sahifa: {len(batch)} ta mahsulot (jami yig'ilgan: {len(products)})")
-        if len(batch) < PRODUCT_PAGE_SIZE or len(products) >= total:
+        active_batch = [p for p in batch if p.get("is_active", True)]
+        products.extend(active_batch)
+        checkpoint_path.write_text(
+            json.dumps({"products": products, "next_page": page + 1}, ensure_ascii=False), encoding="utf-8"
+        )
+        print(f"  {page}-sahifa: {len(batch)} ta mahsulot ({len(active_batch)} faol, jami yig'ilgan: {len(products)})")
+        if len(batch) < PRODUCT_PAGE_SIZE:
             break
         page += 1
         time.sleep(0.05)
