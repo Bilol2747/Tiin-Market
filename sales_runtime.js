@@ -219,6 +219,7 @@ const I18N={
   zk_show_more:{uz:"Yana {n} ta ko'rsat (jami {total} tadan {shown} tasi ko'rsatildi)",en:"Show {n} more (showing {shown} of {total})",ru:"Показать ещё {n} (показано {shown} из {total})"},
   zk_empty:{uz:"Hozircha shoshilinch yoki tugashga yaqin tovar yo'q",en:"No urgent or low-stock items right now",ru:"Пока нет срочных или заканчивающихся товаров"},
   zk_need_label:{uz:"zakas kerak",en:"need order",ru:"нужен заказ"},
+  zk_quicklist_btn:{uz:"Tezkor ro'yxat",en:"Quick list",ru:"Быстрый список"},
   zk_show_need_only:{uz:"faqat kerak bo'lganlarni ko'rsat",en:"show needed only",ru:"показать только нужные"},
   zk_show_all_n:{uz:"barchasini ko'rsat ({n})",en:"show all ({n})",ru:"показать все ({n})"},
   zk_no_need_rows:{uz:"Bu yetkazib beruvchida hozircha zakas kerak bo'lgan tovar yo'q",en:"No items need ordering from this supplier right now",ru:"У этого поставщика пока нет товаров, требующих заказа"},
@@ -236,6 +237,9 @@ function setLang(lang){
   try{localStorage.setItem("tiin_lang",lang);}catch(_){}
   document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
   applyI18n();
+  const _activeNav=document.querySelector(".sb-item.active");
+  const _cr=document.getElementById("tb-crumb");
+  if(_activeNav&&_cr)_cr.textContent=_activeNav.textContent.trim();
   if(typeof renderP1==="function"&&P1)renderP1();
   if(curPageId==="p7"&&typeof renderZakas==="function")renderZakas();
 }
