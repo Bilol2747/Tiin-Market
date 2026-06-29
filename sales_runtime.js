@@ -199,8 +199,30 @@ const I18N={
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
   zk_search_ph:{uz:"Mahsulot, SKU yoki yetkazib beruvchi qidirish...",en:"Search product, SKU or supplier...",ru:"Поиск товара, SKU или поставщика..."},
   zk_all_sup:{uz:"Barcha yetkazib beruvchilar",en:"All suppliers",ru:"Все поставщики"},
-  zk_copy:{uz:"Matn nusxalash",en:"Copy as text",ru:"Копировать как текст"},
-  zk_export:{uz:"Excel (CSV) yuklab olish",en:"Download Excel (CSV)",ru:"Скачать Excel (CSV)"},
+  zk_export:{uz:"Excel yuklab olish",en:"Download Excel",ru:"Скачать Excel"},
+  zk_col_product:{uz:"Mahsulot",en:"Product",ru:"Товар"},
+  zk_col_stock:{uz:"Stok",en:"Stock",ru:"Остаток"},
+  zk_col_daily:{uz:"Kunlik o'rtacha",en:"Daily avg",ru:"Средн. в день"},
+  zk_col_days_left:{uz:"Qolgan kun",en:"Days left",ru:"Дней осталось"},
+  zk_col_extra_days:{uz:"Qo'shimcha kun",en:"Extra days",ru:"Доп. дни"},
+  zk_col_order:{uz:"Zakas",en:"Order",ru:"Заказ"},
+  zk_col_status:{uz:"Holat",en:"Status",ru:"Статус"},
+  zk_col_supplier:{uz:"Yetkazib beruvchi",en:"Supplier",ru:"Поставщик"},
+  zk_col_sku:{uz:"SKU",en:"SKU",ru:"SKU"},
+  zk_col_category:{uz:"Kategoriya",en:"Category",ru:"Категория"},
+  zk_col_unit:{uz:"O'lchov",en:"Unit",ru:"Ед. изм."},
+  zk_col_target:{uz:"Maqsadli kun",en:"Target days",ru:"Целевые дни"},
+  zk_no_selection:{uz:"Supplier tanlanmagan — yuklab olish uchun kamida bitta tovar galochkasini belgilang",en:"No supplier selected — check at least one item to export",ru:"Поставщик не выбран — отметьте хотя бы один товар для скачивания"},
+  zk_items_label:{uz:"ta tovar",en:"items",ru:"товаров"},
+  zk_total_label:{uz:"Jami:",en:"Total:",ru:"Итого:"},
+  zk_target_label:{uz:"Maqsadli kun:",en:"Target days:",ru:"Целевые дни:"},
+  zk_show_more:{uz:"Yana {n} ta ko'rsat (jami {total} tadan {shown} tasi ko'rsatildi)",en:"Show {n} more (showing {shown} of {total})",ru:"Показать ещё {n} (показано {shown} из {total})"},
+  zk_empty:{uz:"Hozircha shoshilinch yoki tugashga yaqin tovar yo'q",en:"No urgent or low-stock items right now",ru:"Пока нет срочных или заканчивающихся товаров"},
+  zk_need_label:{uz:"zakas kerak",en:"need order",ru:"нужен заказ"},
+  zk_show_need_only:{uz:"faqat kerak bo'lganlarni ko'rsat",en:"show needed only",ru:"показать только нужные"},
+  zk_show_all_n:{uz:"barchasini ko'rsat ({n})",en:"show all ({n})",ru:"показать все ({n})"},
+  zk_no_need_rows:{uz:"Bu yetkazib beruvchida hozircha zakas kerak bo'lgan tovar yo'q",en:"No items need ordering from this supplier right now",ru:"У этого поставщика пока нет товаров, требующих заказа"},
+  zk_minadd_hint:{uz:"Minimal buyurtma uchun qo'shildi",en:"Added to reach minimum order quantity",ru:"Добавлено для минимального заказа"},
 };
 let LANG=(()=>{try{return localStorage.getItem("tiin_lang")||"uz";}catch(_){return "uz";}})();
 function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
@@ -215,6 +237,7 @@ function setLang(lang){
   document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
   applyI18n();
   if(typeof renderP1==="function"&&P1)renderP1();
+  if(curPageId==="p7"&&typeof renderZakas==="function")renderZakas();
 }
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
@@ -237,7 +260,13 @@ const ZPS=50;
 let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null;
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
-let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null;
+const ZK_MIN_ORDER=3;
+let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1;
+function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
+function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
+function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
+function _zkRelevantRows(s){const rel=s.rows.filter(r=>r.orderQty>0);return rel.length?rel:s.rows;}
+function zkToggleSupplier(si){const s=_ZK_SUPPLIERS[si];if(!s)return;const rel=_zkRelevantRows(s);const allChecked=rel.every(r=>_zkIsChecked(r));const newVal=!allChecked;rel.forEach(r=>{zkRowChecked[r.key]=newVal;});renderZakas();}
 function _zkRowKey(v){return v.sku?("s:"+v.sku):("n:"+v.name);}
 function _zkPriceOf(v){
   if(!P2)return 0;
@@ -272,7 +301,12 @@ function _zkBuildSuppliers(){
       const zakasDays=Math.max(0,target-daysLeft+adj);
       let orderQty=stock<0?0:v.dailyAvg*zakasDays;
       orderQty=v.kg?Math.round(orderQty*100)/100:Math.ceil(orderQty);
-      return {key,name:v.name,sku:v.sku,abc:v.abc,cat:v.cat,kg:v.kg,stock,dailyAvg:v.dailyAvg,daysLeft:v.daysLeft,adj,zakasDays,orderQty,signal:v.signal,price:_zkPriceOf(v)};
+      // Sekin sotiladigan tovar uchun 1-2 dona buyurtma noqulay - minimal 3 donagacha
+      // ko'taramiz, lekin bu doim joriy dailyAvg/zakasDays asosida qayta hisoblanadi,
+      // shuning uchun sotuv pasaysa ZAKAS_MIN ham real ehtiyojga moslashib turadi.
+      let minAdd=0;
+      if(!v.kg&&orderQty>0&&orderQty<ZK_MIN_ORDER){minAdd=ZK_MIN_ORDER-orderQty;orderQty=ZK_MIN_ORDER;}
+      return {key,name:v.name,sku:v.sku,abc:v.abc,cat:v.cat,kg:v.kg,stock,dailyAvg:v.dailyAvg,daysLeft:v.daysLeft,adj,zakasDays,orderQty,minAdd,signal:v.signal,price:_zkPriceOf(v)};
     }).sort((a,b)=>b.orderQty-a.orderQty);
     const qtyDona=rows.filter(r=>!r.kg).reduce((s,r)=>s+r.orderQty,0);
     const qtyKg=rows.filter(r=>r.kg).reduce((s,r)=>s+r.orderQty,0);
@@ -282,8 +316,107 @@ function _zkBuildSuppliers(){
   out.forEach((s,si)=>{s._si=si;s.rows.forEach(r=>{r._ri=_ZK_ALLROWS.length;_ZK_ALLROWS.push(r);});});
   return out;
 }
-function setZKQuery(v){zkQuery=v.toLowerCase().trim();renderZakas();}
-function setZKSup(v){zkSupFilter=v;renderZakas();}
+function zkSearchInput(v){
+  zkQuery=v.toLowerCase().trim();
+  zkSupFilter="";
+  zkPage=1;
+  const x=document.getElementById("zk-search-x");if(x)x.style.display=v?"flex":"none";
+  _zkRenderSupDrop();
+  renderZakas();
+}
+function zkSearchFocus(){_zkRenderSupDrop();}
+function zkSearchClear(){
+  const inp=document.getElementById("zk-search");if(inp)inp.value="";
+  zkQuery="";zkSupFilter="";zkPage=1;
+  const x=document.getElementById("zk-search-x");if(x)x.style.display="none";
+  const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
+  renderZakas();
+  if(inp)inp.focus();
+}
+function zkPickSupplier(sup){
+  zkSupFilter=sup;zkQuery="";zkPage=1;
+  const inp=document.getElementById("zk-search");if(inp)inp.value=sup;
+  const x=document.getElementById("zk-search-x");if(x)x.style.display="flex";
+  const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
+  renderZakas();
+}
+function zkGo(p){zkPage=p;renderZakas();const body=document.getElementById("zk-body");if(body)body.scrollTop=0;}
+function renderZakasPag(totalP){
+  const pag=document.getElementById("zk-pag");if(!pag)return;
+  if(totalP<=1){pag.innerHTML="";return;}
+  const mk=(l,p,d,a)=>`<button ${d?"disabled":""} ${a?'class="active"':""} onclick="zkGo(${p})">${l}</button>`;
+  let h=mk("‹",zkPage-1,zkPage<=1,false);
+  let s=Math.max(1,zkPage-2),e=Math.min(totalP,zkPage+2);
+  if(s>1){h+=mk("1",1,false,zkPage===1);if(s>2)h+='<button disabled>…</button>';}
+  for(let p=s;p<=e;p++)h+=mk(p,p,false,p===zkPage);
+  if(e<totalP){if(e<totalP-1)h+='<button disabled>…</button>';h+=mk(totalP,totalP,false,zkPage===totalP);}
+  h+=mk("›",zkPage+1,zkPage>=totalP,false);
+  pag.innerHTML=h;
+}
+let zkQuickPanelOpen=false;
+function zkToggleQuickPanel(e){
+  if(e)e.stopPropagation();
+  zkQuickPanelOpen=!zkQuickPanelOpen;
+  _zkRenderQuickPanel();
+}
+function _zkRenderQuickPanel(){
+  const panel=document.getElementById("zk-quick-panel");if(!panel)return;
+  panel.classList.toggle("open",zkQuickPanelOpen);
+  if(!zkQuickPanelOpen)return;
+  const list=_ZK_SUPPLIERS.map(s=>({s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(x=>x.needCount>0).sort((a,b)=>b.needCount-a.needCount).map(x=>x.s);
+  panel._zkList=list;
+  panel.innerHTML=list.map((s,i)=>{
+    const needCount=s.rows.filter(r=>r.orderQty>0).length;
+    const rel=_zkRelevantRows(s);
+    const checkedCount=rel.filter(r=>_zkIsChecked(r)).length;
+    const allChecked=checkedCount===rel.length;
+    const indet=checkedCount>0&&!allChecked;
+    return `<div class="zk-quick-row" data-qi="${i}"><input type="checkbox" class="zk-chk zk-quick-chk" data-qi="${i}"${allChecked?" checked":""}${indet?' data-indet="1"':""}><span>${esc(s.sup)}</span><b>${needCount}</b></div>`;
+  }).join("");
+  panel.querySelectorAll('.zk-quick-chk[data-indet="1"]').forEach(el=>{el.indeterminate=true;});
+}
+function _zkRenderSupDrop(){
+  const d=document.getElementById("zk-sup-drop");if(!d)return;
+  const inp=document.getElementById("zk-search");
+  const q=(inp&&inp.value||"").toLowerCase().trim();
+  const list=q?_ZK_SUPPLIERS.filter(s=>s.sup.toLowerCase().includes(q)):_ZK_SUPPLIERS;
+  d._zkList=list;
+  if(!list.length){d.innerHTML=`<div class="zk-sup-drop-empty">${t("topilmadi")}</div>`;}
+  else{
+    d.innerHTML=list.slice(0,500).map((s,i)=>`<div class="zk-sup-drop-item" data-si="${i}"><span>${esc(s.sup)}</span><b>${s.rows.length}</b></div>`).join("");
+  }
+  d.classList.add("open");
+}
+document.addEventListener("click",e=>{
+  const item=e.target.closest&&e.target.closest(".zk-sup-drop-item");
+  if(item){
+    const d=document.getElementById("zk-sup-drop");
+    const list=d&&d._zkList;
+    const s=list&&list[parseInt(item.dataset.si)];
+    if(s)zkPickSupplier(s.sup);
+    return;
+  }
+  const qchk=e.target.closest&&e.target.closest(".zk-quick-chk");
+  if(qchk){
+    const panel=document.getElementById("zk-quick-panel");
+    const list=panel&&panel._zkList;
+    const s=list&&list[parseInt(qchk.dataset.qi)];
+    if(s)zkToggleSupplier(s._si);
+    return;
+  }
+  const qrow=e.target.closest&&e.target.closest(".zk-quick-row");
+  if(qrow){
+    const panel=document.getElementById("zk-quick-panel");
+    const list=panel&&panel._zkList;
+    const s=list&&list[parseInt(qrow.dataset.qi)];
+    if(s){zkQuickPanelOpen=false;_zkRenderQuickPanel();zkPickSupplier(s.sup);}
+    return;
+  }
+  const wrap=document.getElementById("zk-search-wrap");
+  if(wrap&&!wrap.contains(e.target)){const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");}
+  const qwrap=document.getElementById("zk-quickbtn-wrap");
+  if(qwrap&&!qwrap.contains(e.target)&&zkQuickPanelOpen){zkQuickPanelOpen=false;_zkRenderQuickPanel();}
+});
 function zkSetTarget(si,val){
   const s=_ZK_SUPPLIERS[si];if(!s)return;
   let v=parseInt(val);if(isNaN(v)||v<0)v=ZK_DEFAULT_TARGET;
@@ -296,62 +429,111 @@ function zkSetAdj(ri,val){
   zkRowAdj[r.key]=v;
   renderZakas();
 }
-function _zkFillSupSelect(){
-  const sel=document.getElementById("zk-sup-sel");if(!sel)return;
-  const cur=sel.value;
-  sel.innerHTML='<option value="">'+t("zk_all_sup")+'</option>';
-  _ZK_SUPPLIERS.forEach(s=>{const o=document.createElement("option");o.value=s.sup;o.textContent=s.sup+" ("+s.rows.length+")";sel.appendChild(o);});
-  if(_ZK_SUPPLIERS.some(s=>s.sup===cur))sel.value=cur;
-}
 function renderZakas(){
   if(!ZITEMS){if(P2)_buildZItems();else return;}
   _ZK_SUPPLIERS=_zkBuildSuppliers();
-  _zkFillSupSelect();
+  _zkRenderQuickPanel();
   let sups=_ZK_SUPPLIERS;
   if(zkSupFilter)sups=sups.filter(s=>s.sup===zkSupFilter);
   if(zkQuery){
     const q=zkQuery;
     sups=sups.map(s=>({...s,rows:s.rows.filter(r=>(r.name||"").toLowerCase().includes(q)||String(r.sku||"").toLowerCase().includes(q)||s.sup.toLowerCase().includes(q))})).filter(s=>s.rows.length);
   }
-  const totalItems=sups.reduce((s,v)=>s+v.rows.length,0);
-  const totalVal=sups.reduce((s,v)=>s+v.valTotal,0);
-  const setT2=(id,txt)=>{const el=document.getElementById(id);if(el)el.textContent=txt;};
-  setT2("zk-sum-sup",sups.length);
-  setT2("zk-sum-items",totalItems);
-  setT2("zk-sum-amt",fmt(Math.round(totalVal))+" so'm");
+  sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
+  const supCountEl=document.getElementById("zk-sup-count");
+  if(supCountEl)supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;
   const body=document.getElementById("zk-body");if(!body)return;
-  if(!sups.length){body.innerHTML='<div class="zk-empty">Hozircha shoshilinch yoki tugashga yaqin tovar yo\'q</div>';return;}
-  const sigLbl={kritik:["z-sig-kritik","Shoshilinch"],urgent:["z-sig-urgent","Tugashga yaqin"],tekshir:["z-sig-tekshir","Tekshirish"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"]};
+  if(!sups.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
+  const totalSups=sups.length;
+  if(zkPage<1)zkPage=1;
+  if(zkPage>totalSups)zkPage=totalSups;
+  const shownSups=sups.slice(zkPage-1,zkPage);
+  const sigLbl={kritik:["dot-kritik",t("sig_kritik")],urgent:["dot-urgent",t("sig_urgent")],tekshir:["dot-tekshir",t("sig_tekshir")],excess:["dot-excess",t("sig_excess")],normal:["dot-normal",t("sig_normal")]};
   let h="";
-  sups.forEach(s=>{
+  shownSups.forEach(s=>{
     const totTxt=(s.qtyDona>0?s.qtyDona.toLocaleString()+" sht":"")+(s.qtyDona>0&&s.qtyKg>0?" · ":"")+(s.qtyKg>0?s.qtyKg.toLocaleString()+" kg":"");
-    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span>${esc(s.sup)}</span><span class="zk-sup-meta">${s.rows.length} ta tovar &nbsp;·&nbsp; Jami: <b>${totTxt||"0"}</b><span class="zk-target-edit">Maqsadli kun: <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><thead><tr><th>#</th><th>Mahsulot</th><th style="text-align:center">ABC</th><th style="text-align:right">Stok</th><th style="text-align:right">Kunlik o'rtacha</th><th style="text-align:right">Qolgan kun</th><th style="text-align:right">Qo'shimcha kun</th><th style="text-align:right">Zakas</th><th>Holat</th></tr></thead><tbody>`;
-    s.rows.forEach((r,i)=>{
+    const supRel=_zkRelevantRows(s);
+    const checkedCount=supRel.filter(r=>_zkIsChecked(r)).length;
+    const supAllChecked=checkedCount===supRel.length;
+    const supIndet=checkedCount>0&&!supAllChecked;
+    const supChkAttrs=`${supAllChecked?" checked":""}${supIndet?" data-indet=\"1\"":""}`;
+    const needCount=s.rows.filter(r=>r.orderQty>0).length;
+    const showAll=!!zkSupShowAll[s.sup]||needCount===0;
+    const visRows=showAll?s.rows:s.rows.filter(r=>r.orderQty>0);
+    const needBadge=`<span class="zk-needbadge" onclick="zkToggleSupShowAll(${s._si})"><b>${needCount}</b> ${t("zk_need_label")} &nbsp;·&nbsp; ${showAll?t("zk_show_need_only"):t("zk_show_all_n").replace("{n}",s.rows.length)}</span>`;
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"><span>${esc(s.sup)}</span></span><span class="zk-sup-meta">${needBadge} &nbsp;·&nbsp; ${t("zk_total_label")} <b>${totTxt||"0"}</b><span class="zk-target-edit">${t("zk_target_label")} <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><colgroup><col style="width:4%"><col style="width:4%"><col style="width:34%"><col style="width:5%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:7%"><col style="width:8%"></colgroup><thead><tr><th style="text-align:center"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"></th><th>#</th><th>${t("zk_col_product")}</th><th style="text-align:center">ABC</th><th style="text-align:right">${t("zk_col_stock")}</th><th style="text-align:right">${t("zk_col_daily")}</th><th style="text-align:right">${t("zk_col_days_left")}</th><th style="text-align:right">${t("zk_col_extra_days")}</th><th style="text-align:center">${t("zk_col_status")}</th><th style="text-align:right">${t("zk_col_order")}</th></tr></thead><tbody>`;
+    if(!visRows.length){
+      h+=`<tr><td colspan="10" style="text-align:center;color:#bbb;padding:18px;font-size:12px">${t("zk_no_need_rows")}</td></tr>`;
+    }
+    visRows.forEach((r,i)=>{
       const u=r.kg?"кг":"шт";
       const stTxt=r.stock<=0?`<span style="color:#E24B4A;font-weight:700">${r.kg?r.stock.toFixed(2):r.stock.toLocaleString()}</span>`:(r.kg?r.stock.toFixed(2):r.stock.toLocaleString());
       const dTxt=r.dailyAvg>0?(r.kg?r.dailyAvg.toFixed(2):Math.round(r.dailyAvg*10)/10)+" "+u:"—";
-      const dlTxt=r.daysLeft!=null?r.daysLeft+" kun":"—";
+      const dlTxt=r.daysLeft!=null?r.daysLeft:"—";
       const oqTxt=r.orderQty.toLocaleString()+" "+u;
-      const sl=sigLbl[r.signal]||["z-sig-normal",r.signal||"—"];
-      h+=`<tr><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:right"><span class="zk-oq">${oqTxt}</span></td><td><span class="${sl[0]}">${sl[1]}</span></td></tr>`;
+      const minAddTxt=r.minAdd>0?`<span class="zk-minadd" title="${t("zk_minadd_hint")}">+${r.minAdd}</span> `:"";
+      const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
+      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right">${minAddTxt}<span class="zk-oq">${oqTxt}</span></td></tr>`;
     });
     h+=`</tbody></table></div></div>`;
   });
   body.innerHTML=h;
+  body.querySelectorAll('.zk-sup-chk[data-indet="1"]').forEach(el=>{el.indeterminate=true;});
+  renderZakasPag(totalSups);
 }
-function exportZakasCSV(){
+async function exportZakasCSV(){
+  if(typeof ExcelJS==="undefined")return;
   const sups=_ZK_SUPPLIERS.length?_ZK_SUPPLIERS:_zkBuildSuppliers();
-  const q=v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"';
-  let csv="﻿";
-  csv+="Yetkazib beruvchi,Maqsadli kun,SKU,Mahsulot,Kategoriya,ABC,O'lchov,Joriy stok,Qolgan kun,Qo'shimcha kun,Zakas miqdori\r\n";
+  const DARK="1A1A1A";
+
+  let flat=[];
+  const targets=new Set();
   sups.forEach(s=>{
-    s.rows.forEach(r=>{
-      const unit=r.kg?"кг":"шт";
-      const stk=r.kg?r.stock.toFixed(2):r.stock;
-      csv+=`${q(s.sup)},${s.target},${q(r.sku||"")},${q(r.name)},${q(r.cat||"")},${q(r.abc||"")},${q(unit)},${stk},${r.daysLeft!=null?r.daysLeft:""},${r.adj},${r.orderQty}\r\n`;
+    s.rows.filter(r=>_zkIsChecked(r)).forEach(r=>{
+      flat.push({sup:s.sup,target:s.target,r});
+      targets.add(s.target);
     });
   });
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));a.download=`zakas_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+  flat.sort((a,b)=>b.r.orderQty-a.r.orderQty);
+
+  if(!flat.length){alert(t("zk_no_selection"));return;}
+
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet(t("nav_p7")||"Zakas",{views:[{state:"frozen",ySplit:2}]});
+
+  const targetTxt=targets.size<=1?[...targets][0]:[...targets].sort((a,b)=>a-b).join(", ");
+  ws.getCell("A1").value=`${t("zk_col_target")}: ${targetTxt}`;
+  ws.getCell("A1").font={bold:true,size:11,color:{argb:DARK}};
+
+  const headers=[t("zk_col_supplier"),t("zk_col_sku"),t("zk_col_product"),t("zk_col_category"),"ABC",t("zk_col_unit"),t("zk_col_stock"),t("zk_col_extra_days"),t("zk_col_order")];
+  const headerRow=ws.getRow(2);
+  headers.forEach((h,i)=>{
+    const c=headerRow.getCell(i+1);
+    c.value=h;
+    c.font={bold:true,color:{argb:DARK}};
+    c.alignment={vertical:"middle",horizontal:i>=6?"right":"left"};
+    c.border={bottom:{style:"thin",color:{argb:"999999"}}};
+  });
+  headerRow.height=20;
+
+  flat.forEach(({sup,r})=>{
+    const unit=r.kg?"кг":"шт";
+    const stk=r.kg?Math.round(r.stock*100)/100:r.stock;
+    const row=ws.addRow([sup,r.sku||"",r.name,r.cat||"",r.abc||"",unit,stk,r.adj,r.orderQty]);
+    row.getCell(7).numFmt=r.kg?"#,##0.00":"#,##0";
+    row.getCell(9).numFmt=r.kg?"#,##0.00":"#,##0";
+    row.font={color:{argb:DARK}};
+  });
+
+  ws.columns=[{width:34},{width:12},{width:38},{width:18},{width:7},{width:9},{width:11},{width:13},{width:12}];
+  [7,8,9].forEach(ci=>{ws.getColumn(ci).alignment={horizontal:"right"};});
+
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  a.download=`zakas_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 async function exportNoaktivXLSX(){
   if(!ZITEMS||typeof ExcelJS==="undefined")return;
@@ -416,35 +598,31 @@ async function exportNoaktivXLSX(){
   a.click();
   URL.revokeObjectURL(a.href);
 }
-function copyZakas(){
-  const sups=_ZK_SUPPLIERS.length?_ZK_SUPPLIERS:_zkBuildSuppliers();
-  let txt=`ZAKAS RO'YXATI — Tiin Market\nSana: ${new Date().toLocaleDateString("uz-UZ")}\n${"=".repeat(40)}\n\n`;
-  sups.forEach(s=>{
-    const totTxt=(s.qtyDona>0?s.qtyDona.toLocaleString()+" sht":"")+(s.qtyDona>0&&s.qtyKg>0?" + ":"")+(s.qtyKg>0?s.qtyKg.toLocaleString()+" kg":"");
-    txt+=`YETKAZIB BERUVCHI: ${s.sup} (maqsadli kun: ${s.target})\n${"-".repeat(36)}\n`;
-    s.rows.forEach((r,i)=>{const u=r.kg?"kg":"dona";txt+=`${i+1}. ${r.name}\n   Stok: ${r.stock} | Zakas: ${r.orderQty} ${u}\n`;});
-    txt+=`Jami: ${totTxt||"0"}\n\n`;
+function _zFitTableHeight(){
+  const p5=document.getElementById("p5");
+  const wrap=document.querySelector("#p5 .z-table-wrap");
+  if(!p5||!wrap||!p5.classList.contains("active"))return;
+  const top=wrap.getBoundingClientRect().top;
+  const pagEl=document.getElementById("z-pag");
+  const pagH=pagEl?pagEl.getBoundingClientRect().height:0;
+  const h=window.innerHeight-top-pagH-32;
+  wrap.style.maxHeight=Math.max(200,Math.round(h))+"px";
+}
+(function(){
+  const ro=new ResizeObserver(()=>_zFitTableHeight());
+  window.addEventListener("load",()=>{
+    const h=document.querySelector(".z-header"),tb=document.querySelector("#p5 .z-toolbar");
+    if(h)ro.observe(h);
+    if(tb)ro.observe(tb);
   });
-  const b=document.querySelector(".zk-btn-copy");
-  const flash=(msg)=>{if(!b)return;const o=b.innerHTML;b.innerHTML=msg;setTimeout(()=>b.innerHTML=o,2000);};
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(txt).then(()=>flash("Nusxalandi")).catch(()=>_zkFallbackCopy(txt,flash));
-  }else{
-    _zkFallbackCopy(txt,flash);
-  }
+  window.addEventListener("resize",_zFitTableHeight);
+})();
+function toggleSidebar(){
+  document.body.classList.toggle("sb-collapsed");
+  localStorage.setItem("tiin_sidebar",document.body.classList.contains("sb-collapsed")?"collapsed":"open");
 }
-function _zkFallbackCopy(txt,flash){
-  try{
-    const ta=document.createElement("textarea");
-    ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
-    document.body.appendChild(ta);ta.select();
-    const ok=document.execCommand("copy");
-    document.body.removeChild(ta);
-    flash(ok?"Nusxalandi":"Nusxalash muvaffaqiyatsiz");
-  }catch(e){flash("Nusxalash muvaffaqiyatsiz");}
-}
-async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
-if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();}
+async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7")?"none":"";window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
 if(pid==="p7"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();renderZakas();}
 if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}}_applyPageRange(pid);};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
@@ -771,11 +949,11 @@ function renderZaxira(){
     }
     const diTxt=v.signal==="muzlagan"?(STOCK_ACTIVE_DAYS+" kunda sotilmagan"):v.signal==="sekin"?(v.di+" kun oldin sotilgan"):v.di>=900?"Sotilmagan":v.di===0?"Bugun":v.di+" kun oldin";
     const diColor=v.signal==="muzlagan"?"#7C3AED":v.signal==="sekin"?"#0E7490":v.di>=30?"#E24B4A":v.di>=14?"#EF9F27":"#555";
-    const sigMap={kritik:["z-sig-kritik","Shoshilinch zakas"],tekshir:["z-sig-tekshir","Tekshirish"],urgent:["z-sig-urgent","Tugashga yaqin"],excess:["z-sig-excess","Ortiqcha"],normal:["z-sig-normal","Normal"],sekin:["z-sig-sekin","🐢 Sekin"],muzlagan:["z-sig-muzlagan","💤 Muzlagan"]};
+    const sigMap={kritik:["dot-kritik","Shoshilinch zakas"],tekshir:["dot-tekshir","Tekshirish kerak"],urgent:["dot-urgent","Tugashga yaqin"],excess:["dot-excess","Ortiqcha stok"],normal:["dot-normal","Normal"],sekin:["dot-sekin","Sekin sotiladi"],muzlagan:["dot-muzlagan","Muzlagan kapital"]};
     const[sigCls,sigTxt]=sigMap[v.signal]||["",""];
     const dailyTxt=(v.signal==="muzlagan"||v.signal==="sekin")?(v.price?(v.price.toLocaleString()+" so'm"):"—"):v.dailyAvg>0?(v.dailyAvg>=1?(Math.round(v.dailyAvg*10)/10):v.dailyAvg)+" ta/kun":"—";
     const _sel=v._zi===zLastZi;
-    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td><span class="${sigCls}">${sigTxt}</span></td></tr>`;
+    h+=`<tr class="z-row${_sel?" z-row-sel":""}"${_sel?' id="z-sel-row"':""} ondblclick="zToProduct(${v._zi})" title="Ikki marta bosing — mahsulot tahliliga o'tish"><td style="color:#bbb;font-size:11px">${rowOffset+i+1}</td><td><div class="z-name" title="${esc(v.name)}">${esc(v.name)}</div><div class="z-reason">${v.sku?`<span class="z-sku">${esc(v.sku)}</span>`:""}${esc(v.reason)}</div></td><td>${abcBadge}</td><td style="font-weight:600">${stockTxt}</td><td style="color:#888">${dailyTxt}</td><td>${barHtml}</td><td style="color:${diColor};font-size:12px">${diTxt}</td><td style="text-align:center"><span class="status-dot ${sigCls}" title="${esc(sigTxt)}"></span></td></tr>`;
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${zQuery?'"'+esc(zQuery)+'" bo\'yicha mahsulot topilmadi':"Bu filtrda ma'lumot yo'q"}</td></tr>`;
   document.getElementById("z-tbody").innerHTML=h;
