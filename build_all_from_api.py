@@ -26,7 +26,7 @@ from build_sales_demand import api_records, safe_item_revenue, build as build_da
 
 ROOT = Path(__file__).parent
 TASHKENT_OFFSET = timedelta(hours=5)
-ACTIVE_WINDOW_DAYS = 60  # Stock: aktiv/noaktiv ajratish uchun chegara
+ACTIVE_WINDOW_DAYS = 180  # Stock: aktiv/noaktiv ajratish uchun chegara
 
 
 def norm(value):

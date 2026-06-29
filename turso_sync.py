@@ -20,7 +20,7 @@ import libsql_client
 from fetch_api_data import BASE_URL, ORDER_PAGE_SIZE, SESSION, load_token, request_with_retry
 
 ROOT = Path(__file__).parent
-RETENTION_DAYS = 60
+RETENTION_DAYS = 180
 
 
 def load_turso_creds():
@@ -173,8 +173,20 @@ def main():
 
     end_date = date.today()
     print(f"Invan API'dan yuklanmoqda: {start_date} -- {end_date}")
-    n = fetch_and_sync_orders(client, token, start_date.isoformat(), end_date.isoformat())
-    print(f"  Jami {n} ta yozuv bazaga yozildi/yangilandi")
+    for attempt in range(1, 4):
+        try:
+            n = fetch_and_sync_orders(client, token, start_date.isoformat(), end_date.isoformat())
+            print(f"  Jami {n} ta yozuv bazaga yozildi/yangilandi")
+            break
+        except Exception as exc:
+            print(f"  ! Invan API xatosi ({exc.__class__.__name__}): {exc}")
+            if attempt == 3:
+                print("  ! 3 urinishdan keyin ham muvaffaqiyatsiz - bu safar sotuv yangilanmadi, "
+                      "lekin jarayon davom etadi (eski ma'lumot saqlanib qoladi).")
+            else:
+                wait = attempt * 60
+                print(f"  {wait}s kutib qayta uramiz ({attempt}/3)...")
+                time.sleep(wait)
 
     cutoff = (date.today() - timedelta(days=RETENTION_DAYS)).isoformat()
     prune_old(client, cutoff)

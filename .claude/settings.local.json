@@ -122,7 +122,12 @@
       "Bash(python _tmp_audit2.py)",
       "Bash(python _tmp_fix_dblclick.py)",
       "Bash(rm -f _tmp_out.txt)",
-      "Bash(python _tmp_fix_priority.py)"
+      "Bash(python _tmp_fix_priority.py)",
+      "Bash(git push *)",
+      "Bash(git stash *)",
+      "Bash(git checkout *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)"
     ],
     "additionalDirectories": [
       "C:\\Tiim Market Base Loyihasi",
