@@ -68,6 +68,11 @@ const I18N={
   sp_stat_cheklar:{uz:"Cheklar",en:"Receipts",ru:"Чеки"},
   sp_stat_sotilmay:{uz:"Sotilmay qolgan",en:"Unsold",ru:"Не продано"},
   sp_all_products:{uz:"Barcha tovarlar ({n} ta)",en:"All products ({n})",ru:"Все товары ({n})"},
+  sp_prod_name:{uz:"Tovar nomi",en:"Product name",ru:"Название товара"},
+  sp_prod_sku:{uz:"SKU",en:"SKU",ru:"SKU"},
+  sp_prod_revenue:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
+  sp_prod_receipts:{uz:"Chek",en:"Receipts",ru:"Чеки"},
+  sp_prod_abc:{uz:"ABC",en:"ABC",ru:"ABC"},
   sp_ta:{uz:"ta",en:"",ru:"шт"},
   dt_all:{uz:"Butun davr",en:"Whole period",ru:"Весь период"},
   dt_7:{uz:"So'nggi 7 kun",en:"Last 7 days",ru:"Последние 7 дней"},
@@ -1644,7 +1649,7 @@ ${mzTxt}
         if(supAll.length){
           const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
           const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th>#</th><th>Tovar nomi</th><th>SKU</th><th>Tushum</th><th>Chek</th><th>ABC</th></tr></thead><tbody>${topH}</tbody></table></div>`;
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th>#</th><th>${t("sp_prod_name")}</th><th>${t("sp_prod_sku")}</th><th>${t("sp_prod_revenue")}</th><th>${t("sp_prod_receipts")}</th><th>${t("sp_prod_abc")}</th></tr></thead><tbody>${topH}</tbody></table></div>`;
         }
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
