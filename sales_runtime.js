@@ -44,8 +44,6 @@ const I18N={
   sp_b_guruh:{uz:"B guruh",en:"Group B",ru:"Группа B"},
   sp_c_guruh:{uz:"C guruh",en:"Group C",ru:"Группа C"},
   sp_jami_sup:{uz:"Jami supplierlar",en:"Total suppliers",ru:"Всего поставщиков"},
-  sp_jami_tushum:{uz:"Jami tushum",en:"Total revenue",ru:"Общая выручка"},
-  sp_tushim_pct:{uz:"Tushimning {pct}%",en:"{pct}% of revenue",ru:"{pct}% от выручки"},
   sp_hammasi:{uz:"Hammasi",en:"All",ru:"Все"},
   sp_search_ph:{uz:"Supplier qidirish...",en:"Search supplier...",ru:"Поиск поставщика..."},
   sp_col_name:{uz:"Ta'minotchi nomi",en:"Supplier name",ru:"Название поставщика"},
@@ -1489,23 +1487,11 @@ document.addEventListener("click",function(e){const b=document.getElementById("z
 function initP6(){
   if(!P6)return;
   const d=P6;
-  const fmt=(n)=>n>=1e9?(n/1e9).toFixed(2)+" mlrd":n>=1e6?Math.round(n/1e6)+" mln":n.toLocaleString();
   const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
   s("sp-n-a",d.abc_cnt.A.toLocaleString());
   s("sp-n-b",d.abc_cnt.B.toLocaleString());
   s("sp-n-c",d.abc_cnt.C.toLocaleString());
   s("sp-n-all",d.sup_count.toLocaleString());
-  const revA=d.suppliers.filter(x=>x.abc==="A").reduce((a,x)=>a+x.rev,0);
-  const revB=d.suppliers.filter(x=>x.abc==="B").reduce((a,x)=>a+x.rev,0);
-  const revC=d.suppliers.filter(x=>x.abc==="C").reduce((a,x)=>a+x.rev,0);
-  s("sp-rev-a",fmt(revA));s("sp-rev-b",fmt(revB));s("sp-rev-c",fmt(revC));s("sp-rev-all",fmt(d.total_rev));
-  const totR=d.total_rev||1;
-  const pA=Math.round(revA/totR*100);
-  const pB=Math.round(revB/totR*100);
-  const pC=100-pA-pB;
-  s("sp-sub-a",t("sp_tushim_pct").replace("{pct}",pA));
-  s("sp-sub-b",t("sp_tushim_pct").replace("{pct}",pB));
-  s("sp-sub-c",t("sp_tushim_pct").replace("{pct}",pC));
   renderP6();
 }
 function p6SetFilter(f){
