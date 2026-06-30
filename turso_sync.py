@@ -194,22 +194,34 @@ def main():
         start_date = date.today() - timedelta(days=args.bootstrap_days)
         print(f"Baza bo'sh, boshlang'ich yuklash: {start_date} dan bugungacha.")
 
-    end_date = date.today() + timedelta(days=1)
-    print(f"Invan API'dan yuklanmoqda: {start_date} -- {end_date}")
-    for attempt in range(1, 4):
-        try:
-            n = fetch_and_sync_orders(client, token, start_date.isoformat(), end_date.isoformat())
-            print(f"  Jami {n} ta yozuv bazaga yozildi/yangilandi")
-            break
-        except Exception as exc:
-            print(f"  ! Invan API xatosi ({exc.__class__.__name__}): {exc}")
-            if attempt == 3:
-                print("  ! 3 urinishdan keyin ham muvaffaqiyatsiz - bu safar sotuv yangilanmadi, "
-                      "lekin jarayon davom etadi (eski ma'lumot saqlanib qoladi).")
-            else:
-                wait = attempt * 60
-                print(f"  {wait}s kutib qayta uramiz ({attempt}/3)...")
-                time.sleep(wait)
+    end_date = date.today()
+    print(f"Invan API'dan kunma-kun yuklanmoqda: {start_date} -- {end_date}")
+    total_synced = 0
+    failed_days = []
+    day = start_date
+    while day <= end_date:
+        day_iso = day.isoformat()
+        print(f"\n{day_iso} kuni tekshirilmoqda...")
+        for attempt in range(1, 4):
+            try:
+                n = fetch_and_sync_orders(client, token, day_iso, day_iso)
+                total_synced += n
+                print(f"  {day_iso}: {n} ta yozuv bazaga yozildi/yangilandi")
+                break
+            except Exception as exc:
+                print(f"  ! {day_iso} Invan API xatosi ({exc.__class__.__name__}): {exc}")
+                if attempt == 3:
+                    failed_days.append(day_iso)
+                    print(f"  ! {day_iso}: 3 urinishdan keyin ham muvaffaqiyatsiz")
+                else:
+                    wait = attempt * 60
+                    print(f"  {wait}s kutib qayta uramiz ({attempt}/3)...")
+                    time.sleep(wait)
+        day += timedelta(days=1)
+
+    if failed_days:
+        raise RuntimeError("Quyidagi kunlar to'liq sinxronlanmadi: " + ", ".join(failed_days))
+    print(f"  Jami {total_synced} ta yozuv bazaga yozildi/yangilandi")
 
     cutoff = (date.today() - timedelta(days=RETENTION_DAYS)).isoformat()
     prune_old(client, cutoff)
