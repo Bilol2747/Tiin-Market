@@ -261,7 +261,7 @@ let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,
 let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
-let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null;
+let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null;
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
@@ -1483,7 +1483,11 @@ function p6ClearSearch(){
   if(clr)clr.style.display="none";
   p6Q="";p6Page=1;renderP6();
 }
-function p6Select(r){p6SelI=(p6SelI===r)?null:r;renderP6();}
+function p6Select(r){
+  if(p6SelI===r){p6SelI=null;p6SelMonth=null;}
+  else{p6SelI=r;p6SelMonth=P6_MONTH_WITH_DATA;}
+  renderP6();
+}
 function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
 function exportSuppliersCSV(){
   if(!P6)return;
@@ -1505,6 +1509,13 @@ function exportSuppliersCSV(){
   a.download="suppliers_export_"+ds+".csv";
   a.click();
 }
+const P6_MONTHS=["Yan","Fev","Mar","Apr","May","Iyun"];
+const P6_MONTH_WITH_DATA=5;
+function p6SelectMonth(r,mi){
+  if(p6SelI===r&&p6SelMonth===mi){p6SelI=null;p6SelMonth=null;}
+  else{p6SelI=r;p6SelMonth=mi;}
+  renderP6();
+}
 function renderP6(){
   if(!P6)return;
   let items=[...P6.suppliers];
@@ -1520,30 +1531,50 @@ function renderP6(){
   if(ZITEMS){ZITEMS.filter(v=>v.signal==="muzlagan").forEach(v=>{if(v.sup)mzMap[v.sup]=(mzMap[v.sup]||0)+1;});}
   let h="";
   shown.forEach((s,i)=>{
-    const abc=s.abc;
-    const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
-    const pct=Math.min(100,Math.round(s.rev/maxRev*100));
-    const revStr=s.rev>=1e9?(s.rev/1e9).toFixed(2)+" mlrd":s.rev>=1e6?Math.round(s.rev/1e6)+" mln":s.rev.toLocaleString();
     const isSel=p6SelI===s.r;
     const selStyle=isSel?" sp-row-sel":"";
     h+=`<tr class="sp-row${selStyle}" onclick="p6Select(${s.r})">`;
     h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
     h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
-    h+=`<td><span class="sp-abc sp-abc-${abc.toLowerCase()}">${abc}</span></td>`;
-    h+=`<td style="font-weight:700;white-space:nowrap;color:#1a1a1a">${revStr}</td>`;
-    h+=`<td><div style="display:flex;align-items:center;gap:6px"><div style="width:80px;height:7px;background:#f0f0ec;border-radius:4px;overflow:hidden;flex-shrink:0"><div style="height:100%;width:${pct}%;background:${barC};border-radius:4px"></div></div><span style="font-size:11px;font-weight:600;color:#888">${s.rp}%</span></div></td>`;
-    const aB=`<span class="sp-mc sp-mc-a" style="min-width:28px;text-align:center">${s.abc_cnt.A||0}A</span>`;
-    const bB=`<span class="sp-mc sp-mc-b" style="min-width:28px;text-align:center">${s.abc_cnt.B||0}B</span>`;
-    const cB=`<span class="sp-mc sp-mc-c" style="min-width:28px;text-align:center">${s.abc_cnt.C||0}C</span>`;
-    h+=`<td><div style="display:flex;flex-direction:column;gap:3px"><div><span style="font-weight:600;color:#333">${s.cnt}</span> <span style="font-size:11px;color:#aaa">ta</span></div><div style="height:1px;background:#e8e8e3;margin:0"></div><div style="display:flex;gap:3px">${aB}${bB}${cB}</div>${(mzMap[s.name]||0)>0?'<div style="height:1px;background:#e8e8e3;margin:0"></div><div style="font-size:11px;color:#9CA3AF">&#x1F4A4; '+(mzMap[s.name])+' ta</div>':''}</div></td>`;
-    h+=`<td style="color:#888;font-size:13px">${(s.rec||0).toLocaleString()}</td>`;
+    P6_MONTHS.forEach((_,mi)=>{
+      const hasData=mi===P6_MONTH_WITH_DATA;
+      const isCellSel=isSel&&p6SelMonth===mi;
+      if(hasData){
+        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${s.abc.toLowerCase()}${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">${s.abc}</button></td>`;
+      }else{
+        h+=`<td style="text-align:center"><button class="sp-month-chip sp-month-empty${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">—</button></td>`;
+      }
+    });
     h+=`</tr>`;
-    if(isSel&&s.top&&s.top.length){
-      const topH=s.top.map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
-      h+=`<tr class="sp-det-row"><td colspan="7"><div class="sp-det-wrap"><div class="sp-det-title">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div></div></td></tr>`;
+    if(isSel){
+      let detH;
+      if(p6SelMonth===P6_MONTH_WITH_DATA){
+        const abc=s.abc;
+        const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
+        const pct=Math.min(100,Math.round(s.rev/maxRev*100));
+        const revStr=s.rev>=1e9?(s.rev/1e9).toFixed(2)+" mlrd":s.rev>=1e6?Math.round(s.rev/1e6)+" mln":s.rev.toLocaleString();
+        const aB=`<span class="sp-mc sp-mc-a">${s.abc_cnt.A||0}A</span>`;
+        const bB=`<span class="sp-mc sp-mc-b">${s.abc_cnt.B||0}B</span>`;
+        const cB=`<span class="sp-mc sp-mc-c">${s.abc_cnt.C||0}C</span>`;
+        const mzTxt=(mzMap[s.name]||0)>0?`<div class="sp-det-stat"><div class="sp-det-stat-lbl">Sotilmay qolgan</div><div class="sp-det-stat-val">&#x1F4A4; ${mzMap[s.name]} ta</div></div>`:"";
+        detH=`<div class="sp-det-stats">
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">Tushum</div><div class="sp-det-stat-val">${revStr}</div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">Hissa</div><div class="sp-det-stat-val">${s.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">Tovarlar</div><div class="sp-det-stat-val">${s.cnt} ta <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">Cheklar</div><div class="sp-det-stat-val">${(s.rec||0).toLocaleString()}</div></div>
+${mzTxt}
+</div>`;
+        if(s.top&&s.top.length){
+          const topH=s.top.map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
+          detH+=`<div class="sp-det-title" style="margin-top:14px">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div>`;
+        }
+      }else{
+        detH=`<div class="sp-det-empty">${P6_MONTHS[p6SelMonth]} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.</div>`;
+      }
+      h+=`<tr class="sp-det-row"><td colspan="8"><div class="sp-det-wrap">${detH}</div></td></tr>`;
     }
   });
-  if(!h)h=`<tr><td colspan="7" style="text-align:center;padding:40px;color:#bbb">Supplier topilmadi</td></tr>`;
+  if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">Supplier topilmadi</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
 }
