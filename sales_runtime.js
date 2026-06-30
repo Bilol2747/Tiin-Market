@@ -1591,6 +1591,7 @@ function p6SelectMonth(r,mi){
 }
 function renderP6(){
   if(!P6)return;
+  ensureSupplierProductTableStyles();
   let items=[...P6.suppliers];
   if(p6CurF!=="all")items=items.filter(s=>s.abc===p6CurF);
   if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
@@ -1641,8 +1642,9 @@ ${mzTxt}
 </div>`;
         const supAll=me.top||[];
         if(supAll.length){
-          const topH=supAll.map((t2,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t2.name)}">${esc(t2.name)}</div><div class="sp-top-rev">${(t2.rev||0)>=1e6?Math.round(t2.rev/1e6)+" mln so'm":(t2.rev||0).toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></div>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-det-list sp-det-list-scroll">${topH}</div>`;
+          const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
+          const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th>#</th><th>Tovar nomi</th><th>SKU</th><th>Tushum</th><th>Chek</th><th>ABC</th></tr></thead><tbody>${topH}</tbody></table></div>`;
         }
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
@@ -1653,6 +1655,13 @@ ${mzTxt}
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
+}
+function ensureSupplierProductTableStyles(){
+  if(document.getElementById("sp-prod-table-style"))return;
+  const st=document.createElement("style");
+  st.id="sp-prod-table-style";
+  st.textContent=`.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
+  document.head.appendChild(st);
 }
 function renderP6Pag(totalP){
   const pag=document.getElementById("sp-pag");if(!pag)return;

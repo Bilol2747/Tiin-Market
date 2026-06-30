@@ -650,7 +650,7 @@ def build_supplier_months(month_rev, month_rec, month_name, products):
             cum2 += sup_rev[supplier]
             pct2 = cum2 / total_rev
             abc = "A" if pct2 <= 0.80 else ("B" if pct2 <= 0.95 else "C")
-            top_items = sorted(sup_items[supplier], key=lambda e: -e[1])[:5]
+            all_items = sorted(sup_items[supplier], key=lambda e: -e[1])
             result[supplier][month_key] = {
                 "rev": round(sup_rev[supplier]),
                 "rp": round(sup_rev[supplier] / total_rev * 100, 2),
@@ -660,8 +660,8 @@ def build_supplier_months(month_rev, month_rec, month_name, products):
                 "abc_cnt": sup_abc_cnt[supplier],
                 "top": [
                     {"name": month_name.get(sku, sku), "rev": round(rev),
-                     "abc": sku_abc[sku], "sku": sku}
-                    for sku, rev in top_items
+                     "rec": rec_for_month.get(sku, 0), "abc": sku_abc[sku], "sku": sku}
+                    for sku, rev in all_items
                 ],
             }
     return result
