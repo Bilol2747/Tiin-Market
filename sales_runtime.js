@@ -40,6 +40,33 @@ const I18N={
   nav_p3:{uz:"ABC tahlili",en:"ABC analysis",ru:"ABC-анализ"},
   nav_p5:{uz:"Stock",en:"Stock",ru:"Склад"},
   nav_p6:{uz:"Suppliers",en:"Suppliers",ru:"Поставщики"},
+  sp_a_guruh:{uz:"A guruh",en:"Group A",ru:"Группа A"},
+  sp_b_guruh:{uz:"B guruh",en:"Group B",ru:"Группа B"},
+  sp_c_guruh:{uz:"C guruh",en:"Group C",ru:"Группа C"},
+  sp_jami_sup:{uz:"Jami supplierlar",en:"Total suppliers",ru:"Всего поставщиков"},
+  sp_jami_tushum:{uz:"Jami tushum",en:"Total revenue",ru:"Общая выручка"},
+  sp_tushim_pct:{uz:"Tushimning {pct}%",en:"{pct}% of revenue",ru:"{pct}% от выручки"},
+  sp_hammasi:{uz:"Hammasi",en:"All",ru:"Все"},
+  sp_search_ph:{uz:"Supplier qidirish...",en:"Search supplier...",ru:"Поиск поставщика..."},
+  sp_col_name:{uz:"Ta'minotchi nomi",en:"Supplier name",ru:"Название поставщика"},
+  sp_mon_yan:{uz:"Yan",en:"Jan",ru:"Янв"},
+  sp_mon_fev:{uz:"Fev",en:"Feb",ru:"Фев"},
+  sp_mon_mar:{uz:"Mar",en:"Mar",ru:"Мар"},
+  sp_mon_apr:{uz:"Apr",en:"Apr",ru:"Апр"},
+  sp_mon_may:{uz:"May",en:"May",ru:"Май"},
+  sp_mon_iyun:{uz:"Iyun",en:"Jun",ru:"Июн"},
+  sp_excel_btn:{uz:"Excel",en:"Excel",ru:"Excel"},
+  sp_cnt_suffix:{uz:"ta supplier",en:"suppliers",ru:"поставщиков"},
+  sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
+  sp_det_month:{uz:"{month} oyiga tegishli ma'lumotlar",en:"Data for {month}",ru:"Данные за {month}"},
+  sp_det_empty:{uz:"{month} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.",en:"Data for {month} hasn't loaded yet — it will appear here once the historical data finishes loading.",ru:"Данные за {month} ещё не загружены — появятся здесь после полной загрузки исторических данных."},
+  sp_stat_tushum:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
+  sp_stat_hissa:{uz:"Hissa",en:"Share",ru:"Доля"},
+  sp_stat_tovarlar:{uz:"Tovarlar",en:"Products",ru:"Товары"},
+  sp_stat_cheklar:{uz:"Cheklar",en:"Receipts",ru:"Чеки"},
+  sp_stat_sotilmay:{uz:"Sotilmay qolgan",en:"Unsold",ru:"Не продано"},
+  sp_all_products:{uz:"Barcha tovarlar ({n} ta)",en:"All products ({n})",ru:"Все товары ({n})"},
+  sp_ta:{uz:"ta",en:"",ru:"шт"},
   dt_all:{uz:"Butun davr",en:"Whole period",ru:"Весь период"},
   dt_7:{uz:"So'nggi 7 kun",en:"Last 7 days",ru:"Последние 7 дней"},
   dt_14:{uz:"So'nggi 14 kun",en:"Last 14 days",ru:"Последние 14 дней"},
@@ -242,6 +269,7 @@ function setLang(lang){
   if(_activeNav&&_cr)_cr.textContent=_activeNav.textContent.trim();
   if(typeof renderP1==="function"&&P1)renderP1();
   if(curPageId==="p7"&&typeof renderZakas==="function")renderZakas();
+  if(curPageId==="p6"&&typeof initP6==="function"&&P6)initP6();
 }
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
@@ -1475,10 +1503,9 @@ function initP6(){
   const pA=Math.round(revA/totR*100);
   const pB=Math.round(revB/totR*100);
   const pC=100-pA-pB;
-  s("sp-sub-a","Tushimning "+pA+"%");
-  s("sp-sub-b","Tushimning "+pB+"%");
-  s("sp-sub-c","Tushimning "+pC+"%");
-  s("sp-sub-all","Jami tushum");
+  s("sp-sub-a",t("sp_tushim_pct").replace("{pct}",pA));
+  s("sp-sub-b",t("sp_tushim_pct").replace("{pct}",pB));
+  s("sp-sub-c",t("sp_tushim_pct").replace("{pct}",pC));
   renderP6();
 }
 function p6SetFilter(f){
@@ -1528,7 +1555,8 @@ function exportSuppliersCSV(){
   a.download="suppliers_export_"+ds+".csv";
   a.click();
 }
-const P6_MONTHS=["Yan","Fev","Mar","Apr","May","Iyun"];
+const P6_MONTH_KEYS=["sp_mon_yan","sp_mon_fev","sp_mon_mar","sp_mon_apr","sp_mon_may","sp_mon_iyun"];
+function P6_MONTHS_NOW(){return P6_MONTH_KEYS.map(k=>t(k));}
 const P6_MONTH_WITH_DATA=5;
 function p6SelectMonth(r,mi){
   if(p6SelI===r&&p6SelMonth===mi){p6SelI=null;p6SelMonth=null;}
@@ -1540,7 +1568,7 @@ function renderP6(){
   let items=[...P6.suppliers];
   if(p6CurF!=="all")items=items.filter(s=>s.abc===p6CurF);
   if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
-  const cnt=document.getElementById("sp-cnt");if(cnt)cnt.textContent=items.length.toLocaleString()+" ta supplier";
+  const cnt=document.getElementById("sp-cnt");if(cnt)cnt.textContent=items.length.toLocaleString()+" "+t("sp_cnt_suffix");
   const totalP=Math.max(1,Math.ceil(items.length/P6PS));
   if(p6Page>totalP)p6Page=totalP;
   const off=(p6Page-1)*P6PS;
@@ -1555,7 +1583,7 @@ function renderP6(){
     h+=`<tr class="sp-row${selStyle}" onclick="p6Select(${s.r})">`;
     h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
     h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
-    P6_MONTHS.forEach((_,mi)=>{
+    P6_MONTH_KEYS.forEach((_,mi)=>{
       const hasData=mi===P6_MONTH_WITH_DATA;
       const isCellSel=isSel&&p6SelMonth===mi;
       if(hasData){
@@ -1575,25 +1603,27 @@ function renderP6(){
         const aB=`<span class="sp-mc sp-mc-a">${s.abc_cnt.A||0}A</span>`;
         const bB=`<span class="sp-mc sp-mc-b">${s.abc_cnt.B||0}B</span>`;
         const cB=`<span class="sp-mc sp-mc-c">${s.abc_cnt.C||0}C</span>`;
-        const mzTxt=(mzMap[s.name]||0)>0?`<div class="sp-det-stat"><div class="sp-det-stat-lbl">Sotilmay qolgan</div><div class="sp-det-stat-val">&#x1F4A4; ${mzMap[s.name]} ta</div></div>`:"";
-        detH=`<div class="sp-det-month">${P6_MONTHS[p6SelMonth]} oyiga tegishli ma'lumotlar</div><div class="sp-det-stats">
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">Tushum</div><div class="sp-det-stat-val">${revStr}</div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">Hissa</div><div class="sp-det-stat-val">${s.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">Tovarlar</div><div class="sp-det-stat-val">${s.cnt} ta <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">Cheklar</div><div class="sp-det-stat-val">${(s.rec||0).toLocaleString()}</div></div>
+        const mzTxt=(mzMap[s.name]||0)>0?`<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_sotilmay")}</div><div class="sp-det-stat-val">&#x1F4A4; ${mzMap[s.name]} ${t("sp_ta")}</div></div>`:"";
+        const monthNow=t(P6_MONTH_KEYS[p6SelMonth]);
+        detH=`<div class="sp-det-month">${t("sp_det_month").replace("{month}",monthNow)}</div><div class="sp-det-stats">
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tushum")}</div><div class="sp-det-stat-val">${revStr}</div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_hissa")}</div><div class="sp-det-stat-val">${s.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tovarlar")}</div><div class="sp-det-stat-val">${s.cnt} ${t("sp_ta")} <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(s.rec||0).toLocaleString()}</div></div>
 ${mzTxt}
 </div>`;
-        if(s.top&&s.top.length){
-          const topH=s.top.slice(0,3).map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div>`;
+        const supAll=P2?P2.filter(v=>v.sup===s.name).sort((a,b)=>(b.rev||0)-(a.rev||0)):[];
+        if(supAll.length){
+          const topH=supAll.map((t2,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t2.name)}">${esc(t2.name)}</div><div class="sp-top-rev">${(t2.rev||0)>=1e6?Math.round(t2.rev/1e6)+" mln so'm":(t2.rev||0).toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></div>`).join("");
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-det-list sp-det-list-scroll">${topH}</div>`;
         }
       }else{
-        detH=`<div class="sp-det-empty">${P6_MONTHS[p6SelMonth]} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.</div>`;
+        detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",t(P6_MONTH_KEYS[p6SelMonth]))}</div>`;
       }
       h+=`<tr class="sp-det-row"><td colspan="8"><div class="sp-det-wrap">${detH}</div></td></tr>`;
     }
   });
-  if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">Supplier topilmadi</td></tr>`;
+  if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
 }
