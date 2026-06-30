@@ -366,8 +366,10 @@ function zkToggleQuickPanel(e){
 function _zkRenderQuickPanel(){
   const panel=document.getElementById("zk-quick-panel");if(!panel)return;
   panel.classList.toggle("open",zkQuickPanelOpen);
-  if(!zkQuickPanelOpen)return;
   const list=_ZK_SUPPLIERS.map(s=>({s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(x=>x.needCount>0).sort((a,b)=>b.needCount-a.needCount).map(x=>x.s);
+  const badge=document.getElementById("zk-quickbtn-badge");
+  if(badge){badge.textContent=list.length;badge.style.display=list.length?"flex":"none";}
+  if(!zkQuickPanelOpen)return;
   panel._zkList=list;
   panel.innerHTML=list.map((s,i)=>{
     const needCount=s.rows.filter(r=>r.orderQty>0).length;
