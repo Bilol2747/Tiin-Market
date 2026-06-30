@@ -609,8 +609,81 @@ def build_p3data(p2data, daily_data, max_d):
     return result
 
 
+# ─── suppliers (P6) oylik ma'lumotlari ───
+def build_supplier_months(daily_data, pskus, products, pnames):
+    """Har bir oy uchun ALOHIDA: o'sha oyning kunlik daromadlarini (dailydata
+    ichidagi 'rev' massivi) mahsulot -> supplier bo'yicha yig'ib, supplierlarni
+    o'sha oyning daromadi bo'yicha qayta saralab ABC (80/15/5) belgilaydi.
+    Natija: {supplier_nomi: {"YYYY-MM": {rev, rp, abc, cnt, abc_cnt, top}}}."""
+    items_d = daily_data["items"]
+    labels = daily_data["__meta__"]["labels"]
+
+    month_item_rev = defaultdict(lambda: defaultdict(float))
+    month_item_rec = defaultdict(lambda: defaultdict(int))
+    for pk, it in items_d.items():
+        rev_d = it.get("rev")
+        rec_d = it.get("r")
+        if not rev_d:
+            continue
+        for d, rev in enumerate(rev_d):
+            month_key = labels[d][:7]
+            if rev:
+                month_item_rev[month_key][pk] += rev
+            if rec_d and rec_d[d]:
+                month_item_rec[month_key][pk] += rec_d[d]
+
+    result = defaultdict(dict)
+    for month_key, item_rev in month_item_rev.items():
+        month_total = sum(item_rev.values()) or 1
+        sorted_pks = sorted(item_rev, key=lambda k: -item_rev[k])
+        cum = 0.0
+        pk_abc = {}
+        for pk in sorted_pks:
+            cum += item_rev[pk]
+            pct = cum / month_total
+            pk_abc[pk] = "A" if pct <= 0.80 else ("B" if pct <= 0.95 else "C")
+
+        rec_for_month = month_item_rec.get(month_key, {})
+        sup_rev = defaultdict(float)
+        sup_rec = defaultdict(int)
+        sup_cnt = defaultdict(int)
+        sup_abc_cnt = defaultdict(lambda: {"A": 0, "B": 0, "C": 0})
+        sup_items = defaultdict(list)
+        for pk, rev in item_rev.items():
+            sku = pskus.get(pk, "")
+            supplier = products.get(sku, {}).get("su") or "Noma'lum"
+            sup_rev[supplier] += rev
+            sup_rec[supplier] += rec_for_month.get(pk, 0)
+            sup_cnt[supplier] += 1
+            sup_abc_cnt[supplier][pk_abc[pk]] += 1
+            sup_items[supplier].append((pk, rev))
+
+        total_rev = sum(sup_rev.values()) or 1
+        sorted_sups = sorted(sup_rev, key=lambda n: -sup_rev[n])
+        cum2 = 0.0
+        for supplier in sorted_sups:
+            cum2 += sup_rev[supplier]
+            pct2 = cum2 / total_rev
+            abc = "A" if pct2 <= 0.80 else ("B" if pct2 <= 0.95 else "C")
+            top_items = sorted(sup_items[supplier], key=lambda e: -e[1])[:5]
+            result[supplier][month_key] = {
+                "rev": round(sup_rev[supplier]),
+                "rp": round(sup_rev[supplier] / total_rev * 100, 2),
+                "abc": abc,
+                "cnt": sup_cnt[supplier],
+                "rec": sup_rec[supplier],
+                "abc_cnt": sup_abc_cnt[supplier],
+                "top": [
+                    {"name": pnames[pk].most_common(1)[0][0], "rev": round(rev),
+                     "abc": pk_abc[pk], "sku": pskus.get(pk, "")}
+                    for pk, rev in top_items
+                ],
+            }
+    return result
+
+
 # ─── suppliers (P6) ma'lumotlari ───
-def build_supplierdata(p2data, products):
+def build_supplierdata(p2data, products, monthly=None, month_keys=None):
     """Har bir mahsulotni o'z ta'minotchisiga (supplier) bog'lab, supplier kesimida
     daromad/miqdor/chek/ABC taqsimotini hisoblaydi."""
     groups = defaultdict(lambda: {"rev": 0.0, "qty": 0.0, "rec": 0, "cnt": 0,
@@ -640,7 +713,7 @@ def build_supplierdata(p2data, products):
         abc = "A" if pct <= 0.80 else ("B" if pct <= 0.95 else "C")
         abc_count[abc] += 1
         top_items = sorted(group["items"], key=lambda it: -(it.get("rev", 0) or 0))[:5]
-        suppliers.append({
+        entry = {
             "name": name,
             "rev": round(group["rev"]),
             "qty": rq(group["qty"]),
@@ -654,7 +727,11 @@ def build_supplierdata(p2data, products):
             "abc": abc,
             "r": rank,
             "rp": round(group["rev"] / total_rev * 100, 2),
-        })
+        }
+        if monthly is not None and month_keys is not None:
+            sup_months = monthly.get(name, {})
+            entry["months"] = [sup_months.get(mk) for mk in month_keys]
+        suppliers.append(entry)
 
     return {
         "total_rev": round(total_rev),

@@ -1521,7 +1521,13 @@ function p6ClearSearch(){
 }
 function p6Select(r){
   if(p6SelI===r){p6SelI=null;p6SelMonth=null;}
-  else{p6SelI=r;p6SelMonth=P6_MONTH_WITH_DATA;}
+  else{
+    p6SelI=r;
+    const s=P6.suppliers.find(x=>x.r===r);
+    let mi=null;
+    if(s&&s.months){for(let i=s.months.length-1;i>=0;i--){if(s.months[i]){mi=i;break;}}}
+    p6SelMonth=mi;
+  }
   renderP6();
 }
 function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
@@ -1547,7 +1553,6 @@ function exportSuppliersCSV(){
 }
 const P6_MONTH_KEYS=["sp_mon_yan","sp_mon_fev","sp_mon_mar","sp_mon_apr","sp_mon_may","sp_mon_iyun"];
 function P6_MONTHS_NOW(){return P6_MONTH_KEYS.map(k=>t(k));}
-const P6_MONTH_WITH_DATA=5;
 function p6SelectMonth(r,mi){
   if(p6SelI===r&&p6SelMonth===mi){p6SelI=null;p6SelMonth=null;}
   else{p6SelI=r;p6SelMonth=mi;}
@@ -1563,7 +1568,6 @@ function renderP6(){
   if(p6Page>totalP)p6Page=totalP;
   const off=(p6Page-1)*P6PS;
   const shown=items.slice(off,off+P6PS);
-  const maxRev=P6.suppliers[0].rev;
   const mzMap={};
   if(ZITEMS){ZITEMS.filter(v=>v.signal==="muzlagan").forEach(v=>{if(v.sup)mzMap[v.sup]=(mzMap[v.sup]||0)+1;});}
   let h="";
@@ -1574,10 +1578,10 @@ function renderP6(){
     h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
     h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     P6_MONTH_KEYS.forEach((_,mi)=>{
-      const hasData=mi===P6_MONTH_WITH_DATA;
+      const me=s.months&&s.months[mi];
       const isCellSel=isSel&&p6SelMonth===mi;
-      if(hasData){
-        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${s.abc.toLowerCase()}${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">${s.abc}</button></td>`;
+      if(me){
+        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">${me.abc}</button></td>`;
       }else{
         h+=`<td style="text-align:center"><button class="sp-month-chip sp-month-empty${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">—</button></td>`;
       }
@@ -1585,30 +1589,32 @@ function renderP6(){
     h+=`</tr>`;
     if(isSel){
       let detH;
-      if(p6SelMonth===P6_MONTH_WITH_DATA){
-        const abc=s.abc;
+      const me=s.months&&s.months[p6SelMonth];
+      if(me){
+        const abc=me.abc;
         const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
-        const pct=Math.min(100,Math.round(s.rev/maxRev*100));
-        const revStr=s.rev>=1e9?(s.rev/1e9).toFixed(2)+" mlrd":s.rev>=1e6?Math.round(s.rev/1e6)+" mln":s.rev.toLocaleString();
-        const aB=`<span class="sp-mc sp-mc-a">${s.abc_cnt.A||0}A</span>`;
-        const bB=`<span class="sp-mc sp-mc-b">${s.abc_cnt.B||0}B</span>`;
-        const cB=`<span class="sp-mc sp-mc-c">${s.abc_cnt.C||0}C</span>`;
+        const monthMax=Math.max(1,...P6.suppliers.map(x=>(x.months&&x.months[p6SelMonth]&&x.months[p6SelMonth].rev)||0));
+        const pct=Math.min(100,Math.round(me.rev/monthMax*100));
+        const revStr=me.rev>=1e9?(me.rev/1e9).toFixed(2)+" mlrd":me.rev>=1e6?Math.round(me.rev/1e6)+" mln":me.rev.toLocaleString();
+        const aB=`<span class="sp-mc sp-mc-a">${me.abc_cnt.A||0}A</span>`;
+        const bB=`<span class="sp-mc sp-mc-b">${me.abc_cnt.B||0}B</span>`;
+        const cB=`<span class="sp-mc sp-mc-c">${me.abc_cnt.C||0}C</span>`;
         const mzTxt=(mzMap[s.name]||0)>0?`<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_sotilmay")}</div><div class="sp-det-stat-val">&#x1F4A4; ${mzMap[s.name]} ${t("sp_ta")}</div></div>`:"";
         const monthNow=t(P6_MONTH_KEYS[p6SelMonth]);
         detH=`<div class="sp-det-month">${t("sp_det_month").replace("{month}",monthNow)}</div><div class="sp-det-stats">
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tushum")}</div><div class="sp-det-stat-val">${revStr}</div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_hissa")}</div><div class="sp-det-stat-val">${s.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tovarlar")}</div><div class="sp-det-stat-val">${s.cnt} ${t("sp_ta")} <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(s.rec||0).toLocaleString()}</div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_hissa")}</div><div class="sp-det-stat-val">${me.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tovarlar")}</div><div class="sp-det-stat-val">${me.cnt} ${t("sp_ta")} <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
+<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(me.rec||0).toLocaleString()}</div></div>
 ${mzTxt}
 </div>`;
-        const supAll=P2?P2.filter(v=>v.sup===s.name).sort((a,b)=>(b.rev||0)-(a.rev||0)):[];
+        const supAll=me.top||[];
         if(supAll.length){
           const topH=supAll.map((t2,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t2.name)}">${esc(t2.name)}</div><div class="sp-top-rev">${(t2.rev||0)>=1e6?Math.round(t2.rev/1e6)+" mln so'm":(t2.rev||0).toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></div>`).join("");
           detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-det-list sp-det-list-scroll">${topH}</div>`;
         }
       }else{
-        detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",t(P6_MONTH_KEYS[p6SelMonth]))}</div>`;
+        detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
       }
       h+=`<tr class="sp-det-row"><td colspan="8"><div class="sp-det-wrap">${detH}</div></td></tr>`;
     }

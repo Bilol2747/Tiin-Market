@@ -20,7 +20,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 from build_all import (
-    rq, build_invdata, build_p2data, build_p3data, build_p1data, build_supplierdata, embed_html,
+    rq, build_invdata, build_p2data, build_p3data, build_p1data, build_supplierdata,
+    build_supplier_months, embed_html,
 )
 from build_sales_demand import api_records, safe_item_revenue, build as build_dailydata_improved
 
@@ -209,7 +210,9 @@ def build(orders, products_path, html_path=None, last_sale_60=None):
     p3data = build_p3data(p2data, dailydata, max_d)
     p1data = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
     p1data["builtAt"] = (datetime.utcnow() + TASHKENT_OFFSET).strftime("%H:%M, %d/%m/%Y")
-    supplierdata = build_supplierdata(p2data, products)
+    monthly = build_supplier_months(dailydata, pskus, products, pnames)
+    month_keys = [f"{max_d.year:04d}-{m:02d}" for m in range(1, 7)]  # Yan..Iyun (frontend P6_MONTH_KEYS bilan mos)
+    supplierdata = build_supplierdata(p2data, products, monthly=monthly, month_keys=month_keys)
     a_count = sum(1 for i in p2data if i["abc"] == "A")
     b_count = sum(1 for i in p2data if i["abc"] == "B")
     c_count = sum(1 for i in p2data if i["abc"] == "C")
