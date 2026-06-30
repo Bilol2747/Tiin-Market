@@ -1524,6 +1524,7 @@ function p2FCount(){const ids=["pf-cat","pf-sub","pf-type","pf-sup","pf-amt","pf
 function p2FToggle(e){if(e)e.stopPropagation();const p=document.getElementById("p2-fpop");if(p)p.classList.toggle("open");p2FCount();}
 document.addEventListener("click",function(e){const w=document.querySelector(".p2-fwrap");const p=document.getElementById("p2-fpop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});
 document.addEventListener("click",function(e){const b=document.getElementById("z-fbtn");const p=document.getElementById("z-fpop");if(b&&p&&!b.contains(e.target)&&!p.contains(e.target))p.classList.remove("open")   ;});
+document.addEventListener("click",function(e){const dd=document.getElementById("sp-month-dd");if(dd&&!dd.contains(e.target))dd.classList.remove("open");});
 
 // ─── P6 Supplier Tahlili ───
 function initP6(){
@@ -1600,6 +1601,17 @@ function p6MonthItems(){
 }
 function p6SetCardMonth(mi){
   p6CardMonth=mi;p6Page=1;p6SelI=null;p6SelMonth=null;renderP6();
+}
+function p6ToggleMonthMenu(e){
+  if(e)e.stopPropagation();
+  const dd=document.getElementById("sp-month-dd");
+  if(dd)dd.classList.toggle("open");
+}
+function p6PickCardMonth(mi,e){
+  if(e)e.stopPropagation();
+  const dd=document.getElementById("sp-month-dd");
+  if(dd)dd.classList.remove("open");
+  p6SetCardMonth(mi);
 }
 function p6SelectMonth(r,mi){
   p6CardMonth=mi;
@@ -1681,7 +1693,7 @@ function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
   const st=document.createElement("style");
   st.id="sp-prod-table-style";
-  st.textContent=`.sp-month-tabs{display:flex;align-items:center;gap:6px;padding:0 24px 6px;flex-wrap:wrap}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494;margin-right:4px}.sp-month-tab{height:28px;padding:0 12px;border:1.5px solid #e0e0e0;border-radius:18px;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}.sp-month-tab:hover{border-color:#1D9E75;color:#1D9E75}.sp-month-tab.active{background:#1D9E75;border-color:#1D9E75;color:#fff}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
+  st.textContent=`.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
   document.head.appendChild(st);
 }
 function renderP6MonthControls(){
@@ -1690,12 +1702,14 @@ function renderP6MonthControls(){
     wrap=document.createElement("div");
     wrap.id="sp-month-tabs";
     wrap.className="sp-month-tabs";
-    const tb=document.querySelector("#p6 .sp-toolbar");
-    if(tb&&tb.parentNode)tb.parentNode.insertBefore(wrap,tb);
+    const header=document.querySelector("#p6 .sp-header");
+    if(header&&header.parentNode)header.parentNode.insertBefore(wrap,header);
   }
   const names=P6_MONTHS_NOW();
-  wrap.innerHTML=`<span class="sp-month-tabs-label">${t("sp_month_select")}:</span>`+
-    names.map((m,i)=>`<button class="sp-month-tab ${i===p6CardMonth?"active":""}" type="button" onclick="p6SetCardMonth(${i})">${m}</button>`).join("");
+  const active=names[p6CardMonth]||names[p6LatestMonthIndex()]||"";
+  wrap.innerHTML=`<span class="sp-month-tabs-label">${t("sp_month_select")}:</span><div class="sp-month-dd" id="sp-month-dd"><button class="sp-month-current" type="button" onclick="p6ToggleMonthMenu(event)">${active}</button><div class="sp-month-menu">`+
+    names.map((m,i)=>`<button class="sp-month-option ${i===p6CardMonth?"active":""}" type="button" onclick="p6PickCardMonth(${i},event)">${m}</button>`).join("")+
+    `</div></div>`;
 }
 function renderP6Cards(){
   const items=p6MonthItems();
