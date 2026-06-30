@@ -73,7 +73,20 @@ def upsert_orders(client, orders):
             [oid, ct, json.dumps(o, ensure_ascii=False)]
         ))
     for i in range(0, len(stmts), 1000):
-        client.batch(stmts[i:i + 1000])
+        chunk = stmts[i:i + 1000]
+        last_error = None
+        for attempt in range(1, 6):
+            try:
+                client.batch(chunk)
+                last_error = None
+                break
+            except Exception as exc:
+                last_error = exc
+                wait = attempt * 3
+                print(f"  ! Turso'ga yozishda xato ({exc.__class__.__name__}), {wait}s kutib qayta urinish ({attempt}/5)...", flush=True)
+                time.sleep(wait)
+        if last_error is not None:
+            raise last_error
     return len(stmts)
 
 
@@ -174,7 +187,7 @@ def main():
                          help="Baza bo'sh bo'lsa, necha kunlik tarixni boshlang'ich yuklash")
     parser.add_argument("--overlap-hours", type=int, default=2,
                          help="Oxirgi sinxronizatsiyadan necha soat oldin qaytadan tekshirish")
-    parser.add_argument("--overlap-days", type=int, default=7,
+    parser.add_argument("--overlap-days", type=int, default=2,
                          help="Har safar oxirgi necha kunni qayta tekshirib, tushmay qolgan orderlarni to'ldirish")
     args = parser.parse_args()
 
