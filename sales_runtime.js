@@ -623,6 +623,25 @@ function _zFitTableHeight(){
   });
   window.addEventListener("resize",_zFitTableHeight);
 })();
+function _spFitTableHeight(){
+  const p6=document.getElementById("p6");
+  const wrap=document.querySelector("#p6 .sp-tbl-wrap");
+  if(!p6||!wrap||!p6.classList.contains("active"))return;
+  const top=wrap.getBoundingClientRect().top;
+  const pagEl=document.getElementById("sp-pag");
+  const pagH=pagEl?pagEl.getBoundingClientRect().height:0;
+  const h=window.innerHeight-top-pagH-32;
+  wrap.style.maxHeight=Math.max(200,Math.round(h))+"px";
+}
+(function(){
+  const ro=new ResizeObserver(()=>_spFitTableHeight());
+  window.addEventListener("load",()=>{
+    const h=document.querySelector("#p6 .sp-header"),tb=document.querySelector("#p6 .sp-toolbar");
+    if(h)ro.observe(h);
+    if(tb)ro.observe(tb);
+  });
+  window.addEventListener("resize",_spFitTableHeight);
+})();
 function toggleSidebar(){
   document.body.classList.toggle("sb-collapsed");
   localStorage.setItem("tiin_sidebar",document.body.classList.contains("sb-collapsed")?"collapsed":"open");
@@ -630,7 +649,7 @@ function toggleSidebar(){
 async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7")?"none":"";window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
 if(pid==="p7"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();renderZakas();}
-if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}}_applyPageRange(pid);};
+if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}setTimeout(_spFitTableHeight,0);}_applyPageRange(pid);};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Zaxira qatoriga bosilganda → Mahsulotlar bo'limida o'sha mahsulotni ochish
