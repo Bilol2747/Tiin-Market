@@ -1576,7 +1576,7 @@ function renderP6(){
         const bB=`<span class="sp-mc sp-mc-b">${s.abc_cnt.B||0}B</span>`;
         const cB=`<span class="sp-mc sp-mc-c">${s.abc_cnt.C||0}C</span>`;
         const mzTxt=(mzMap[s.name]||0)>0?`<div class="sp-det-stat"><div class="sp-det-stat-lbl">Sotilmay qolgan</div><div class="sp-det-stat-val">&#x1F4A4; ${mzMap[s.name]} ta</div></div>`:"";
-        detH=`<div class="sp-det-stats">
+        detH=`<div class="sp-det-month">${P6_MONTHS[p6SelMonth]} oyiga tegishli ma'lumotlar</div><div class="sp-det-stats">
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">Tushum</div><div class="sp-det-stat-val">${revStr}</div></div>
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">Hissa</div><div class="sp-det-stat-val">${s.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">Tovarlar</div><div class="sp-det-stat-val">${s.cnt} ta <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
@@ -1584,8 +1584,8 @@ function renderP6(){
 ${mzTxt}
 </div>`;
         if(s.top&&s.top.length){
-          const topH=s.top.map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:14px">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div>`;
+          const topH=s.top.slice(0,3).map((t,ti)=>`<div class="sp-top-item"><div class="sp-top-left"><span class="sp-top-rank">${ti+1}</span><div><div class="sp-top-name" title="${esc(t.name)}">${esc(t.name)}</div><div class="sp-top-rev">${t.rev>=1e6?Math.round(t.rev/1e6)+" mln so'm":t.rev.toLocaleString()+" so'm"}</div></div></div><span class="p2-abc p2-abc-${t.abc}">${t.abc}</span></div>`).join("");
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 Top mahsulotlar</div><div class="sp-det-list">${topH}</div>`;
         }
       }else{
         detH=`<div class="sp-det-empty">${P6_MONTHS[p6SelMonth]} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.</div>`;
