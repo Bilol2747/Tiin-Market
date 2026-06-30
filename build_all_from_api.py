@@ -29,6 +29,7 @@ ROOT = Path(__file__).parent
 TASHKENT_OFFSET = timedelta(hours=5)
 SITE_WINDOW_DAYS = 60  # P1/P2/P3/kunlik talab/Zakas/Stock uchun - sayt og'ir/sekin bo'lib qolmasligi uchun cheklangan oyna
 SUPPLIER_CACHE_PATH = ROOT / "supplier_months_cache.json"
+SUPPLIER_CACHE_VERSION = 2
 
 
 def norm(value):
@@ -232,13 +233,16 @@ def load_supplier_cache():
     tushirilganda) bo'sh kesh qaytaradi - bootstrap main()da amalga oshadi."""
     if SUPPLIER_CACHE_PATH.exists():
         try:
-            return json.loads(SUPPLIER_CACHE_PATH.read_text(encoding="utf-8"))
+            cache = json.loads(SUPPLIER_CACHE_PATH.read_text(encoding="utf-8"))
+            if cache.get("version") == SUPPLIER_CACHE_VERSION:
+                return cache
         except (json.JSONDecodeError, OSError):
             pass
-    return {"open_month": None, "months": {}}
+    return {"version": SUPPLIER_CACHE_VERSION, "open_month": None, "months": {}}
 
 
 def save_supplier_cache(cache):
+    cache["version"] = SUPPLIER_CACHE_VERSION
     SUPPLIER_CACHE_PATH.write_text(
         json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
     )
