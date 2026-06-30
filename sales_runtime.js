@@ -68,6 +68,8 @@ const I18N={
   sp_stat_cheklar:{uz:"Cheklar",en:"Receipts",ru:"Чеки"},
   sp_stat_sotilmay:{uz:"Sotilmay qolgan",en:"Unsold",ru:"Не продано"},
   sp_all_products:{uz:"Barcha tovarlar ({n} ta)",en:"All products ({n})",ru:"Все товары ({n})"},
+  sp_month_calc:{uz:"{month} bo'yicha hisob",en:"Calculated for {month}",ru:"Расчет за {month}"},
+  sp_month_select:{uz:"Hisob oyi",en:"Calculation month",ru:"Месяц расчета"},
   sp_prod_name:{uz:"Tovar nomi",en:"Product name",ru:"Название товара"},
   sp_prod_sku:{uz:"SKU",en:"SKU",ru:"SKU"},
   sp_prod_revenue:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
@@ -296,7 +298,7 @@ let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,
 let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
-let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null;
+let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth=null;
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
@@ -1526,16 +1528,11 @@ document.addEventListener("click",function(e){const b=document.getElementById("z
 // ─── P6 Supplier Tahlili ───
 function initP6(){
   if(!P6)return;
-  const d=P6;
-  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-  s("sp-n-a",d.abc_cnt.A.toLocaleString());
-  s("sp-n-b",d.abc_cnt.B.toLocaleString());
-  s("sp-n-c",d.abc_cnt.C.toLocaleString());
-  s("sp-n-all",d.sup_count.toLocaleString());
+  if(p6CardMonth==null)p6CardMonth=p6LatestMonthIndex();
   renderP6();
 }
 function p6SetFilter(f){
-  p6CurF=f;p6Page=1;p6SelI=null;
+  p6CurF=f;p6Page=1;p6SelI=null;p6SelMonth=null;
   document.querySelectorAll(".sp-ftab").forEach(b=>b.classList.toggle("active",b.dataset.f===f));
   document.querySelectorAll(".sp-card").forEach(c=>c.classList.remove("sp-selected"));
   if(f!=="all"){const el=document.getElementById("sp-card-"+f);if(el)el.classList.add("sp-selected");}
@@ -1560,8 +1557,8 @@ function p6Select(r){
   else{
     p6SelI=r;
     const s=P6.suppliers.find(x=>x.r===r);
-    let mi=null;
-    if(s&&s.months){for(let i=s.months.length-1;i>=0;i--){if(s.months[i]){mi=i;break;}}}
+    let mi=p6CardMonth;
+    if(!(s&&s.months&&s.months[mi])&&s&&s.months){for(let i=s.months.length-1;i>=0;i--){if(s.months[i]){mi=i;break;}}}
     p6SelMonth=mi;
   }
   renderP6();
@@ -1589,7 +1586,23 @@ function exportSuppliersCSV(){
 }
 const P6_MONTH_KEYS=["sp_mon_yan","sp_mon_fev","sp_mon_mar","sp_mon_apr","sp_mon_may","sp_mon_iyun"];
 function P6_MONTHS_NOW(){return P6_MONTH_KEYS.map(k=>t(k));}
+function p6LatestMonthIndex(){
+  if(!P6||!P6.suppliers)return P6_MONTH_KEYS.length-1;
+  for(let i=P6_MONTH_KEYS.length-1;i>=0;i--){
+    if(P6.suppliers.some(s=>s.months&&s.months[i]))return i;
+  }
+  return P6_MONTH_KEYS.length-1;
+}
+function p6MonthEntry(s){return s&&s.months&&p6CardMonth!=null?s.months[p6CardMonth]:null;}
+function p6MonthAbc(s){const me=p6MonthEntry(s);return me?me.abc:s.abc;}
+function p6MonthItems(){
+  return (P6&&P6.suppliers?P6.suppliers:[]).filter(s=>p6MonthEntry(s));
+}
+function p6SetCardMonth(mi){
+  p6CardMonth=mi;p6Page=1;p6SelI=null;p6SelMonth=null;renderP6();
+}
 function p6SelectMonth(r,mi){
+  p6CardMonth=mi;
   if(p6SelI===r&&p6SelMonth===mi){p6SelI=null;p6SelMonth=null;}
   else{p6SelI=r;p6SelMonth=mi;}
   renderP6();
@@ -1597,8 +1610,11 @@ function p6SelectMonth(r,mi){
 function renderP6(){
   if(!P6)return;
   ensureSupplierProductTableStyles();
-  let items=[...P6.suppliers];
-  if(p6CurF!=="all")items=items.filter(s=>s.abc===p6CurF);
+  if(p6CardMonth==null)p6CardMonth=p6LatestMonthIndex();
+  renderP6MonthControls();
+  renderP6Cards();
+  let items=p6MonthItems();
+  if(p6CurF!=="all")items=items.filter(s=>p6MonthAbc(s)===p6CurF);
   if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
   const cnt=document.getElementById("sp-cnt");if(cnt)cnt.textContent=items.length.toLocaleString()+" "+t("sp_cnt_suffix");
   const totalP=Math.max(1,Math.ceil(items.length/P6PS));
@@ -1665,8 +1681,33 @@ function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
   const st=document.createElement("style");
   st.id="sp-prod-table-style";
-  st.textContent=`.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
+  st.textContent=`.sp-month-tabs{display:flex;align-items:center;gap:6px;padding:0 24px 6px;flex-wrap:wrap}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494;margin-right:4px}.sp-month-tab{height:28px;padding:0 12px;border:1.5px solid #e0e0e0;border-radius:18px;background:#fff;color:#555;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}.sp-month-tab:hover{border-color:#1D9E75;color:#1D9E75}.sp-month-tab.active{background:#1D9E75;border-color:#1D9E75;color:#fff}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
   document.head.appendChild(st);
+}
+function renderP6MonthControls(){
+  let wrap=document.getElementById("sp-month-tabs");
+  if(!wrap){
+    wrap=document.createElement("div");
+    wrap.id="sp-month-tabs";
+    wrap.className="sp-month-tabs";
+    const tb=document.querySelector("#p6 .sp-toolbar");
+    if(tb&&tb.parentNode)tb.parentNode.insertBefore(wrap,tb);
+  }
+  const names=P6_MONTHS_NOW();
+  wrap.innerHTML=`<span class="sp-month-tabs-label">${t("sp_month_select")}:</span>`+
+    names.map((m,i)=>`<button class="sp-month-tab ${i===p6CardMonth?"active":""}" type="button" onclick="p6SetCardMonth(${i})">${m}</button>`).join("");
+}
+function renderP6Cards(){
+  const items=p6MonthItems();
+  const cnt={A:0,B:0,C:0};
+  items.forEach(s=>{const a=p6MonthAbc(s);if(cnt[a]!=null)cnt[a]++;});
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  s("sp-n-a",cnt.A.toLocaleString());
+  s("sp-n-b",cnt.B.toLocaleString());
+  s("sp-n-c",cnt.C.toLocaleString());
+  s("sp-n-all",items.length.toLocaleString());
+  const month=t(P6_MONTH_KEYS[p6CardMonth]||P6_MONTH_KEYS[p6LatestMonthIndex()]);
+  document.querySelectorAll("#p6 .sp-card-sub").forEach(el=>{el.textContent=t("sp_month_calc").replace("{month}",month);});
 }
 function renderP6Pag(totalP){
   const pag=document.getElementById("sp-pag");if(!pag)return;
