@@ -111,27 +111,35 @@ def fetch_and_sync_orders(client, token, start_date, end_date):
     return total_written
 
 
-def fetch_window(days, chunk_size=5000):
-    """Bazadan so'nggi N kunlik buyurtmalarni o'qiydi (build skriptlari uchun).
-
-    Katta hajmni bir so'rovda emas, kichik bo'laklarda o'qiydi - bitta katta
-    HTTP javobda tarmoq uzilib qolish xavfini kamaytirish uchun. Har bo'lak
-    tarmoq xatosida bir necha marta qayta uriniladi."""
+def fetch_range(start_date_iso, end_date_iso, chunk_size=5000):
+    """Bazadan [start_date_iso, end_date_iso) oralig'idagi buyurtmalarni o'qiydi
+    (aniq sana oralig'i bilan - bo'lib-bo'lib kichik so'rovlar uchun, masalan
+    bitta oy). Katta hajmni bir so'rovda emas, kichik bo'laklarda o'qiydi -
+    bitta katta HTTP javobda tarmoq uzilib qolish xavfini kamaytirish uchun.
+    Har bo'lak tarmoq xatosida bir necha marta qayta uriniladi."""
     client = get_client()
+    print(f"  Turso range: {start_date_iso}..{end_date_iso} o'qilmoqda", flush=True)
     ensure_schema(client)
-    end_date = date.today() + timedelta(days=1)
-    start_date = date.today() - timedelta(days=days)
+    print("  Turso schema tayyor, orderlar bo'laklab olinmoqda", flush=True)
     orders = []
-    offset = 0
+    last_create_time = None
+    last_id = None
     while True:
         last_error = None
         rs = None
         for attempt in range(1, 6):
             try:
+                params = [start_date_iso, end_date_iso]
+                cursor_filter = ""
+                if last_create_time is not None and last_id is not None:
+                    cursor_filter = "AND (create_time > ? OR (create_time = ? AND id > ?)) "
+                    params.extend([last_create_time, last_create_time, last_id])
+                params.append(chunk_size)
                 rs = client.execute(
                     "SELECT data FROM orders WHERE create_time >= ? AND create_time < ? "
-                    "ORDER BY create_time, id LIMIT ? OFFSET ?",
-                    [start_date.isoformat(), end_date.isoformat(), chunk_size, offset]
+                    + cursor_filter +
+                    "ORDER BY create_time, id LIMIT ?",
+                    params
                 )
                 break
             except Exception as exc:
@@ -143,11 +151,21 @@ def fetch_window(days, chunk_size=5000):
             raise last_error
         batch = [json.loads(row["data"]) for row in rs.rows]
         orders.extend(batch)
+        print(f"    {len(orders):,} ta order o'qildi", flush=True)
         if len(batch) < chunk_size:
             break
-        offset += chunk_size
+        last = batch[-1]
+        last_create_time = last.get("create_time") or last_create_time
+        last_id = str(last.get("id") or last_id or "")
     client.close()
     return orders
+
+
+def fetch_window(days, chunk_size=5000):
+    """Bazadan so'nggi N kunlik buyurtmalarni o'qiydi (build skriptlari uchun)."""
+    end_date = date.today() + timedelta(days=1)
+    start_date = date.today() - timedelta(days=days)
+    return fetch_range(start_date.isoformat(), end_date.isoformat(), chunk_size)
 
 
 def main():

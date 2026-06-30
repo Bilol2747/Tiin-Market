@@ -16,7 +16,7 @@ import json
 import re
 import shutil
 from collections import Counter, defaultdict
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from build_all import (
@@ -27,7 +27,8 @@ from build_sales_demand import api_records, safe_item_revenue, build as build_da
 
 ROOT = Path(__file__).parent
 TASHKENT_OFFSET = timedelta(hours=5)
-ACTIVE_WINDOW_DAYS = 180  # Stock: aktiv/noaktiv ajratish uchun chegara
+SITE_WINDOW_DAYS = 60  # P1/P2/P3/kunlik talab/Zakas/Stock uchun - sayt og'ir/sekin bo'lib qolmasligi uchun cheklangan oyna
+SUPPLIER_CACHE_PATH = ROOT / "supplier_months_cache.json"
 
 
 def norm(value):
@@ -175,14 +176,88 @@ def compute_last_sale_dates(orders):
     return last_sale
 
 
-def build(orders, products_path, html_path=None, last_sale_60=None):
+def compute_monthly_sku_stats(orders):
+    """Faqat Suppliers oylik ABC uchun YENGIL hisoblash: har bir buyurtma
+    itemini SKU + oy bo'yicha yig'adi (daromad + nechta chekda uchragani).
+    Og'ir kunlik/ulgurji pipeline (build_dailydata_improved) dan farqli -
+    hech qanday kunlik massiv saqlamaydi, shuning uchun butun ACTIVE_WINDOW_DAYS
+    (180 kun/6 oy) tarixini arzon tahlil qilish mumkin."""
+    month_rev = defaultdict(lambda: defaultdict(float))
+    month_rec = defaultdict(lambda: defaultdict(set))
+    month_name = {}
+    for order in orders:
+        if order.get("type") != "sale":
+            continue
+        sale_date = parse_local_date(order.get("create_time"))
+        if sale_date is None:
+            continue
+        month_key = f"{sale_date.year:04d}-{sale_date.month:02d}"
+        receipt_id = order.get("id") or ""
+        for it in order.get("items") or []:
+            qty = float(it.get("value") or 0)
+            if qty <= 0:
+                continue
+            sku = str(it.get("sku") or "").strip()
+            if not sku:
+                continue
+            month_rev[month_key][sku] += safe_item_revenue(it, qty)
+            if receipt_id:
+                month_rec[month_key][sku].add(receipt_id)
+            if sku not in month_name:
+                month_name[sku] = norm(it.get("product_name"))
+    month_rec_count = {mk: {sku: len(ids) for sku, ids in d.items()} for mk, d in month_rec.items()}
+    return month_rev, month_rec_count, month_name
+
+
+def month_bounds(month_key):
+    """'YYYY-MM' -> (boshlanish_sana, tugash_sana_exclusive) - date obyektlari."""
+    y, m = (int(x) for x in month_key.split("-"))
+    start = date(y, m, 1)
+    end = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
+    return start, end
+
+
+def compute_month_supplier_entries(month_key, orders, products):
+    """Berilgan oy uchun supplier -> entry xaritasini hisoblaydi. `orders`
+    boshqa oylarni ham o'z ichiga olishi mumkin - faqat `month_key`ga mos
+    natija qaytariladi."""
+    month_rev, month_rec, month_name = compute_monthly_sku_stats(orders)
+    monthly = build_supplier_months(month_rev, month_rec, month_name, products)
+    return {sup: months[month_key] for sup, months in monthly.items() if month_key in months}
+
+
+def load_supplier_cache():
+    """Yopiq (tugagan) oylar uchun bir martalik hisoblangan supplier ABC
+    natijalarini diskdan o'qiydi. Bo'sh bo'lsa (birinchi marta ishga
+    tushirilganda) bo'sh kesh qaytaradi - bootstrap main()da amalga oshadi."""
+    if SUPPLIER_CACHE_PATH.exists():
+        try:
+            return json.loads(SUPPLIER_CACHE_PATH.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {"open_month": None, "months": {}}
+
+
+def save_supplier_cache(cache):
+    SUPPLIER_CACHE_PATH.write_text(
+        json.dumps(cache, ensure_ascii=False, separators=(",", ":")), encoding="utf-8"
+    )
+
+
+def orders_for_month(orders, month_key):
+    return [order for order in orders if parse_local_date(order.get("create_time")) and
+            f"{parse_local_date(order.get('create_time')).year:04d}-{parse_local_date(order.get('create_time')).month:02d}" == month_key]
+
+
+def build(orders, products_path, html_path=None, last_sale_60=None, monthly=None, month_keys=None, products=None):
     if html_path is None:
         html_path = ROOT / "sales.html"
 
-    print(f"[1/6] Mahsulot katalogi o'qilmoqda: {Path(products_path).name}")
-    products_raw = json.loads(Path(products_path).read_text(encoding="utf-8"))
-    products = api_read_products(products_raw)
-    print(f"      {len(products):,} mahsulot")
+    if products is None:
+        print(f"[1/6] Mahsulot katalogi o'qilmoqda: {Path(products_path).name}")
+        products_raw = json.loads(Path(products_path).read_text(encoding="utf-8"))
+        products = api_read_products(products_raw)
+        print(f"      {len(products):,} mahsulot")
 
     print(f"[2/6] Sotuvlar tahlil qilinmoqda: {len(orders):,} ta buyurtma (Turso'dan)")
     receipts, pnames, pskus, pcats, refund_total, refund_by_day, min_d, max_d = api_read_sales(orders)
@@ -205,13 +280,11 @@ def build(orders, products_path, html_path=None, last_sale_60=None):
             if ld60:
                 iv["ld60"] = ld60.isoformat()
                 matched += 1
-        print(f"      {matched:,} mahsulotga {ACTIVE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi qo'shildi")
+        print(f"      {matched:,} mahsulotga {SITE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi qo'shildi")
     p2data = build_p2data(receipts, pnames, pskus, dailydata, products, min_d, max_d)
     p3data = build_p3data(p2data, dailydata, max_d)
     p1data = build_p1data(receipts, pnames, pskus, pcats, refund_total, refund_by_day, p2data, products, min_d, max_d)
     p1data["builtAt"] = (datetime.utcnow() + TASHKENT_OFFSET).strftime("%H:%M, %d/%m/%Y")
-    monthly = build_supplier_months(dailydata, pskus, products, pnames)
-    month_keys = [f"{max_d.year:04d}-{m:02d}" for m in range(1, 7)]  # Yan..Iyun (frontend P6_MONTH_KEYS bilan mos)
     supplierdata = build_supplierdata(p2data, products, monthly=monthly, month_keys=month_keys)
     a_count = sum(1 for i in p2data if i["abc"] == "A")
     b_count = sum(1 for i in p2data if i["abc"] == "B")
@@ -257,15 +330,62 @@ def main():
     parser.add_argument("--output", default="sales.html")
     args = parser.parse_args()
 
-    from turso_sync import fetch_window
-    print(f"[0/6] Turso bazasidan so'nggi {ACTIVE_WINDOW_DAYS} kunlik buyurtmalar o'qilmoqda...")
-    orders = fetch_window(ACTIVE_WINDOW_DAYS)
+    from turso_sync import fetch_window, fetch_range
+
+    products_raw = json.loads((ROOT / args.products).read_text(encoding="utf-8"))
+    products = api_read_products(products_raw)
+
+    today = date.today()
+    current_month_key = f"{today.year:04d}-{today.month:02d}"
+
+    print(f"[0/6] Turso bazasidan so'nggi {SITE_WINDOW_DAYS} kunlik buyurtmalar o'qilmoqda...")
+    orders = fetch_window(SITE_WINDOW_DAYS)
     print(f"      {len(orders):,} ta buyurtma olindi")
 
     last_sale_60 = compute_last_sale_dates(orders)
-    print(f"      {len(last_sale_60):,} mahsulot uchun {ACTIVE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi hisoblandi")
+    print(f"      {len(last_sale_60):,} mahsulot uchun {SITE_WINDOW_DAYS} kunlik oxirgi sotuv sanasi hisoblandi")
 
-    result = build(orders, ROOT / args.products, ROOT / args.output, last_sale_60=last_sale_60)
+    # Suppliers oylik ABC: yopiq oylar bir martalik hisoblanib keshda saqlanadi,
+    # har safar Turso'dan qayta yuklanmaydi - faqat joriy ochiq oy va (oy
+    # almashganda) yangi yopilgan oy uchun alohida, kichik so'rov yuboriladi.
+    cache = load_supplier_cache()
+    closed_months = [f"{today.year:04d}-{m:02d}" for m in range(1, today.month)]
+    missing_closed_months = [mk for mk in closed_months if mk not in cache.get("months", {})]
+    if missing_closed_months:
+        print("[0.5/6] Suppliers tarixiy keshida yetishmagan yopiq oylar yuklanmoqda (bir martalik)...", flush=True)
+        for mk in missing_closed_months:
+            month_orders = orders_for_month(orders, mk)
+            if month_orders:
+                print(f"      {mk}: joriy 60 kunlik oynadan {len(month_orders):,} ta buyurtma olindi", flush=True)
+            else:
+                mstart, mend = month_bounds(mk)
+                print(f"      {mk}: Turso'dan {mstart.isoformat()}..{mend.isoformat()} oralig'i o'qilmoqda...", flush=True)
+                month_orders = fetch_range(mstart.isoformat(), mend.isoformat())
+            cache["months"][mk] = compute_month_supplier_entries(mk, month_orders, products)
+            save_supplier_cache(cache)
+            print(f"      {mk}: {len(month_orders):,} ta buyurtma -> {len(cache['months'][mk])} ta supplier muzlatildi", flush=True)
+        cache["open_month"] = current_month_key
+        save_supplier_cache(cache)
+    elif cache.get("open_month") and cache["open_month"] != current_month_key:
+        old_mk = cache["open_month"]
+        print(f"[0.5/6] Oy almashdi - {old_mk} yakuniy hisoblanib keshga muzlatilmoqda...", flush=True)
+        mstart, mend = month_bounds(old_mk)
+        month_orders = fetch_range(mstart.isoformat(), mend.isoformat())
+        cache["months"][old_mk] = compute_month_supplier_entries(old_mk, month_orders, products)
+        cache["open_month"] = current_month_key
+        save_supplier_cache(cache)
+
+    current_entries = compute_month_supplier_entries(current_month_key, orders, products)
+    monthly = defaultdict(dict)
+    for mk, entries in cache.get("months", {}).items():
+        for supplier, entry in entries.items():
+            monthly[supplier][mk] = entry
+    for supplier, entry in current_entries.items():
+        monthly[supplier][current_month_key] = entry
+    month_keys = [f"{today.year:04d}-{m:02d}" for m in range(1, 7)]  # Yan..Iyun (frontend P6_MONTH_KEYS bilan mos)
+
+    result = build(orders, ROOT / args.products, ROOT / args.output, last_sale_60=last_sale_60,
+                    monthly=monthly, month_keys=month_keys, products=products)
 
     print(f"\n{'='*40}")
     print(f"  TAYYOR! {result['period']}")

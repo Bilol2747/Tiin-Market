@@ -610,53 +610,38 @@ def build_p3data(p2data, daily_data, max_d):
 
 
 # ─── suppliers (P6) oylik ma'lumotlari ───
-def build_supplier_months(daily_data, pskus, products, pnames):
-    """Har bir oy uchun ALOHIDA: o'sha oyning kunlik daromadlarini (dailydata
-    ichidagi 'rev' massivi) mahsulot -> supplier bo'yicha yig'ib, supplierlarni
-    o'sha oyning daromadi bo'yicha qayta saralab ABC (80/15/5) belgilaydi.
-    Natija: {supplier_nomi: {"YYYY-MM": {rev, rp, abc, cnt, abc_cnt, top}}}."""
-    items_d = daily_data["items"]
-    labels = daily_data["__meta__"]["labels"]
-
-    month_item_rev = defaultdict(lambda: defaultdict(float))
-    month_item_rec = defaultdict(lambda: defaultdict(int))
-    for pk, it in items_d.items():
-        rev_d = it.get("rev")
-        rec_d = it.get("r")
-        if not rev_d:
-            continue
-        for d, rev in enumerate(rev_d):
-            month_key = labels[d][:7]
-            if rev:
-                month_item_rev[month_key][pk] += rev
-            if rec_d and rec_d[d]:
-                month_item_rec[month_key][pk] += rec_d[d]
-
+def build_supplier_months(month_rev, month_rec, month_name, products):
+    """Har bir oy uchun ALOHIDA: o'sha oyning SKU bo'yicha daromadini (yengil,
+    to'g'ridan-to'g'ri buyurtmalardan hisoblangan - og'ir kunlik/ulgurji
+    pipeline'ga bog'liq emas) supplierga yig'ib, supplierlarni o'sha oyning
+    daromadi bo'yicha qayta saralab ABC (80/15/5) belgilaydi. Bu orqali asosiy
+    sahifalar (P1/P2/P3/kunlik/Zakas) qisqaroq oynada qolib, faqat Suppliers
+    bo'limi butun tarixni (masalan 180 kun) ko'rib chiqishi mumkin.
+    Natija: {supplier_nomi: {"YYYY-MM": {rev, rp, abc, cnt, rec, abc_cnt, top}}}."""
     result = defaultdict(dict)
-    for month_key, item_rev in month_item_rev.items():
-        month_total = sum(item_rev.values()) or 1
-        sorted_pks = sorted(item_rev, key=lambda k: -item_rev[k])
+    for month_key, sku_rev in month_rev.items():
+        month_total = sum(sku_rev.values()) or 1
+        sorted_skus = sorted(sku_rev, key=lambda k: -sku_rev[k])
         cum = 0.0
-        pk_abc = {}
-        for pk in sorted_pks:
-            cum += item_rev[pk]
+        sku_abc = {}
+        for sku in sorted_skus:
+            cum += sku_rev[sku]
             pct = cum / month_total
-            pk_abc[pk] = "A" if pct <= 0.80 else ("B" if pct <= 0.95 else "C")
+            sku_abc[sku] = "A" if pct <= 0.80 else ("B" if pct <= 0.95 else "C")
 
-        rec_for_month = month_item_rec.get(month_key, {})
+        rec_for_month = month_rec.get(month_key, {})
         sup_rev = defaultdict(float)
         sup_rec = defaultdict(int)
         sup_cnt = defaultdict(int)
         sup_abc_cnt = defaultdict(lambda: {"A": 0, "B": 0, "C": 0})
         sup_items = defaultdict(list)
-        for pk, rev in item_rev.items():
-            sku = pskus.get(pk, "")
+        for sku, rev in sku_rev.items():
             supplier = products.get(sku, {}).get("su") or "Noma'lum"
             sup_rev[supplier] += rev
-            sup_rec[supplier] += rec_for_month.get(pk, 0)
+            sup_rec[supplier] += rec_for_month.get(sku, 0)
             sup_cnt[supplier] += 1
-            sup_abc_cnt[supplier][pk_abc[pk]] += 1
-            sup_items[supplier].append((pk, rev))
+            sup_abc_cnt[supplier][sku_abc[sku]] += 1
+            sup_items[supplier].append((sku, rev))
 
         total_rev = sum(sup_rev.values()) or 1
         sorted_sups = sorted(sup_rev, key=lambda n: -sup_rev[n])
@@ -674,9 +659,9 @@ def build_supplier_months(daily_data, pskus, products, pnames):
                 "rec": sup_rec[supplier],
                 "abc_cnt": sup_abc_cnt[supplier],
                 "top": [
-                    {"name": pnames[pk].most_common(1)[0][0], "rev": round(rev),
-                     "abc": pk_abc[pk], "sku": pskus.get(pk, "")}
-                    for pk, rev in top_items
+                    {"name": month_name.get(sku, sku), "rev": round(rev),
+                     "abc": sku_abc[sku], "sku": sku}
+                    for sku, rev in top_items
                 ],
             }
     return result
