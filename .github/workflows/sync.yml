@@ -4,6 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - ".github/workflows/sync.yml"
+      - "build_all.py"
+      - "build_all_from_api.py"
+      - "fetch_api_data.py"
+      - "turso_sync.py"
+      - "api_raw_products.json"
+      - "arrival_data.json"
+      - "supplier_months_cache.json"
   schedule:
     - cron: "*/30 * * * *"
   workflow_dispatch:
