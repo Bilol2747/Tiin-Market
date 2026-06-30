@@ -1083,9 +1083,40 @@ const ab2=P1.abc||{};const at=(ab2.a_rev||0)+(ab2.b_rev||0)+(ab2.c_rev||0)||1;
 const ABC_LABELS={uz:["A - Lider","B - Potentsial","C - Aylanmada"],en:["A - Leader","B - Potential","C - Slow-moving"],ru:["A - Лидер","B - Потенциал","C - Медленный"]};
 _p1c.abc=new Chart(document.getElementById("abcChart"),{type:"doughnut",data:{labels:ABC_LABELS[LANG]||ABC_LABELS.uz,datasets:[{data:[(ab2.a_rev||0)/at*100,(ab2.b_rev||0)/at*100,(ab2.c_rev||0)/at*100],backgroundColor:["#1D9E75","#EF9F27","#E24B4A"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"58%",plugins:{legend:{position:"right",labels:{font:{size:10},boxWidth:10,padding:8}},tooltip:{callbacks:{label:c=>c.label+": "+c.parsed.toFixed(1)+"%"}}}}});
 }
+function extractBuiltAt(html){
+  const m=String(html||"").match(/"builtAt"\s*:\s*"([^"]+)"/);
+  return m?m[1]:"";
+}
+function startFreshBuildWatcher(){
+  const cur=(typeof P1FULL!=="undefined"&&P1FULL&&P1FULL.builtAt)||"";
+  if(!cur||!window.fetch||window.__tiinBuildWatcher)return;
+  window.__tiinBuildWatcher=true;
+  let checking=false;
+  const check=async()=>{
+    if(checking||document.hidden)return;
+    checking=true;
+    try{
+      const url=new URL(window.location.href);
+      url.searchParams.set("_check",Date.now().toString());
+      const res=await fetch(url.toString(),{cache:"no-store"});
+      const latest=extractBuiltAt(await res.text());
+      if(latest&&latest!==cur){
+        const next=new URL(window.location.href);
+        next.searchParams.delete("_check");
+        next.searchParams.set("_v",Date.now().toString());
+        window.location.replace(next.toString());
+      }
+    }catch(_){}
+    checking=false;
+  };
+  setTimeout(check,30000);
+  setInterval(check,5*60*1000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden)check();});
+}
 document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
 applyI18n();
 renderP1();
+startFreshBuildWatcher();
 curPageId="p1";if(P1FULL&&P1FULL.days>1)_applyPageRange("p1");  // har bo'lim o'z standart oralig'i: Bosh sahifa 7 kun, qolganlari 30 kun
 // ── Sana oralig'i (date-range) ──
 function dtToggle(e){if(e)e.stopPropagation();const p=document.getElementById("dt-pop");if(p)p.classList.toggle("open");}
