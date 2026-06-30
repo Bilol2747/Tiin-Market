@@ -174,6 +174,8 @@ def main():
                          help="Baza bo'sh bo'lsa, necha kunlik tarixni boshlang'ich yuklash")
     parser.add_argument("--overlap-hours", type=int, default=2,
                          help="Oxirgi sinxronizatsiyadan necha soat oldin qaytadan tekshirish")
+    parser.add_argument("--overlap-days", type=int, default=7,
+                         help="Har safar oxirgi necha kunni qayta tekshirib, tushmay qolgan orderlarni to'ldirish")
     args = parser.parse_args()
 
     token = load_token()
@@ -183,13 +185,16 @@ def main():
     last_ct = latest_create_time(client)
     if last_ct:
         last_dt = datetime.fromisoformat(last_ct.replace("Z", "+00:00"))
-        start_date = (last_dt - timedelta(hours=args.overlap_hours)).date()
-        print(f"Bazada mavjud, oxirgi yozuv: {last_ct}. {start_date} dan boshlab tekshiramiz.")
+        recent_start = date.today() - timedelta(days=args.overlap_days)
+        incremental_start = (last_dt - timedelta(hours=args.overlap_hours)).date()
+        start_date = min(incremental_start, recent_start)
+        print(f"Bazada mavjud, oxirgi yozuv: {last_ct}. {start_date} dan boshlab tekshiramiz "
+              f"(oxirgi {args.overlap_days} kun qayta tekshiriladi).")
     else:
         start_date = date.today() - timedelta(days=args.bootstrap_days)
         print(f"Baza bo'sh, boshlang'ich yuklash: {start_date} dan bugungacha.")
 
-    end_date = date.today()
+    end_date = date.today() + timedelta(days=1)
     print(f"Invan API'dan yuklanmoqda: {start_date} -- {end_date}")
     for attempt in range(1, 4):
         try:
