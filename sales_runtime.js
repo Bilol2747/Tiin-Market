@@ -239,6 +239,9 @@ const I18N={
   p7_sub:{uz:"Yetkazib beruvchi bo'yicha tavsiya etilgan buyurtma ro'yxati — Stock signallaridan avtomatik yangilanadi",en:"Recommended order list by supplier — updates automatically from Stock signals",ru:"Рекомендуемый список заказа по поставщикам — обновляется автоматически из сигналов склада"},
   zk_sum_sup:{uz:"yetkazib beruvchi",en:"suppliers",ru:"поставщиков"},
   zk_back_list:{uz:"Ortga",en:"Back",ru:"Назад"},
+  zk_sl_nom:{uz:"Nom",en:"Name",ru:"Название"},
+  zk_sl_zakas:{uz:"Zakas",en:"Orders",ru:"Заказ"},
+  zk_sl_jami:{uz:"Jami",en:"Total",ru:"Всего"},
   zk_sum_items:{uz:"tovar",en:"products",ru:"товаров"},
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
   zk_search_ph:{uz:"Mahsulot, SKU yoki yetkazib beruvchi qidirish...",en:"Search product, SKU or supplier...",ru:"Поиск товара, SKU или поставщика..."},
@@ -445,7 +448,7 @@ function _renderZkSupList(allSups){
   const body=document.getElementById("zk-body");if(!body)return;
   if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
   const sa=(k)=>k===zkSlSort?(zkSlAsc?'▲':'▼'):'<span style="color:#ddd">▼</span>';
-  let h=`<div class="zk-sl"><div class="zk-sl-hdr"><span class="zk-sl-name zk-sl-th" onclick="zkSlSetSort('sup')">Nom ${sa('sup')}</span><span class="zk-sl-need zk-sl-th" onclick="zkSlSetSort('needCount')">Zakas ${sa('needCount')}</span><span class="zk-sl-total zk-sl-th" onclick="zkSlSetSort('total')">Jami ${sa('total')}</span><span class="zk-sl-arr"></span></div>`;
+  let h=`<div class="zk-sl"><div class="zk-sl-hdr"><span class="zk-sl-name zk-sl-th" onclick="zkSlSetSort('sup')">${t('zk_sl_nom')} ${sa('sup')}</span><span class="zk-sl-need zk-sl-th" onclick="zkSlSetSort('needCount')">${t('zk_sl_zakas')} ${sa('needCount')}</span><span class="zk-sl-total zk-sl-th" onclick="zkSlSetSort('total')">${t('zk_sl_jami')} ${sa('total')}</span><span class="zk-sl-arr"></span></div>`;
   lst.forEach(s=>{
     const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
     const sel=s.sup===zkLastSup?' zk-sl-sel':'';
