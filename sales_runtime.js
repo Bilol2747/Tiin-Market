@@ -60,6 +60,7 @@ const I18N={
   sp_excel_btn:{uz:"Excel",en:"Excel",ru:"Excel"},
   sp_cnt_suffix:{uz:"ta supplier",en:"suppliers",ru:"поставщиков"},
   sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
+  sp_back_sup:{uz:"← Poставщиклар",en:"← Suppliers",ru:"← Поставщики"},
   sp_det_month:{uz:"{month} oyiga tegishli ma'lumotlar",en:"Data for {month}",ru:"Данные за {month}"},
   sp_det_empty:{uz:"{month} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.",en:"Data for {month} hasn't loaded yet — it will appear here once the historical data finishes loading.",ru:"Данные за {month} ещё не загружены — появятся здесь после полной загрузки исторических данных."},
   sp_stat_tushum:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
@@ -1753,12 +1754,35 @@ ${mzTxt}
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
       }
-      h+=`<tr class="sp-det-row"><td colspan="8"><div class="sp-det-wrap">${detH}</div></td></tr>`;
+      _p6ShowOverlay(s.name,detH);
     }
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
+  if(p6SelI===null){const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";}
   renderP6Pag(totalP);
+}
+function p6CloseOverlay(){
+  const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
+  p6SelI=null;p6SelMonth=null;renderP6();
+}
+function _p6ShowOverlay(name,detH){
+  const p6el=document.getElementById("p6");if(!p6el)return;
+  p6el.style.position="relative";
+  let ov=document.getElementById("sp-fullscreen");
+  if(!ov){ov=document.createElement("div");ov.id="sp-fullscreen";
+    ov.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:15;overflow-y:auto;padding:0 24px 60px";
+    p6el.appendChild(ov);}
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px">
+    <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      ${t("sp_back_sup")}
+    </button>
+    <span style="font-size:16px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
+  </div>
+  <div class="sp-det-wrap" style="max-width:100%!important;margin:0">${detH}</div>`;
+  ov.style.display="block";
+  ov.scrollTop=0;
 }
 function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
