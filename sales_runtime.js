@@ -360,7 +360,7 @@ function _zkBuildSuppliers(){
       // lekin tovar tekshirish uchun ro'yxatda ko'rinishda qoladi.
       const daysLeft=v.daysLeft!=null?v.daysLeft:0;
       const zakasDays=Math.max(0,target-daysLeft)+adj;
-      let orderQty=v.dailyAvg*zakasDays;
+      let orderQty=stock<0?v.dailyAvg*adj:v.dailyAvg*zakasDays;
       orderQty=v.kg?Math.round(orderQty*100)/100:Math.ceil(orderQty);
       let minAdd=0;
       if(!v.kg&&orderQty>0&&orderQty<ZK_MIN_ORDER){minAdd=ZK_MIN_ORDER-orderQty;orderQty=ZK_MIN_ORDER;}
