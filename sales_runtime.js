@@ -489,7 +489,7 @@ function _renderZkSupList(allSups){
     const alt=i%2===1?' zk-sl-alt':'';
     const conf=zkIsConfirmed(s.sup);
     const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" title="${conf?t('zk_confirm_btn'):''}"></span>`;
-    h+=`<div class="zk-sl-row${sel}${alt}" onclick="zkOpenSupplier(${supJ})">${dot}<span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
+    h+=`<div class="zk-sl-row${sel}${alt}">${dot}<span class="zk-sl-name zk-sl-clickable" onclick="zkOpenSupplier(${supJ})">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}" onclick="zkOpenSupplier(${supJ})">›</span></div>`;
   });
   if(noNeed.length){
     h+=`<div class="zk-sl-sep">${t("zk_no_need_sep")} (${noNeed.length})</div>`;
@@ -499,7 +499,7 @@ function _renderZkSupList(allSups){
       const alt=i%2===1?' zk-sl-alt':'';
       const conf=zkIsConfirmed(s.sup);
       const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" title="${conf?t('zk_confirm_btn'):''}"></span>`;
-      h+=`<div class="zk-sl-row zk-sl-dim${sel}${alt}" onclick="zkOpenSupplier(${supJ})">${dot}<span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need" style="color:#ccc">—</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
+      h+=`<div class="zk-sl-row zk-sl-dim${sel}${alt}">${dot}<span class="zk-sl-name zk-sl-clickable" onclick="zkOpenSupplier(${supJ})">${esc(s.sup)}</span><span class="zk-sl-need" style="color:#ccc">—</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}" onclick="zkOpenSupplier(${supJ})">›</span></div>`;
     });
   }
   h+="</div>";
