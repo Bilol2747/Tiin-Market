@@ -302,7 +302,7 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
-let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1;
+let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5";
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -516,7 +516,7 @@ function renderZakas(){
       const oqTxt=r.orderQty.toLocaleString()+" "+u;
       const minAddTxt=r.minAdd>0?`<span class="zk-minadd" title="${t("zk_minadd_hint")}">+${r.minAdd}</span> `:"";
       const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
-      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right">${minAddTxt}<span class="zk-oq">${oqTxt}</span></td></tr>`;
+      h+=`<tr ondblclick="zkOpenProduct(${r._ri})" style="cursor:pointer" title="Ikki marta bosing — grafik ko'rish"><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right">${minAddTxt}<span class="zk-oq">${oqTxt}</span></td></tr>`;
     });
     h+=`</tbody></table></div></div>`;
   });
@@ -706,8 +706,24 @@ async function zToProduct(zi){
 }
 function zBack(){
   const bb=document.getElementById("z-back");if(bb)bb.style.display="none";
-  const zbtn=document.querySelector('.sb-item[data-page="p5"]');
+  const dest=_zBackPage||"p5";_zBackPage="p5";
+  const zbtn=document.querySelector(`.sb-item[data-page="${dest}"]`);
   if(zbtn)showPage(zbtn);
+}
+async function zkOpenProduct(ri){
+  const r=_ZK_ALLROWS[ri];if(!r)return;
+  _zBackPage="p7";
+  const p2btn=document.querySelector('.sb-item[data-page="p2"]');
+  if(p2btn)await showPage(p2btn);
+  if(!P2)return;
+  let idx=-1;
+  if(r.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(r.sku));
+  if(idx<0)idx=P2.findIndex(v=>v.name===r.name);
+  const pq=document.getElementById("pf-q");
+  if(pq){pq.value=idx>=0?P2[idx].name:r.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
+  if(idx>=0&&typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
+  const bb=document.getElementById("z-back");
+  if(bb){bb.style.display="inline-flex";const lbl=bb.querySelector("span,b");if(lbl)lbl.textContent=t("zak_back")||"← Заказ";}
 }
 function p5Back(){
   const bb=document.getElementById("p5-back");if(bb)bb.style.display="none";
