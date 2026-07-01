@@ -304,7 +304,7 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
-let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5";
+let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -316,6 +316,17 @@ function _zkPriceOf(v){
   if(!_zkPmap){_zkPmap={};P2.forEach(x=>{if(x.sku)_zkPmap["s:"+x.sku]=x.p||0;_zkPmap["n:"+x.name]=x.p||0;});}
   const k=_zkRowKey(v);
   return _zkPmap[k]!=null?_zkPmap[k]:0;
+}
+function _zkTh(lbl,k,align){
+  const a=align||"right";const act=zkSortKey===k;
+  const ar=act?(zkSortAsc?"↑":"↓"):"↕";
+  return `<th onclick="zkSort('${k}')" style="cursor:pointer;text-align:${a};user-select:none;white-space:nowrap">${lbl}<span style="margin-left:2px;color:${act?"#534AB7":"#ccc"};font-size:9px">${ar}</span></th>`;
+}
+function zkSort(k){
+  if(zkSortKey===k)zkSortAsc=!zkSortAsc;
+  else{zkSortKey=k;zkSortAsc=k==="name"||k==="abc";}
+  zkRowOrder={};
+  renderZakas();
 }
 // Bir supplierning ISTALGAN tovari kritik/urgent bo'lsa - shu supplierning BARCHA tovarlari
 // (dailyAvg>0 bo'lganlari) zakas ro'yxatiga tushadi, bir xil "maqsadli kun"ga moslab -
@@ -348,7 +359,14 @@ function _zkBuildSuppliers(){
       if(!v.kg&&orderQty>0&&orderQty<ZK_MIN_ORDER){minAdd=ZK_MIN_ORDER-orderQty;orderQty=ZK_MIN_ORDER;}
       const manualQty=zkRowQty[key];if(manualQty!=null){orderQty=manualQty;minAdd=0;}
       return {key,name:v.name,sku:v.sku,abc:v.abc,cat:v.cat,kg:v.kg,stock,dailyAvg:v.dailyAvg,daysLeft:v.daysLeft,adj,zakasDays,orderQty,minAdd,signal:v.signal,price:_zkPriceOf(v)};
-    }).sort((a,b)=>b.orderQty-a.orderQty);
+    }).sort((a,b)=>{
+      const ord=zkRowOrder[sup];if(ord){const ia=ord.indexOf(a.key),ib=ord.indexOf(b.key);return(ia>=0?ia:9999)-(ib>=0?ib:9999);}
+      const k=zkSortKey||"orderQty";let va=a[k],vb=b[k];
+      if(k==="name"){va=va||"";vb=vb||"";return zkSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
+      if(k==="abc"){const o={A:0,B:1,C:2};va=o[va]??3;vb=o[vb]??3;return zkSortAsc?va-vb:vb-va;}
+      va=va??0;vb=vb??0;return zkSortAsc?va-vb:vb-va;
+    });
+    if(!zkRowOrder[sup])zkRowOrder[sup]=rows.map(r=>r.key);
     const qtyDona=rows.filter(r=>!r.kg).reduce((s,r)=>s+r.orderQty,0);
     const qtyKg=rows.filter(r=>r.kg).reduce((s,r)=>s+r.orderQty,0);
     const valTotal=rows.reduce((s,r)=>s+r.orderQty*(r.price||0),0);
@@ -464,6 +482,7 @@ function zkSetTarget(si,val){
   const s=_ZK_SUPPLIERS[si];if(!s)return;
   let v=parseInt(val);if(isNaN(v)||v<0)v=ZK_DEFAULT_TARGET;
   s.rows.forEach(r=>{delete zkRowQty[r.key];});
+  delete zkRowOrder[s.sup];
   zkSupTargets[s.sup]=v;
   renderZakas();
 }
@@ -511,7 +530,7 @@ function renderZakas(){
     const showAll=!!zkSupShowAll[s.sup]||needCount===0;
     const visRows=showAll?s.rows:s.rows.filter(r=>r.orderQty>0);
     const needBadge=`<span class="zk-needbadge" onclick="zkToggleSupShowAll(${s._si})"><b>${needCount}</b> ${t("zk_need_label")} &nbsp;·&nbsp; ${showAll?t("zk_show_need_only"):t("zk_show_all_n").replace("{n}",s.rows.length)}</span>`;
-    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"><span>${esc(s.sup)}</span></span><span class="zk-sup-meta">${needBadge} &nbsp;·&nbsp; ${t("zk_total_label")} <b>${totTxt||"0"}</b><span class="zk-target-edit">${t("zk_target_label")} <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><colgroup><col style="width:4%"><col style="width:4%"><col style="width:31%"><col style="width:5%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:7%"><col style="width:11%"></colgroup><thead><tr><th style="text-align:center"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"></th><th>#</th><th>${t("zk_col_product")}</th><th style="text-align:center">ABC</th><th style="text-align:right">${t("zk_col_stock")}</th><th style="text-align:right">${t("zk_col_daily")}</th><th style="text-align:right">${t("zk_col_days_left")}</th><th style="text-align:right">${t("zk_col_extra_days")}</th><th style="text-align:center">${t("zk_col_status")}</th><th style="text-align:right">${t("zk_col_order")}</th></tr></thead><tbody>`;
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"><span>${esc(s.sup)}</span></span><span class="zk-sup-meta">${needBadge} &nbsp;·&nbsp; ${t("zk_total_label")} <b>${totTxt||"0"}</b><span class="zk-target-edit">${t("zk_target_label")} <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><colgroup><col style="width:4%"><col style="width:4%"><col style="width:31%"><col style="width:5%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:7%"><col style="width:11%"></colgroup><thead><tr><th style="text-align:center"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"></th><th>#</th>${_zkTh(t("zk_col_product"),"name","left")}${_zkTh("ABC","abc","center")}${_zkTh(t("zk_col_stock"),"stock")}${_zkTh(t("zk_col_daily"),"dailyAvg")}${_zkTh(t("zk_col_days_left"),"daysLeft")}<th style="text-align:right">${t("zk_col_extra_days")}</th><th style="text-align:center">${t("zk_col_status")}</th>${_zkTh(t("zk_col_order"),"orderQty")}</tr></thead><tbody>`;
     if(!visRows.length){
       h+=`<tr><td colspan="10" style="text-align:center;color:#bbb;padding:18px;font-size:12px">${t("zk_no_need_rows")}</td></tr>`;
     }
@@ -527,7 +546,9 @@ function renderZakas(){
     });
     h+=`</tbody></table></div></div>`;
   });
+  const _prevWrap=body.querySelector(".zk-tbl-wrap");const _prevST=_prevWrap?_prevWrap.scrollTop:0;
   body.innerHTML=h;
+  if(_prevST>0){const nw=body.querySelector(".zk-tbl-wrap");if(nw)nw.scrollTop=_prevST;}
   body.querySelectorAll('.zk-sup-chk[data-indet="1"]').forEach(el=>{el.indeterminate=true;});
   renderZakasPag(totalSups);
 }
