@@ -234,10 +234,11 @@ const I18N={
   z_th_signal:{uz:"Signal",en:"Signal",ru:"Сигнал"},
   yuklanmoqda:{uz:"Yuklanmoqda...",en:"Loading...",ru:"Загрузка..."},
   // Zakas (p7)
-  nav_p7:{uz:"Zakas",en:"Orders",ru:"Заказ"},
-  p7_title:{uz:"Zakas",en:"Orders",ru:"Заказ"},
+  nav_p7:{uz:"Buyurtma",en:"Orders",ru:"Заказ"},
+  p7_title:{uz:"Buyurtma",en:"Orders",ru:"Заказ"},
   p7_sub:{uz:"Yetkazib beruvchi bo'yicha tavsiya etilgan buyurtma ro'yxati — Stock signallaridan avtomatik yangilanadi",en:"Recommended order list by supplier — updates automatically from Stock signals",ru:"Рекомендуемый список заказа по поставщикам — обновляется автоматически из сигналов склада"},
   zk_sum_sup:{uz:"yetkazib beruvchi",en:"suppliers",ru:"поставщиков"},
+  zk_back_list:{uz:"Ortga",en:"Back",ru:"Назад"},
   zk_sum_items:{uz:"tovar",en:"products",ru:"товаров"},
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
   zk_search_ph:{uz:"Mahsulot, SKU yoki yetkazib beruvchi qidirish...",en:"Search product, SKU or supplier...",ru:"Поиск товара, SKU или поставщика..."},
@@ -311,7 +312,7 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
-let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
+let zkQuery="",zkSupFilter="",zkMode="list",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -400,7 +401,7 @@ function _zkBuildSuppliers(){
 }
 function zkSearchInput(v){
   zkQuery=v.toLowerCase().trim();
-  zkSupFilter="";
+  if(zkMode!=="detail")zkSupFilter="";
   zkPage=1;
   const x=document.getElementById("zk-search-x");if(x)x.style.display=v?"flex":"none";
   _zkRenderSupDrop();
@@ -409,6 +410,7 @@ function zkSearchInput(v){
 function zkSearchFocus(){_zkRenderSupDrop();}
 function zkSearchClear(){
   const inp=document.getElementById("zk-search");if(inp)inp.value="";
+  if(zkMode==="detail"){zkBackToList();return;}
   zkQuery="";zkSupFilter="";zkPage=1;
   const x=document.getElementById("zk-search-x");if(x)x.style.display="none";
   const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
@@ -416,13 +418,34 @@ function zkSearchClear(){
   if(inp)inp.focus();
 }
 function zkPickSupplier(sup){
-  zkSupFilter=sup;zkQuery="";zkPage=1;
+  zkMode="detail";zkSupFilter=sup;zkQuery="";zkPage=1;
   const inp=document.getElementById("zk-search");if(inp)inp.value=sup;
   const x=document.getElementById("zk-search-x");if(x)x.style.display="flex";
   const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
   renderZakas();
 }
 function zkGo(p){zkPage=p;renderZakas();const body=document.getElementById("zk-body");if(body)body.scrollTop=0;}
+function zkOpenSupplier(sup){zkMode="detail";zkSupFilter=sup;zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
+function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
+function _renderZkSupList(allSups){
+  const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="none";
+  const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="none";
+  const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";
+  const lst=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(s=>s.needCount>0).sort((a,b)=>b.needCount-a.needCount);
+  const supCountEl=document.getElementById("zk-sup-count");
+  if(supCountEl)supCountEl.innerHTML=`<b>${lst.length}</b> ${t("zk_sum_sup")}`;
+  const body=document.getElementById("zk-body");if(!body)return;
+  if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
+  let h='<div class="zk-sl">';
+  lst.forEach((s,i)=>{
+    const totTxt=(s.qtyDona>0?s.qtyDona.toLocaleString()+" sht":"")+(s.qtyDona>0&&s.qtyKg>0?" · ":"")+(s.qtyKg>0?s.qtyKg.toFixed(1)+" кг":"");
+    const urgCnt=s.rows.filter(r=>r.orderQty>0&&(r.signal==="kritik"||r.signal==="urgent")).length;
+    const supJ=JSON.stringify(s.sup);
+    h+=`<div class="zk-sl-row" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-num">${i+1}</span><span class="zk-sl-name">${esc(s.sup)}</span>${urgCnt?`<span class="zk-sl-urg">${urgCnt} kritik</span>`:""}<span class="zk-sl-badge">${s.needCount} tovar</span><span class="zk-sl-qty">${totTxt}</span><span class="zk-sl-arr">›</span></div>`;
+  });
+  h+="</div>";
+  body.innerHTML=h;
+}
 function renderZakasPag(totalP){
   const pag=document.getElementById("zk-pag");if(!pag)return;
   if(totalP<=1){pag.innerHTML="";return;}
@@ -531,7 +554,10 @@ function renderZakas(){
   if(!ZITEMS){if(P2)_buildZItems();else return;}
   _zkInitResetBtn();
   _ZK_SUPPLIERS=_zkBuildSuppliers();
+  if(zkMode==="list"){_renderZkSupList(_ZK_SUPPLIERS);return;}
   _zkRenderQuickPanel();
+  const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="";
+  const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="";
   let sups=_ZK_SUPPLIERS;
   if(zkSupFilter)sups=sups.filter(s=>s.sup===zkSupFilter);
   if(zkQuery){
@@ -540,7 +566,7 @@ function renderZakas(){
   }
   sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl)supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;
+  if(supCountEl){if(zkSupFilter){supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button><span class="zk-detail-title">${esc(zkSupFilter)}</span>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
   const body=document.getElementById("zk-body");if(!body)return;
   if(!sups.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
   const totalSups=sups.length;
