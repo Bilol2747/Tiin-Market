@@ -1164,7 +1164,8 @@ for(const f in it){o[f]=(f==="m")?it[f]:sl(it[f]);}
 const rt=o.rt||[],q=o.q||[],x=o.x||[],i=o.i||[],rev=o.rev||[];
 const tot=rt.reduce((s,y)=>s+(y||0),0);const active=rt.filter(y=>y>0.001).length;const fa=nd?tot/nd:0;
 const xs=x.reduce((s,y)=>s+(y||0),0),is=i.reduce((s,y)=>s+(y||0),0);const obs=q.reduce((s,y)=>s+(y||0),0);
-o.m=Object.assign({},it.m||{},{daily:Math.round(fa*100)/100,baselineDaily:Math.round(fa*100)/100,week:Math.round(fa*7*100)/100,month:Math.round(fa*30*100)/100,calendarAvg:Math.round(fa*100)/100,activeAvg:active?Math.round(tot/active*100)/100:0,activeDays:active,wholesalePct:obs?Math.round((xs+is)/obs*1000)/10:0,explicitWholesale:Math.round(xs),inferredWholesale:Math.round(is),revenue:Math.round(rev.reduce((s,y)=>s+(y||0),0)),totalSold:Math.round(obs),totalReceipts:(o.r||[]).reduce((s,y)=>s+(y||0),0)});
+const _aavg=active?Math.round(tot/active*100)/100:0;const _ed=active>=8?_aavg:Math.round(fa*100)/100;
+o.m=Object.assign({},it.m||{},{daily:_ed,baselineDaily:Math.round(fa*100)/100,week:Math.round(_ed*7*100)/100,month:Math.round(_ed*30*100)/100,calendarAvg:Math.round(fa*100)/100,activeAvg:_aavg,activeDays:active,wholesalePct:obs?Math.round((xs+is)/obs*1000)/10:0,explicitWholesale:Math.round(xs),inferredWholesale:Math.round(is),revenue:Math.round(rev.reduce((s,y)=>s+(y||0),0)),totalSold:Math.round(obs),totalReceipts:(o.r||[]).reduce((s,y)=>s+(y||0),0)});
 win[k]=o;}
 DAILY=win;
 const L=DMETAFULL.labels||[];
