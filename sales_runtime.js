@@ -463,6 +463,7 @@ document.addEventListener("click",e=>{
 function zkSetTarget(si,val){
   const s=_ZK_SUPPLIERS[si];if(!s)return;
   let v=parseInt(val);if(isNaN(v)||v<0)v=ZK_DEFAULT_TARGET;
+  s.rows.forEach(r=>{delete zkRowQty[r.key];});
   zkSupTargets[s.sup]=v;
   renderZakas();
 }
