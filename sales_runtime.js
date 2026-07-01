@@ -239,9 +239,12 @@ const I18N={
   p7_sub:{uz:"Yetkazib beruvchi bo'yicha tavsiya etilgan buyurtma ro'yxati — Stock signallaridan avtomatik yangilanadi",en:"Recommended order list by supplier — updates automatically from Stock signals",ru:"Рекомендуемый список заказа по поставщикам — обновляется автоматически из сигналов склада"},
   zk_sum_sup:{uz:"yetkazib beruvchi",en:"suppliers",ru:"поставщиков"},
   zk_back_list:{uz:"Ortga",en:"Back",ru:"Назад"},
-  zk_sl_nom:{uz:"Nom",en:"Name",ru:"Название"},
+  zk_sl_nom:{uz:"Supplier",en:"Supplier",ru:"Поставщик"},
   zk_sl_zakas:{uz:"Zakas",en:"Orders",ru:"Заказ"},
   zk_sl_jami:{uz:"Jami",en:"Total",ru:"Всего"},
+  zk_stat_all:{uz:"jami supplier",en:"total suppliers",ru:"всего поставщиков"},
+  zk_stat_need:{uz:"zakasga muhtoj",en:"need orders",ru:"нужен заказ"},
+  zk_no_need_sep:{uz:"Zakasga tushmagan supplierlar",en:"No pending orders",ru:"Без заказа"},
   zk_sum_items:{uz:"tovar",en:"products",ru:"товаров"},
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
   zk_search_ph:{uz:"Mahsulot, SKU yoki yetkazib beruvchi qidirish...",en:"Search product, SKU or supplier...",ru:"Поиск товара, SKU или поставщика..."},
@@ -433,27 +436,39 @@ function zkGo(p){zkPage=p;renderZakas();const body=document.getElementById("zk-b
 function zkOpenSupplier(sup){zkMode="detail";zkSupFilter=sup;zkLastSup=sup;zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function _renderZkSupList(allSups){
+  const rb=document.getElementById("zk-reset-btn");if(rb)rb.style.display="none";
   const qw=document.getElementById("zk-quickbtn-wrap");if(qw)qw.style.display="none";
   const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="";
   const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="none";
   const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";
   const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
-  let lst=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(s=>s.needCount>0);
-  if(zkQuery)lst=lst.filter(s=>s.sup.toLowerCase().includes(zkQuery));
-  if(zkSlSort==="sup")lst.sort((a,b)=>zkSlAsc?a.sup.localeCompare(b.sup,"ru"):b.sup.localeCompare(a.sup,"ru"));
-  else if(zkSlSort==="total")lst.sort((a,b)=>zkSlAsc?a.rows.length-b.rows.length:b.rows.length-a.rows.length);
-  else lst.sort((a,b)=>zkSlAsc?a.needCount-b.needCount:b.needCount-a.needCount);
+  let all=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length}));
+  if(zkQuery)all=all.filter(s=>s.sup.toLowerCase().includes(zkQuery));
+  let withNeed=all.filter(s=>s.needCount>0);
+  let noNeed=all.filter(s=>s.needCount===0).sort((a,b)=>a.sup.localeCompare(b.sup,"ru"));
+  if(zkSlSort==="sup")withNeed.sort((a,b)=>zkSlAsc?a.sup.localeCompare(b.sup,"ru"):b.sup.localeCompare(a.sup,"ru"));
+  else if(zkSlSort==="total")withNeed.sort((a,b)=>zkSlAsc?a.rows.length-b.rows.length:b.rows.length-a.rows.length);
+  else withNeed.sort((a,b)=>zkSlAsc?a.needCount-b.needCount:b.needCount-a.needCount);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl)supCountEl.innerHTML=`<b>${lst.length}</b> ${t("zk_sum_sup")}`;
+  if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${allSups.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>`;
   const body=document.getElementById("zk-body");if(!body)return;
-  if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
   const sa=(k)=>k===zkSlSort?(zkSlAsc?'▲':'▼'):'<span style="color:#ddd">▼</span>';
   let h=`<div class="zk-sl"><div class="zk-sl-hdr"><span class="zk-sl-name zk-sl-th" onclick="zkSlSetSort('sup')">${t('zk_sl_nom')} ${sa('sup')}</span><span class="zk-sl-need zk-sl-th" onclick="zkSlSetSort('needCount')">${t('zk_sl_zakas')} ${sa('needCount')}</span><span class="zk-sl-total zk-sl-th" onclick="zkSlSetSort('total')">${t('zk_sl_jami')} ${sa('total')}</span><span class="zk-sl-arr"></span></div>`;
-  lst.forEach(s=>{
+  withNeed.forEach((s,i)=>{
     const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
     const sel=s.sup===zkLastSup?' zk-sl-sel':'';
-    h+=`<div class="zk-sl-row${sel}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
+    const alt=i%2===1?' zk-sl-alt':'';
+    h+=`<div class="zk-sl-row${sel}${alt}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
   });
+  if(noNeed.length){
+    h+=`<div class="zk-sl-sep">${t("zk_no_need_sep")} (${noNeed.length})</div>`;
+    noNeed.forEach((s,i)=>{
+      const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
+      const sel=s.sup===zkLastSup?' zk-sl-sel':'';
+      const alt=i%2===1?' zk-sl-alt':'';
+      h+=`<div class="zk-sl-row zk-sl-dim${sel}${alt}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need" style="color:#ccc">—</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
+    });
+  }
   h+="</div>";
   body.innerHTML=h;
 }
@@ -570,6 +585,7 @@ function renderZakas(){
   const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="none";
   const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="";
   const qw=document.getElementById("zk-quickbtn-wrap");if(qw)qw.style.display="";
+  const rb=document.getElementById("zk-reset-btn");if(rb)rb.style.display="";
   let sups=_ZK_SUPPLIERS;
   if(zkSupFilter)sups=sups.filter(s=>s.sup===zkSupFilter);
   if(zkQuery){
