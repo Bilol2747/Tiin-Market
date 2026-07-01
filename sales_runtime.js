@@ -63,6 +63,10 @@ const I18N={
   sp_back_sup:{uz:"← Poставщиклар",en:"← Suppliers",ru:"← Поставщики"},
   sp_det_month:{uz:"{month} oyiga tegishli ma'lumotlar",en:"Data for {month}",ru:"Данные за {month}"},
   sp_det_empty:{uz:"{month} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.",en:"Data for {month} hasn't loaded yet — it will appear here once the historical data finishes loading.",ru:"Данные за {month} ещё не загружены — появятся здесь после полной загрузки исторических данных."},
+  sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
+  sp_mz_prod:{uz:"MAHSULOT",en:"PRODUCT",ru:"ТОВАР"},
+  sp_mz_stock:{uz:"STOK",en:"STOCK",ru:"ЗАПАС"},
+  sp_mz_days:{uz:"SOTUVSIZ",en:"IDLE DAYS",ru:"БЕЗ ПРОДАЖ"},
   sp_stat_tushum:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
   sp_stat_hissa:{uz:"Hissa",en:"Share",ru:"Доля"},
   sp_stat_tovarlar:{uz:"Tovarlar",en:"Products",ru:"Товары"},
@@ -1756,10 +1760,8 @@ ${mzTxt}
               const di=v.di>=999?"60+ kun":v.di+" kun";
               return `<tr style="border-bottom:1px solid #fdecea"><td style="padding:7px 10px;text-align:center;color:#bbb;font-size:11px">${i+1}</td><td style="padding:7px 10px"><div style="font-weight:600;font-size:12px">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:7px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:7px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td><td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
             }).join("");
-            detH+=`<div style="margin-top:16px;border-radius:10px;border:1.5px solid #fde8e8;overflow:hidden">
-              <div style="background:#fff5f5;padding:10px 14px;font-size:13px;font-weight:700;color:#E24B4A;display:flex;align-items:center;gap:8px">🛒 Sotilmayotgan tovarlar <span style="background:#E24B4A;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzItems.length}</span></div>
-              <table style="width:100%;border-collapse:collapse"><thead><tr style="background:#fff8f8"><th style="padding:7px 10px;text-align:center;color:#bbb;font-size:10px;font-weight:700">#</th><th style="padding:7px 10px;text-align:left;color:#888;font-size:10px;font-weight:700">MAHSULOT</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">STOK</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">SOTUVSIZ</th><th style="padding:7px 10px;text-align:center;color:#888;font-size:10px;font-weight:700">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>
-            </div>`;
+            detH+=`<button onclick="const p=this.nextElementSibling;const open=p.style.display!=='none';p.style.display=open?'none':'block';this.querySelector('.mz-arr').textContent=open?'▼':'▲';" style="margin-top:14px;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:20px;border:1.5px solid #fde8e8;background:#fff5f5;color:#E24B4A;font-size:13px;font-weight:700;cursor:pointer">🛒 ${t("sp_mz_btn")} <span style="background:#E24B4A;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzItems.length}</span><span class="mz-arr" style="font-size:10px;margin-left:4px">▼</span></button>
+            <div style="display:none;margin-top:6px;border-radius:10px;border:1.5px solid #fde8e8;overflow:hidden"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:#fff8f8"><th style="padding:7px 10px;text-align:center;color:#bbb;font-size:10px;font-weight:700">#</th><th style="padding:7px 10px;text-align:left;color:#888;font-size:10px;font-weight:700">${t("sp_mz_prod")}</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">${t("sp_mz_stock")}</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">${t("sp_mz_days")}</th><th style="padding:7px 10px;text-align:center;color:#888;font-size:10px;font-weight:700">ABC</th></tr></thead><tbody>${mzRows}</tbody></table></div>`;
           }
         }
         const supAll=(me.top||[]).slice().sort((a,b)=>{
