@@ -1747,6 +1747,21 @@ function renderP6(){
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(me.rec||0).toLocaleString()}</div></div>
 ${mzTxt}
 </div>`;
+        if(ZITEMS){
+          const mzItems=ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===s.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0));
+          if(mzItems.length){
+            const mzRows=mzItems.map((v,i)=>{
+              const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
+              const u=v.kg?"kg":"шт";
+              const di=v.di>=999?"60+ kun":v.di+" kun";
+              return `<tr style="border-bottom:1px solid #fdecea"><td style="padding:7px 10px;text-align:center;color:#bbb;font-size:11px">${i+1}</td><td style="padding:7px 10px"><div style="font-weight:600;font-size:12px">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:7px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:7px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td><td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
+            }).join("");
+            detH+=`<div style="margin-top:16px;border-radius:10px;border:1.5px solid #fde8e8;overflow:hidden">
+              <div style="background:#fff5f5;padding:10px 14px;font-size:13px;font-weight:700;color:#E24B4A;display:flex;align-items:center;gap:8px">🛒 Sotilmayotgan tovarlar <span style="background:#E24B4A;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzItems.length}</span></div>
+              <table style="width:100%;border-collapse:collapse"><thead><tr style="background:#fff8f8"><th style="padding:7px 10px;text-align:center;color:#bbb;font-size:10px;font-weight:700">#</th><th style="padding:7px 10px;text-align:left;color:#888;font-size:10px;font-weight:700">MAHSULOT</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">STOK</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">SOTUVSIZ</th><th style="padding:7px 10px;text-align:center;color:#888;font-size:10px;font-weight:700">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>
+            </div>`;
+          }
+        }
         const supAll=(me.top||[]).slice().sort((a,b)=>{
           const k=p6ProdSortKey;let va=a[k],vb=b[k];
           if(k==="name"){va=va||"";vb=vb||"";return p6ProdSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
@@ -1757,24 +1772,6 @@ ${mzTxt}
           const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
           const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
           detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll" style="max-height:none;overflow:visible"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
-        }
-        if(ZITEMS){
-          const mzItems=ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===s.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0));
-          if(mzItems.length){
-            const mzRows=mzItems.map((v,i)=>{
-              const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
-              const u=v.kg?"kg":"шт";
-              const di=v.di>=999?"60+ kun":v.di+" kun";
-              return `<tr style="border-bottom:1px solid #fdecea"><td style="padding:7px 10px;text-align:center;color:#bbb;font-size:11px">${i+1}</td><td style="padding:7px 10px"><div style="font-weight:600;font-size:12px">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:7px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:7px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td><td style="padding:7px 10px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
-            }).join("");
-            detH+=`<div style="margin-top:20px;border-radius:10px;border:1.5px solid #fde8e8;overflow:hidden">
-              <div style="background:#fff5f5;padding:10px 14px;font-size:13px;font-weight:700;color:#E24B4A;display:flex;align-items:center;gap:8px">🛒 Sotilmayotgan tovarlar <span style="background:#E24B4A;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzItems.length}</span></div>
-              <table style="width:100%;border-collapse:collapse">
-                <thead><tr style="background:#fff8f8"><th style="padding:7px 10px;text-align:center;color:#bbb;font-size:10px;font-weight:700">#</th><th style="padding:7px 10px;text-align:left;color:#888;font-size:10px;font-weight:700">MAHSULOT</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">STOK</th><th style="padding:7px 10px;text-align:right;color:#888;font-size:10px;font-weight:700">SOTUVSIZ</th><th style="padding:7px 10px;text-align:center;color:#888;font-size:10px;font-weight:700">ABC</th></tr></thead>
-                <tbody>${mzRows}</tbody>
-              </table>
-            </div>`;
-          }
         }
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
