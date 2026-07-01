@@ -303,7 +303,7 @@ let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,
 let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
-let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth=null;
+let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth=null,p6ProdSortKey="rev",p6ProdSortAsc=false;
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
@@ -1745,11 +1745,16 @@ function renderP6(){
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(me.rec||0).toLocaleString()}</div></div>
 ${mzTxt}
 </div>`;
-        const supAll=me.top||[];
+        const supAll=(me.top||[]).slice().sort((a,b)=>{
+          const k=p6ProdSortKey;let va=a[k],vb=b[k];
+          if(k==="name"){va=va||"";vb=vb||"";return p6ProdSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
+          if(k==="abc"){const o={A:0,B:1,C:2};va=o[va]??3;vb=o[vb]??3;}
+          va=va??0;vb=vb??0;return p6ProdSortAsc?va-vb:vb-va;
+        });
         if(supAll.length){
           const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
           const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th>#</th><th>${t("sp_prod_name")}</th><th>${t("sp_prod_sku")}</th><th>${t("sp_prod_revenue")}</th><th>${t("sp_prod_receipts")}</th><th>${t("sp_prod_abc")}</th></tr></thead><tbody>${topH}</tbody></table></div>`;
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
         }
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
@@ -1762,6 +1767,8 @@ ${mzTxt}
   if(p6SelI===null){const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";}
   renderP6Pag(totalP);
 }
+function p6ProdSort(k){if(p6ProdSortKey===k)p6ProdSortAsc=!p6ProdSortAsc;else{p6ProdSortKey=k;p6ProdSortAsc=k==="name"||k==="abc";}renderP6();}
+function _p6ProdTh(lbl,k,align){const a=align||"right";const act=p6ProdSortKey===k;const ar=act?(p6ProdSortAsc?"↑":"↓"):"↕";return `<th onclick="p6ProdSort('${k}')" style="cursor:pointer;text-align:${a};user-select:none;white-space:nowrap">${lbl}<span style="margin-left:2px;color:${act?"#534AB7":"#ccc"};font-size:9px">${ar}</span></th>`;}
 function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
   p6SelI=null;p6SelMonth=null;renderP6();
