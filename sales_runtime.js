@@ -258,6 +258,8 @@ const I18N={
   zk_empty:{uz:"Hozircha shoshilinch yoki tugashga yaqin tovar yo'q",en:"No urgent or low-stock items right now",ru:"Пока нет срочных или заканчивающихся товаров"},
   zk_need_label:{uz:"zakas kerak",en:"need order",ru:"нужен заказ"},
   zk_quicklist_btn:{uz:"Tezkor ro'yxat",en:"Quick list",ru:"Быстрый список"},
+  zk_reset_btn:{uz:"Tozalash",en:"Reset",ru:"Сбросить"},
+  zk_reset_confirm:{uz:"Barcha qo'lda kiritilgan o'zgarishlar (qo'shimcha kunlar, miqdorlar, maqsad kunlar) o'chiriladi. Davom etasizmi?",en:"All manual changes (extra days, quantities, target days) will be cleared. Continue?",ru:"Все ручные изменения (доп. дни, количества, целевые дни) будут сброшены. Продолжить?"},
   zk_show_need_only:{uz:"faqat kerak bo'lganlarni ko'rsat",en:"show needed only",ru:"показать только нужные"},
   zk_show_all_n:{uz:"barchasini ko'rsat ({n})",en:"show all ({n})",ru:"показать все ({n})"},
   zk_no_need_rows:{uz:"Bu yetkazib beruvchida hozircha zakas kerak bo'lgan tovar yo'q",en:"No items need ordering from this supplier right now",ru:"У этого поставщика пока нет товаров, требующих заказа"},
@@ -326,6 +328,11 @@ function zkSort(k){
   if(zkSortKey===k)zkSortAsc=!zkSortAsc;
   else{zkSortKey=k;zkSortAsc=k==="name"||k==="abc";}
   zkRowOrder={};
+  renderZakas();
+}
+function zkResetAll(){
+  if(!confirm(t("zk_reset_confirm")))return;
+  zkRowQty={};zkRowAdj={};zkSupTargets={};zkRowOrder={};
   renderZakas();
 }
 // Bir supplierning ISTALGAN tovari kritik/urgent bo'lsa - shu supplierning BARCHA tovarlari
