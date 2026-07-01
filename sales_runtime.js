@@ -312,6 +312,8 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
+let zkSlSort="needCount",zkSlAsc=false;
+function zkSlSetSort(k){if(zkSlSort===k)zkSlAsc=!zkSlAsc;else{zkSlSort=k;zkSlAsc=false;}renderZakas();}
 let zkQuery="",zkSupFilter="",zkMode="list",zkLastSup="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
@@ -433,17 +435,21 @@ function _renderZkSupList(allSups){
   const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="none";
   const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";
   const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
-  let lst=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(s=>s.needCount>0).sort((a,b)=>b.needCount-a.needCount);
+  let lst=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length})).filter(s=>s.needCount>0);
   if(zkQuery)lst=lst.filter(s=>s.sup.toLowerCase().includes(zkQuery));
+  if(zkSlSort==="sup")lst.sort((a,b)=>zkSlAsc?a.sup.localeCompare(b.sup,"ru"):b.sup.localeCompare(a.sup,"ru"));
+  else if(zkSlSort==="total")lst.sort((a,b)=>zkSlAsc?a.rows.length-b.rows.length:b.rows.length-a.rows.length);
+  else lst.sort((a,b)=>zkSlAsc?a.needCount-b.needCount:b.needCount-a.needCount);
   const supCountEl=document.getElementById("zk-sup-count");
   if(supCountEl)supCountEl.innerHTML=`<b>${lst.length}</b> ${t("zk_sum_sup")}`;
   const body=document.getElementById("zk-body");if(!body)return;
   if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
-  let h='<div class="zk-sl">';
+  const sa=(k)=>k===zkSlSort?(zkSlAsc?'▲':'▼'):'<span style="color:#ddd">▼</span>';
+  let h=`<div class="zk-sl"><div class="zk-sl-hdr"><span class="zk-sl-name zk-sl-th" onclick="zkSlSetSort('sup')">Nom ${sa('sup')}</span><span class="zk-sl-need zk-sl-th" onclick="zkSlSetSort('needCount')">Zakas ${sa('needCount')}</span><span class="zk-sl-total zk-sl-th" onclick="zkSlSetSort('total')">Jami ${sa('total')}</span><span class="zk-sl-arr"></span></div>`;
   lst.forEach(s=>{
     const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
     const sel=s.sup===zkLastSup?' zk-sl-sel':'';
-    h+=`<div class="zk-sl-row${sel}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount} zakas</span><span class="zk-sl-total">${s.rows.length} tovar</span><span class="zk-sl-arr${sel}">›</span></div>`;
+    h+=`<div class="zk-sl-row${sel}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
   });
   h+="</div>";
   body.innerHTML=h;
