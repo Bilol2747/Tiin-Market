@@ -11,7 +11,7 @@ import requests
 ROOT = Path(__file__).parent
 BASE_URL = "https://api.7i.uz/integration/v1"
 TOKEN_PATH = ROOT / "api_token.txt"
-ORDER_PAGE_SIZE = 1000
+ORDER_PAGE_SIZE = 500  # 1000 ba'zi kunlar uchun server 500 xatosi beradi
 PRODUCT_PAGE_SIZE = 2000
 SESSION = requests.Session()
 
@@ -156,7 +156,9 @@ def main():
     args = parser.parse_args()
 
     token = load_token()
-    end_date = date.fromisoformat(args.end) if args.end else date.today()
+    # API end_date EKSKLYUZIV: start_date=end_date bo'lsa 0 qaytadi. Shu sababli
+    # foydalanuvchi "--end 2026-06-30" berganda biz +1 kun qo'shamiz.
+    end_date = date.fromisoformat(args.end) + timedelta(days=1) if args.end else date.today() + timedelta(days=1)
 
     out_orders = ROOT / "api_raw_orders.json"
 

@@ -215,9 +215,10 @@ def main():
     while day <= end_date:
         day_iso = day.isoformat()
         print(f"\n{day_iso} kuni tekshirilmoqda...")
+        next_day_iso = (day + timedelta(days=1)).isoformat()
         for attempt in range(1, 4):
             try:
-                n = fetch_and_sync_orders(client, token, day_iso, day_iso)
+                n = fetch_and_sync_orders(client, token, day_iso, next_day_iso)
                 total_synced += n
                 print(f"  {day_iso}: {n} ta yozuv bazaga yozildi/yangilandi")
                 break
