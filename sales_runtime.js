@@ -1594,13 +1594,11 @@ function renderP2(idx){
   badge.style.display="inline-block";
   badge.style.background=bg;
   badge.style.color=col;
-  fdsfds
-  ergoiehoig
   badge.textContent=txt;
   document.getElementById("pinfo").innerHTML=
     '<div class="abc-desc '+dcls+'">'+ADESC[abc]+'</div>'+
     '<div class="stat-grid">'+
-      '<div class=cvbfg "sbox"><div class="slbl">Jami tushum</div><div class="sval">'+fmt(v.rev)+' UZS</div></div>'+
+      '<div class="sbox"><div class="slbl">Jami tushum</div><div class="sval">'+fmt(v.rev)+' UZS</div></div>'+
       '<div class="sbox"><div class="slbl">Sotuv narxi</div><div class="sval">'+(v.p||0).toLocaleString()+' UZS</div></div>'+
       '<div class="sbox"><div class="slbl">Kelish narxi</div><div class="sval">'+(v.suprice?v.suprice.toLocaleString()+' UZS':'—')+'</div></div>'+
       '<div class="sbox"><div class="slbl">Cheklar</div><div class="sval">'+(v.rec||0).toLocaleString()+'</div></div>'+
