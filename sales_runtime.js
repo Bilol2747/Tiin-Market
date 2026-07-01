@@ -824,7 +824,7 @@ function _buildZItems(){
     // 60 kunda kamida 15 kun sotilgan mahsulot: activeAvg (sotilgan kunlarga bo'lish)
     // seyrek mahsulot (<15 kun): calendarAvg (kalendar kunlarga bo'lish)
     let smartDaily=null, activeAvg=null;
-    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;const _ad=_di.m.activeDays||0;const _nd=(typeof DMETA!=="undefined"&&DMETA&&DMETA.days)||60;const _useAct=_ad>=Math.max(8,_nd*0.25);if(_useAct&&_di.m.activeAvg!=null)activeAvg=_di.m.activeAvg;else if(_di.m.calendarAvg!=null)activeAvg=_di.m.calendarAvg;}}
+    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;const _ad=_di.m.activeDays||0;const _useAct=_ad>=8;if(_useAct&&_di.m.activeAvg!=null)activeAvg=_di.m.activeAvg;else if(_di.m.calendarAvg!=null)activeAvg=_di.m.calendarAvg;}}
     if(smartDaily==null&&v.da!=null)smartDaily=v.da;
     const c=_zClassify(d,stock,smartDaily,activeAvg);
     if(!c)return;
