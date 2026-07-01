@@ -247,7 +247,7 @@ const I18N={
   zk_no_need_sep:{uz:"Zakasga tushmagan supplierlar",en:"No pending orders",ru:"Без заказа"},
   zk_sum_items:{uz:"tovar",en:"products",ru:"товаров"},
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
-  zk_search_ph:{uz:"Mahsulot, SKU yoki yetkazib beruvchi qidirish...",en:"Search product, SKU or supplier...",ru:"Поиск товара, SKU или поставщика..."},
+  zk_search_ph:{uz:"Supplier qidirish...",en:"Search supplier...",ru:"Поиск поставщика..."},
   zk_all_sup:{uz:"Barcha yetkazib beruvchilar",en:"All suppliers",ru:"Все поставщики"},
   zk_export:{uz:"Excel yuklab olish",en:"Download Excel",ru:"Скачать Excel"},
   zk_col_product:{uz:"Mahsulot",en:"Product",ru:"Товар"},
