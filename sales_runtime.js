@@ -756,9 +756,9 @@ async function p2ToZaxira(i){
 }
 // Sotuv tarixini tahlil qilib, tovarning "yaxshi sotuvchi"ligini aniqlash
 const STOCK_ACTIVE_DAYS=60;  // Stock: aktiv/noaktiv ajratish chegarasi (kun)
-function _zClassify(d,stock,smartDaily,calAvg){
+function _zClassify(d,stock,smartDaily,activeAvg){
   // d: kunlik miqdor massivi (range aktiv bo'lsa kesilgan)
-  // smartDaily: aqlli velocity (retail + recency) — "daily"; calAvg: retail oylik o'rtacha — "calendarAvg"
+  // smartDaily: aqlli velocity (retail + recency) — "daily"; activeAvg: savdo bo'lgan kunlarga bo'lingan o'rtacha
   const rangeActive=(GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1));
   let arr=d;
   if(rangeActive){arr=d.slice(GRA,GRB+1);}
@@ -773,7 +773,7 @@ function _zClassify(d,stock,smartDaily,calAvg){
   // VELOCITY: zakas miqdori har doim aqlli (ulgurjisiz) tezlikdan olinadi - max(aqlli recency,
   // retail oylik o'rtacha) - sana oralig'i tanlangan-tanlanmaganidan qat'i nazar. Aks holda
   // bitta yirik ulgurji xaridi xom o'rtachani shishirib, noto'g'ri katta zakasga olib kelardi.
-  const dailyAvg=Math.max(smartDaily||0,calAvg||0);
+  const dailyAvg=Math.max(smartDaily||0,activeAvg||0);
   // tarix oynasi: sotuv to'xtaganga qadar bo'lgan davr (0..last)
   let histActive=0;const histLen=last>=0?last+1:0;
   for(let i=0;i<=last;i++){if(arr[i]>0)histActive++;}
@@ -820,12 +820,13 @@ function _buildZItems(){
     if(stock===null||isNaN(stock))return;
     const d=Array.isArray(v.d)?v.d:null;
     if(!d)return;
-    // aqlli velocity (m.daily) + retail oylik o'rtacha (m.calendarAvg) — dailydata'dan
-    // tanlangan sana oralig'iga (30/60 kun) qarab qayta hisoblanadi - prognozni solishtirish uchun
-    let smartDaily=null, calAvg=null;
-    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;if(_di.m.calendarAvg!=null)calAvg=_di.m.calendarAvg;}}
+    // aqlli velocity (m.daily) + kunlik o'rtacha — dailydata'dan
+    // 60 kunda kamida 15 kun sotilgan mahsulot: activeAvg (sotilgan kunlarga bo'lish)
+    // seyrek mahsulot (<15 kun): calendarAvg (kalendar kunlarga bo'lish)
+    let smartDaily=null, activeAvg=null;
+    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;const _ad=_di.m.activeDays||0;const _useAct=_ad>=15;if(_useAct&&_di.m.activeAvg!=null)activeAvg=_di.m.activeAvg;else if(_di.m.calendarAvg!=null)activeAvg=_di.m.calendarAvg;}}
     if(smartDaily==null&&v.da!=null)smartDaily=v.da;
-    const c=_zClassify(d,stock,smartDaily,calAvg);
+    const c=_zClassify(d,stock,smartDaily,activeAvg);
     if(!c)return;
     ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,...c});
   });
