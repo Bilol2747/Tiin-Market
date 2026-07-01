@@ -660,7 +660,7 @@ function renderZakas(){
       const oqRaw=r.kg?r.orderQty:r.orderQty;
       const isManual=zkRowQty[r.key]!=null;
       const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
-      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="zk-prod-link" onclick="zkOpenProduct(${r._ri})" style="font-weight:600;white-space:normal;word-break:break-word;cursor:pointer;color:#1D9E75;text-decoration:underline;text-underline-offset:2px">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)" onclick="event.stopPropagation()"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:10px;margin-right:3px">+${r.minAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:11px">${u}</span></td></tr>`;
+      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="zk-prod-link" onclick="zkOpenProduct(${r._ri})">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)" onclick="event.stopPropagation()"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:10px;margin-right:3px">+${r.minAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:11px">${u}</span></td></tr>`;
     });
     h+=`</tbody></table></div></div>`;
   });
@@ -856,44 +856,20 @@ function zBack(){
   const zbtn=document.querySelector(`.sb-item[data-page="${dest}"]`);
   if(zbtn)showPage(zbtn);
 }
-let _zkProdChart=null;
-function zkCloseProdModal(){
-  const m=document.getElementById("zk-prod-modal");if(m)m.style.display="none";
-  if(_zkProdChart){_zkProdChart.destroy();_zkProdChart=null;}
-}
 async function zkOpenProduct(ri){
   const r=_ZK_ALLROWS[ri];if(!r)return;
-  const modal=document.getElementById("zk-prod-modal");if(!modal)return;
-  modal.style.display="flex";
-  document.getElementById("zk-pm-title").textContent=r.name;
-  document.getElementById("zk-pm-sub").textContent=(r.sku?"SKU: "+r.sku+"  ·  ":"")+"ABC: "+(r.abc||"—")+"  ·  "+(r.kg?"kg":"шт");
-  const u=r.kg?"кг":"шт";
-  const stColor=r.stock<=0?"#E24B4A":r.daysLeft!=null&&r.daysLeft<5?"#EF9F27":"#1D9E75";
-  document.getElementById("zk-pm-stats").innerHTML=
-    `<div class="zk-pm-stat"><div class="zk-pm-stat-l">Stok</div><div class="zk-pm-stat-v" style="color:${stColor}">${r.kg?(r.stock||0).toFixed(2):(r.stock||0).toLocaleString()} ${u}</div></div>`+
-    `<div class="zk-pm-stat"><div class="zk-pm-stat-l">Kunlik o'rtacha</div><div class="zk-pm-stat-v">${r.dailyAvg?((r.kg?r.dailyAvg.toFixed(2):Math.round(r.dailyAvg*10)/10)+" "+u):"—"}</div></div>`+
-    `<div class="zk-pm-stat"><div class="zk-pm-stat-l">Qolgan kun</div><div class="zk-pm-stat-v" style="color:${r.daysLeft!=null&&r.daysLeft<5?"#E24B4A":"#1a1a1a"}">${r.daysLeft!=null?r.daysLeft+" kun":"—"}</div></div>`+
-    `<div class="zk-pm-stat"><div class="zk-pm-stat-l">Zakas</div><div class="zk-pm-stat-v" style="color:#534AB7">${r.orderQty>0?((r.kg?r.orderQty.toFixed(2):r.orderQty)+" "+u):"—"}</div></div>`;
-  if(_zkProdChart){_zkProdChart.destroy();_zkProdChart=null;}
-  if(!P2){try{const res=await fetch("data_mahsulotlar.json");P2=await res.json();P2.forEach((v,i)=>{v._i=i;DNAME[v.name]=i;if(v.sku)DSKU[String(v.sku)]=i;});}catch(e){return;}}
-  let v=null;
-  if(r.sku)v=P2.find(p=>String(p.sku||"")===String(r.sku));
-  if(!v)v=P2.find(p=>p.name===r.name);
-  const dd=(v&&v.d)||[];
-  if(!dd.length)return;
-  const labels=dd.map((_,i)=>(i+1)+"");
-  const maxVal=Math.max(...dd,1);
-  const colors=dd.map(val=>val>=maxVal*0.8?"#1D9E75":val>=maxVal*0.4?"#6dd4b0":"#c8ede0");
-  const ctx=document.getElementById("zk-pm-canvas").getContext("2d");
-  _zkProdChart=new Chart(ctx,{
-    type:"bar",
-    data:{labels,datasets:[{data:dd,backgroundColor:colors,borderRadius:3,borderSkipped:false}]},
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx2=>(r.kg?Number(ctx2.raw).toFixed(2):ctx2.raw)+" "+u}}},
-      scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:0}},y:{beginAtZero:true,grid:{color:"#f5f5f0"},ticks:{font:{size:10}}}}
-    }
-  });
+  _zBackPage="p7";
+  const p2btn=document.querySelector('.sb-item[data-page="p2"]');
+  if(p2btn)await showPage(p2btn);
+  if(!P2)return;
+  let idx=-1;
+  if(r.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(r.sku));
+  if(idx<0)idx=P2.findIndex(v=>v.name===r.name);
+  const pq=document.getElementById("pf-q");
+  if(pq){pq.value=idx>=0?P2[idx].name:r.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
+  if(idx>=0&&typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
+  const bb=document.getElementById("z-back");
+  if(bb){bb.style.display="inline-flex";bb.textContent=t("z_back_zakas");}
 }
 function p5Back(){
   const bb=document.getElementById("p5-back");if(bb)bb.style.display="none";
