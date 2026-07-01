@@ -498,6 +498,12 @@ function zkSetAdj(ri,val){
   zkRowAdj[r.key]=v;
   renderZakas();
 }
+function zkAddAdj(ri,delta){
+  const r=_ZK_ALLROWS[ri];if(!r)return;
+  const cur=zkRowAdj[r.key]||r.adj||0;
+  zkRowAdj[r.key]=Math.max(0,cur+delta);
+  renderZakas();
+}
 function renderZakas(){
   if(!ZITEMS){if(P2)_buildZItems();else return;}
   _ZK_SUPPLIERS=_zkBuildSuppliers();
@@ -542,7 +548,7 @@ function renderZakas(){
       const oqRaw=r.kg?r.orderQty:r.orderQty;
       const isManual=zkRowQty[r.key]!=null;
       const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
-      h+=`<tr ondblclick="zkOpenProduct(${r._ri})" style="cursor:pointer" title="Ikki marta bosing — grafik ko'rish"><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:10px;margin-right:3px">+${r.minAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:11px">${u}</span></td></tr>`;
+      h+=`<tr ondblclick="zkOpenProduct(${r._ri})" style="cursor:pointer" title="Ikki marta bosing — grafik ko'rish"><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right;white-space:nowrap"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)" onclick="event.stopPropagation()"><span onclick="event.stopPropagation();zkAddAdj(${r._ri},1)" style="cursor:pointer;font-size:10px;color:#534AB7;margin-left:2px">+1</span><span onclick="event.stopPropagation();zkAddAdj(${r._ri},3)" style="cursor:pointer;font-size:10px;color:#1D9E75;margin-left:3px;font-weight:700">+3</span></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:10px;margin-right:3px">+${r.minAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:11px">${u}</span></td></tr>`;
     });
     h+=`</tbody></table></div></div>`;
   });
