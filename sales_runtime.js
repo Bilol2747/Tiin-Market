@@ -1759,7 +1759,7 @@ ${mzTxt}
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
       }
-      _p6ShowOverlay(s.name,detH);
+      _p6ShowOverlay(s.name,detH,p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"",me&&me.abc);
     }
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
@@ -1773,19 +1773,23 @@ function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
   p6SelI=null;p6SelMonth=null;renderP6();
 }
-function _p6ShowOverlay(name,detH){
+function _p6ShowOverlay(name,detH,monthName,abc){
   const p6el=document.getElementById("p6");if(!p6el)return;
   p6el.style.position="relative";
   let ov=document.getElementById("sp-fullscreen");
   if(!ov){ov=document.createElement("div");ov.id="sp-fullscreen";
     ov.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:15;overflow-y:auto;padding:0 24px 60px";
     p6el.appendChild(ov);}
-  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px">
-    <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer">
+  const abcC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
+  const abcBadge=abc?`<span style="background:${abcC};color:#fff;padding:5px 14px;border-radius:10px;font-size:18px;font-weight:800;letter-spacing:1px;flex-shrink:0">${abc}</span>`:"";
+  const monthBadge=monthName?`<span style="background:#f4f4f0;color:#555;padding:5px 14px;border-radius:10px;font-size:15px;font-weight:700;flex-shrink:0">${monthName}</span>`:"";
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       ${t("sp_back_sup")}
     </button>
-    <span style="font-size:16px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
+    ${monthBadge}${abcBadge}
+    <span style="font-size:15px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
   </div>
   <div class="sp-det-wrap" style="max-width:100%!important;margin:0">${detH}</div>`;
   ov.style.display="block";
