@@ -1754,7 +1754,7 @@ ${mzTxt}
         if(supAll.length){
           const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
           const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
+          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll" style="max-height:none;overflow:visible"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
         }
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
