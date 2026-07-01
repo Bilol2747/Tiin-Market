@@ -304,7 +304,7 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
-let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5";
+let zkQuery="",zkSupFilter="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5";
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -344,11 +344,9 @@ function _zkBuildSuppliers(){
       const zakasDays=Math.max(0,target-daysLeft+adj);
       let orderQty=stock<0?0:v.dailyAvg*zakasDays;
       orderQty=v.kg?Math.round(orderQty*100)/100:Math.ceil(orderQty);
-      // Sekin sotiladigan tovar uchun 1-2 dona buyurtma noqulay - minimal 3 donagacha
-      // ko'taramiz, lekin bu doim joriy dailyAvg/zakasDays asosida qayta hisoblanadi,
-      // shuning uchun sotuv pasaysa ZAKAS_MIN ham real ehtiyojga moslashib turadi.
       let minAdd=0;
       if(!v.kg&&orderQty>0&&orderQty<ZK_MIN_ORDER){minAdd=ZK_MIN_ORDER-orderQty;orderQty=ZK_MIN_ORDER;}
+      const manualQty=zkRowQty[key];if(manualQty!=null){orderQty=manualQty;minAdd=0;}
       return {key,name:v.name,sku:v.sku,abc:v.abc,cat:v.cat,kg:v.kg,stock,dailyAvg:v.dailyAvg,daysLeft:v.daysLeft,adj,zakasDays,orderQty,minAdd,signal:v.signal,price:_zkPriceOf(v)};
     }).sort((a,b)=>b.orderQty-a.orderQty);
     const qtyDona=rows.filter(r=>!r.kg).reduce((s,r)=>s+r.orderQty,0);
@@ -468,6 +466,12 @@ function zkSetTarget(si,val){
   zkSupTargets[s.sup]=v;
   renderZakas();
 }
+function zkSetQty(ri,val){
+  const r=_ZK_ALLROWS[ri];if(!r)return;
+  const v=r.kg?parseFloat(val):parseInt(val);
+  if(!isNaN(v)&&v>=0)zkRowQty[r.key]=v;else delete zkRowQty[r.key];
+  renderZakas();
+}
 function zkSetAdj(ri,val){
   const r=_ZK_ALLROWS[ri];if(!r)return;
   let v=parseInt(val);if(isNaN(v))v=0;
@@ -506,7 +510,7 @@ function renderZakas(){
     const showAll=!!zkSupShowAll[s.sup]||needCount===0;
     const visRows=showAll?s.rows:s.rows.filter(r=>r.orderQty>0);
     const needBadge=`<span class="zk-needbadge" onclick="zkToggleSupShowAll(${s._si})"><b>${needCount}</b> ${t("zk_need_label")} &nbsp;·&nbsp; ${showAll?t("zk_show_need_only"):t("zk_show_all_n").replace("{n}",s.rows.length)}</span>`;
-    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"><span>${esc(s.sup)}</span></span><span class="zk-sup-meta">${needBadge} &nbsp;·&nbsp; ${t("zk_total_label")} <b>${totTxt||"0"}</b><span class="zk-target-edit">${t("zk_target_label")} <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><colgroup><col style="width:4%"><col style="width:4%"><col style="width:34%"><col style="width:5%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:7%"><col style="width:8%"></colgroup><thead><tr><th style="text-align:center"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"></th><th>#</th><th>${t("zk_col_product")}</th><th style="text-align:center">ABC</th><th style="text-align:right">${t("zk_col_stock")}</th><th style="text-align:right">${t("zk_col_daily")}</th><th style="text-align:right">${t("zk_col_days_left")}</th><th style="text-align:right">${t("zk_col_extra_days")}</th><th style="text-align:center">${t("zk_col_status")}</th><th style="text-align:right">${t("zk_col_order")}</th></tr></thead><tbody>`;
+    h+=`<div class="zk-sup-block"><div class="zk-sup-name"><span style="display:flex;align-items:center;gap:10px"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"><span>${esc(s.sup)}</span></span><span class="zk-sup-meta">${needBadge} &nbsp;·&nbsp; ${t("zk_total_label")} <b>${totTxt||"0"}</b><span class="zk-target-edit">${t("zk_target_label")} <input class="zk-target-inp" type="number" min="0" max="365" value="${s.target}" onchange="zkSetTarget(${s._si},this.value)"></span></span></div><div class="zk-tbl-wrap"><table class="zk-ktbl"><colgroup><col style="width:4%"><col style="width:4%"><col style="width:31%"><col style="width:5%"><col style="width:8%"><col style="width:11%"><col style="width:9%"><col style="width:10%"><col style="width:7%"><col style="width:11%"></colgroup><thead><tr><th style="text-align:center"><input type="checkbox" class="zk-chk zk-sup-chk"${supChkAttrs} onchange="zkToggleSupplier(${s._si})"></th><th>#</th><th>${t("zk_col_product")}</th><th style="text-align:center">ABC</th><th style="text-align:right">${t("zk_col_stock")}</th><th style="text-align:right">${t("zk_col_daily")}</th><th style="text-align:right">${t("zk_col_days_left")}</th><th style="text-align:right">${t("zk_col_extra_days")}</th><th style="text-align:center">${t("zk_col_status")}</th><th style="text-align:right">${t("zk_col_order")}</th></tr></thead><tbody>`;
     if(!visRows.length){
       h+=`<tr><td colspan="10" style="text-align:center;color:#bbb;padding:18px;font-size:12px">${t("zk_no_need_rows")}</td></tr>`;
     }
@@ -515,10 +519,10 @@ function renderZakas(){
       const stTxt=r.stock<=0?`<span style="color:#E24B4A;font-weight:700">${r.kg?r.stock.toFixed(2):r.stock.toLocaleString()}</span>`:(r.kg?r.stock.toFixed(2):r.stock.toLocaleString());
       const dTxt=r.dailyAvg>0?(r.kg?r.dailyAvg.toFixed(2):Math.round(r.dailyAvg*10)/10)+" "+u:"—";
       const dlTxt=r.daysLeft!=null?r.daysLeft:"—";
-      const oqTxt=r.orderQty.toLocaleString()+" "+u;
-      const minAddTxt=r.minAdd>0?`<span class="zk-minadd" title="${t("zk_minadd_hint")}">+${r.minAdd}</span> `:"";
+      const oqRaw=r.kg?r.orderQty:r.orderQty;
+      const isManual=zkRowQty[r.key]!=null;
       const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
-      h+=`<tr ondblclick="zkOpenProduct(${r._ri})" style="cursor:pointer" title="Ikki marta bosing — grafik ko'rish"><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right">${minAddTxt}<span class="zk-oq">${oqTxt}</span></td></tr>`;
+      h+=`<tr ondblclick="zkOpenProduct(${r._ri})" style="cursor:pointer" title="Ikki marta bosing — grafik ko'rish"><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_zkIsChecked(r)?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:11px">${i+1}</td><td><div style="font-weight:600;white-space:normal;word-break:break-word">${esc(r.name)}</div>${r.sku?`<div style="font-size:10px;color:#bbb">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${r.abc==="A"?"#e8f8f3":r.abc==="B"?"#eeebfb":"#fef3e2"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#EF9F27"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:right;color:#777">${dTxt}</td><td style="text-align:right;color:#777">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)"></td><td style="text-align:center"><span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span></td><td style="text-align:right;padding:2px 4px"><input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:11px">${u}</span></td></tr>`;
     });
     h+=`</tbody></table></div></div>`;
   });
