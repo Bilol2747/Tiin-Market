@@ -1731,7 +1731,7 @@ function renderP6(){
     });
     h+=`</tr>`;
     if(isSel){
-      let detH;
+      let detH,mzItems=[],mzPageH="";
       const me=s.months&&s.months[p6SelMonth];
       if(me){
         const abc=me.abc;
@@ -1743,14 +1743,22 @@ function renderP6(){
         const bB=`<span class="sp-mc sp-mc-b">${me.abc_cnt.B||0}B</span>`;
         const cB=`<span class="sp-mc sp-mc-c">${me.abc_cnt.C||0}C</span>`;
         const monthNow=t(P6_MONTH_KEYS[p6SelMonth]);
-        const mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===s.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
-        const mzBtn=mzItems.length?`<button onclick="const p=document.getElementById('sp-mz-panel');const o=p.style.display!=='none';p.style.display=o?'none':'block';this.querySelector('.mz-arr').textContent=o?'▼':'▲'" style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:16px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzItems.length}</span><span class="mz-arr" style="font-size:10px;margin-left:2px">▼</span></button>`:"";
-        detH=`<div style="position:sticky;top:62px;background:#fff;z-index:1;padding-bottom:14px;border-bottom:1.5px solid #f0f0ec;margin-bottom:16px"><div class="sp-det-month">${t("sp_det_month").replace("{month}",monthNow)}</div><div class="sp-det-stats">
+        mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===s.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
+        if(mzItems.length){
+          const mzRows=mzItems.map((v,i)=>{
+            const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
+            const u=v.kg?"kg":"шт";
+            const di=v.di>=999?"60+ kun":v.di+" kun";
+            return `<tr style="border-bottom:1px solid #f4f4f0"><td style="padding:9px 10px;text-align:center;color:#bbb;font-size:11px;width:36px">${i+1}</td><td style="padding:9px 10px"><div style="font-weight:600;font-size:13px;line-height:1.3">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:9px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:9px 10px;text-align:right;color:#999;font-size:12px;white-space:nowrap">${di}</td><td style="padding:9px 10px;text-align:center"><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
+          }).join("");
+          mzPageH=`<table style="width:100%;border-collapse:collapse"><thead style="position:sticky;top:62px;z-index:2;background:#fafaf5"><tr><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">#</th><th style="padding:9px 10px;text-align:left;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_prod")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_stock")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_days")}</th><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>`;
+        }
+        detH=`<div style="position:sticky;top:62px;background:#fff;z-index:1;padding-bottom:14px;border-bottom:1.5px solid #f0f0ec;margin-bottom:16px"><div style="font-size:11px;font-weight:800;color:#1D9E75;margin-bottom:8px">${t("sp_det_month").replace("{month}",monthNow)}</div><div class="sp-det-stats">
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tushum")}</div><div class="sp-det-stat-val">${revStr}</div></div>
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_hissa")}</div><div class="sp-det-stat-val">${me.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tovarlar")}</div><div class="sp-det-stat-val">${me.cnt} ${t("sp_ta")} <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
 <div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(me.rec||0).toLocaleString()}</div></div>
-</div>${mzBtn}</div><div style="display:flex;gap:20px;align-items:flex-start"><div style="flex:1;min-width:0">`;
+</div></div>`;
         const supAll=(me.top||[]).slice().sort((a,b)=>{
           const k=p6ProdSortKey;let va=a[k],vb=b[k];
           if(k==="name"){va=va||"";vb=vb||"";return p6ProdSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
@@ -1762,21 +1770,10 @@ function renderP6(){
           const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
           detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll" style="max-height:none;overflow:visible"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
         }
-        detH+=`</div>`;
-        if(mzItems.length){
-          const mzRows=mzItems.map(v=>{
-            const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
-            const u=v.kg?"kg":"шт";
-            const di=v.di>=999?"60+ kun":v.di+" kun";
-            return `<tr style="border-bottom:1px solid #f4f4f0"><td style="padding:8px 6px"><div style="font-weight:600;font-size:12px;line-height:1.3">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:8px 6px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap;font-size:12px">${stk} ${u}</td><td style="padding:8px 6px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td><td style="padding:8px 6px;text-align:center"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
-          }).join("");
-          detH+=`<div id="sp-mz-panel" style="display:none;width:280px;flex-shrink:0;border-left:1.5px solid #f0f0ec;padding-left:16px"><div style="font-size:10px;font-weight:700;color:#aaa;padding:4px 0 10px;margin-bottom:2px;border-bottom:1px solid #f0f0f0">🛒 ${t("sp_mz_btn").toUpperCase()} (${mzItems.length})</div><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:6px 4px;text-align:left;color:#bbb;font-size:10px;font-weight:700;border-bottom:1px solid #f0f0f0">${t("sp_mz_prod")}</th><th style="padding:6px 4px;text-align:right;color:#bbb;font-size:10px;font-weight:700;border-bottom:1px solid #f0f0f0">${t("sp_mz_stock")}</th><th style="padding:6px 4px;text-align:right;color:#bbb;font-size:10px;font-weight:700;border-bottom:1px solid #f0f0f0">${t("sp_mz_days")}</th><th style="padding:6px 4px;text-align:center;color:#bbb;font-size:10px;font-weight:700;border-bottom:1px solid #f0f0f0">ABC</th></tr></thead><tbody>${mzRows}</tbody></table></div>`;
-        }
-        detH+=`</div>`;
       }else{
         detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
       }
-      _p6ShowOverlay(s.name,detH,p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"",me&&me.abc);
+      _p6ShowOverlay(s.name,detH,p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"",me&&me.abc,mzItems.length,mzPageH);
     }
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
@@ -1790,25 +1787,46 @@ function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
   p6SelI=null;p6SelMonth=null;renderP6();
 }
-function _p6ShowOverlay(name,detH,monthName,abc){
+function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   const p6el=document.getElementById("p6");if(!p6el)return;
   p6el.style.position="relative";
   let ov=document.getElementById("sp-fullscreen");
   if(!ov){ov=document.createElement("div");ov.id="sp-fullscreen";
     ov.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:15;overflow-y:auto;padding:0 24px 60px";
     p6el.appendChild(ov);}
+  let mzPage=document.getElementById("sp-mz-page");
+  if(!mzPage){mzPage=document.createElement("div");mzPage.id="sp-mz-page";
+    mzPage.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:20;overflow-y:auto;padding:0 24px 60px";
+    p6el.appendChild(mzPage);}
   const abcC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
   const abcBadge=abc?`<span style="background:${abcC};color:#fff;padding:5px 14px;border-radius:10px;font-size:18px;font-weight:800;letter-spacing:1px;flex-shrink:0">${abc}</span>`:"";
-  const monthBadge=monthName?`<span style="background:#f4f4f0;color:#555;padding:5px 14px;border-radius:10px;font-size:15px;font-weight:700;flex-shrink:0">${monthName}</span>`:"";
-  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+  const monthBadge=monthName?`<span style="background:#f0faf6;color:#1D9E75;padding:5px 14px;border-radius:10px;font-size:15px;font-weight:700;flex-shrink:0;border:1px solid #d4f0e5">${monthName}</span>`:"";
+  const mzToggle=mzCount?`<button onclick="document.getElementById('sp-mz-page').style.display='block';document.getElementById('sp-mz-page').scrollTop=0" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzCount}</span></button>`:"";
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
     <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       ${t("sp_back_sup")}
     </button>
     ${monthBadge}${abcBadge}
     <span style="font-size:15px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
+    ${mzToggle}
   </div>
   <div class="sp-det-wrap" style="max-width:100%!important;margin:0">${detH}</div>`;
+  if(mzCount&&mzPageH){
+    mzPage.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px">
+      <button onclick="document.getElementById('sp-mz-page').style.display='none'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        ${t("sp_back_sup")}
+      </button>
+      ${monthBadge}${abcBadge}
+      <span style="font-size:15px;font-weight:700;color:#1a1a2e">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:2px 9px;font-size:13px;font-weight:700;margin-left:6px">${mzCount}</span></span>
+    </div>
+    ${mzPageH}`;
+    mzPage.style.display="none";
+  }else{
+    mzPage.innerHTML="";
+    mzPage.style.display="none";
+  }
   ov.style.display="block";
   ov.scrollTop=0;
 }
@@ -1816,7 +1834,7 @@ function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
   const st=document.createElement("style");
   st.id="sp-prod-table-style";
-  st.textContent=`#sp-fullscreen .sp-prod-table thead{position:sticky;top:57px;z-index:3}#sp-fullscreen .sp-det-wrap{padding-bottom:40px}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
+  st.textContent=`#sp-fullscreen .sp-prod-table thead{position:sticky;top:155px;z-index:3}#sp-fullscreen .sp-det-wrap{padding-bottom:40px}.sp-det-wrap{background:#fff!important;border:none!important;border-left:none!important;border-radius:0!important;padding:0!important;margin:0!important;max-width:100%!important}.sp-det-month{color:#1D9E75!important}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:1px solid #eee;border-radius:8px;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#fff8eb}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}`;
   document.head.appendChild(st);
 }
 function renderP6MonthControls(){
