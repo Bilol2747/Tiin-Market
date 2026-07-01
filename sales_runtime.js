@@ -441,7 +441,7 @@ function _renderZkSupList(allSups){
   if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
   let h='<div class="zk-sl">';
   lst.forEach(s=>{
-    const supJ=JSON.stringify(s.sup);
+    const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
     h+=`<div class="zk-sl-row" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount} zakas</span><span class="zk-sl-total">${s.rows.length} tovar</span><span class="zk-sl-arr">›</span></div>`;
   });
   h+="</div>";
