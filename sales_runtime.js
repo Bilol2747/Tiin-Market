@@ -241,6 +241,7 @@ const I18N={
   zk_back_list:{uz:"Ortga",en:"Back",ru:"Назад"},
   zk_confirm_btn:{uz:"Zakas berildi",en:"Order sent",ru:"Заказ отправлен"},
   zk_confirm_cancel:{uz:"Bekor qilish",en:"Unmark",ru:"Отменить"},
+  zk_unconfirm_warn:{uz:"Haqiqatan ham bu supplierni zakas berildi ro'yxatidan olib tashlaysizmi?",en:"Remove this supplier from confirmed orders?",ru:"Убрать поставщика из подтверждённых заказов?"},
   zk_sl_nom:{uz:"Supplier",en:"Supplier",ru:"Поставщик"},
   zk_sl_zakas:{uz:"Zakas",en:"Orders",ru:"Заказ"},
   zk_sl_jami:{uz:"Jami",en:"Total",ru:"Всего"},
@@ -325,8 +326,28 @@ function zkSlSetSort(k){if(zkSlSort===k)zkSlAsc=!zkSlAsc;else{zkSlSort=k;zkSlAsc
 let zkQuery="",zkSupFilter="",zkMode="list",zkLastSup="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
 let zkConfirmed=(()=>{try{return JSON.parse(localStorage.getItem("zk_confirmed")||"{}");}catch(e){return {};}})();
 function zkSaveConfirmed(){try{localStorage.setItem("zk_confirmed",JSON.stringify(zkConfirmed));}catch(e){}}
-function zkMarkConfirmed(sup){zkConfirmed[sup]=!zkConfirmed[sup];zkSaveConfirmed();renderZakas();}
 function zkIsConfirmed(sup){return !!zkConfirmed[sup];}
+function zkSetConfirmed(sup,val){zkConfirmed[sup]=val;if(!val)delete zkConfirmed[sup];zkSaveConfirmed();}
+function zkMarkConfirmedFromDetail(sup){
+  if(zkIsConfirmed(sup)){
+    if(!confirm(t("zk_unconfirm_warn")))return;
+    zkSetConfirmed(sup,false);
+  }else{
+    zkSetConfirmed(sup,true);
+  }
+  const sc=document.querySelector("#zk-body .zk-sl");
+  const st=sc?sc.scrollTop:0;
+  renderZakas();
+  requestAnimationFrame(()=>{const s2=document.querySelector("#zk-body .zk-sl");if(s2)s2.scrollTop=st;});
+}
+function zkAutoRemoveConfirmed(allSups){
+  allSups.forEach(s=>{
+    if(zkIsConfirmed(s.sup)){
+      const needCount=s.rows.filter(r=>r.orderQty>0).length;
+      if(needCount===0){zkSetConfirmed(s.sup,false);}
+    }
+  });
+}
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -457,7 +478,9 @@ function _renderZkSupList(allSups){
   else withNeed.sort((a,b)=>zkSlAsc?a.needCount-b.needCount:b.needCount-a.needCount);
   const supCountEl=document.getElementById("zk-sup-count");
   if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${allSups.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>`;
+  zkAutoRemoveConfirmed(allSups);
   const body=document.getElementById("zk-body");if(!body)return;
+  const prevSl=body.querySelector(".zk-sl");const prevSt=prevSl?prevSl.scrollTop:0;
   const sa=(k)=>k===zkSlSort?(zkSlAsc?'▲':'▼'):'<span style="color:#ddd">▼</span>';
   let h=`<div class="zk-sl"><div class="zk-sl-hdr"><span class="zk-sl-dot-hdr"></span><span class="zk-sl-name zk-sl-th" onclick="zkSlSetSort('sup')">${t('zk_sl_nom')} ${sa('sup')}</span><span class="zk-sl-need zk-sl-th" onclick="zkSlSetSort('needCount')">${t('zk_sl_zakas')} ${sa('needCount')}</span><span class="zk-sl-total zk-sl-th" onclick="zkSlSetSort('total')">${t('zk_sl_jami')} ${sa('total')}</span><span class="zk-sl-arr"></span></div>`;
   withNeed.forEach((s,i)=>{
@@ -465,7 +488,7 @@ function _renderZkSupList(allSups){
     const sel=s.sup===zkLastSup?' zk-sl-sel':'';
     const alt=i%2===1?' zk-sl-alt':'';
     const conf=zkIsConfirmed(s.sup);
-    const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" onclick="event.stopPropagation();zkMarkConfirmed(${supJ})" title="${conf?t('zk_confirm_cancel'):t('zk_confirm_btn')}"></span>`;
+    const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" title="${conf?t('zk_confirm_btn'):''}"></span>`;
     h+=`<div class="zk-sl-row${sel}${alt}" onclick="zkOpenSupplier(${supJ})">${dot}<span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount}</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
   });
   if(noNeed.length){
@@ -475,12 +498,13 @@ function _renderZkSupList(allSups){
       const sel=s.sup===zkLastSup?' zk-sl-sel':'';
       const alt=i%2===1?' zk-sl-alt':'';
       const conf=zkIsConfirmed(s.sup);
-      const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" onclick="event.stopPropagation();zkMarkConfirmed(${supJ})" title="${conf?t('zk_confirm_cancel'):t('zk_confirm_btn')}"></span>`;
+      const dot=`<span class="zk-sl-dot${conf?' zk-sl-dot-ok':''}" title="${conf?t('zk_confirm_btn'):''}"></span>`;
       h+=`<div class="zk-sl-row zk-sl-dim${sel}${alt}" onclick="zkOpenSupplier(${supJ})">${dot}<span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need" style="color:#ccc">—</span><span class="zk-sl-total">${s.rows.length}</span><span class="zk-sl-arr${sel}">›</span></div>`;
     });
   }
   h+="</div>";
   body.innerHTML=h;
+  requestAnimationFrame(()=>{const sl=body.querySelector(".zk-sl");if(sl&&prevSt)sl.scrollTop=prevSt;});
 }
 function renderZakasPag(totalP){
   const pag=document.getElementById("zk-pag");if(!pag)return;
@@ -604,7 +628,7 @@ function renderZakas(){
   }
   sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl){if(zkSupFilter){const conf=zkIsConfirmed(zkSupFilter);const supJ=JSON.stringify(zkSupFilter).replace(/"/g,'&quot;');supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button><button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmed(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
+  if(supCountEl){if(zkSupFilter){const conf=zkIsConfirmed(zkSupFilter);const supJ=JSON.stringify(zkSupFilter).replace(/"/g,'&quot;');supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button><button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
   const body=document.getElementById("zk-body");if(!body)return;
   if(!sups.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
   const totalSups=sups.length;
