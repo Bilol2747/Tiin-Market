@@ -120,36 +120,102 @@ def fetch_products(token):
     return products
 
 
+def get_last_date_in_orders(orders):
+    """Buyurtmalar ro'yxatidagi oxirgi sanani qaytaradi."""
+    last = None
+    for o in orders:
+        ct = o.get("createdAt") or o.get("create_time") or o.get("date") or ""
+        d = str(ct)[:10]
+        if len(d) == 10:
+            try:
+                parsed = date.fromisoformat(d)
+                if last is None or parsed > last:
+                    last = parsed
+            except ValueError:
+                pass
+    return last
+
+
+def merge_orders(old_orders, new_orders, from_date):
+    """Yangi buyurtmalarni eskisiga qo'shadi: from_date dan oldingi eski yozuvlar saqlanadi,
+    from_date dan keyingilari yangilari bilan almashtiriladi."""
+    cutoff = from_date.isoformat()
+    kept = [o for o in old_orders if str(o.get("createdAt") or o.get("create_time") or o.get("date") or "")[:10] < cutoff]
+    return kept + new_orders
+
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--days", type=int, default=30, help="Necha kunlik sotuv tarixini olish (bugundan orqaga)")
+    parser.add_argument("--days", type=int, default=60, help="Necha kunlik sotuv tarixini olish (bugundan orqaga)")
     parser.add_argument("--start", type=str, default=None, help="Boshlanish sanasi (YYYY-MM-DD) - berilsa --days e'tiborga olinmaydi")
     parser.add_argument("--end", type=str, default=None, help="Tugash sanasi (YYYY-MM-DD), standart - bugun")
     parser.add_argument("--skip-products", action="store_true")
-    parser.add_argument("--skip-orders", action="store_true", help="Sotuvlarni o'tkazib yuborish (Turso'dan o'qilganda kerak)")
+    parser.add_argument("--skip-orders", action="store_true", help="Sotuvlarni o'tkazib yuborish")
+    parser.add_argument("--force", action="store_true", help="Mavjud faylni e'tiborsiz qoldirip to'liq qayta yuklash")
+    parser.add_argument("--update", action="store_true", help="Oxirgi 2 kunni qayta yuklash (to'liqsiz kunlar uchun)")
     args = parser.parse_args()
 
     token = load_token()
-    if args.start:
-        start_date = date.fromisoformat(args.start)
-        end_date = date.fromisoformat(args.end) if args.end else date.today()
-    else:
-        end_date = date.fromisoformat(args.end) if args.end else date.today()
-        start_date = end_date - timedelta(days=args.days)
+    end_date = date.fromisoformat(args.end) if args.end else date.today()
 
     out_orders = ROOT / "api_raw_orders.json"
+
     if args.skip_orders:
         print("1) Sotuvlar o'tkazib yuborildi (--skip-orders).\n")
-    elif out_orders.exists():
-        print(f"1) Sotuvlar allaqachon tayyor ({out_orders.name} mavjud) - qayta yuklanmaydi.\n")
+    elif args.force:
+        # To'liq qayta yuklash
+        if args.start:
+            start_date = date.fromisoformat(args.start)
+        else:
+            start_date = end_date - timedelta(days=args.days)
+        print(f"1) --force: to'liq qayta yuklash {start_date} dan {end_date} gacha...")
+        orders = fetch_orders(token, start_date.isoformat(), end_date.isoformat())
+        out_orders.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
+        print(f"   -> Saqlandi: {out_orders.name} ({len(orders)} ta sotuv)\n")
+    elif args.update and out_orders.exists():
+        # Faqat oxirgi 2 kunni yangilash (to'liqsiz kunlar)
+        old_orders = json.loads(out_orders.read_text(encoding="utf-8"))
+        last_date = get_last_date_in_orders(old_orders)
+        if last_date is None:
+            print("  ! Eski fayldagi sanalar aniqlanmadi, to'liq yuklanadi.")
+            start_date = end_date - timedelta(days=args.days)
+            orders = fetch_orders(token, start_date.isoformat(), end_date.isoformat())
+            out_orders.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
+        else:
+            # Oxirgi sanadan 1 kun oldin boshlab (o'sha kun to'liq bo'lmasligi mumkin)
+            update_from = last_date - timedelta(days=1)
+            print(f"1) --update: {update_from} dan {end_date} gacha yangilanmoqda (eski: {len(old_orders)} ta sotuv, oxirgi: {last_date})...")
+            new_orders = fetch_orders(token, update_from.isoformat(), end_date.isoformat())
+            merged = merge_orders(old_orders, new_orders, update_from)
+            out_orders.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+            print(f"   -> Yangilandi: {out_orders.name} ({len(old_orders)} → {len(merged)} ta sotuv, +{len(new_orders)} yangi)\n")
+    elif out_orders.exists() and not args.force:
+        # Mavjud fayl — oxirgi sana va bugunni tekshirish
+        old_orders = json.loads(out_orders.read_text(encoding="utf-8"))
+        last_date = get_last_date_in_orders(old_orders)
+        if last_date and (end_date - last_date).days >= 1:
+            # 1+ kun eskirgan — avtomatik inkremental yangilash
+            update_from = last_date - timedelta(days=1)
+            print(f"1) Ma'lumot {last_date} da to'xtaganini aniqladim ({(end_date-last_date).days} kun eskirgan).")
+            print(f"   {update_from} dan {end_date} gacha inkremental yangilash...")
+            new_orders = fetch_orders(token, update_from.isoformat(), end_date.isoformat())
+            merged = merge_orders(old_orders, new_orders, update_from)
+            out_orders.write_text(json.dumps(merged, ensure_ascii=False), encoding="utf-8")
+            print(f"   -> Yangilandi: {len(old_orders)} → {len(merged)} ta sotuv (+{len(new_orders)} yangi)\n")
+        else:
+            print(f"1) Sotuvlar yangi ({last_date}), qayta yuklanmaydi. --update yoki --force ishlating.\n")
     else:
+        if args.start:
+            start_date = date.fromisoformat(args.start)
+        else:
+            start_date = end_date - timedelta(days=args.days)
         print(f"1) Sotuvlar yuklanmoqda: {start_date} dan {end_date} gacha...")
         orders = fetch_orders(token, start_date.isoformat(), end_date.isoformat())
         out_orders.write_text(json.dumps(orders, ensure_ascii=False), encoding="utf-8")
         print(f"   -> Saqlandi: {out_orders.name} ({len(orders)} ta sotuv)\n")
 
     out_products = ROOT / "api_raw_products.json"
-    if out_products.exists():
+    if out_products.exists() and not args.force:
         print(f"2) Mahsulotlar allaqachon tayyor ({out_products.name} mavjud) - qayta yuklanmaydi.\n")
     elif not args.skip_products:
         print("2) Mahsulot katalogi yuklanmoqda...")
