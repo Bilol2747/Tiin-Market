@@ -312,7 +312,7 @@ let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
-let zkQuery="",zkSupFilter="",zkMode="list",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
+let zkQuery="",zkSupFilter="",zkMode="list",zkLastSup="",zkSupTargets={},zkRowAdj={},zkRowQty={},zkRowChecked={},zkSupShowAll={},_ZK_SUPPLIERS=[],_ZK_ALLROWS=[],_zkPmap=null,zkPage=1,_zBackPage="p5",zkSortKey="orderQty",zkSortAsc=false,zkRowOrder={};
 function zkToggleSupShowAll(si){const s=_ZK_SUPPLIERS[si];if(!s)return;zkSupShowAll[s.sup]=!zkSupShowAll[s.sup];renderZakas();}
 function _zkIsChecked(r){const v=zkRowChecked[r.key];return v!=null?v:false;}
 function zkToggleRow(ri){const r=_ZK_ALLROWS[ri];if(!r)return;zkRowChecked[r.key]=!_zkIsChecked(r);renderZakas();}
@@ -425,7 +425,7 @@ function zkPickSupplier(sup){
   renderZakas();
 }
 function zkGo(p){zkPage=p;renderZakas();const body=document.getElementById("zk-body");if(body)body.scrollTop=0;}
-function zkOpenSupplier(sup){zkMode="detail";zkSupFilter=sup;zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
+function zkOpenSupplier(sup){zkMode="detail";zkSupFilter=sup;zkLastSup=sup;zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function _renderZkSupList(allSups){
   const qw=document.getElementById("zk-quickbtn-wrap");if(qw)qw.style.display="none";
@@ -442,7 +442,8 @@ function _renderZkSupList(allSups){
   let h='<div class="zk-sl">';
   lst.forEach(s=>{
     const supJ=JSON.stringify(s.sup).replace(/"/g,'&quot;');
-    h+=`<div class="zk-sl-row" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount} zakas</span><span class="zk-sl-total">${s.rows.length} tovar</span><span class="zk-sl-arr">›</span></div>`;
+    const sel=s.sup===zkLastSup?' zk-sl-sel':'';
+    h+=`<div class="zk-sl-row${sel}" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount} zakas</span><span class="zk-sl-total">${s.rows.length} tovar</span><span class="zk-sl-arr${sel}">›</span></div>`;
   });
   h+="</div>";
   body.innerHTML=h;
@@ -568,7 +569,7 @@ function renderZakas(){
   }
   sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl){if(zkSupFilter){supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button><span class="zk-detail-title">${esc(zkSupFilter)}</span>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
+  if(supCountEl){if(zkSupFilter){supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
   const body=document.getElementById("zk-body");if(!body)return;
   if(!sups.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
   const totalSups=sups.length;
