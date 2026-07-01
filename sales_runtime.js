@@ -428,6 +428,7 @@ function zkGo(p){zkPage=p;renderZakas();const body=document.getElementById("zk-b
 function zkOpenSupplier(sup){zkMode="detail";zkSupFilter=sup;zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkPage=1;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";renderZakas();}
 function _renderZkSupList(allSups){
+  const qw=document.getElementById("zk-quickbtn-wrap");if(qw)qw.style.display="none";
   const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="none";
   const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="none";
   const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";
@@ -437,11 +438,9 @@ function _renderZkSupList(allSups){
   const body=document.getElementById("zk-body");if(!body)return;
   if(!lst.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;return;}
   let h='<div class="zk-sl">';
-  lst.forEach((s,i)=>{
-    const totTxt=(s.qtyDona>0?s.qtyDona.toLocaleString()+" sht":"")+(s.qtyDona>0&&s.qtyKg>0?" · ":"")+(s.qtyKg>0?s.qtyKg.toFixed(1)+" кг":"");
-    const urgCnt=s.rows.filter(r=>r.orderQty>0&&(r.signal==="kritik"||r.signal==="urgent")).length;
+  lst.forEach(s=>{
     const supJ=JSON.stringify(s.sup);
-    h+=`<div class="zk-sl-row" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-num">${i+1}</span><span class="zk-sl-name">${esc(s.sup)}</span>${urgCnt?`<span class="zk-sl-urg">${urgCnt} kritik</span>`:""}<span class="zk-sl-badge">${s.needCount} tovar</span><span class="zk-sl-qty">${totTxt}</span><span class="zk-sl-arr">›</span></div>`;
+    h+=`<div class="zk-sl-row" onclick="zkOpenSupplier(${supJ})"><span class="zk-sl-name">${esc(s.sup)}</span><span class="zk-sl-need">${s.needCount} zakas</span><span class="zk-sl-total">${s.rows.length} tovar</span><span class="zk-sl-arr">›</span></div>`;
   });
   h+="</div>";
   body.innerHTML=h;
@@ -556,8 +555,9 @@ function renderZakas(){
   _ZK_SUPPLIERS=_zkBuildSuppliers();
   if(zkMode==="list"){_renderZkSupList(_ZK_SUPPLIERS);return;}
   _zkRenderQuickPanel();
-  const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="";
+  const fr=document.getElementById("zk-filter-row");if(fr)fr.style.display="none";
   const foot=document.querySelector("#p7 .zk-foot");if(foot)foot.style.display="";
+  const qw=document.getElementById("zk-quickbtn-wrap");if(qw)qw.style.display="";
   let sups=_ZK_SUPPLIERS;
   if(zkSupFilter)sups=sups.filter(s=>s.sup===zkSupFilter);
   if(zkQuery){
