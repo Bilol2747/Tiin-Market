@@ -196,6 +196,8 @@ const I18N={
   nima_qk:{uz:"Nima qilish kerak?",en:"What should be done?",ru:"Что нужно делать?"},
   // Stock (p5)
   p5_back:{uz:"Mahsulotlarga qaytish",en:"Back to Products",ru:"Назад к товарам"},
+  z_back_zaxira:{uz:"← Zaxiraga qaytish",en:"← Back to Stock",ru:"← К складу"},
+  z_back_zakas:{uz:"← Zakasga qaytish",en:"← Back to Order",ru:"← К заказу"},
   p5_aktiv:{uz:"Aktiv",en:"Active",ru:"Активные"},
   p5_noaktiv:{uz:"Noaktiv",en:"Inactive",ru:"Неактивные"},
   sig_kritik:{uz:"Shoshilinch zakas",en:"Urgent reorder",ru:"Срочный заказ"},
@@ -699,10 +701,10 @@ async function zToProduct(zi){
   let idx=-1;
   if(z.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(z.sku));
   if(idx<0)idx=P2.findIndex(v=>v.name===z.name);
-  if(idx<0){const pq0=document.getElementById("pf-q");if(pq0){pq0.value=z.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}const bb=document.getElementById("z-back");if(bb)bb.style.display="inline-flex";return;}
+  if(idx<0){const pq0=document.getElementById("pf-q");if(pq0){pq0.value=z.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}const bb=document.getElementById("z-back");if(bb){bb.style.display="inline-flex";bb.textContent=t("z_back_zaxira");}return;}
   const pq=document.getElementById("pf-q");if(pq){pq.value=P2[idx].name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
   if(typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
-  const bb=document.getElementById("z-back");if(bb)bb.style.display="inline-flex";
+  const bb=document.getElementById("z-back");if(bb){bb.style.display="inline-flex";bb.textContent=t("z_back_zaxira");}
 }
 function zBack(){
   const bb=document.getElementById("z-back");if(bb)bb.style.display="none";
@@ -723,7 +725,7 @@ async function zkOpenProduct(ri){
   if(pq){pq.value=idx>=0?P2[idx].name:r.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
   if(idx>=0&&typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
   const bb=document.getElementById("z-back");
-  if(bb){bb.style.display="inline-flex";const lbl=bb.querySelector("span,b");if(lbl)lbl.textContent=t("zak_back")||"← Заказ";}
+  if(bb){bb.style.display="inline-flex";bb.textContent=t("z_back_zakas");}
 }
 function p5Back(){
   const bb=document.getElementById("p5-back");if(bb)bb.style.display="none";
