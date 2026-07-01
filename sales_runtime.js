@@ -335,6 +335,17 @@ function zkResetAll(){
   zkRowQty={};zkRowAdj={};zkSupTargets={};zkRowOrder={};
   renderZakas();
 }
+function _zkInitResetBtn(){
+  let btn=document.getElementById("zk-reset-btn");
+  if(!btn){
+    const wrap=document.getElementById("zk-quickbtn-wrap");if(!wrap)return;
+    btn=document.createElement("button");
+    btn.id="zk-reset-btn";btn.type="button";btn.onclick=zkResetAll;
+    btn.style.cssText="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:16px;background:#fff;border:1.5px solid #fde8e8;font-size:12px;font-weight:600;color:#E24B4A;cursor:pointer;flex-shrink:0;margin-right:8px";
+    wrap.parentNode.insertBefore(btn,wrap);
+  }
+  btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg> ${t("zk_reset_btn")}`;
+}
 // Bir supplierning ISTALGAN tovari kritik/urgent bo'lsa - shu supplierning BARCHA tovarlari
 // (dailyAvg>0 bo'lganlari) zakas ro'yxatiga tushadi, bir xil "maqsadli kun"ga moslab -
 // shunda supplier bir martagina kelib hammasini birga to'ldiradi.
@@ -513,6 +524,7 @@ function zkAddAdj(ri,delta){
 }
 function renderZakas(){
   if(!ZITEMS){if(P2)_buildZItems();else return;}
+  _zkInitResetBtn();
   _ZK_SUPPLIERS=_zkBuildSuppliers();
   _zkRenderQuickPanel();
   let sups=_ZK_SUPPLIERS;
