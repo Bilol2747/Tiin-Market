@@ -1329,12 +1329,15 @@ const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?t("dt_note
 }
 function dailyForFull(v){if(!DAILYFULL||!v)return null;const sk=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;const nk=DNAME?DNAME[nn2(v.name)]:null;return DAILYFULL[sk]||DAILYFULL[nk]||DAILYFULL[nn2(v.name)]||null;}
 // Zakas/stok uchun DOIM oxirgi 30 kunlik o'rtacha (grafik tanlangan oraliqdan qat'i nazar)
+// calcTozaOrtacha bilan bir xil formula: retail + doimiy ulgurji (wi), bir martalik (we) kiritilmaydi
 // 25% qoida: 30 kun ichida 8+ kunda sotilgan bo'lsa, sotilgan kunlarga bo'linadi
 function _get30Avg(v){
   const dl=dailyForFull(v);if(!dl)return null;
   const rt=dl.rt||dl.q||[];if(!rt.length)return null;
-  const s=Math.max(0,rt.length-30);const sl=rt.slice(s);
-  const tot=sl.reduce((a,b)=>a+(b||0),0);
+  const wi=dl.wi||[];  // doimiy (takrorlanuvchi) ulgurji — zakasga qo'shiladi
+  const n=rt.length;const s=Math.max(0,n-30);
+  const sl=rt.slice(s).map((x,i)=>(x||0)+(wi[s+i]||0));
+  const tot=sl.reduce((a,b)=>a+b,0);
   const active=sl.filter(x=>x>0).length;
   return active>=8?Math.round(tot/active*100)/100:Math.round(tot/30*100)/100;
 }
