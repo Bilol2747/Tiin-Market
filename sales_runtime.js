@@ -254,7 +254,7 @@ const I18N={
   zk_no_need_sep:{uz:"Zakasga tushmagan supplierlar",en:"No pending orders",ru:"Без заказа"},
   zk_sum_items:{uz:"tovar",en:"products",ru:"товаров"},
   zk_sum_amt:{uz:"jami zakas qiymati",en:"total order value",ru:"общая сумма заказа"},
-  zk_search_ph:{uz:"Supplier qidirish...",en:"Search supplier...",ru:"Поиск поставщика..."},
+  zk_search_ph:{uz:"Mahsulot, SKU yoki supplier...",en:"Product, SKU or supplier...",ru:"Товар, SKU или поставщик..."},
   zk_all_sup:{uz:"Barcha yetkazib beruvchilar",en:"All suppliers",ru:"Все поставщики"},
   zk_export:{uz:"Excel yuklab olish",en:"Download Excel",ru:"Скачать Excel"},
   zk_col_product:{uz:"Mahsulot",en:"Product",ru:"Товар"},
@@ -480,7 +480,7 @@ function _renderZkSupList(allSups){
   const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";
   const d=document.getElementById("zk-sup-drop");if(d)d.classList.remove("open");
   let all=allSups.map(s=>({...s,needCount:s.rows.filter(r=>r.orderQty>0).length}));
-  if(zkQuery)all=all.filter(s=>s.sup.toLowerCase().includes(zkQuery));
+  if(zkQuery){const q=zkQuery;all=all.filter(s=>s.sup.toLowerCase().includes(q)||s.rows.some(r=>(r.name&&r.name.toLowerCase().includes(q))||(r.sku&&String(r.sku).includes(q))));}
   let withNeed=all.filter(s=>s.needCount>0);
   let noNeed=all.filter(s=>s.needCount===0).sort((a,b)=>a.sup.localeCompare(b.sup,"ru"));
   if(zkSlSort==="sup")withNeed.sort((a,b)=>zkSlAsc?a.sup.localeCompare(b.sup,"ru"):b.sup.localeCompare(a.sup,"ru"));
