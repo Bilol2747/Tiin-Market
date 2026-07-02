@@ -70,6 +70,9 @@ const I18N={
   sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
   sp_mz_prod:{uz:"TOVAR NOMI",en:"PRODUCT NAME",ru:"НАЗВАНИЕ ТОВАРА"},
   sp_mz_stock:{uz:"STOK",en:"STOCK",ru:"ЗАПАС"},
+  sp_mz_buy:{uz:"KELISH NARXI",en:"BUY PRICE",ru:"ЦЕНА ЗАКУПКИ"},
+  sp_mz_frozen:{uz:"MUZLAGAN SUMMA",en:"FROZEN VALUE",ru:"ЗАМОРОЖ. СУММА"},
+  sp_mz_sell:{uz:"SOTILISH NARXI",en:"SELL PRICE",ru:"ЦЕНА ПРОДАЖИ"},
   sp_mz_days:{uz:"SOTUVSIZ",en:"IDLE DAYS",ru:"БЕЗ ПРОДАЖ"},
   sp_unit_pc:{uz:"dona",en:"pcs",ru:"шт"},
   sp_unit_kg:{uz:"kg",en:"kg",ru:"кг"},
@@ -1898,19 +1901,19 @@ function p6OpenSupplierDetail(r){
   const mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===S.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
   let mzPageH="";
   if(mzItems.length){
+    const fmtP=n=>n?(Math.round(n)).toLocaleString()+" so'm":"—";
     const mzRows=mzItems.map((v,vi)=>{
       const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
       const u=v.kg?t("sp_unit_kg"):t("sp_unit_pc");
-      const diNum=v.di>=999?`60+`:String(v.di);
+      const diNum=v.di>=999?"60+":String(v.di);
       const di=`${diNum} ${t("sp_days_unit")}`;
-      const abcBg2={A:"#e8f8f3",B:"#eeebfb",C:"#fef3e2"};
-      const abcFg2={A:"#1D9E75",B:"#534AB7",C:"#EF9F27"};
-      const abcBadge=v.abc?`<span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg2[v.abc]||"#f4f4f0"};color:${abcFg2[v.abc]||"#888"}">${v.abc}</span>`:`<span style="color:#d0d0d0;font-size:12px">—</span>`;
       const skuLine=v.sku?`<span style="font-size:9px;color:#ccc;font-weight:500;display:block">${esc(v.sku)}</span>`:"";
-      return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:10px;text-align:center;width:32px;padding:5px 6px">${vi+1}</td><td style="text-align:center;padding:5px 6px">${abcBadge}</td><td style="padding:5px 10px;white-space:nowrap"><span class="sp6-prod-link" title="${esc(v.name)}">${esc(v.name)}</span>${skuLine}</td><td style="padding:5px 10px;text-align:right;color:#E24B4A;font-weight:700;font-size:11px;white-space:nowrap">${stk} ${u}</td><td style="padding:5px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td></tr>`;
+      const fv=v.frozenVal||0;
+      const fvStr=fv>=1e6?`${(fv/1e6).toFixed(1)} mln`:`${fv.toLocaleString()}`;
+      return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:10px;text-align:center;width:32px;padding:5px 6px">${vi+1}</td><td style="padding:5px 10px;white-space:nowrap"><span class="sp6-prod-link" title="${esc(v.name)}">${esc(v.name)}</span>${skuLine}</td><td style="padding:5px 10px;text-align:right;color:#E24B4A;font-weight:700;font-size:11px;white-space:nowrap">${stk} ${u}</td><td style="padding:5px 10px;text-align:right;font-size:11px;color:#534AB7;font-weight:600;white-space:nowrap">${fmtP(v.sp)}</td><td style="padding:5px 10px;text-align:right;font-size:11px;color:#EF9F27;font-weight:700;white-space:nowrap">${fvStr} so'm</td><td style="padding:5px 10px;text-align:right;font-size:11px;color:#1D9E75;font-weight:600;white-space:nowrap">${fmtP(v.rp)}</td><td style="padding:5px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td></tr>`;
     }).join("");
     const thStyle="padding:6px 8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;white-space:nowrap;position:sticky;top:0;background:#fafaf5";
-    mzPageH=`<div style="padding:0 14px 40px"><table class="sp6-matrix" style="width:auto;min-width:100%"><thead id="sp6-mz-thead"><tr><th style="${thStyle};width:32px;text-align:center">#</th><th style="${thStyle};text-align:center">ABC</th><th style="${thStyle};text-align:left">${t("sp_mz_prod")}</th><th style="${thStyle};text-align:right">${t("sp_mz_stock")}</th><th style="${thStyle};text-align:right">${t("sp_mz_days")}</th></tr></thead><tbody>${mzRows}</tbody></table></div>`;
+    mzPageH=`<div style="padding:0 14px 40px"><table class="sp6-matrix" style="width:auto;min-width:100%"><thead id="sp6-mz-thead"><tr><th style="${thStyle};width:32px;text-align:center">#</th><th style="${thStyle};text-align:left">${t("sp_mz_prod")}</th><th style="${thStyle};text-align:right">${t("sp_mz_stock")}</th><th style="${thStyle};text-align:right">${t("sp_mz_buy")}</th><th style="${thStyle};text-align:right">${t("sp_mz_frozen")}</th><th style="${thStyle};text-align:right">${t("sp_mz_sell")}</th><th style="${thStyle};text-align:right">${t("sp_mz_days")}</th></tr></thead><tbody>${mzRows}</tbody></table></div>`;
   }
   // Show totals row at top
   const totRev=S.months?S.months.reduce((s,m)=>s+(m?m.rev||0:0),0):0;
