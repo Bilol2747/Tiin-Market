@@ -87,6 +87,8 @@ const I18N={
   sp_prod_receipts:{uz:"Chek",en:"Receipts",ru:"Чеки"},
   sp_prod_abc:{uz:"ABC",en:"ABC",ru:"ABC"},
   sp_ta:{uz:"ta",en:"",ru:"шт"},
+  sp6_back_label:{uz:"← Ta'minotchi",en:"← Supplier",ru:"← Поставщик"},
+  sp6_no_data:{uz:"Ma'lumot yo'q",en:"No data",ru:"Нет данных"},
   dt_all:{uz:"Butun davr",en:"Whole period",ru:"Весь период"},
   dt_7:{uz:"So'nggi 7 kun",en:"Last 7 days",ru:"Последние 7 дней"},
   dt_14:{uz:"So'nggi 14 kun",en:"Last 14 days",ru:"Последние 14 дней"},
@@ -324,6 +326,7 @@ let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
 let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth=null,p6ProdSortKey="rev",p6ProdSortAsc=false;
+let _p6DetailProds=[];
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
@@ -1809,77 +1812,107 @@ function renderP6(){
   if(ZITEMS){ZITEMS.filter(v=>v.signal==="muzlagan").forEach(v=>{if(v.sup)mzMap[v.sup]=(mzMap[v.sup]||0)+1;});}
   let h="";
   shown.forEach((s,i)=>{
-    const isSel=p6SelI===s.r;
-    const selStyle=isSel?" sp-row-sel":"";
-    h+=`<tr class="sp-row${selStyle}" onclick="p6Select(${s.r})">`;
+    h+=`<tr class="sp-row sp6-sup-row" onclick="p6OpenSupplierDetail(${s.r})">`;
     h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
-    h+=`<td><div class="sp-name" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
+    h+=`<td><div class="sp-name sp6-sup-link" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     P6_MONTH_KEYS.forEach((_,mi)=>{
       const me=s.months&&s.months[mi];
-      const isCellSel=isSel&&p6SelMonth===mi;
       if(me){
-        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">${me.abc}</button></td>`;
+        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
       }else{
-        h+=`<td style="text-align:center"><button class="sp-month-chip sp-month-empty${isCellSel?" sp-month-active":""}" onclick="event.stopPropagation();p6SelectMonth(${s.r},${mi})">—</button></td>`;
+        h+=`<td style="text-align:center"><button class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
       }
     });
     h+=`</tr>`;
-    if(isSel){
-      let detH,mzItems=[],mzPageH="";
-      const me=s.months&&s.months[p6SelMonth];
-      if(me){
-        const abc=me.abc;
-        const barC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
-        const monthMax=Math.max(1,...P6.suppliers.map(x=>(x.months&&x.months[p6SelMonth]&&x.months[p6SelMonth].rev)||0));
-        const pct=Math.min(100,Math.round(me.rev/monthMax*100));
-        const revStr=me.rev>=1e9?(me.rev/1e9).toFixed(2)+" mlrd":me.rev>=1e6?Math.round(me.rev/1e6)+" mln":me.rev.toLocaleString();
-        const aB=`<span class="sp-mc sp-mc-a">${me.abc_cnt.A||0}A</span>`;
-        const bB=`<span class="sp-mc sp-mc-b">${me.abc_cnt.B||0}B</span>`;
-        const cB=`<span class="sp-mc sp-mc-c">${me.abc_cnt.C||0}C</span>`;
-        const monthNow=t(P6_MONTH_KEYS[p6SelMonth]);
-        mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===s.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
-        if(mzItems.length){
-          const mzRows=mzItems.map((v,i)=>{
-            const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
-            const u=v.kg?"kg":"шт";
-            const di=v.di>=999?"60+ kun":v.di+" kun";
-            return `<tr style="border-bottom:1px solid #f4f4f0"><td style="padding:9px 10px;text-align:center;color:#bbb;font-size:11px;width:36px">${i+1}</td><td style="padding:9px 10px"><div style="font-weight:600;font-size:13px;line-height:1.3">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:9px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:9px 10px;text-align:right;color:#999;font-size:12px;white-space:nowrap">${di}</td><td style="padding:9px 10px;text-align:center"><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
-          }).join("");
-          mzPageH=`<table style="width:100%;border-collapse:collapse"><thead style="position:sticky;top:62px;z-index:2;background:#fafaf5"><tr><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">#</th><th style="padding:9px 10px;text-align:left;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_prod")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_stock")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_days")}</th><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>`;
-        }
-        detH=`<div id="sp-ov-stats" style="position:sticky;top:62px;background:#fff;z-index:1;padding-bottom:14px;border-bottom:1.5px solid #f0f0ec;margin-bottom:16px"><div style="font-size:11px;font-weight:800;color:#1D9E75;margin-bottom:8px">${t("sp_det_month").replace("{month}",monthNow)}</div><div class="sp-det-stats">
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tushum")}</div><div class="sp-det-stat-val">${revStr}</div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_hissa")}</div><div class="sp-det-stat-val">${me.rp}%<div class="sp-det-bar"><div class="sp-det-bar-fill" style="width:${pct}%;background:${barC}"></div></div></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_tovarlar")}</div><div class="sp-det-stat-val">${me.cnt} ${t("sp_ta")} <span style="display:inline-flex;gap:4px;margin-left:6px">${aB}${bB}${cB}</span></div></div>
-<div class="sp-det-stat"><div class="sp-det-stat-lbl">${t("sp_stat_cheklar")}</div><div class="sp-det-stat-val">${(me.rec||0).toLocaleString()}</div></div>
-</div></div>`;
-        const supAll=(me.top||[]).slice().sort((a,b)=>{
-          const k=p6ProdSortKey;let va=a[k],vb=b[k];
-          if(k==="name"){va=va||"";vb=vb||"";return p6ProdSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
-          if(k==="abc"){const o={A:0,B:1,C:2};va=o[va]??3;vb=o[vb]??3;}
-          va=va??0;vb=vb??0;return p6ProdSortAsc?va-vb:vb-va;
-        });
-        if(supAll.length){
-          const money=v=>(v||0)>=1e6?Math.round((v||0)/1e6)+" mln so'm":(v||0).toLocaleString()+" so'm";
-          const topH=supAll.map((t2,ti)=>`<tr><td>${ti+1}</td><td><div class="sp-prod-name" title="${esc(t2.name)}">${esc(t2.name)}</div></td><td>${esc(t2.sku||"")}</td><td>${money(t2.rev)}</td><td>${(t2.rec||0).toLocaleString()}</td><td><span class="p2-abc p2-abc-${t2.abc}">${t2.abc||"—"}</span></td></tr>`).join("");
-          detH+=`<div class="sp-det-title" style="margin-top:10px">📦 ${t("sp_all_products").replace("{n}",supAll.length)}</div><div class="sp-prod-scroll" style="max-height:none;overflow:visible"><table class="sp-prod-table"><thead><tr><th style="text-align:center">#</th>${_p6ProdTh(t("sp_prod_name"),"name","left")}<th style="text-align:left">${t("sp_prod_sku")}</th>${_p6ProdTh(t("sp_prod_revenue"),"rev")}${_p6ProdTh(t("sp_prod_receipts"),"rec")}${_p6ProdTh("ABC","abc","center")}</tr></thead><tbody>${topH}</tbody></table></div>`;
-        }
-      }else{
-        detH=`<div class="sp-det-empty">${t("sp_det_empty").replace("{month}",p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"")}</div>`;
-      }
-      _p6ShowOverlay(s.name,detH,p6SelMonth!=null?t(P6_MONTH_KEYS[p6SelMonth]):"",me&&me.abc,mzItems.length,mzPageH);
-    }
   });
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
-  if(p6SelI===null){const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";}
   renderP6Pag(totalP);
 }
 function p6ProdSort(k){if(p6ProdSortKey===k)p6ProdSortAsc=!p6ProdSortAsc;else{p6ProdSortKey=k;p6ProdSortAsc=k==="name"||k==="abc";}renderP6();}
 function _p6ProdTh(lbl,k,align){const a=align||"right";const act=p6ProdSortKey===k;const ar=act?(p6ProdSortAsc?"↑":"↓"):"↕";return `<th onclick="p6ProdSort('${k}')" style="cursor:pointer;text-align:${a};user-select:none;white-space:nowrap">${lbl}<span style="margin-left:2px;color:${act?"#534AB7":"#ccc"};font-size:9px">${ar}</span></th>`;}
 function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
-  p6SelI=null;p6SelMonth=null;renderP6();
+  const mz=document.getElementById("sp-mz-page");if(mz)mz.style.display="none";
+  p6SelI=null;p6SelMonth=null;_p6DetailProds=[];
+}
+function p6OpenSupplierDetail(r){
+  if(!P6)return;
+  p6SelI=r;
+  const S=P6.suppliers.find(x=>x.r===r);
+  if(!S)return;
+  _p6EnsureDetailStyles();
+  // Build product×month matrix — collect all products across all months
+  const prodMap=new Map();
+  P6_MONTH_KEYS.forEach((_,mi)=>{
+    const month=S.months&&S.months[mi];
+    if(!month)return;
+    (month.top||[]).forEach(item=>{
+      const key=item.sku||item.name;
+      if(!prodMap.has(key)){prodMap.set(key,{name:item.name,sku:item.sku||"",months:new Array(P6_MONTH_KEYS.length).fill(null),latestRev:0,latestMi:-1});}
+      const p=prodMap.get(key);
+      p.months[mi]=item.abc;
+      if(mi>=p.latestMi){p.latestRev=item.rev||0;p.latestMi=mi;}
+    });
+  });
+  _p6DetailProds=[...prodMap.values()].sort((a,b)=>b.latestRev-a.latestRev);
+  // ABC badge colors
+  const abcBg={A:"#e8f8f3",B:"#eeebfb",C:"#fef3e2"};
+  const abcFg={A:"#1D9E75",B:"#534AB7",C:"#EF9F27"};
+  // Build month column headers
+  const monthHdrs=P6_MONTH_KEYS.map(k=>`<th style="text-align:center;min-width:52px">${t(k)}</th>`).join("");
+  // Build rows
+  const rows=_p6DetailProds.map((p,i)=>{
+    const abcCells=p.months.map(abc=>
+      abc?`<td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg[abc]||"#f4f4f0"};color:${abcFg[abc]||"#555"}">${abc}</span></td>`
+         :`<td style="text-align:center;color:#d0d0d0;font-size:12px">—</td>`
+    ).join("");
+    return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:11px;text-align:center;width:38px;padding:7px 8px">${i+1}</td><td style="padding:7px 12px"><span class="sp6-prod-link" onclick="p6GoToProduct(${i})">${esc(p.name)}</span></td>${abcCells}</tr>`;
+  }).join("");
+  const minW=220+P6_MONTH_KEYS.length*62;
+  const tableH=_p6DetailProds.length
+    ?`<div style="overflow-x:auto;width:100%"><table class="sp6-matrix" style="width:100%;border-collapse:collapse;min-width:${minW}px"><thead><tr style="position:sticky;top:0"><th style="width:38px;text-align:center;padding:8px 8px">#</th><th style="text-align:left;min-width:180px;padding:8px 12px">${t("sp_prod_name")}</th>${monthHdrs}</tr></thead><tbody>${rows}</tbody></table></div>`
+    :`<div style="padding:40px;text-align:center;color:#bbb">${t("sp6_no_data")}</div>`;
+  // Build mz (unsold) page
+  const mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===S.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
+  let mzPageH="";
+  if(mzItems.length){
+    const mzRows=mzItems.map((v,vi)=>{
+      const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
+      const u=v.kg?"kg":"шт";
+      const di=v.di>=999?"60+ kun":v.di+" kun";
+      return `<tr style="border-bottom:1px solid #f4f4f0"><td style="padding:9px 10px;text-align:center;color:#bbb;font-size:11px;width:36px">${vi+1}</td><td style="padding:9px 10px"><div style="font-weight:600;font-size:13px;line-height:1.3">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:9px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:9px 10px;text-align:right;color:#999;font-size:12px;white-space:nowrap">${di}</td><td style="padding:9px 10px;text-align:center"><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
+    }).join("");
+    mzPageH=`<table style="width:100%;border-collapse:collapse"><thead style="position:sticky;top:62px;z-index:2;background:#fafaf5"><tr><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">#</th><th style="padding:9px 10px;text-align:left;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_prod")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_stock")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_days")}</th><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>`;
+  }
+  // Show totals row at top
+  const totRev=S.months?S.months.reduce((s,m)=>s+(m?m.rev||0:0),0):0;
+  const totRevStr=totRev>=1e9?(totRev/1e9).toFixed(2)+" mlrd so'm":totRev>=1e6?Math.round(totRev/1e6)+" mln so'm":totRev.toLocaleString()+" so'm";
+  const summaryH=`<div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:14px;border-bottom:1.5px solid #f0f0ec"><div style="background:#f0faf6;border-radius:10px;padding:8px 16px;font-size:12px"><span style="color:#888;font-weight:600">${t("sp_stat_tushum")}: </span><span style="color:#1D9E75;font-weight:800">${totRevStr}</span></div><div style="background:#f0f0fa;border-radius:10px;padding:8px 16px;font-size:12px"><span style="color:#888;font-weight:600">${t("sp_stat_tovarlar")}: </span><span style="color:#534AB7;font-weight:800">${_p6DetailProds.length} ${t("sp_ta")}</span></div></div>`;
+  _p6ShowOverlay(S.name,summaryH+tableH,"",(S.months&&S.months[p6LatestMonthIndex()]&&S.months[p6LatestMonthIndex()].abc)||S.abc,mzItems.length,mzPageH);
+}
+async function p6GoToProduct(pi){
+  const p=_p6DetailProds[pi];
+  if(!p)return;
+  _zBackPage="p6";
+  const p2btn=document.querySelector('.sb-item[data-page="p2"]');
+  if(p2btn)await showPage(p2btn);
+  if(!P2)return;
+  let idx=-1;
+  if(p.sku)idx=P2.findIndex(v=>String(v.sku||"")===String(p.sku));
+  if(idx<0)idx=P2.findIndex(v=>v.name===p.name);
+  const pq=document.getElementById("pf-q");
+  if(pq){pq.value=idx>=0?P2[idx].name:p.name;if(typeof pfQToggle==="function")pfQToggle();if(typeof p2Filter==="function")p2Filter();}
+  if(idx>=0&&typeof p2Open==="function")p2Open(P2[idx]._i!=null?P2[idx]._i:idx);
+  const bb=document.getElementById("z-back");
+  if(bb){bb.style.display="inline-flex";bb.textContent=t("sp6_back_label");}
+}
+function _p6EnsureDetailStyles(){
+  if(document.getElementById("sp6-detail-style"))return;
+  const st=document.createElement("style");
+  st.id="sp6-detail-style";
+  st.textContent=`#sp-fullscreen{padding-left:10px!important;padding-right:10px!important}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1D9E75;font-weight:600;font-size:12px;line-height:1.35;display:inline-block}.sp6-prod-link:hover{text-decoration:underline;color:#0D7A55}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px}.sp6-matrix thead tr{background:#fafaf5}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
+  document.head.appendChild(st);
 }
 function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   const p6el=document.getElementById("p6");if(!p6el)return;
