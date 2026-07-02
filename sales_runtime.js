@@ -67,25 +67,15 @@ const I18N={
   sp_cnt_suffix:{uz:"ta supplier",en:"suppliers",ru:"поставщиков"},
   sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
   sp_back_sup:{uz:"← Ortga",en:"← Back",ru:"← Назад"},
-  sp_det_month:{uz:"{month} oyiga tegishli ma'lumotlar",en:"Data for {month}",ru:"Данные за {month}"},
-  sp_det_empty:{uz:"{month} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.",en:"Data for {month} hasn't loaded yet — it will appear here once the historical data finishes loading.",ru:"Данные за {month} ещё не загружены — появятся здесь после полной загрузки исторических данных."},
   sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
   sp_mz_prod:{uz:"MAHSULOT",en:"PRODUCT",ru:"ТОВАР"},
   sp_mz_stock:{uz:"STOK",en:"STOCK",ru:"ЗАПАС"},
   sp_mz_days:{uz:"SOTUVSIZ",en:"IDLE DAYS",ru:"БЕЗ ПРОДАЖ"},
   sp_stat_tushum:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
-  sp_stat_hissa:{uz:"Hissa",en:"Share",ru:"Доля"},
   sp_stat_tovarlar:{uz:"Tovarlar",en:"Products",ru:"Товары"},
-  sp_stat_cheklar:{uz:"Cheklar",en:"Receipts",ru:"Чеки"},
-  sp_stat_sotilmay:{uz:"Sotilmay qolgan",en:"Unsold",ru:"Не продано"},
-  sp_all_products:{uz:"Barcha tovarlar ({n} ta)",en:"All products ({n})",ru:"Все товары ({n})"},
   sp_month_calc:{uz:"{month} bo'yicha hisob",en:"Calculated for {month}",ru:"Расчет за {month}"},
   sp_month_select:{uz:"Hisob oyi",en:"Calculation month",ru:"Месяц расчета"},
   sp_prod_name:{uz:"Tovar nomi",en:"Product name",ru:"Название товара"},
-  sp_prod_sku:{uz:"SKU",en:"SKU",ru:"SKU"},
-  sp_prod_revenue:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
-  sp_prod_receipts:{uz:"Chek",en:"Receipts",ru:"Чеки"},
-  sp_prod_abc:{uz:"ABC",en:"ABC",ru:"ABC"},
   sp_ta:{uz:"ta",en:"",ru:"шт"},
   sp6_back_label:{uz:"← Ta'minotchi",en:"← Supplier",ru:"← Поставщик"},
   sp6_no_data:{uz:"Ma'lumot yo'q",en:"No data",ru:"Нет данных"},
@@ -325,7 +315,7 @@ let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,
 let p2LastI=null;
 let ZITEMS=null,INVDATA=null,zCurFilter="all",zQuery="",zF={cat:"",sub:"",sup:"",type:"",abc:""},zFilled=false,zLastZi=null,zPage=1,zSuperTabCur="aktiv";
 const ZPS=50;
-let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6SelMonth=null,p6CardMonth=null,p6ProdSortKey="rev",p6ProdSortAsc=false;
+let P6=null,p6CurF="all",p6Q="",p6Page=1,p6SelI=null,p6CardMonth=null;
 let _p6DetailProds=[];
 const P6PS=50;
 const ZK_DEFAULT_TARGET=20;
@@ -1707,7 +1697,7 @@ function initP6(){
   renderP6();
 }
 function p6SetFilter(f){
-  p6CurF=f;p6Page=1;p6SelI=null;p6SelMonth=null;
+  p6CurF=f;p6Page=1;p6SelI=null;
   document.querySelectorAll(".sp-ftab").forEach(b=>b.classList.toggle("active",b.dataset.f===f));
   document.querySelectorAll(".sp-card").forEach(c=>c.classList.remove("sp-selected"));
   if(f!=="all"){const el=document.getElementById("sp-card-"+f);if(el)el.classList.add("sp-selected");}
@@ -1726,17 +1716,6 @@ function p6ClearSearch(){
   const clr=document.getElementById("sp-clear");
   if(clr)clr.style.display="none";
   p6Q="";p6Page=1;renderP6();
-}
-function p6Select(r){
-  if(p6SelI===r){p6SelI=null;p6SelMonth=null;}
-  else{
-    p6SelI=r;
-    const s=P6.suppliers.find(x=>x.r===r);
-    let mi=p6CardMonth;
-    if(!(s&&s.months&&s.months[mi])&&s&&s.months){for(let i=s.months.length-1;i>=0;i--){if(s.months[i]){mi=i;break;}}}
-    p6SelMonth=mi;
-  }
-  renderP6();
 }
 function p6Go(page){p6Page=page;renderP6();const w=document.querySelector(".sp-tbl-wrap");if(w)w.scrollTop=0;}
 function exportSuppliersCSV(){
@@ -1775,7 +1754,7 @@ function p6MonthItems(){
   return (P6&&P6.suppliers?P6.suppliers:[]).filter(s=>p6MonthEntry(s));
 }
 function p6SetCardMonth(mi){
-  p6CardMonth=mi;p6Page=1;p6SelI=null;p6SelMonth=null;renderP6();
+  p6CardMonth=mi;p6Page=1;renderP6();
 }
 function p6ToggleMonthMenu(e){
   if(e)e.stopPropagation();
@@ -1787,12 +1766,6 @@ function p6PickCardMonth(mi,e){
   const dd=document.getElementById("sp-month-dd");
   if(dd)dd.classList.remove("open");
   p6SetCardMonth(mi);
-}
-function p6SelectMonth(r,mi){
-  p6CardMonth=mi;
-  if(p6SelI===r&&p6SelMonth===mi){p6SelI=null;p6SelMonth=null;}
-  else{p6SelI=r;p6SelMonth=mi;}
-  renderP6();
 }
 function renderP6(){
   if(!P6)return;
@@ -1829,12 +1802,10 @@ function renderP6(){
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
 }
-function p6ProdSort(k){if(p6ProdSortKey===k)p6ProdSortAsc=!p6ProdSortAsc;else{p6ProdSortKey=k;p6ProdSortAsc=k==="name"||k==="abc";}renderP6();}
-function _p6ProdTh(lbl,k,align){const a=align||"right";const act=p6ProdSortKey===k;const ar=act?(p6ProdSortAsc?"↑":"↓"):"↕";return `<th onclick="p6ProdSort('${k}')" style="cursor:pointer;text-align:${a};user-select:none;white-space:nowrap">${lbl}<span style="margin-left:2px;color:${act?"#534AB7":"#ccc"};font-size:9px">${ar}</span></th>`;}
 function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
   const mz=document.getElementById("sp-mz-page");if(mz)mz.style.display="none";
-  p6SelI=null;p6SelMonth=null;_p6DetailProds=[];
+  p6SelI=null;_p6DetailProds=[];
 }
 function p6OpenSupplierDetail(r){
   if(!P6)return;
@@ -1956,18 +1927,12 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   }
   ov.style.display="block";
   ov.scrollTop=0;
-  requestAnimationFrame(()=>{
-    const hdr=document.getElementById("sp-ov-header");
-    const stats=document.getElementById("sp-ov-stats");
-    const tot=(hdr?hdr.offsetHeight:62)+(stats?stats.offsetHeight:90);
-    ov.querySelectorAll(".sp-prod-table thead").forEach(th=>th.style.top=tot+"px");
-  });
 }
 function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
   const st=document.createElement("style");
   st.id="sp-prod-table-style";
-  st.textContent=`#sp-fullscreen .sp-prod-table thead{position:sticky;top:0;z-index:3}#sp-fullscreen .sp-det-wrap{padding-bottom:40px}.sp-det-wrap{background:#fff!important;border:none!important;border-left:none!important;border-radius:0!important;padding:0!important;margin:0!important;max-width:100%!important}.sp-det-month{color:#1D9E75!important}.sp-month-chip.sp-month-active{border-color:#1D9E75!important;box-shadow:0 0 0 2px rgba(29,158,117,.18)!important}.sp-row-sel td{background:#f0faf6!important}.sp-row-sel td:first-child{box-shadow:inset 3px 0 0 #1D9E75!important}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}.sp-det-wrap{max-width:1120px!important;margin-right:24px}.sp-prod-scroll{max-height:380px;overflow:auto;border:none;background:#fff}.sp-prod-table{width:100%;min-width:760px;border-collapse:collapse;font-size:11px}.sp-prod-table th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#888;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;text-align:left;padding:8px 10px;border-bottom:1px solid #eee;white-space:nowrap}.sp-prod-table td{padding:7px 10px!important;border-bottom:1px solid #f0f0ec!important;vertical-align:middle;color:#333}.sp-prod-table tbody tr:hover td{background:#dff2ea!important}.sp-prod-table th:first-child,.sp-prod-table td:first-child{width:42px;text-align:center;color:#999}.sp-prod-table th:nth-child(3),.sp-prod-table td:nth-child(3){width:90px;color:#777;font-family:monospace}.sp-prod-table th:nth-child(4),.sp-prod-table td:nth-child(4){width:130px;font-weight:700;white-space:nowrap}.sp-prod-table th:nth-child(5),.sp-prod-table td:nth-child(5){width:70px;text-align:right;white-space:nowrap}.sp-prod-table th:nth-child(6),.sp-prod-table td:nth-child(6){width:54px;text-align:center}.sp-prod-name{font-weight:600;white-space:normal;line-height:1.25}#sp-fullscreen .sp-prod-table td{border-bottom-color:#ebe8e0!important}#sp-fullscreen .p2-abc-B{background:#EEF2FF!important;color:#3730A3!important}#sp-fullscreen .p2-abc-C{background:#FFF4E0!important;color:#7C4D00!important}#sp-mz-page .p2-abc-B{background:#EEF2FF!important;color:#3730A3!important}#sp-mz-page .p2-abc-C{background:#FFF4E0!important;color:#7C4D00!important}`;
+  st.textContent=`#sp-fullscreen .sp-det-wrap{padding-bottom:40px}.sp-det-wrap{background:#fff!important;border:none!important;border-radius:0!important;padding:0!important;margin:0!important;max-width:100%!important}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}`;
   document.head.appendChild(st);
 }
 function renderP6MonthControls(){
