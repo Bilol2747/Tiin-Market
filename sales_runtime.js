@@ -1860,7 +1860,7 @@ function p6OpenSupplierDetail(r){
   const monthHdrs=P6_MONTH_KEYS.map((k,mi)=>{
     const isSorted=_p6DetailSortMi===mi;
     const arrow=isSorted?(_p6DetailSortDir===1?" ↑":" ↓"):"";
-    return `<th style="text-align:center;min-width:58px;cursor:pointer;user-select:none${isSorted?";color:#1D9E75":""}" onclick="p6SortByMonth(${mi})">${t(k)}${arrow}</th>`;
+    return `<th style="text-align:center;min-width:44px;cursor:pointer;user-select:none${isSorted?";color:#1D9E75":""}" onclick="p6SortByMonth(${mi})">${t(k)}${arrow}</th>`;
   }).join("");
   // Build rows
   const rows=_p6DetailProds.map((p,i)=>{
@@ -1868,7 +1868,8 @@ function p6OpenSupplierDetail(r){
       abc?`<td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg[abc]||"#f4f4f0"};color:${abcFg[abc]||"#555"}">${abc}</span></td>`
          :`<td style="text-align:center;color:#d0d0d0;font-size:12px">—</td>`
     ).join("");
-    return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:11px;text-align:center;width:38px;padding:7px 8px">${i+1}</td><td style="padding:7px 12px;white-space:nowrap"><span class="sp6-prod-link" onclick="p6GoToProduct(${i})">${esc(p.name)}</span></td>${abcCells}</tr>`;
+    const skuLine=p.sku?`<span style="font-size:10px;color:#bbb;font-weight:500;display:block;margin-top:1px">${esc(p.sku)}</span>`:"";
+    return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:11px;text-align:center;width:38px;padding:7px 8px">${i+1}</td><td style="padding:7px 12px;white-space:nowrap"><span class="sp6-prod-link" onclick="p6GoToProduct(${i})">${esc(p.name)}</span>${skuLine}</td>${abcCells}</tr>`;
   }).join("");
   const tableH=_p6DetailProds.length
     ?`<div id="sp6-matrix-wrap"><table class="sp6-matrix"><thead><tr><th style="width:38px;text-align:center;padding:8px 8px">#</th><th style="text-align:left;padding:8px 12px;white-space:nowrap">${t("sp_prod_name")}</th>${monthHdrs}</tr></thead><tbody>${rows}</tbody></table></div>`
@@ -1911,7 +1912,7 @@ function _p6EnsureDetailStyles(){
   if(document.getElementById("sp6-detail-style"))return;
   const st=document.createElement("style");
   st.id="sp6-detail-style";
-  st.textContent=`#sp-fullscreen,#sp-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #sp-fullscreen,body.sb-collapsed #sp-mz-page{left:64px}#sp-fullscreen{overflow-y:auto;overflow-x:auto;z-index:1500}#sp-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}#sp6-matrix-wrap{padding:0 14px 40px}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1a1a2e;font-weight:600;font-size:12px;line-height:1.4;display:block;white-space:nowrap}.sp6-prod-link:hover{text-decoration:underline;color:#1D9E75}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px;width:100%;border-collapse:collapse}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap;position:sticky;top:0;z-index:1;background:#fafaf5}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
+  st.textContent=`#sp-fullscreen,#sp-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #sp-fullscreen,body.sb-collapsed #sp-mz-page{left:64px}#sp-fullscreen{overflow-y:auto;overflow-x:auto;z-index:1500}#sp-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}#sp6-matrix-wrap{padding:0 14px 40px}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1a1a2e;font-weight:600;font-size:12px;line-height:1.4;display:block;white-space:nowrap}.sp6-prod-link:hover{text-decoration:underline;color:#1D9E75}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px;width:auto;min-width:100%;border-collapse:collapse}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap;position:sticky;top:0;z-index:1;background:#fafaf5}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
   document.head.appendChild(st);
 }
 function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
