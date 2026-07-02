@@ -1799,11 +1799,10 @@ function renderP6(){
     h+=`<td class="sp-td-name"><div class="sp-name sp6-sup-link" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     P6_MONTH_KEYS.forEach((_,mi)=>{
       const me=s.months&&s.months[mi];
-      const act=mi===p6CardMonth?" sp-month-active":"";
       if(me){
-        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-abc-${me.abc.toLowerCase()}${act}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
+        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
       }else{
-        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-month-empty${act}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
+        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
       }
     });
     h+=`</tr>`;
