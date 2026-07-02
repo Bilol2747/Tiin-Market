@@ -1800,7 +1800,7 @@ function renderP6(){
     P6_MONTH_KEYS.forEach((_,mi)=>{
       const me=s.months&&s.months[mi];
       if(me){
-        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
+        h+=`<td class="sp-td-mon"><span class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation()">${me.abc}</span></td>`;
       }else{
         h+=`<td class="sp-td-mon"><span class="sp-month-chip sp-month-empty" onclick="event.stopPropagation()">—</span></td>`;
       }
