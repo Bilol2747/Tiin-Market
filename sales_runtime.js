@@ -1773,6 +1773,13 @@ function renderP6(){
   if(p6CardMonth==null)p6CardMonth=p6LatestMonthIndex();
   renderP6MonthControls();
   renderP6Cards();
+  // Dinamik header — tanadagi oy ustunlari bilan doim mos bo'lishi uchun
+  const headRow=document.getElementById("sp-head-row");
+  if(headRow){
+    let hh=`<th class="sp-th-idx">#</th><th class="sp-th-name">${esc(t("sp_col_name"))}</th>`;
+    P6_MONTH_KEYS.forEach(k=>{hh+=`<th class="sp-th-mon">${esc(t(k))}</th>`;});
+    headRow.innerHTML=hh;
+  }
   let items=p6MonthItems();
   if(p6CurF!=="all")items=items.filter(s=>p6MonthAbc(s)===p6CurF);
   if(p6Q)items=items.filter(s=>s.name.toLowerCase().includes(p6Q));
@@ -1786,14 +1793,14 @@ function renderP6(){
   let h="";
   shown.forEach((s,i)=>{
     h+=`<tr class="sp-row sp6-sup-row" onclick="p6OpenSupplierDetail(${s.r})">`;
-    h+=`<td style="color:#bbb;font-size:11px;text-align:center">${off+i+1}</td>`;
-    h+=`<td><div class="sp-name sp6-sup-link" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
+    h+=`<td class="sp-td-idx" style="color:#bbb;font-size:11px">${off+i+1}</td>`;
+    h+=`<td class="sp-td-name"><div class="sp-name sp6-sup-link" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     P6_MONTH_KEYS.forEach((_,mi)=>{
       const me=s.months&&s.months[mi];
       if(me){
-        h+=`<td style="text-align:center"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
+        h+=`<td class="sp-td-mon"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
       }else{
-        h+=`<td style="text-align:center"><button class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
+        h+=`<td class="sp-td-mon"><button class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
       }
     });
     h+=`</tr>`;
