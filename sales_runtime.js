@@ -39,7 +39,7 @@ const I18N={
   nav_p2:{uz:"Mahsulotlar",en:"Products",ru:"Товары"},
   nav_p3:{uz:"ABC tahlili",en:"ABC analysis",ru:"ABC-анализ"},
   nav_p5:{uz:"Stock",en:"Stock",ru:"Склад"},
-  nav_p6:{uz:"Suppliers",en:"Suppliers",ru:"Поставщики"},
+  nav_p6:{uz:"Ta'minotchilar",en:"Suppliers",ru:"Поставщики"},
   sp_a_guruh:{uz:"A guruh",en:"Group A",ru:"Группа A"},
   sp_b_guruh:{uz:"B guruh",en:"Group B",ru:"Группа B"},
   sp_c_guruh:{uz:"C guruh",en:"Group C",ru:"Группа C"},
@@ -57,10 +57,16 @@ const I18N={
   sp_mon_apr:{uz:"Apr",en:"Apr",ru:"Апр"},
   sp_mon_may:{uz:"May",en:"May",ru:"Май"},
   sp_mon_iyun:{uz:"Iyun",en:"Jun",ru:"Июн"},
+  sp_mon_iyul:{uz:"Iyul",en:"Jul",ru:"Июл"},
+  sp_mon_avg:{uz:"Avg",en:"Aug",ru:"Авг"},
+  sp_mon_sen:{uz:"Sen",en:"Sep",ru:"Сен"},
+  sp_mon_okt:{uz:"Okt",en:"Oct",ru:"Окт"},
+  sp_mon_noy:{uz:"Noy",en:"Nov",ru:"Ноя"},
+  sp_mon_dek:{uz:"Dek",en:"Dec",ru:"Дек"},
   sp_excel_btn:{uz:"Excel",en:"Excel",ru:"Excel"},
   sp_cnt_suffix:{uz:"ta supplier",en:"suppliers",ru:"поставщиков"},
   sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
-  sp_back_sup:{uz:"← Poставщиклар",en:"← Suppliers",ru:"← Поставщики"},
+  sp_back_sup:{uz:"← Ortga",en:"← Back",ru:"← Назад"},
   sp_det_month:{uz:"{month} oyiga tegishli ma'lumotlar",en:"Data for {month}",ru:"Данные за {month}"},
   sp_det_empty:{uz:"{month} oyi uchun ma'lumot hali yuklanmagan — tarixiy ma'lumotlar bazaga to'liq yuklab bo'lingach bu yerga qo'shiladi.",en:"Data for {month} hasn't loaded yet — it will appear here once the historical data finishes loading.",ru:"Данные за {month} ещё не загружены — появятся здесь после полной загрузки исторических данных."},
   sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
@@ -1750,7 +1756,8 @@ function exportSuppliersCSV(){
   a.download="suppliers_export_"+ds+".csv";
   a.click();
 }
-const P6_MONTH_KEYS=["sp_mon_yan","sp_mon_fev","sp_mon_mar","sp_mon_apr","sp_mon_may","sp_mon_iyun"];
+const _P6_ALL_MON=["sp_mon_yan","sp_mon_fev","sp_mon_mar","sp_mon_apr","sp_mon_may","sp_mon_iyun","sp_mon_iyul","sp_mon_avg","sp_mon_sen","sp_mon_okt","sp_mon_noy","sp_mon_dek"];
+const P6_MONTH_KEYS=_P6_ALL_MON.slice(0,new Date().getMonth()+1);
 function P6_MONTHS_NOW(){return P6_MONTH_KEYS.map(k=>t(k));}
 function p6LatestMonthIndex(){
   if(!P6||!P6.suppliers)return P6_MONTH_KEYS.length-1;

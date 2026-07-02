@@ -386,7 +386,7 @@ def main():
             monthly[supplier][mk] = entry
     for supplier, entry in current_entries.items():
         monthly[supplier][current_month_key] = entry
-    month_keys = [f"{today.year:04d}-{m:02d}" for m in range(1, 7)]  # Yan..Iyun (frontend P6_MONTH_KEYS bilan mos)
+    month_keys = [f"{today.year:04d}-{m:02d}" for m in range(1, today.month + 1)]  # Joriy oygacha (frontend P6_MONTH_KEYS bilan mos)
 
     result = build(orders, ROOT / args.products, ROOT / args.output, last_sale_60=last_sale_60,
                     monthly=monthly, month_keys=month_keys, products=products)
