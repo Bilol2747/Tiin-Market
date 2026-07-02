@@ -68,9 +68,12 @@ const I18N={
   sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
   sp_back_sup:{uz:"← Ortga",en:"← Back",ru:"← Назад"},
   sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
-  sp_mz_prod:{uz:"MAHSULOT",en:"PRODUCT",ru:"ТОВАР"},
+  sp_mz_prod:{uz:"TOVAR NOMI",en:"PRODUCT NAME",ru:"НАЗВАНИЕ ТОВАРА"},
   sp_mz_stock:{uz:"STOK",en:"STOCK",ru:"ЗАПАС"},
   sp_mz_days:{uz:"SOTUVSIZ",en:"IDLE DAYS",ru:"БЕЗ ПРОДАЖ"},
+  sp_unit_pc:{uz:"dona",en:"pcs",ru:"шт"},
+  sp_unit_kg:{uz:"kg",en:"kg",ru:"кг"},
+  sp_days_unit:{uz:"kun",en:"days",ru:"дн"},
   sp_stat_tushum:{uz:"Tushum",en:"Revenue",ru:"Выручка"},
   sp_stat_tovarlar:{uz:"Tovarlar",en:"Products",ru:"Товары"},
   sp_month_calc:{uz:"{month} bo'yicha hisob",en:"Calculated for {month}",ru:"Расчет за {month}"},
@@ -1817,6 +1820,19 @@ function renderP6(){
   renderP6Pag(totalP);
   requestAnimationFrame(()=>{if(tblWrap)tblWrap.scrollLeft=savedSL;window.scrollTo(0,savedWY);});
 }
+function p6ShowMzPage(){
+  const mz=document.getElementById("sp-mz-page");
+  if(!mz)return;
+  mz.style.display="block";
+  mz.scrollTop=0;
+  requestAnimationFrame(()=>{
+    const hdr=mz.firstElementChild;
+    if(hdr){
+      const h=Math.ceil(hdr.getBoundingClientRect().height);
+      mz.querySelectorAll("#sp6-mz-thead th").forEach(th=>{th.style.top=h+"px";});
+    }
+  });
+}
 function p6SortByMonth(mi){
   if(_p6DetailSortMi===mi){_p6DetailSortDir*=-1;}else{_p6DetailSortMi=mi;_p6DetailSortDir=1;}
   p6OpenSupplierDetail(p6SelI);
@@ -1884,11 +1900,17 @@ function p6OpenSupplierDetail(r){
   if(mzItems.length){
     const mzRows=mzItems.map((v,vi)=>{
       const stk=v.kg?(v.stock||0).toFixed(2):Math.round(v.stock||0);
-      const u=v.kg?"kg":"шт";
-      const di=v.di>=999?"60+ kun":v.di+" kun";
-      return `<tr style="border-bottom:1px solid #f4f4f0"><td style="padding:9px 10px;text-align:center;color:#bbb;font-size:11px;width:36px">${vi+1}</td><td style="padding:9px 10px"><div style="font-weight:600;font-size:13px;line-height:1.3">${esc(v.name)}</div>${v.sku?`<div style="font-size:10px;color:#bbb">${esc(v.sku)}</div>`:""}</td><td style="padding:9px 10px;text-align:right;color:#E24B4A;font-weight:600;white-space:nowrap">${stk} ${u}</td><td style="padding:9px 10px;text-align:right;color:#999;font-size:12px;white-space:nowrap">${di}</td><td style="padding:9px 10px;text-align:center"><span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:5px;background:${v.abc==="A"?"#e8f8f3":v.abc==="B"?"#eeebfb":"#fef3e2"};color:${v.abc==="A"?"#1D9E75":v.abc==="B"?"#534AB7":"#EF9F27"}">${v.abc||"—"}</span></td></tr>`;
+      const u=v.kg?t("sp_unit_kg"):t("sp_unit_pc");
+      const diNum=v.di>=999?`60+`:String(v.di);
+      const di=`${diNum} ${t("sp_days_unit")}`;
+      const abcBg2={A:"#e8f8f3",B:"#eeebfb",C:"#fef3e2"};
+      const abcFg2={A:"#1D9E75",B:"#534AB7",C:"#EF9F27"};
+      const abcBadge=v.abc?`<span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg2[v.abc]||"#f4f4f0"};color:${abcFg2[v.abc]||"#888"}">${v.abc}</span>`:`<span style="color:#d0d0d0;font-size:12px">—</span>`;
+      const skuLine=v.sku?`<span style="font-size:9px;color:#ccc;font-weight:500;display:block">${esc(v.sku)}</span>`:"";
+      return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:10px;text-align:center;width:32px;padding:5px 6px">${vi+1}</td><td style="text-align:center;padding:5px 6px">${abcBadge}</td><td style="padding:5px 10px;white-space:nowrap"><span class="sp6-prod-link" title="${esc(v.name)}">${esc(v.name)}</span>${skuLine}</td><td style="padding:5px 10px;text-align:right;color:#E24B4A;font-weight:700;font-size:11px;white-space:nowrap">${stk} ${u}</td><td style="padding:5px 10px;text-align:right;color:#999;font-size:11px;white-space:nowrap">${di}</td></tr>`;
     }).join("");
-    mzPageH=`<table style="width:100%;border-collapse:collapse"><thead style="position:sticky;top:62px;z-index:2;background:#fafaf5"><tr><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">#</th><th style="padding:9px 10px;text-align:left;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_prod")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_stock")}</th><th style="padding:9px 10px;text-align:right;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">${t("sp_mz_days")}</th><th style="padding:9px 10px;text-align:center;color:#888;font-size:10px;font-weight:800;border-bottom:1.5px solid #eee">ABC</th></tr></thead><tbody>${mzRows}</tbody></table>`;
+    const thStyle="padding:6px 8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;white-space:nowrap;position:sticky;top:0;background:#fafaf5";
+    mzPageH=`<div style="padding:0 14px 40px"><table class="sp6-matrix" style="width:auto;min-width:100%"><thead id="sp6-mz-thead"><tr><th style="${thStyle};width:32px;text-align:center">#</th><th style="${thStyle};text-align:center">ABC</th><th style="${thStyle};text-align:left">${t("sp_mz_prod")}</th><th style="${thStyle};text-align:right">${t("sp_mz_stock")}</th><th style="${thStyle};text-align:right">${t("sp_mz_days")}</th></tr></thead><tbody>${mzRows}</tbody></table></div>`;
   }
   // Show totals row at top
   const totRev=S.months?S.months.reduce((s,m)=>s+(m?m.rev||0:0),0):0;
@@ -1933,7 +1955,7 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   const abcC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
   const abcBadge=abc?`<span style="background:${abcC};color:#fff;padding:5px 14px;border-radius:10px;font-size:18px;font-weight:800;letter-spacing:1px;flex-shrink:0">${abc}</span>`:"";
   const monthBadge=monthName?`<span style="background:#f0faf6;color:#1D9E75;padding:5px 14px;border-radius:10px;font-size:15px;font-weight:700;flex-shrink:0;border:1px solid #d4f0e5">${monthName}</span>`:"";
-  const mzToggle=mzCount?`<button onclick="document.getElementById('sp-mz-page').style.display='block';document.getElementById('sp-mz-page').scrollTop=0" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzCount}</span></button>`:"";
+  const mzToggle=mzCount?`<button onclick="p6ShowMzPage()" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzCount}</span></button>`:"";
   ov.innerHTML=`<div id="sp-ov-header" style="position:sticky;top:0;background:#fff;padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
     <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -1965,7 +1987,7 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
     const hdr=document.getElementById("sp-ov-header");
     if(hdr){
       const h=Math.ceil(hdr.getBoundingClientRect().height);
-      ov.querySelectorAll(".sp6-matrix th").forEach(th=>{th.style.top=h+"px";});
+      ov.querySelectorAll("#sp6-matrix-wrap .sp6-matrix th").forEach(th=>{th.style.top=h+"px";});
     }
   });
 }
