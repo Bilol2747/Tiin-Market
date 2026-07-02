@@ -76,8 +76,8 @@ jobs:
                 echo "Push muvaffaqiyatli."
                 exit 0
               fi
-              echo "Push rad etildi (boshqa o'zgarish kelib tushgan bo'lishi mumkin), pull --rebase qilib qayta urinilmoqda ($i/5)..."
-              git pull --rebase origin main
+              echo "Push rad etildi (boshqa o'zgarish kelib tushgan bo'lishi mumkin), pull -X ours qilib qayta urinilmoqda ($i/5)..."
+              git pull -X ours origin main
               sleep 5
             done
             echo "5 marta urinishdan keyin ham push qilib bo'lmadi."
