@@ -1773,7 +1773,8 @@ function renderP6(){
   if(p6CardMonth==null)p6CardMonth=p6LatestMonthIndex();
   renderP6MonthControls();
   renderP6Cards();
-  // Dinamik header — tanadagi oy ustunlari bilan doim mos bo'lishi uchun
+  const tblWrap=document.querySelector(".sp-tbl-wrap");
+  const savedSL=tblWrap?tblWrap.scrollLeft:0;
   const headRow=document.getElementById("sp-head-row");
   if(headRow){
     let hh=`<th class="sp-th-idx">#</th><th class="sp-th-name">${esc(t("sp_col_name"))}</th>`;
@@ -1797,10 +1798,11 @@ function renderP6(){
     h+=`<td class="sp-td-name"><div class="sp-name sp6-sup-link" title="${esc(s.name)}">${esc(s.name)}</div></td>`;
     P6_MONTH_KEYS.forEach((_,mi)=>{
       const me=s.months&&s.months[mi];
+      const act=mi===p6CardMonth?" sp-month-active":"";
       if(me){
-        h+=`<td class="sp-td-mon"><button class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
+        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-abc-${me.abc.toLowerCase()}${act}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
       }else{
-        h+=`<td class="sp-td-mon"><button class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
+        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-month-empty${act}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
       }
     });
     h+=`</tr>`;
@@ -1808,6 +1810,7 @@ function renderP6(){
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
+  if(tblWrap&&savedSL)requestAnimationFrame(()=>{tblWrap.scrollLeft=savedSL;});
 }
 function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
