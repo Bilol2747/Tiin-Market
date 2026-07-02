@@ -1802,7 +1802,7 @@ function renderP6(){
       if(me){
         h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-abc-${me.abc.toLowerCase()}" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">${me.abc}</button></td>`;
       }else{
-        h+=`<td class="sp-td-mon"><button type="button" class="sp-month-chip sp-month-empty" onclick="event.stopPropagation();p6PickCardMonth(${mi},event)">—</button></td>`;
+        h+=`<td class="sp-td-mon"><span class="sp-month-chip sp-month-empty" onclick="event.stopPropagation()">—</span></td>`;
       }
     });
     h+=`</tr>`;
