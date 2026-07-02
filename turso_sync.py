@@ -187,7 +187,7 @@ def main():
                          help="Baza bo'sh bo'lsa, necha kunlik tarixni boshlang'ich yuklash")
     parser.add_argument("--overlap-hours", type=int, default=2,
                          help="Oxirgi sinxronizatsiyadan necha soat oldin qaytadan tekshirish")
-    parser.add_argument("--overlap-days", type=int, default=5,
+    parser.add_argument("--overlap-days", type=int, default=2,
                          help="Har safar oxirgi necha kunni qayta tekshirib, tushmay qolgan orderlarni to'ldirish")
     args = parser.parse_args()
 
