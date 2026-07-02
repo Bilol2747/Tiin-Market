@@ -1754,7 +1754,7 @@ function p6MonthItems(){
   return (P6&&P6.suppliers?P6.suppliers:[]).filter(s=>p6MonthEntry(s));
 }
 function p6SetCardMonth(mi){
-  p6CardMonth=mi;p6Page=1;renderP6();
+  p6CardMonth=mi;renderP6();
 }
 function p6ToggleMonthMenu(e){
   if(e)e.stopPropagation();
@@ -1775,6 +1775,7 @@ function renderP6(){
   renderP6Cards();
   const tblWrap=document.querySelector(".sp-tbl-wrap");
   const savedSL=tblWrap?tblWrap.scrollLeft:0;
+  const savedWY=window.scrollY;
   const headRow=document.getElementById("sp-head-row");
   if(headRow){
     let hh=`<th class="sp-th-idx">#</th><th class="sp-th-name">${esc(t("sp_col_name"))}</th>`;
@@ -1810,7 +1811,7 @@ function renderP6(){
   if(!h)h=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("sp_topilmadi")}</td></tr>`;
   document.getElementById("sp-tbody").innerHTML=h;
   renderP6Pag(totalP);
-  if(tblWrap&&savedSL)requestAnimationFrame(()=>{tblWrap.scrollLeft=savedSL;});
+  requestAnimationFrame(()=>{if(tblWrap)tblWrap.scrollLeft=savedSL;window.scrollTo(0,savedWY);});
 }
 function p6CloseOverlay(){
   const ov=document.getElementById("sp-fullscreen");if(ov)ov.style.display="none";
