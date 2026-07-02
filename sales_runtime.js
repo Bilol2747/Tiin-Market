@@ -1,37 +1,84 @@
-// ─── Login (statik) ───
-const LG_PHONE="910758080",LG_PASS="12345678";
-function _tgNotify(){
+// ─── Firebase + Login ───
+const _FB_CFG={apiKey:"AIzaSyCCggP0Pa9WiZ8nSZeHhG-w8-k-IUNFrXA",authDomain:"tiim-market.firebaseapp.com",projectId:"tiim-market",storageBucket:"tiim-market.firebasestorage.app",messagingSenderId:"612281029036",appId:"1:612281029036:web:3ef1b2022cb25e1be56a09"};
+if(!firebase.apps.length)firebase.initializeApp(_FB_CFG);
+const _db=firebase.firestore();
+const _ADM_PHONE="910758080",_ADM_PASS="12345678";
+const _ALL_TABS=["p1","p2","p3","p5","p7","p6","p_nazorat"];
+
+async function _sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
+
+function lgEye(){const i=document.getElementById("lg-pass");i.type=i.type==="password"?"text":"password";}
+
+function _lgErr(msg){const e=document.getElementById("lg-err");document.getElementById("lg-err-txt").textContent=msg;e.classList.add("show");setTimeout(()=>e.classList.remove("show"),2800);}
+
+function lgUnlock(){const s=document.getElementById("login-screen");if(s){s.style.transition="opacity .35s";s.style.opacity="0";setTimeout(()=>s.remove(),350);}document.body.classList.remove("locked");}
+
+function _applyUser(user){
+  const nameEl=document.querySelector(".tb-uname"),avaEl=document.querySelector(".tb-ava");
+  if(nameEl)nameEl.textContent=user.name||user.phone;
+  if(avaEl)avaEl.textContent=(user.name||user.phone).charAt(0).toUpperCase();
+  const tabs=user.tabs||["p1"];
+  document.querySelectorAll(".sb-item[data-page]").forEach(btn=>{btn.style.display=tabs.includes(btn.dataset.page)?"":"none";});
+  const lo=document.getElementById("sb-logout");if(lo)lo.style.display="flex";
+}
+
+function _tgNotify(name){
   const ua=navigator.userAgent;
   const br=ua.includes("Edg")?"Edge":ua.includes("Chrome")?"Chrome":ua.includes("Firefox")?"Firefox":ua.includes("Safari")?"Safari":"Boshqa";
-  const os=ua.includes("Windows")?"Windows":ua.includes("Android")?"Android":ua.includes("iPhone")||ua.includes("iPad")?"iOS":ua.includes("Mac")?"Mac":"Boshqa";
+  const os=ua.includes("Windows")?"Windows":ua.includes("Android")?"Android":(ua.includes("iPhone")||ua.includes("iPad"))?"iOS":ua.includes("Mac")?"Mac":"Boshqa";
   const now=new Date();
   const dt=now.toLocaleDateString("uz-UZ")+", "+now.toLocaleTimeString("uz-UZ",{hour:"2-digit",minute:"2-digit"});
-  const msg="🔐 *Tiin Market — yangi kirish*\n📱 "+br+" · "+os+"\n🕐 "+dt;
+  const msg="🔐 *Tiin Market — yangi kirish*\n👤 "+(name||"")+"\n📱 "+br+" · "+os+"\n🕐 "+dt;
   fetch("https://api.telegram.org/bot8626844104:AAHsDzuxGzJqsvnaS42jSHTLriF7A0tUtXg/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:"7034777747",text:msg,parse_mode:"Markdown"})}).catch(()=>{});
 }
-function lgEye(){const i=document.getElementById("lg-pass");i.type=i.type==="password"?"text":"password";}
-function lgSubmit(e){
+
+async function lgSubmit(e){
   e.preventDefault();
   const ph=(document.getElementById("lg-phone").value||"").replace(/\D/g,"");
   const pw=document.getElementById("lg-pass").value||"";
-  const err=document.getElementById("lg-err");
-  if(ph===LG_PHONE&&pw===LG_PASS){
-    try{localStorage.setItem("tiin_auth","1");}catch(_){}
-    _tgNotify();
+  if(!ph){_lgErr("Telefon raqamni kiriting");return false;}
+  if(!pw){_lgErr("Parolni kiriting");return false;}
+  const btn=document.querySelector(".lg-btn");
+  btn.disabled=true;btn.textContent="Tekshirilmoqda...";
+  try{
+    const hash=await _sha256(pw);
+    const snap=await _db.collection("users").where("phone","==",ph).where("active","==",true).limit(5).get();
+    let matched=null;
+    if(!snap.empty){snap.forEach(doc=>{const d=doc.data();if(d.password_hash===hash)matched={...d,id:doc.id};});}
+    // Zaxira: admin uchun
+    if(!matched&&ph===_ADM_PHONE&&pw===_ADM_PASS){
+      const admHash=await _sha256(_ADM_PASS);
+      const admSnap=await _db.collection("users").where("phone","==",_ADM_PHONE).get();
+      const admData={phone:_ADM_PHONE,name:"Bilol",role:"admin",tabs:_ALL_TABS,active:true};
+      if(admSnap.empty){
+        admData.password_hash=admHash;
+        admData.created=firebase.firestore.FieldValue.serverTimestamp();
+        await _db.collection("users").add(admData);
+      }
+      matched={...admData,password_hash:admHash};
+    }
+    if(!matched){_lgErr("Telefon raqam yoki parol noto'g'ri");btn.disabled=false;btn.textContent="Kirish";return false;}
+    try{localStorage.setItem("tiin_user",JSON.stringify(matched));}catch(_){}
+    _tgNotify(matched.name||ph);
+    _applyUser(matched);
     lgUnlock();
-  }else{
-    err.classList.add("show");
-    document.getElementById("lg-err-txt").textContent=!ph?"Telefon raqamni kiriting":(!pw?"Parolni kiriting":"Telefon raqam yoki parol noto'g'ri");
-    setTimeout(()=>err.classList.remove("show"),2600);
+  }catch(err){
+    console.error(err);
+    _lgErr("Xatolik yuz berdi, qayta urinib ko'ring");
+    btn.disabled=false;btn.textContent="Kirish";
   }
   return false;
 }
-function lgUnlock(){
-  const s=document.getElementById("login-screen");
-  if(s){s.style.transition="opacity .35s";s.style.opacity="0";setTimeout(()=>s.remove(),350);}
-  document.body.classList.remove("locked");
-}
-(function(){try{if(localStorage.getItem("tiin_auth")==="1"){const s=document.getElementById("login-screen");if(s)s.remove();document.body.classList.remove("locked");}else{const p=document.getElementById("lg-phone");if(p)p.focus();}}catch(_){}})();
+
+function lgLogout(){try{localStorage.removeItem("tiin_user");}catch(_){}location.reload();}
+
+(function(){
+  try{
+    const us=localStorage.getItem("tiin_user");
+    if(us){const user=JSON.parse(us);const s=document.getElementById("login-screen");if(s)s.remove();document.body.classList.remove("locked");_applyUser(user);}
+    else{const p=document.getElementById("lg-phone");if(p)p.focus();}
+  }catch(_){const p=document.getElementById("lg-phone");if(p)p.focus();}
+})();
 
 // ─── Til almashtirish (i18n) — hozircha to'liq Bosh sahifa, qolgan sahifalar keyingi bosqichda ───
 const I18N={
@@ -842,7 +889,8 @@ function toggleSidebar(){
 async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6")?"none":"";window.scrollTo(0,0);if(pid==="p2"&&!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}P2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);initP2(apiData);}if(pid==="p3"&&!P3){P3=JSON.parse(document.getElementById("p3data").textContent);initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
 if(pid==="p7"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS)_buildZItems();renderZakas();}
-if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}setTimeout(_spFitTableHeight,0);}_applyPageRange(pid);};
+if(pid==="p6"){if(!P2){P2=JSON.parse(document.getElementById("p2data").textContent);initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P6){P6=JSON.parse(document.getElementById("supplierdata").textContent);initP6();}setTimeout(_spFitTableHeight,0);}
+if(pid==="p_nazorat"){nazLoad();}_applyPageRange(pid);};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
 // Zaxira qatoriga bosilganda → Mahsulotlar bo'limida o'sha mahsulotni ochish
@@ -2059,4 +2107,96 @@ function renderP6Pag(totalP){
   if(e<totalP){if(e<totalP-1)h+='<button disabled>…</button>';h+=mk(totalP,totalP,false,p6Page===totalP);}
   h+=mk("›",p6Page+1,p6Page>=totalP,false);
   pag.innerHTML=h;
+}
+
+// ─── Nazorat bo'limi ───
+const NAZ_TABS=[{id:"p1",label:"Bosh sahifa"},{id:"p2",label:"Mahsulotlar"},{id:"p3",label:"ABC tahlili"},{id:"p5",label:"Stock"},{id:"p7",label:"Buyurtma"},{id:"p6",label:"Suppliers"}];
+let _nazUsers=[],_nazEditing=null;
+
+async function nazLoad(){
+  try{
+    const snap=await _db.collection("users").get();
+    _nazUsers=[];
+    snap.forEach(doc=>_nazUsers.push({...doc.data(),id:doc.id}));
+    _nazUsers.sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+    _nazRender();
+  }catch(e){console.error(e);const tb=document.getElementById("naz-tbody");if(tb)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#E24B4A;padding:20px">Xatolik: '+e.message+'</td></tr>';}
+}
+
+function _nazRender(){
+  const total=_nazUsers.length;
+  const admins=_nazUsers.filter(u=>u.role==="admin").length;
+  const active=_nazUsers.filter(u=>u.active).length;
+  const t=document.getElementById("naz-total"),a=document.getElementById("naz-admins"),ac=document.getElementById("naz-active");
+  if(t)t.textContent=total;if(a)a.textContent=admins;if(ac)ac.textContent=active;
+  const tbody=document.getElementById("naz-tbody");
+  if(!tbody)return;
+  if(!total){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:#999;padding:24px">Hali foydalanuvchilar qo\'shilmagan</td></tr>';return;}
+  tbody.innerHTML=_nazUsers.map(u=>`<tr>
+    <td><strong>${esc(u.name||"—")}</strong></td>
+    <td style="font-family:monospace">${esc(u.phone)}</td>
+    <td><span class="badge ${u.role==="admin"?"b-A":"b-B"}">${u.role==="admin"?"Admin":"Xodim"}</span></td>
+    <td style="font-size:10px;color:#555">${(u.tabs||[]).filter(t=>t!=="p_nazorat").map(t=>NAZ_TABS.find(x=>x.id===t)?.label||t).join(", ")||"—"}</td>
+    <td><span class="badge ${u.active?"b-ok":"b-bad"}">${u.active?"Faol":"Noaktiv"}</span></td>
+    <td style="white-space:nowrap;display:flex;gap:5px;padding:6px 10px">
+      <button onclick="nazEdit('${u.id}')" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:#fff">Tahrir</button>
+      <button onclick="nazToggle('${u.id}',${!u.active})" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:${u.active?"#FEF2F2":"#F0FDF4"};color:${u.active?"#991B1B":"#14532D"}">${u.active?"Bloklash":"Yoqish"}</button>
+    </td>
+  </tr>`).join("");
+}
+
+function nazShowAdd(){
+  _nazEditing=null;
+  document.getElementById("naz-modal-title").textContent="Yangi xodim qo'shish";
+  document.getElementById("naz-form").reset();
+  document.getElementById("naz-pass-hint").textContent="";
+  NAZ_TABS.forEach(t=>{const cb=document.getElementById("naz-tab-"+t.id);if(cb)cb.checked=t.id==="p1";});
+  document.getElementById("naz-modal").style.display="flex";
+  setTimeout(()=>document.getElementById("naz-name").focus(),100);
+}
+
+function nazEdit(id){
+  const u=_nazUsers.find(x=>x.id===id);if(!u)return;
+  _nazEditing=id;
+  document.getElementById("naz-modal-title").textContent="Xodimni tahrirlash";
+  document.getElementById("naz-name").value=u.name||"";
+  document.getElementById("naz-phone").value=u.phone||"";
+  document.getElementById("naz-role").value=u.role||"staff";
+  document.getElementById("naz-pass").value="";
+  document.getElementById("naz-pass-hint").textContent="Bo'sh qoldiring — parol o'zgarmaydi";
+  NAZ_TABS.forEach(t=>{const cb=document.getElementById("naz-tab-"+t.id);if(cb)cb.checked=(u.tabs||[]).includes(t.id);});
+  document.getElementById("naz-modal").style.display="flex";
+  setTimeout(()=>document.getElementById("naz-name").focus(),100);
+}
+
+async function nazToggle(id,active){
+  if(!confirm(active?"Bu xodimni faollashtirmoqchimisiz?":"Bu xodimni bloklashni xohlaysizmi?"))return;
+  try{await _db.collection("users").doc(id).update({active});await nazLoad();}
+  catch(e){alert("Xatolik: "+e.message);}
+}
+
+function nazClose(){document.getElementById("naz-modal").style.display="none";_nazEditing=null;}
+
+async function nazSave(e){
+  e.preventDefault();
+  const name=(document.getElementById("naz-name").value||"").trim();
+  const phone=(document.getElementById("naz-phone").value||"").replace(/\D/g,"");
+  const role=document.getElementById("naz-role").value;
+  const pass=document.getElementById("naz-pass").value;
+  if(!name){alert("Ism kiriting");return;}
+  if(!phone){alert("Telefon kiriting");return;}
+  if(!_nazEditing&&!pass){alert("Parol kiriting");return;}
+  if(pass&&pass.length<6){alert("Parol kamida 6 belgi bo'lishi kerak");return;}
+  const tabs=NAZ_TABS.filter(t=>{const cb=document.getElementById("naz-tab-"+t.id);return cb&&cb.checked;}).map(t=>t.id);
+  if(role==="admin"&&!tabs.includes("p_nazorat"))tabs.push("p_nazorat");
+  const saveBtn=document.getElementById("naz-save-btn");
+  saveBtn.disabled=true;saveBtn.textContent="Saqlanmoqda...";
+  try{
+    const data={name,phone,role,tabs,active:true};
+    if(pass)data.password_hash=await _sha256(pass);
+    if(_nazEditing){await _db.collection("users").doc(_nazEditing).update(data);}
+    else{data.created=firebase.firestore.FieldValue.serverTimestamp();await _db.collection("users").add(data);}
+    nazClose();await nazLoad();
+  }catch(err){alert("Xatolik: "+err.message);}
+  finally{saveBtn.disabled=false;saveBtn.textContent="Saqlash";}
 }
