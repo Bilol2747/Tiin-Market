@@ -66,7 +66,7 @@ const I18N={
   sp_excel_btn:{uz:"Excel",en:"Excel",ru:"Excel"},
   sp_cnt_suffix:{uz:"ta supplier",en:"suppliers",ru:"поставщиков"},
   sp_topilmadi:{uz:"Supplier topilmadi",en:"No suppliers found",ru:"Поставщики не найдены"},
-  sp_back_sup:{uz:"← Ortga",en:"← Back",ru:"← Назад"},
+  sp_back_sup:{uz:"Ortga",en:"Back",ru:"Назад"},
   sp_mz_btn:{uz:"Sotilmayotgan tovarlar",en:"Not sold",ru:"Не продаётся"},
   sp_mz_prod:{uz:"TOVAR NOMI",en:"PRODUCT NAME",ru:"НАЗВАНИЕ ТОВАРА"},
   sp_mz_stock:{uz:"STOK",en:"STOCK",ru:"ЗАПАС"},
@@ -638,7 +638,7 @@ function renderZakas(){
   }
   sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl){if(zkSupFilter){const conf=zkIsConfirmed(zkSupFilter);const supJ=JSON.stringify(zkSupFilter).replace(/"/g,'&quot;');supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()">← ${t("zk_back_list")}</button><button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
+  if(supCountEl){if(zkSupFilter){const conf=zkIsConfirmed(zkSupFilter);const supJ=JSON.stringify(zkSupFilter).replace(/"/g,'&quot;');supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>${t("zk_back_list")}</button><button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
   const body=document.getElementById("zk-body");if(!body)return;
   if(!sups.length){body.innerHTML=`<div class="zk-empty">${t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
   const totalSups=sups.length;
