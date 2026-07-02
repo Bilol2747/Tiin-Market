@@ -995,9 +995,13 @@ function _buildZItems(){
     // aqlli velocity (m.daily) + kunlik o'rtacha — dailydata'dan
     // 60 kunda kamida 15 kun sotilgan mahsulot: activeAvg (sotilgan kunlarga bo'lish)
     // seyrek mahsulot (<15 kun): calendarAvg (kalendar kunlarga bo'lish)
-    let smartDaily=null, activeAvg=null;
-    if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;const _ad=_di.m.activeDays||0;const _useAct=_ad>=8;if(_useAct&&_di.m.activeAvg!=null)activeAvg=_di.m.activeAvg;else if(_di.m.calendarAvg!=null)activeAvg=_di.m.calendarAvg;}}
-    if(smartDaily==null&&v.da!=null)smartDaily=v.da;
+    // Zakas/stok uchun har doim 30 kunlik o'rtacha (tanlangan oraliqdan emas)
+    const _avg30z=_get30Avg(v);
+    let smartDaily=_avg30z!=null?_avg30z:null,activeAvg=null;
+    if(smartDaily==null){
+      if(typeof dailyFor==="function"){const _di=dailyFor(v);if(_di&&_di.m){if(_di.m.daily!=null)smartDaily=_di.m.daily;const _ad=_di.m.activeDays||0;const _useAct=_ad>=8;if(_useAct&&_di.m.activeAvg!=null)activeAvg=_di.m.activeAvg;else if(_di.m.calendarAvg!=null)activeAvg=_di.m.calendarAvg;}}
+      if(smartDaily==null&&v.da!=null)smartDaily=v.da;
+    }
     const c=_zClassify(d,stock,smartDaily,activeAvg);
     if(!c)return;
     ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",abc:v.abc||"",cat:v.cat||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,...c});
@@ -1324,6 +1328,16 @@ const st=document.getElementById("dt-start"),en=document.getElementById("dt-end"
 const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?t("dt_note_full"):t("dt_note_range");
 }
 function dailyForFull(v){if(!DAILYFULL||!v)return null;const sk=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;const nk=DNAME?DNAME[nn2(v.name)]:null;return DAILYFULL[sk]||DAILYFULL[nk]||DAILYFULL[nn2(v.name)]||null;}
+// Zakas/stok uchun DOIM oxirgi 30 kunlik o'rtacha (grafik tanlangan oraliqdan qat'i nazar)
+// 25% qoida: 30 kun ichida 8+ kunda sotilgan bo'lsa, sotilgan kunlarga bo'linadi
+function _get30Avg(v){
+  const dl=dailyForFull(v);if(!dl)return null;
+  const rt=dl.rt||dl.q||[];if(!rt.length)return null;
+  const s=Math.max(0,rt.length-30);const sl=rt.slice(s);
+  const tot=sl.reduce((a,b)=>a+(b||0),0);
+  const active=sl.filter(x=>x>0).length;
+  return active>=8?Math.round(tot/active*100)/100:Math.round(tot/30*100)/100;
+}
 function _rangeActive(){return GRA!=null&&DMETAFULL&&!(GRA===0&&GRB===DMETAFULL.days-1);}
 function _winDaily(){
 if(!DAILYFULL){return;}
@@ -1458,6 +1472,9 @@ function renderP2(idx){
     oneoffWholesale:tz.weSum,
     trend:"stable"
   };
+  // Zakas/stok uchun har doim 30 kunlik o'rtacha — grafik tanlangan oraliqni ko'rsataveradi
+  const _avg30r=_get30Avg(v);
+  if(_avg30r!=null){m.daily=_avg30r;m.month=Math.round(_avg30r*30*100)/100;m.week=Math.round(_avg30r*7*100)/100;}
   const pureRetailSum=tz.pureRetail?tz.pureRetail.reduce((a,b)=>a+b,0):tz.retailMonth;
   const pat=analyzePattern(dd,tz,u);
   const fmtQty=value=>v.kg?Number(value||0).toFixed(2):Math.round(value||0).toLocaleString();
