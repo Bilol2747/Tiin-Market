@@ -14,13 +14,23 @@ function _lgErr(msg){const e=document.getElementById("lg-err");document.getEleme
 function lgUnlock(){const s=document.getElementById("login-screen");if(s){s.style.transition="opacity .35s";s.style.opacity="0";setTimeout(()=>s.remove(),350);}document.body.classList.remove("locked");}
 
 function _applyUser(user){
-  const nameEl=document.querySelector(".tb-uname"),avaEl=document.querySelector(".tb-ava");
-  if(nameEl)nameEl.textContent=user.name||user.phone;
-  if(avaEl)avaEl.textContent=(user.name||user.phone).charAt(0).toUpperCase();
+  const nm=user.name||user.phone;
+  const nameEl=document.getElementById("tb-uname"),avaEl=document.getElementById("tb-ava");
+  const ddName=document.getElementById("tb-dd-name"),ddRole=document.getElementById("tb-dd-role");
+  if(nameEl)nameEl.textContent=nm;
+  if(avaEl){avaEl.textContent=nm.charAt(0).toUpperCase();avaEl.style.background=user.role==="admin"?"#534AB7":"#1D9E75";}
+  if(ddName)ddName.textContent=nm;
+  if(ddRole)ddRole.textContent=user.role==="admin"?"Admin":"Xodim";
   const tabs=user.tabs||["p1"];
   document.querySelectorAll(".sb-item[data-page]").forEach(btn=>{btn.style.display=tabs.includes(btn.dataset.page)?"":"none";});
-  const lo=document.getElementById("sb-logout");if(lo)lo.style.display="flex";
 }
+
+function tbUserToggle(e){
+  e.stopPropagation();
+  const u=document.getElementById("tb-user");
+  if(u)u.classList.toggle("open");
+}
+document.addEventListener("click",function(){const u=document.getElementById("tb-user");if(u)u.classList.remove("open");});
 
 function _tgNotify(name){
   const ua=navigator.userAgent;
@@ -87,6 +97,42 @@ const I18N={
   nav_p3:{uz:"ABC tahlili",en:"ABC analysis",ru:"ABC-анализ"},
   nav_p5:{uz:"Stock",en:"Stock",ru:"Склад"},
   nav_p6:{uz:"Ta'minotchilar",en:"Suppliers",ru:"Поставщики"},
+  nav_p_nazorat:{uz:"Nazorat",en:"Control",ru:"Управление"},
+  logout:{uz:"Chiqish",en:"Logout",ru:"Выйти"},
+  naz_title:{uz:"Nazorat bo'limi",en:"Control Panel",ru:"Панель управления"},
+  naz_sub:{uz:"Foydalanuvchilar va ruxsatlar boshqaruvi",en:"User and permissions management",ru:"Управление пользователями и правами"},
+  naz_total:{uz:"Jami foydalanuvchilar",en:"Total users",ru:"Всего пользователей"},
+  naz_admins:{uz:"Adminlar",en:"Admins",ru:"Администраторы"},
+  naz_active:{uz:"Faol xodimlar",en:"Active users",ru:"Активные сотрудники"},
+  naz_add:{uz:"Xodim qo'shish",en:"Add employee",ru:"Добавить сотрудника"},
+  naz_th_name:{uz:"Ism",en:"Name",ru:"Имя"},
+  naz_th_phone:{uz:"Telefon",en:"Phone",ru:"Телефон"},
+  naz_th_role:{uz:"Rol",en:"Role",ru:"Роль"},
+  naz_th_tabs:{uz:"Ko'rinadigan bo'limlar",en:"Visible sections",ru:"Видимые разделы"},
+  naz_th_status:{uz:"Status",en:"Status",ru:"Статус"},
+  naz_th_actions:{uz:"Amallar",en:"Actions",ru:"Действия"},
+  naz_edit:{uz:"Tahrir",en:"Edit",ru:"Изменить"},
+  naz_block:{uz:"Bloklash",en:"Block",ru:"Заблокировать"},
+  naz_activate:{uz:"Yoqish",en:"Activate",ru:"Активировать"},
+  naz_modal_add:{uz:"Yangi xodim qo'shish",en:"Add new employee",ru:"Добавить нового сотрудника"},
+  naz_modal_edit:{uz:"Xodimni tahrirlash",en:"Edit employee",ru:"Редактировать сотрудника"},
+  naz_lbl_name:{uz:"Ism familiya",en:"Full name",ru:"Имя и фамилия"},
+  naz_lbl_phone:{uz:"Telefon raqam",en:"Phone number",ru:"Номер телефона"},
+  naz_lbl_pass:{uz:"Parol",en:"Password",ru:"Пароль"},
+  naz_lbl_role:{uz:"Rol",en:"Role",ru:"Роль"},
+  naz_lbl_tabs:{uz:"Ko'rinadigan bo'limlar",en:"Visible sections",ru:"Видимые разделы"},
+  naz_role_staff:{uz:"Xodim",en:"Employee",ru:"Сотрудник"},
+  naz_role_admin:{uz:"Admin (barcha bo'limlar)",en:"Admin (all sections)",ru:"Админ (все разделы)"},
+  naz_save:{uz:"Saqlash",en:"Save",ru:"Сохранить"},
+  naz_pass_hint:{uz:"Bo'sh qoldiring — parol o'zgarmaydi",en:"Leave empty — password won't change",ru:"Оставьте пустым — пароль не изменится"},
+  naz_empty:{uz:"Hali foydalanuvchilar qo'shilmagan",en:"No users added yet",ru:"Пользователи ещё не добавлены"},
+  naz_loading:{uz:"Yuklanmoqda...",en:"Loading...",ru:"Загрузка..."},
+  naz_confirm_block:{uz:"Bu xodimni bloklashni xohlaysizmi?",en:"Block this employee?",ru:"Заблокировать этого сотрудника?"},
+  naz_confirm_activate:{uz:"Bu xodimni faollashtirmoqchimisiz?",en:"Activate this employee?",ru:"Активировать этого сотрудника?"},
+  role_admin:{uz:"Admin",en:"Admin",ru:"Админ"},
+  role_staff:{uz:"Xodim",en:"Employee",ru:"Сотрудник"},
+  status_active:{uz:"Faol",en:"Active",ru:"Активен"},
+  status_blocked:{uz:"Noaktiv",en:"Blocked",ru:"Заблокирован"},
   sp_a_guruh:{uz:"A guruh",en:"Group A",ru:"Группа A"},
   sp_b_guruh:{uz:"B guruh",en:"Group B",ru:"Группа B"},
   sp_c_guruh:{uz:"C guruh",en:"Group C",ru:"Группа C"},
@@ -2135,12 +2181,12 @@ function _nazRender(){
   tbody.innerHTML=_nazUsers.map(u=>`<tr>
     <td><strong>${esc(u.name||"—")}</strong></td>
     <td style="font-family:monospace">${esc(u.phone)}</td>
-    <td><span class="badge ${u.role==="admin"?"b-A":"b-B"}">${u.role==="admin"?"Admin":"Xodim"}</span></td>
-    <td style="font-size:10px;color:#555">${(u.tabs||[]).filter(t=>t!=="p_nazorat").map(t=>NAZ_TABS.find(x=>x.id===t)?.label||t).join(", ")||"—"}</td>
-    <td><span class="badge ${u.active?"b-ok":"b-bad"}">${u.active?"Faol":"Noaktiv"}</span></td>
+    <td><span class="badge ${u.role==="admin"?"b-A":"b-B"}">${u.role==="admin"?t("role_admin"):t("role_staff")}</span></td>
+    <td style="font-size:10px;color:#555">${(u.tabs||[]).filter(tb=>tb!=="p_nazorat").map(tb=>{const found=NAZ_TABS.find(x=>x.id===tb);return found?t("nav_"+found.id)||found.label:tb;}).join(", ")||"—"}</td>
+    <td><span class="badge ${u.active?"b-ok":"b-bad"}">${u.active?t("status_active"):t("status_blocked")}</span></td>
     <td style="white-space:nowrap;display:flex;gap:5px;padding:6px 10px">
-      <button onclick="nazEdit('${u.id}')" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:#fff">Tahrir</button>
-      <button onclick="nazToggle('${u.id}',${!u.active})" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:${u.active?"#FEF2F2":"#F0FDF4"};color:${u.active?"#991B1B":"#14532D"}">${u.active?"Bloklash":"Yoqish"}</button>
+      <button onclick="nazEdit('${u.id}')" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:#fff">${t("naz_edit")}</button>
+      <button onclick="nazToggle('${u.id}',${!u.active})" style="font-size:11px;padding:4px 10px;border:1px solid #CBD5E1;border-radius:6px;cursor:pointer;background:${u.active?"#FEF2F2":"#F0FDF4"};color:${u.active?"#991B1B":"#14532D"}">${u.active?t("naz_block"):t("naz_activate")}</button>
     </td>
   </tr>`).join("");
 }
@@ -2163,14 +2209,14 @@ function nazEdit(id){
   document.getElementById("naz-phone").value=u.phone||"";
   document.getElementById("naz-role").value=u.role||"staff";
   document.getElementById("naz-pass").value="";
-  document.getElementById("naz-pass-hint").textContent="Bo'sh qoldiring — parol o'zgarmaydi";
+  document.getElementById("naz-pass-hint").textContent=t("naz_pass_hint");
   NAZ_TABS.forEach(t=>{const cb=document.getElementById("naz-tab-"+t.id);if(cb)cb.checked=(u.tabs||[]).includes(t.id);});
   document.getElementById("naz-modal").style.display="flex";
   setTimeout(()=>document.getElementById("naz-name").focus(),100);
 }
 
 async function nazToggle(id,active){
-  if(!confirm(active?"Bu xodimni faollashtirmoqchimisiz?":"Bu xodimni bloklashni xohlaysizmi?"))return;
+  if(!confirm(active?t("naz_confirm_activate"):t("naz_confirm_block")))return;
   try{await _db.collection("users").doc(id).update({active});await nazLoad();}
   catch(e){alert("Xatolik: "+e.message);}
 }
