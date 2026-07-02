@@ -1848,11 +1848,11 @@ function p6OpenSupplierDetail(r){
       abc?`<td style="text-align:center"><span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg[abc]||"#f4f4f0"};color:${abcFg[abc]||"#555"}">${abc}</span></td>`
          :`<td style="text-align:center;color:#d0d0d0;font-size:12px">—</td>`
     ).join("");
-    return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:11px;text-align:center;width:38px;padding:7px 8px">${i+1}</td><td style="padding:7px 12px;min-width:320px"><span class="sp6-prod-link" onclick="p6GoToProduct(${i})">${esc(p.name)}</span></td>${abcCells}</tr>`;
+    return `<tr class="sp6-prod-row"><td style="color:#bbb;font-size:11px;text-align:center;width:38px;padding:7px 8px">${i+1}</td><td style="padding:7px 12px;min-width:400px"><span class="sp6-prod-link" onclick="p6GoToProduct(${i})">${esc(p.name)}</span></td>${abcCells}</tr>`;
   }).join("");
-  const minW=360+P6_MONTH_KEYS.length*62;
+  const minW=460+P6_MONTH_KEYS.length*62;
   const tableH=_p6DetailProds.length
-    ?`<div id="sp6-matrix-wrap"><table class="sp6-matrix" style="min-width:${minW}px"><thead><tr><th style="width:38px;text-align:center;padding:8px 8px">#</th><th style="text-align:left;min-width:320px;padding:8px 12px">${t("sp_prod_name")}</th>${monthHdrs}</tr></thead><tbody>${rows}</tbody></table></div>`
+    ?`<div id="sp6-matrix-wrap"><table class="sp6-matrix" style="min-width:${minW}px"><thead><tr><th style="width:38px;text-align:center;padding:8px 8px">#</th><th style="text-align:left;min-width:400px;padding:8px 12px">${t("sp_prod_name")}</th>${monthHdrs}</tr></thead><tbody>${rows}</tbody></table></div>`
     :`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:#bbb">${t("sp6_no_data")}</div>`;
   // Build mz (unsold) page
   const mzItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===S.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
@@ -1892,7 +1892,7 @@ function _p6EnsureDetailStyles(){
   if(document.getElementById("sp6-detail-style"))return;
   const st=document.createElement("style");
   st.id="sp6-detail-style";
-  st.textContent=`#sp-fullscreen,#sp-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #sp-fullscreen,body.sb-collapsed #sp-mz-page{left:64px}#sp-fullscreen{display:flex;flex-direction:column;overflow:hidden;z-index:1500}#sp-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}#sp6-matrix-wrap{flex:1;overflow-y:auto;overflow-x:auto;min-height:0;padding-bottom:40px}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1a1a2e;font-weight:600;font-size:12px;line-height:1.35;display:inline-block}.sp6-prod-link:hover{text-decoration:underline;color:#1D9E75}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px;width:100%;border-collapse:collapse}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap;position:sticky;top:0;z-index:1;background:#fafaf5}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
+  st.textContent=`#sp-fullscreen,#sp-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #sp-fullscreen,body.sb-collapsed #sp-mz-page{left:64px}#sp-fullscreen{overflow-y:auto;overflow-x:auto;z-index:1500}#sp-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}#sp6-matrix-wrap{padding:0 14px 40px}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1a1a2e;font-weight:600;font-size:12px;line-height:1.35;display:inline-block}.sp6-prod-link:hover{text-decoration:underline;color:#1D9E75}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px;width:100%;border-collapse:collapse}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap;position:sticky;top:0;z-index:1;background:#fafaf5}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
   document.head.appendChild(st);
 }
 function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
@@ -1910,7 +1910,7 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   const abcBadge=abc?`<span style="background:${abcC};color:#fff;padding:5px 14px;border-radius:10px;font-size:18px;font-weight:800;letter-spacing:1px;flex-shrink:0">${abc}</span>`:"";
   const monthBadge=monthName?`<span style="background:#f0faf6;color:#1D9E75;padding:5px 14px;border-radius:10px;font-size:15px;font-weight:700;flex-shrink:0;border:1px solid #d4f0e5">${monthName}</span>`:"";
   const mzToggle=mzCount?`<button onclick="document.getElementById('sp-mz-page').style.display='block';document.getElementById('sp-mz-page').scrollTop=0" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzCount}</span></button>`:"";
-  ov.innerHTML=`<div id="sp-ov-header" style="flex-shrink:0;background:#fff;padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
+  ov.innerHTML=`<div id="sp-ov-header" style="position:sticky;top:0;background:#fff;padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
     <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       ${t("sp_back_sup")}
@@ -1919,7 +1919,7 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
     <span style="font-size:15px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(name)}</span>
     ${mzToggle}
   </div>
-  <div class="sp-det-wrap" style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">${detH}</div>`;
+  <div class="sp-det-wrap">${detH}</div>`;
   if(mzCount&&mzPageH){
     mzPage.innerHTML=`<div style="position:sticky;top:0;background:#fff;padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;margin-bottom:20px;z-index:2;display:flex;align-items:center;gap:12px">
       <button onclick="document.getElementById('sp-mz-page').style.display='none'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
@@ -1937,12 +1937,19 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   }
   ov.style.display="block";
   ov.scrollTop=0;
+  requestAnimationFrame(()=>{
+    const hdr=document.getElementById("sp-ov-header");
+    if(hdr){
+      const h=Math.ceil(hdr.getBoundingClientRect().height);
+      ov.querySelectorAll(".sp6-matrix th").forEach(th=>{th.style.top=h+"px";});
+    }
+  });
 }
 function ensureSupplierProductTableStyles(){
   if(document.getElementById("sp-prod-table-style"))return;
   const st=document.createElement("style");
   st.id="sp-prod-table-style";
-  st.textContent=`.sp-det-wrap{background:#fff!important;border:none!important;border-radius:0!important;padding:0!important;margin:0!important;max-width:100%!important;flex:1!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}`;
+  st.textContent=`.sp-det-wrap{background:#fff!important;border:none!important;border-radius:0!important;padding:0!important;margin:0!important;max-width:100%!important}.sp-month-tabs{display:flex;align-items:center;gap:8px;padding:0 24px 6px;position:relative}.sp-month-tabs-label{font-size:11px;font-weight:700;color:#7b8494}.sp-month-dd{position:relative}.sp-month-current{height:30px;min-width:92px;padding:0 12px;border:1.5px solid #1D9E75;border-radius:18px;background:#1D9E75;color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}.sp-month-current:after{content:"";border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid currentColor;margin-top:2px}.sp-month-menu{display:none;position:absolute;top:36px;left:0;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:9px;box-shadow:0 12px 28px rgba(15,23,42,.16);padding:5px;min-width:110px}.sp-month-dd.open .sp-month-menu{display:block}.sp-month-option{width:100%;height:30px;border:0;background:#fff;border-radius:7px;color:#374151;font-size:12px;font-weight:600;cursor:pointer;text-align:left;padding:0 10px}.sp-month-option:hover{background:#f0fdf4;color:#0D7A55}.sp-month-option.active{background:#E1F5EE;color:#085041}`;
   document.head.appendChild(st);
 }
 function renderP6MonthControls(){
