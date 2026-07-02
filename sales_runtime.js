@@ -1889,7 +1889,7 @@ function _p6EnsureDetailStyles(){
   if(document.getElementById("sp6-detail-style"))return;
   const st=document.createElement("style");
   st.id="sp6-detail-style";
-  st.textContent=`#sp-fullscreen{padding-left:10px!important;padding-right:10px!important}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1D9E75;font-weight:600;font-size:12px;line-height:1.35;display:inline-block}.sp6-prod-link:hover{text-decoration:underline;color:#0D7A55}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px}.sp6-matrix thead tr{background:#fafaf5}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
+  st.textContent=`#sp-fullscreen,#sp-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;padding:0 24px 60px;transition:left .18s ease}body.sb-collapsed #sp-fullscreen,body.sb-collapsed #sp-mz-page{left:64px}#sp-fullscreen{z-index:1500;padding-left:14px!important;padding-right:14px!important}#sp-mz-page{z-index:1600}.sp6-sup-row{cursor:pointer}.sp6-sup-row:hover .sp6-sup-link{color:#1D9E75;text-decoration:underline}.sp6-sup-link{font-weight:600;transition:color .15s}.sp6-prod-link{cursor:pointer;color:#1D9E75;font-weight:600;font-size:12px;line-height:1.35;display:inline-block}.sp6-prod-link:hover{text-decoration:underline;color:#0D7A55}.sp6-prod-row:hover td{background:#f0faf6!important}.sp6-matrix{font-size:12px}.sp6-matrix thead tr{background:#fafaf5}.sp6-matrix th{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;color:#888;border-bottom:1.5px solid #eee;padding:8px 8px;white-space:nowrap}.sp6-matrix td{border-bottom:1px solid #f0f0ec;vertical-align:middle}.sp6-matrix tbody tr:hover td{background:#f0faf6!important}`;
   document.head.appendChild(st);
 }
 function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
@@ -1897,11 +1897,11 @@ function _p6ShowOverlay(name,detH,monthName,abc,mzCount,mzPageH){
   p6el.style.position="relative";
   let ov=document.getElementById("sp-fullscreen");
   if(!ov){ov=document.createElement("div");ov.id="sp-fullscreen";
-    ov.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:15;overflow-y:auto;padding:0 24px 60px";
+    ov.style.display="none";
     p6el.appendChild(ov);}
   let mzPage=document.getElementById("sp-mz-page");
   if(!mzPage){mzPage=document.createElement("div");mzPage.id="sp-mz-page";
-    mzPage.style.cssText="display:none;position:absolute;top:0;left:0;right:0;bottom:0;background:#fff;z-index:20;overflow-y:auto;padding:0 24px 60px";
+    mzPage.style.display="none";
     p6el.appendChild(mzPage);}
   const abcC=abc==="A"?"#1D9E75":abc==="B"?"#534AB7":"#EF9F27";
   const abcBadge=abc?`<span style="background:${abcC};color:#fff;padding:5px 14px;border-radius:10px;font-size:18px;font-weight:800;letter-spacing:1px;flex-shrink:0">${abc}</span>`:"";
