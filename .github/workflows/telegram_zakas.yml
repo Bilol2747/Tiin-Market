@@ -1,0 +1,87 @@
+name: Telegram zakas boti
+
+# api/telegram-webhook.js (Vercel) shu workflow'ni workflow_dispatch orqali
+# chaqiradi — Excel parslash (ExcelJS kerak) va Invan'ga yozish og'ir/xavfli
+# ish, shuning uchun Vercel'da EMAS, shu yerda (real npm install bilan)
+# bajariladi. Reja: C:\Users\User\.claude\plans\crystalline-sauteeing-scone.md
+on:
+  workflow_dispatch:
+    inputs:
+      chat_id:
+        description: "Telegram chat ID"
+        required: true
+      message_id:
+        description: "Telegram message ID (ixtiyoriy, fayl xabari uchun)"
+        required: false
+        default: ""
+      kind:
+        description: "Bajariladigan amal"
+        required: true
+        type: choice
+        options:
+          - new_file
+          - confirm
+          - cancel
+      file_path:
+        description: "Repo ichidagi Excel fayl yo'li (faqat new_file uchun)"
+        required: false
+        default: ""
+
+concurrency:
+  group: telegram-zakas-${{ github.event.inputs.chat_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Repo'ni olish
+        uses: actions/checkout@v4
+
+      - name: Node o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Kutubxonalarni o'rnatish
+        run: npm install exceljs xlsx --no-save
+
+      - name: Invan token faylini tayyorlash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+        run: printf '%s' "$INVAN_API_TOKEN" > api_token.txt
+
+      - name: Bot ishga tushirish
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          node zakas/telegram_bot_runner.js \
+            --chat "${{ github.event.inputs.chat_id }}" \
+            --kind "${{ github.event.inputs.kind }}" \
+            --message-id "${{ github.event.inputs.message_id }}" \
+            --file "${{ github.event.inputs.file_path }}"
+
+      - name: api_token.txt'ni tozalash
+        if: always()
+        run: rm -f api_token.txt
+
+      - name: Pending holat / kiruvchi fayl o'zgarishlarini commit qilish
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add zakas/telegram_pending zakas/telegram_incoming 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "O'zgarish yo'q."
+          else
+            git commit -m "Telegram zakas boti: ${{ github.event.inputs.kind }} (chat ${{ github.event.inputs.chat_id }})"
+            for i in 1 2 3; do
+              if git push; then exit 0; fi
+              git pull --no-rebase -X ours origin main
+              sleep 3
+            done
+          fi
