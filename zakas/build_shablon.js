@@ -84,7 +84,12 @@ function classifyHeader(text) {
   // narx: "без скидки" — chegirmasiz narx, yakuniy narx emas (rank 2 — eng oxirgi variant)
   if (t.includes('цена')) return { kind: 'price', rank: t.includes('без скидки') ? 2 : 0 };
   if (letters === 'price' || t.includes('price')) return { kind: 'price', rank: 1 };
-  if (t.includes('наимен') || t.includes('назв') || t.includes('товар') ||
+  // "ТМЦ" (Товарно-Материальные Ценности) - ba'zi накладныйlarda "Наименование"
+  // o'rniga shu qisqartma ishlatiladi (2026-08-01, "OOO International Paper"
+  // faylida uchradi - shtrix/soni/narx to'g'ri tanilgan, faqat nom ustuni
+  // tanilmagani uchun butun sarlavha rad etilib, "fayl tushunilmadi" bo'lib
+  // chiqqan edi).
+  if (t.includes('наимен') || t.includes('назв') || t.includes('товар') || letters === 'тмц' ||
       (t.includes('продукци') && !t.includes('код'))) return { kind: 'name', rank: 0 };
   if (t.includes('описание') || t.includes('description')) return { kind: 'name', rank: 1 };
   return null;
