@@ -1,0 +1,144 @@
+name: Invan API sinxronizatsiyasi
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/sync.yml"
+      - "build_all_from_api.py"
+      - "build_legacy_excel_pipeline.py"
+      - "backend_shared_utils.py"
+      - "backend_p1_boshsahifa.py"
+      - "backend_p2_mahsulotlar.py"
+      - "backend_p3_abc.py"
+      - "backend_p5_stock.py"
+      - "backend_p6_suppliers.py"
+      - "backend_p8_kirim.py"
+      - "backend_p9_ombor_aylanmasi.py"
+      - "backend_html_embed.py"
+      - "build_sales_demand.py"
+      - "build_prev_avg.py"
+      - "inject_last_sale.py"
+      - "fetch_api_data.py"
+      - "turso_sync.py"
+      - "turso_sync_supplier_orders.py"
+      - "api_raw_products.json"
+      - "arrival_data.json"
+      - "supplier_months_cache.json"
+  # VAQTINCHA O'CHIRILGAN (2026-07-28, Bilol so'rovi bilan - saytda ish olib
+  # borilayotgani uchun avtomatik yangilanish xalaqit bermasligi kerak edi).
+  # Qayta yoqish uchun quyidagi 2 qatorni izohdan chiqaring:
+  # schedule:
+  #   - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: invan-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Repo'ni olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install requests openpyxl libsql-client
+
+      - name: Invan API'ga ulanishni tekshirish
+        run: |
+          curl -s -o /dev/null -w "HTTP holat: %{http_code}\n" --max-time 15 https://api.7i.uz/integration/v1/order || echo "ULANMADI (timeout/xato)"
+
+      - name: API'dan mahsulot katalogini yuklash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+        run: python -u fetch_api_data.py --skip-orders
+
+      - name: Sotuvlarni Turso bazasiga sinxronlash (mahsulotdan keyin - vaqt farqini kamaytirish uchun)
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u turso_sync.py
+
+      - name: Ta'minotchi buyurtmalarini (kirim) Turso bazasiga sinxronlash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u turso_sync_supplier_orders.py
+
+      # Xaridor firmalar (p11 "Firmalar" bo'limi). Invan'ning ICHKI API'si
+      # (api/v1) ishlatiladi — token bir xil. Bu qadam yiqilsa ham butun build
+      # to'xtamasin: bo'lim eski data_firmalar.json bilan ishlashda davom etadi.
+      - name: Xaridor firmalar ma'lumotini yangilash
+        continue-on-error: true
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u fetch_clients.py
+
+      - name: Butun saytni qayta qurish
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python build_all_from_api.py
+
+      - name: O'zgarishlarni commit+push qilish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config pull.rebase false
+          git add sales.html index.html data_daily.json data_mahsulotlar.json data_inv_new.json data_supplier.json data_kirim.json data_stock_snapshot.json supplier_months_cache.json data_history.json data_monthly_rev.json data_abc.json data_firmalar.json .pav_cache.json
+          if git diff --staged --quiet; then
+            echo "O'zgarish yo'q, commit qilinmaydi."
+          else
+            git commit -m "Avtomatik yangilanish: Invan API sotuv ma'lumotlari $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            for i in 1 2 3 4 5; do
+              if git push; then
+                echo "Push muvaffaqiyatli."
+                exit 0
+              fi
+              echo "Push rad etildi, pull --no-rebase -X ours qilib qayta urinilmoqda ($i/5)..."
+              git pull --no-rebase -X ours origin main
+              sleep 5
+            done
+            echo "5 marta urinishdan keyin ham push qilib bo'lmadi."
+            exit 1
+          fi
+
+      - name: Git tarixini siqish (repo hajmini nazorat qilish)
+        # Eski commitlar hech qanday qiymatga ega emas (haqiqiy tarix Turso bazasi va
+        # data_history.json/data_stock_snapshot.json kabi to'plamli fayllarda saqlanadi),
+        # shuning uchun har safar (har 30 daqiqada) faqat ENG SO'NGGI holat 1 ta
+        # (ota-onasiz) commit sifatida qoldiriladi, qolgan barcha tarix unreachable
+        # bo'lib qoladi - repo hajmi doim bitta snapshot atrofida qotib qoladi.
+        # Xavfsizlik: --force-with-lease shu payt boshqa birov main'ga push qilib
+        # qo'ygan bo'lsa, urinish shunchaki bekor bo'ladi (keyingi sync'da qayta
+        # urinadi, 30 daqiqadan keyin) - hech narsa yo'qolmaydi.
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          CUR=$(git rev-parse HEAD)
+          NEW=$(git commit-tree "$CUR^{tree}" -m "Git tarixini avtomatik siqish (squash) - $(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          if ! git diff --quiet "$CUR" "$NEW"; then
+            echo "OGOHLANTIRISH: squash oldi-keyin fayllar solishtiruvida farq bor - xavfsizlik uchun bekor qilindi."
+            exit 0
+          fi
+          if git push --force-with-lease="main:$CUR" origin "$NEW:main"; then
+            echo "Squash muvaffaqiyatli: $CUR -> $NEW"
+          else
+            echo "Squash push rad etildi (ehtimol shu orada boshqa commit tushgan) - keyingi sync'da qayta urinadi."
+          fi

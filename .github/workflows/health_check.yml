@@ -1,0 +1,64 @@
+name: Pipeline sog'ligini tekshirish
+
+# sync.yml'dan MUSTAQIL, alohida workflow — agar asosiy sinxronizatsiya
+# biror joyda qotib qolsa (masalan Turso/Invan API muammosi tufayli, 90
+# daqiqagacha "ishlayapti" ko'rinib hech qanday signal bermaydi), bu
+# workflow shuni alohida payqab, Telegram orqali xabar beradi.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Oxirgi commit vaqtini tekshirish, kechiksa ogohlantirish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          import os
+          import urllib.request
+          import datetime
+
+          repo = os.environ["REPO"]
+          token = os.environ["GH_TOKEN"]
+
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/commits/main",
+              headers={"Accept": "application/vnd.github+json", "Authorization": f"Bearer {token}"},
+          )
+          with urllib.request.urlopen(req, timeout=15) as resp:
+              data = json.load(resp)
+
+          commit_date = datetime.datetime.fromisoformat(
+              data["commit"]["committer"]["date"].replace("Z", "+00:00")
+          )
+          now = datetime.datetime.now(datetime.timezone.utc)
+          age_minutes = (now - commit_date).total_seconds() / 60
+          print(f"Oxirgi commit: {commit_date.isoformat()} ({age_minutes:.0f} daqiqa oldin)")
+
+          THRESHOLD_MINUTES = 90
+          if age_minutes > THRESHOLD_MINUTES:
+              msg = (
+                  f"⚠️ Tiin Market: avtomatik yangilanish {age_minutes:.0f} daqiqadan "
+                  f"beri ishlamayapti (oxirgi commit: {commit_date.strftime('%Y-%m-%d %H:%M')} UTC). "
+                  f"GitHub Actions'ni tekshiring."
+              )
+              body = json.dumps({"chat_id": "7034777747", "text": msg}).encode()
+              tg_req = urllib.request.Request(
+                  "https://api.telegram.org/bot8626844104:AAHsDzuxGzJqsvnaS42jSHTLriF7A0tUtXg/sendMessage",
+                  data=body,
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              urllib.request.urlopen(tg_req, timeout=15)
+              print("Ogohlantirish Telegram'ga yuborildi.")
+          else:
+              print("Hammasi joyida, oxirgi yangilanish yetarlicha yaqin.")
+          PYEOF
