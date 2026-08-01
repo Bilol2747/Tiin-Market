@@ -123,27 +123,34 @@ module.exports = async function handler(req, res) {
     // bir xil xabarni bir necha marta yuborishi mumkin.
     if (msg && msg.chat) {
       const chatId = msg.chat.id;
-
-      if (msg.document && XLSX_RE.test(msg.document.file_name || "")) {
-        const fname = msg.document.file_name;
-        await sendMessage(chatId, `📄 "${fname}" qabul qildim, tekshiryapman (biroz vaqt oladi)...`);
-        const buf = await tgDownloadFile(msg.document.file_id);
-        const repoPath = `zakas/telegram_incoming/${chatId}_${msg.message_id}_${fname}`;
-        await commitFileToRepo(repoPath, buf, `Telegram zakas fayli: ${fname} (chat ${chatId})`);
-        await dispatchWorkflow({
-          chat_id: String(chatId), message_id: String(msg.message_id),
-          kind: "new_file", file_path: repoPath,
-        });
-      } else if (msg.document) {
-        await sendMessage(chatId, "Faqat .xlsx/.xls Excel fayl qabul qilaman.");
-      } else if (typeof msg.text === "string") {
-        const t = msg.text.trim();
-        if (YES_RE.test(t)) {
-          await dispatchWorkflow({ chat_id: String(chatId), kind: "confirm" });
-        } else if (NO_RE.test(t)) {
-          await dispatchWorkflow({ chat_id: String(chatId), kind: "cancel" });
+      try {
+        if (msg.document && XLSX_RE.test(msg.document.file_name || "")) {
+          const fname = msg.document.file_name;
+          await sendMessage(chatId, `📄 "${fname}" qabul qildim, tekshiryapman (biroz vaqt oladi)...`);
+          const buf = await tgDownloadFile(msg.document.file_id);
+          const repoPath = `zakas/telegram_incoming/${chatId}_${msg.message_id}_${fname}`;
+          await commitFileToRepo(repoPath, buf, `Telegram zakas fayli: ${fname} (chat ${chatId})`);
+          await dispatchWorkflow({
+            chat_id: String(chatId), message_id: String(msg.message_id),
+            kind: "new_file", file_path: repoPath,
+          });
+        } else if (msg.document) {
+          await sendMessage(chatId, "Faqat .xlsx/.xls Excel fayl qabul qilaman.");
+        } else if (typeof msg.text === "string") {
+          const t = msg.text.trim();
+          if (YES_RE.test(t)) {
+            await dispatchWorkflow({ chat_id: String(chatId), kind: "confirm" });
+          } else if (NO_RE.test(t)) {
+            await dispatchWorkflow({ chat_id: String(chatId), kind: "cancel" });
+          }
+          // Boshqa oddiy xabarlarga javob qaytarmaymiz - guruh suhbatiga aralashmaslik uchun.
         }
-        // Boshqa oddiy xabarlarga javob qaytarmaymiz - guruh suhbatiga aralashmaslik uchun.
+      } catch (inner) {
+        // Avval bu yerdagi xato faqat server logiga yozilib, foydalanuvchi
+        // hech qachon bilmasdan "jim qolib ketardi" (2026-08-01 aniqlandi) -
+        // endi guruhga ham aniq xabar boradi.
+        console.error("telegram-webhook ichki xatolik:", inner && inner.message);
+        try { await sendMessage(chatId, `⚠️ Xatolik chiqdi: ${inner && inner.message || inner}`); } catch { /* Telegram ham ishlamasa qila olmaymiz */ }
       }
     }
 
