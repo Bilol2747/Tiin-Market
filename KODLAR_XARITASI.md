@@ -1,5 +1,11 @@
 # Kodlar xaritasi — bo'lim → fayl
 
+> **⚠️ 2026-08-01 dan:** yangi haqiqiy backend qurilmoqda — [backend/](backend/) papkasi
+> (SQLite + FastAPI). U **bu yerdagi hisob kodlarini o'zgartirmaydi**, faqat ularni
+> bazadan chaqiradi. Server tomonidagi fayllar xaritasi:
+> [backend/KODLAR_XARITASI.md](backend/KODLAR_XARITASI.md).
+> Jonli sayt hozircha hali eski yo'ldan ishlaydi.
+
 Bu fayl saytning har bir bo'limi qaysi backend (Python) va frontend (JS) faylida/qatorida joylashganini ko'rsatadi. Birorta bo'limga o'zgartirish kerak bo'lsa, butun kodni qidirmasdan, shu jadvaldan to'g'ridan-to'g'ri fayl+qatorga o'tish mumkin.
 
 ## Bo'limlar

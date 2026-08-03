@@ -8,3 +8,13 @@ api_raw_orders.partial.json
 api_raw_products.partial.json
 __pycache__/
 node_modules/
+
+# Yangi backend (backend/) — ma'lumot fayllari git'ga TUSHMASLIGI kerak.
+# tiin.db ~464 MB, pipeline_cache.pkl ~60 MB. Ular Invan API'dan qayta
+# yaratiladi (etl_from_turso.py / backfill_from_api.py / pipeline_runner.py),
+# shuning uchun repoda saqlashning ma'nosi yo'q — faqat repo shishadi.
+backend/tiin.db
+backend/tiin.db-shm
+backend/tiin.db-wal
+backend/pipeline_cache.pkl
+backend/pipeline_cache.tmp

@@ -4,6 +4,37 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
+## 2026-08-01 — HAQIQIY BACKEND QURILDI (davom etmoqda) — `backend/` papkasi
+
+**Muammo (foydalanuvchi so'zi bilan):** "invan qanday ishlaydi... bizni saytda har 30 daqiqada deploy qilish kk... saytimizni ishlashi ham ancha sekin... turso bazasi to'lib qolishi va vercel deploy limiti".
+
+**Ildiz sabab topildi va o'lchandi.** Turso'dagi `orders` jadvali baza emas — arxiv: har chek **~10 KB JSON blob** (104,813 chek = **1.4 GB**). Undan "SKU X ning 30 kunlik sotuvi"ni so'rab bo'lmaydi, faqat butunini skan qilish mumkin. Shuning uchun hamma narsa oldindan hisoblanib HTML/JSON'ga "pishirilgan" va har 30 daqiqada **243.5 MB git'ga** yozilgan (`.git` = 5.5 GB).
+
+**Yechim — `backend/` papkasi** (jonli saytga tegilmagan, hammasi lokal). To'liq xarita: [backend/KODLAR_XARITASI.md](backend/KODLAR_XARITASI.md).
+
+**ENG MUHIM QAROR (foydalanuvchi ko'rsatmasi):** *"sen kodni qayta yozishga harakat qilsang muammolar va xatolar kelib chiqadi... kodlarni umuman o'zgartirma, shunchaki server bilan ishlashga moslashtir"*. Bu bejiz emas edi — men `avg30sa` ni qayta yozganimda darrov ulgurji ajratishni tashlab ketib, kunlik o'rtachani **46 barobar** xato ko'rsatgan edim (sku 24593: 55.3 vs to'g'risi 1.2 dona/kun). Shundan keyin butun yondashuv o'zgardi: `pipeline_adapter.py` bazadagi qatorlarni Invan API formatiga qaytaradi, `pipeline_runner.py` esa `build_all_from_api.py` bilan **bir xil ketma-ketlikda o'sha funksiyalarni** chaqiradi. Bironta formula ko'chirilmagan.
+
+**Natijalar (o'lchangan):**
+
+| | Eski | Yangi |
+|---|---|---|
+| Baza | 1.4 GB JSON blob | 464 MB normal, indeksli |
+| "Bitta SKU, 30 kun" so'rovi | butun skan | **0.01 ms** |
+| p2 uchun brauzer yuklaydi | 11.7 MB | **2.1 MB** (yoki 50 qator = 8 KB) |
+| Kirim ma'lumoti | 60.8 MB | **309 KB** (zakas uchun kerakli qism) |
+| To'liq qayta hisoblash | 30 daqiqa + git + deploy | **14-69 s**, fonda, deploysiz |
+| Yangi cheklar | 30 daqiqa | **2.75 s** (151 chek sinovda) |
+
+**To'g'rilik tekshiruvlari:** sotuv 3 kunda **0.00% farq** · ABC **99.1% mos** (farqlar faqat yangiroq ma'lumotdan) · `avg30sa` **93.6% mos, median 0.000%`.
+
+**Yo'l-yo'lakay topilgan haqiqiy bug (eski tizimda):** `merge_kirimdata()` bitta buyurtmada bir xil SKU bir necha qatorda kelsa faqat bittasini saqlaydi. Invan'ning o'z `total_amount` raqami bilan tasdiqlandi (buyurtma 3829131a: farq 0 so'm). **Yo'qolayotgan hajm: 3,877 qator · 265,798 dona · 3.46 mlrd so'm (1.9%)**, 2025-03-08 dan beri. Yangi bazada to'g'ri hisoblanadi; eski pipeline tuzatilmadi — Invan UI'da tasdiqlash kutilmoqda.
+
+**Ochiq masalalar:** `pav` hali noto'g'ri (bazada 2026-01-04…05-16 oralig'i yo'q — 133 kun; `backfill_from_api.py` bilan to'ldiriladi, ~18 daqiqa) · frontend ulanmagan · xosting tanlanmagan (~$5/oy VPS tavsiya qilindi).
+
+**Xavfsizlik eslatmasi:** tekshirish paytida ma'lum bo'ldiki, GitHub repo **public** — `data_supplier.json`, `data_kirim.json`, `data_firmalar.json` (firma nomi, STIR, qarz) ochiq turibdi. Tokenlar `.gitignore`da, ular xavfsiz.
+
+---
+
 ## 2026-07-30 — YANGI BO'LIM: p11 "Firmalar" (xaridor firmalar, qarz muddati)
 
 **Rahbar topshirig'i:** "payment date" bo'limi — bizdan tovar olgan firmalar bilan ishlash.
