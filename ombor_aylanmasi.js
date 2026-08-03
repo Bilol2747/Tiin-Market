@@ -14,18 +14,45 @@ async function oaInit(){
 }
 
 async function oaEnsureData(){
-  if(!INVDATA){
-    try{INVDATA=JSON.parse(document.getElementById("invdata").textContent);}catch(e){INVDATA={};}
+  // DIQQAT: bu funksiya sahifa ochilishida FON rejimida ham chaqiriladi
+  // (sales_runtime.js `_prefetchHeavyTabs`), shuning uchun qaysi bo'limga
+  // kirilishidan qat'i nazar ishlaydi. Avval bu yerda 60 MB data_kirim.json
+  // va 10 MB HTML-ichidagi invdata o'qilardi — endi (yangi backend bo'lsa)
+  // API'dan siqilgan holda ~5 MB keladi. API bo'lmasa eski yo'l saqlanadi.
+  if(!INVDATA||!Object.keys(INVDATA).length){
+    // Avval HTML ichiga joylashtirilgan blok (build paytida to'ldirilgan bo'lishi
+    // mumkin), keyin API/fayl. DIQQAT: INVDATA ni bo'sh {} ga qo'yib yubormaslik
+    // kerak — `_ensureInvData()` uni "yuklangan" deb hisoblab, qayta o'qimay qoladi.
+    let _em=null;
+    try{_em=JSON.parse(document.getElementById("invdata").textContent);}catch(e){}
+    if(_em&&Object.keys(_em).length){
+      INVDATA=_em;
+    }else{
+      INVDATA=null;
+      try{INVDATA=(typeof _ensureInvData==="function")?await _ensureInvData(null):{};}
+      catch(e){INVDATA={};}
+    }
   }
   if(!P8){
-    try{const r=await fetch("data_kirim.json",{cache:"no-store"});P8=await r.json();}catch(e){P8={skus:{}};}
+    // p9 kirim TARIXINI to'liq talab qiladi (har yozuv bo'yicha hisoblaydi),
+    // shuning uchun bu yerda qisqa xulosa emas, to'liq tuzilma kerak.
+    try{
+      P8=(typeof _apiOrFile==="function")
+        ? await _apiOrFile("kirimdata","data_kirim.json")
+        : await (await fetch("data_kirim.json",{cache:"no-store"})).json();
+      if(typeof _P8_SUMMARY!=="undefined")_P8_SUMMARY=false;
+    }catch(e){P8={skus:{}};}
   }
   if(histLoadState==="idle"){await loadHistory();}
   else{
     while(histLoadState==="loading")await new Promise(r=>setTimeout(r,50));
   }
   if(!OA_SNAP){
-    try{const r=await fetch("data_stock_snapshot.json",{cache:"no-store"});OA_SNAP=await r.json();}catch(e){OA_SNAP={base:new Date().toISOString().slice(0,10),days:1,s:{},c:{}};}
+    try{
+      OA_SNAP=(typeof _apiOrFile==="function")
+        ? await _apiOrFile("stockSnapshot","data_stock_snapshot.json")
+        : await (await fetch("data_stock_snapshot.json",{cache:"no-store"})).json();
+    }catch(e){OA_SNAP={base:new Date().toISOString().slice(0,10),days:1,s:{},c:{}};}
     if(!OA_SNAP.c)OA_SNAP.c={};
   }
   if(!OA_BY_SKU){

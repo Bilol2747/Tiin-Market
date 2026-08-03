@@ -2793,11 +2793,11 @@ function toggleSidebar(){
 // ─── showPage(): sahifa almashtirish dispatcheri — BARCHA sahifalar
 // (p1-p9, nazorat) shu funksiya orqali ochiladi, har sahifaning
 // birinchi marta ochilishida kerakli ma'lumotni yuklaydi ───
-async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}await _ensureP2Data(apiData);await initP2(apiData);}loadHistory();}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){const _r=await fetch("data_abc.json",{cache:"no-store"});_p3v=await _r.json();}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){await _ensureP2Data(null);await initP2(null);}loadHistory();}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){_p3v=await _apiOrFile("p3data","data_abc.json");}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
-if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS)_buildZItems();if(!P8){try{const _r=await fetch("data_kirim.json",{cache:"no-store"});P8=await _r.json();}catch(e){P8={skus:{}};}}renderZakas();}
-if(pid==="p6"){if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(!P8){try{const _r=await fetch("data_kirim.json",{cache:"no-store"});P8=await _r.json();}catch(e){P8={skus:{}};}}if(!P6){await _ensureSupplierData();initP6();}setTimeout(_spFitTableHeight,0);}
-if(pid==="p8"){if(!P8){try{const _r=await fetch("data_kirim.json",{cache:"no-store"});P8=await _r.json();}catch(e){P8={skus:{}};}}initP8();}
+if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS)_buildZItems();await _ensureKirimSummary();renderZakas();}
+if(pid==="p6"){if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS&&P2){_buildZItems();}await _ensureKirimSummary();if(!P6){await _ensureSupplierData();initP6();}setTimeout(_spFitTableHeight,0);}
+if(pid==="p8"){await _ensureKirimFull();initP8();}
 if(pid==="p9"){oaInit();}
 if(pid==="p10"){await ktInit();}
 if(pid==="p11"){await fmInit();}
@@ -3641,9 +3641,10 @@ function loadHistory(){
   const ind=document.getElementById("hist-load-ind");if(ind)ind.style.display="inline";
   _histLoadPromise=(async()=>{
     try{
-      const resp=await fetch("data_history.json");
-      if(!resp.ok)throw new Error("HTTP "+resp.status);
-      const data=await resp.json();
+      // Eng katta yuklama edi (74.8 MB). Yangi backend bo'lsa API'dan
+      // siqilgan holda (~10 MB) keladi, bo'lmasa eski fayldan.
+      const data=await _apiOrFile("history","data_history.json");
+      if(!data||!data.base)throw new Error("tarix bo'sh");
       const [by,bm,bd]=data.base.split("-").map(Number);
       const labels=[];
       for(let i=0;i<data.days;i++){const d=new Date(Date.UTC(by,bm-1,bd+i));labels.push(d.toISOString().slice(0,10));}
@@ -3825,11 +3826,60 @@ function _p2BcBySku(sku){
 // ─── MA'LUMOTNI YUKLASH YORDAMCHILARI (fetch on demand) — P2/INVDATA/
 // DAILYFULL/SUPPLIERDATA/ExcelJS'ni faqat kerak bo'lganda yuklaydi,
 // bir necha sahifa (p2/p5/p6/p7) tomonidan ishlatiladi ───
+// ─── YANGI BACKEND bilan ishlash (backend/KODLAR_XARITASI.md) ───
+// Avval API'ga uriladi, javob bo'lmasa ESKI fayldan o'qiladi. Shu sababli
+// server o'chirilgan/ishlamayotgan bo'lsa ham sayt avvalgidek ishlayveradi.
+// API qaytaradigan tuzilmalar fayllardagi bilan AYNAN bir xil — ikkalasi
+// ham o'sha build_* funksiyalarining chiqishi (pipeline_runner.py).
+const _API_SRC = {};   // qaysi bo'lim qayerdan olingani (diagnostika uchun)
+async function _apiOrFile(apiMethod, file){
+  try{
+    if(window.TiinDataAPI && typeof TiinDataAPI[apiMethod] === "function"){
+      const d = await TiinDataAPI[apiMethod]();
+      if(d && (Array.isArray(d) ? d.length : Object.keys(d).length)){
+        _API_SRC[apiMethod] = "api";
+        return d;
+      }
+    }
+  }catch(e){ /* fallback pastda */ }
+  _API_SRC[apiMethod] = "file";
+  const r = await fetch(file, {cache:"no-store"});
+  return await r.json();
+}
+// Konsolda tekshirish uchun: tiinSrc()
+window.tiinSrc = function(){ return Object.assign({}, _API_SRC); };
+
+// P8 (kirim) UCHTA bo'lim tomonidan baham ko'riladi (p6/p7/p8), lekin
+// ularning ehtiyoji har xil:
+//   p6/p7 (zakas) — faqat OXIRGI kirim holati kerak (krPendingQty/krLastDate)
+//   p8   (Kirim bo'limi) — TO'LIQ tarix kerak
+// API'dagi xulosa `arrivals` massivini saqlaydi, lekin ichida bitta (eng
+// so'nggi) yozuv bo'ladi — 60 MB o'rniga ~300 KB. Shu sababli p8 ochilganda
+// xulosa yuklangan bo'lsa, to'liq ma'lumot qayta o'qiladi.
+let _P8_SUMMARY = false;
+async function _ensureKirimSummary(){
+  if(P8) return P8;
+  try{
+    P8 = await _apiOrFile("kirimSummary","data_kirim.json");
+    _P8_SUMMARY = (_API_SRC.kirimSummary === "api");
+  }catch(e){ P8 = {skus:{}}; _P8_SUMMARY = false; }
+  return P8;
+}
+async function _ensureKirimFull(){
+  if(P8 && !_P8_SUMMARY) return P8;
+  try{
+    const _r = await fetch("data_kirim.json",{cache:"no-store"});
+    P8 = await _r.json();
+    _P8_SUMMARY = false;
+  }catch(e){ if(!P8) P8 = {skus:{}}; }
+  return P8;
+}
+
 async function _ensureDailyDemand(apiData){
   if(DAILYFULL)return;
   try{
     let _dp=apiData&&apiData.demand?apiData.demand:JSON.parse(document.getElementById("dailydata").textContent);
-    if(!_dp||!Object.keys(_dp).length){const _r=await fetch("data_daily.json",{cache:"no-store"});_dp=await _r.json();}
+    if(!_dp||!Object.keys(_dp).length){_dp=await _apiOrFile("dailydata","data_daily.json");}
     DAILYFULL=_dp.items;DSKU=_dp.skuAliases||{};DNAME=_dp.nameAliases||{};DMETAFULL=_dp.__meta__;
     _winDaily();
     const ph=document.getElementById("p2-period");if(ph)ph.textContent=(DMETA.title||"")+" · "+DMETA.days+" kun";
@@ -3838,7 +3888,7 @@ async function _ensureDailyDemand(apiData){
 async function _ensureInvData(apiData){
   if(!INVDATA){
     let _iv=apiData&&apiData.inventory?apiData.inventory:JSON.parse(document.getElementById("invdata").textContent);
-    if(!_iv||!Object.keys(_iv).length){const _r=await fetch("data_inv_new.json",{cache:"no-store"});_iv=await _r.json();}
+    if(!_iv||!Object.keys(_iv).length){_iv=await _apiOrFile("invdata","data_inv_new.json");}
     INVDATA=_iv;
   }
   return INVDATA;
@@ -3846,14 +3896,14 @@ async function _ensureInvData(apiData){
 async function _ensureP2Data(apiData){
   if(P2)return P2;
   let _p2=apiData&&apiData.products?apiData.products:JSON.parse(document.getElementById("p2data").textContent);
-  if(!_p2||!_p2.length){const _r=await fetch("data_mahsulotlar.json",{cache:"no-store"});_p2=await _r.json();}
+  if(!_p2||!_p2.length){_p2=await _apiOrFile("p2data","data_mahsulotlar.json");}
   P2=_p2;
   return P2;
 }
 async function _ensureSupplierData(){
   if(P6)return P6;
   let _sp=JSON.parse(document.getElementById("supplierdata").textContent);
-  if(!_sp||!Object.keys(_sp).length){const _r=await fetch("data_supplier.json",{cache:"no-store"});_sp=await _r.json();}
+  if(!_sp||!Object.keys(_sp).length){_sp=await _apiOrFile("supplierdata","data_supplier.json");}
   P6=_sp;
   return P6;
 }

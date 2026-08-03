@@ -226,3 +226,20 @@ CREATE TABLE IF NOT EXISTS sync_state (
     value      TEXT NOT NULL DEFAULT '',
     updated_at TEXT NOT NULL DEFAULT ''
 );
+
+
+-- ─── TO'PLANUVCHI artefaktlar ───────────────────────────────────────────────
+-- Ba'zi ma'lumotlarni bazadan QAYTA HISOBLAB BO'LMAYDI, chunki ular vaqt
+-- o'tishi bilan to'planadi. Asosiy misol — `data_stock_snapshot.json`:
+-- har build'da o'sha kunning qoldig'i massivga qo'shiladi. Bizda faqat
+-- JORIY qoldiq bor, kechagi qoldiq esa hech qayerda saqlanmagan — shuning
+-- uchun to'plangan tarixni yo'qotmaslik kerak.
+--
+-- Bu jadval shunday artefaktlarni JSON sifatida saqlaydi va mavjud
+-- `build_stock_snapshot()` funksiyasi o'zgarishsiz ishlatiladi (u avvalgi
+-- holatni kirish sifatida oladi va yangisini qaytaradi).
+CREATE TABLE IF NOT EXISTS blobs (
+    key        TEXT PRIMARY KEY,
+    data       TEXT NOT NULL,
+    updated_at TEXT NOT NULL DEFAULT ''
+);

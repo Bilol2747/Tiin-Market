@@ -19,11 +19,12 @@ Ishlatish:
     python backend/pipeline_runner.py --watch    # doimiy (har REFRESH_SECONDS)
 """
 import argparse
+import json
 import pickle
 import sys
 import threading
 import time
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 HERE = Path(__file__).parent
@@ -44,6 +45,7 @@ from backend_p3_abc import build_p3data                           # noqa: E402
 from backend_p1_boshsahifa import build_p1data                    # noqa: E402
 from backend_p6_suppliers import build_supplierdata               # noqa: E402
 from backend_p8_kirim import build_kirimdata                      # noqa: E402
+from backend_p9_ombor_aylanmasi import build_stock_snapshot       # noqa: E402
 from build_prev_avg import (_compute_avg30_stock_aware,           # noqa: E402
                             _compute_pav_from_item)
 
@@ -78,6 +80,100 @@ def _kirim_received_by_day(con):
             out.setdefault(r["sku"], {})[date.fromisoformat(r["d"])] = r["q"]
         except (ValueError, TypeError):
             continue
+    return out
+
+
+def _blob_get(con, key):
+    r = con.execute("SELECT data FROM blobs WHERE key=?", (key,)).fetchone()
+    if not r:
+        return None
+    try:
+        return json.loads(r[0])
+    except (ValueError, TypeError):
+        return None
+
+
+def _blob_set(con, key, obj):
+    con.execute(
+        "INSERT INTO blobs(key, data, updated_at) VALUES(?,?,?) "
+        "ON CONFLICT(key) DO UPDATE SET data=excluded.data, updated_at=excluded.updated_at",
+        (key, json.dumps(obj, ensure_ascii=False, separators=(",", ":")),
+         datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")))
+    con.commit()
+
+
+def _stock_snapshot(con, products, verbose=True):
+    """Kunlik qoldiq snapshotini yangilaydi — MAVJUD `build_stock_snapshot()`
+    funksiyasi orqali (backend_p9_ombor_aylanmasi.py, o'zgarishsiz).
+
+    Bu ma'lumot TO'PLANUVCHI: har kuni o'sha kunning qoldig'i massivga
+    qo'shiladi va keyin qayta tiklab bo'lmaydi (kechagi qoldiq hech qayerda
+    saqlanmagan). Shuning uchun avvalgi holat bazadagi `blobs` jadvalidan
+    olinadi; birinchi ishga tushishda mavjud `data_stock_snapshot.json`
+    dan ko'chiriladi — to'plangan tarix yo'qolmasligi uchun.
+    """
+    existing = _blob_get(con, "stock_snapshot")
+    if existing is None:
+        p = ROOT / "data_stock_snapshot.json"
+        if p.exists():
+            try:
+                existing = json.loads(p.read_text(encoding="utf-8"))
+                if verbose:
+                    print_days = existing.get("days", 0)
+                    log(f"Snapshot mavjud fayldan ko'chirildi ({print_days} kun)")
+            except (ValueError, OSError):
+                existing = None
+    snap = build_stock_snapshot(products, existing)
+    _blob_set(con, "stock_snapshot", snap)
+    return snap
+
+
+def _build_history(dailydata_long, base=PAV_HISTORY_BASE):
+    """`data_history.json` bilan BIR XIL tuzilmani quradi.
+
+    Bu hisob-kitob EMAS — `build_all_from_api.py:466-485` dagi maydon
+    moslashtirishning aynan o'zi (faqat nom almashtirish va kun indeksini
+    tekislash). Manba ham bir xil: `build_sales_demand.build()` chiqishi,
+    faqat u yerda faylga yozilardi, bu yerda xotirada qoladi.
+
+    Nega kerak: frontend `loadHistory()` har sahifa ochilishida 74.8 MB
+    `data_history.json` ni yuklaydi (fon rejimida, hamma bo'lim uchun).
+    API orqali u siqilgan holda ~10 MB ga tushadi.
+    """
+    if not dailydata_long:
+        return None
+    FIELDS = ["d", "r", "rc", "wi", "we", "rt", "rr", "wri", "wre"]
+    SRC = {"d": "q", "r": "rev", "rc": "r", "wi": "wi", "we": "we",
+           "rt": "rt", "rr": "rr", "wri": "wri", "wre": "wre"}
+
+    meta = dailydata_long.get("__meta__", {})
+    labels = meta.get("labels") or []
+    if not labels:
+        return None
+    daily_start = date.fromisoformat(labels[0])
+    daily_days = len(labels)
+    total_days = (date.today() - base).days + 1
+    if total_days <= 0:
+        return None
+
+    maps = {f: {} for f in FIELDS}
+    for prod_key, item in (dailydata_long.get("items") or {}).items():
+        if not prod_key.startswith("sku:"):
+            continue
+        arrs = {f: [0] * total_days for f in FIELDS}
+        for di in range(daily_days):
+            day_idx = (daily_start + timedelta(days=di) - base).days
+            if not (0 <= day_idx < total_days):
+                continue
+            for f, src in SRC.items():
+                s = item.get(src) or []
+                if di < len(s) and s[di]:
+                    arrs[f][day_idx] = s[di]
+        for f in FIELDS:
+            maps[f][prod_key] = arrs[f]
+
+    out = {"base": base.isoformat(), "days": total_days}
+    out.update(maps)
     return out
 
 
@@ -180,17 +276,22 @@ def compute(con, window_days=SITE_WINDOW_DAYS, long_history=True, verbose=True):
     # Frontend `krPendingQty()`/`krLastDate()` faqat shu maydonlarni ishlatadi,
     # butun kirim tarixi (~60 MB) yuborilishi shart emas. Maydonlar
     # `build_kirimdata()` ning O'Z chiqishidan olinadi — hisob qilinmaydi.
+    # DIQQAT: shakl `build_kirimdata()` chiqishi bilan MOS bo'lishi shart —
+    # frontend `krPendingQty()` (sales_runtime.js:1933) `entry.arrivals` dan
+    # eng so'nggisini oladi. Shuning uchun `arrivals` massivi saqlanadi,
+    # lekin ichida FAQAT eng so'nggi yozuv qoladi. Shu tufayli frontend
+    # kodini o'zgartirmasdan 60 MB o'rniga ~300 KB yuboriladi.
     kirim_summary = {}
     for sku, e in (kirimdata.get("skus") or {}).items():
         arrs = e.get("arrivals") or []
-        latest = max(arrs, key=lambda a: a.get("date") or "") if arrs else {}
+        latest = max(arrs, key=lambda a: a.get("date") or "") if arrs else None
         kirim_summary[sku] = {
             "last_date": e.get("last_date", ""),
             "last_status": e.get("last_status", ""),
             "last_cost": e.get("last_cost", 0),
             "total_received": e.get("total_received", 0),
-            "pending_status": latest.get("status", ""),
-            "pending_expected": latest.get("expected", 0),
+            "arrival_count": e.get("arrival_count", 0),
+            "arrivals": [latest] if latest else [],
         }
 
     took = time.time() - t0
@@ -202,6 +303,8 @@ def compute(con, window_days=SITE_WINDOW_DAYS, long_history=True, verbose=True):
         "invdata": invdata, "supplierdata": supplierdata,
         "dailydata": dailydata, "kirimdata": kirimdata,
         "kirim_summary": {"skus": kirim_summary},
+        "history": _build_history(dailydata_long),
+        "stock_snapshot": _stock_snapshot(con, products, verbose=verbose),
         "products": products,
         "meta": {"from": min_d.isoformat() if min_d else dfrom,
                  "to": max_d.isoformat() if max_d else last,
@@ -216,7 +319,8 @@ def compute(con, window_days=SITE_WINDOW_DAYS, long_history=True, verbose=True):
 # Sabab: 11 ming qatorli `p2data` ni har so'rovda seriyalash 6.6 s olardi —
 # holbuki ma'lumot 3 daqiqada bir marta o'zgaradi. Bir marta o'girib,
 # tayyor baytlarni uzatamiz (o'lchandi: 6600 ms -> ~20 ms).
-PRESERIALIZE = ("p1data", "p2data", "p3data", "invdata", "supplierdata", "kirim_summary")
+PRESERIALIZE = ("p1data", "p2data", "p3data", "invdata", "supplierdata",
+                "kirim_summary", "dailydata", "kirimdata", "history", "stock_snapshot")
 
 
 class Cache:

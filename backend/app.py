@@ -413,6 +413,33 @@ def p2data(
             "items": rows[(page - 1) * limit: page * limit]}
 
 
+@app.get("/api/v1/history")
+def history(request: Request):
+    """Kunlik sotuv tarixi — `data_history.json` bilan AYNAN bir xil shakl
+    (base/days/d/r/rc/wi/we/rt/rr/wri/wre).
+
+    Bu eng katta fayl edi (74.8 MB) va frontend uni HAR sahifa ochilishida
+    fon rejimida yuklardi. Oldindan siqilgan holda ~10 MB ga tushadi."""
+    return _pipe_raw("history", request)
+
+
+@app.get("/api/v1/stock_snapshot")
+def stock_snapshot(request: Request):
+    """Kunlik qoldiq snapshoti — `data_stock_snapshot.json` bilan bir xil
+    shakl (base/days/s/c). p9 "Ombor aylanmasi" uchun. TO'PLANUVCHI ma'lumot
+    — bazadagi `blobs` jadvalida saqlanadi (backend/pipeline_runner.py:
+    `_stock_snapshot()`)."""
+    return _pipe_raw("stock_snapshot", request)
+
+
+@app.get("/api/v1/dailydata")
+def dailydata(request: Request):
+    """Kunlik talab — `build_sales_demand.build()` chiqishi, o'zgarishsiz.
+    Frontend `_ensureDailyDemand()` shundan `items`/`skuAliases`/`__meta__`
+    oladi (eski `data_daily.json` bilan bir xil shakl)."""
+    return _pipe_raw("dailydata", request)
+
+
 @app.get("/api/v1/invdata")
 def invdata(request: Request):
     """Zaxira/Zakas uchun asosiy tuzilma — `build_invdata()` chiqishi.
@@ -427,17 +454,18 @@ def supplierdata(request: Request):
 
 
 @app.get("/api/v1/kirimdata")
-def kirimdata(sku: str | None = None):
+def kirimdata(request: Request, sku: str | None = None):
     """Kirim — `build_kirimdata()` chiqishi.
 
-    To'liq tuzilma juda katta (data_kirim.json ~60 MB), shuning uchun
-    `?sku=` bilan bitta mahsulot so'ralishi mumkin. Zakas uchun yetarli
-    bo'lgan qisqa variant: /api/v1/kirimdata/summary
+    To'liq tuzilma katta (55 MB), lekin p9 "Ombor aylanmasi" unga to'liq
+    muhtoj (har kirim yozuvi bo'yicha hisoblaydi). Oldindan siqib qo'yilgan:
+    tarmoqqa 4.8 MB ketadi. Zakas uchun yetarli qisqa variant —
+    /api/v1/kirimdata/summary (1.6 MB), `?sku=` bilan bitta tovar ham mumkin.
     """
-    d = _pipe("kirimdata")
     if sku:
+        d = _pipe("kirimdata")
         return {"skus": {sku: d.get("skus", {}).get(str(sku), {})}}
-    return d
+    return _pipe_raw("kirimdata", request)
 
 
 @app.get("/api/v1/kirimdata/summary")
