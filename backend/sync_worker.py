@@ -35,7 +35,8 @@ sys.path.insert(0, str(HERE))
 import requests                                          # noqa: E402
 from backend_shared_utils import norm                    # noqa: E402
 import db                                                # noqa: E402
-from etl_from_turso import parse_order                   # noqa: E402
+from etl_from_turso import (parse_order, parse_supplier_order,  # noqa: E402
+                            ORDER_UPSERT_SQL, ARRIVAL_INSERT_SQL)
 
 BASE_URL = "https://api.7i.uz/integration/v1"
 ORDER_PAGE_SIZE = 500
@@ -45,6 +46,13 @@ SESSION = requests.Session()
 SALES_INTERVAL = 60          # sekund — sotuvlarni qanchalik tez-tez tekshirish
 CATALOG_INTERVAL = 300       # sekund — qoldiq/katalogni yangilash oralig'i
 OVERLAP_MINUTES = 30         # tahrirlangan/kechikkan cheklarni ushlash uchun orqaga qadam
+
+KIRIM_INTERVAL = 300         # sekund — kirim (ta'minotchi buyurtmalari) yangilash oralig'i
+KIRIM_PAGE_SIZE = 200
+KIRIM_OVERLAP_PAGES = 2      # doim qayta tekshiriladigan minimal sahifa soni (status
+                             # o'zgarishi — Open -> Received — kech kelishi mumkin)
+KIRIM_DEEP_OVERLAP_PAGES = 8 # uzoq uzilishdan keyin (server o'chib turgan bo'lsa)
+                             # qancha sahifagacha kengaytirish mumkinligi chegarasi
 
 
 def log(*a):
@@ -313,9 +321,80 @@ def sync_catalog(con, token, verbose=False):
     return len(rows)
 
 
+# ─── Kirim (ta'minotchi buyurtmalari) sinxronizatsiyasi ────────────────────
+# DIQQAT (2026-08-03): bu qism avval UMUMAN YO'Q edi — kirim/supplier_orders
+# faqat bir martalik ETL orqali (etl_from_turso.py) ko'chirilgan va shundan
+# beri jonli yangilanmagan. Zakas solishtiruvida (eski fayl vs yangi API)
+# shu sabab bilan bog'liq farqlar topilgach qo'shildi.
+
+def _kirim_latest_created_at(con):
+    r = con.execute("SELECT MAX(created_at) FROM supplier_orders").fetchone()
+    return r[0] if r and r[0] else None
+
+
+def fetch_supplier_page(token, page, limit=KIRIM_PAGE_SIZE):
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+    resp = request_with_retry(
+        SESSION.post, f"{BASE_URL}/supplier_order", headers=headers,
+        params={"page": page, "limit": limit}, json={"filters": []}, timeout=60)
+    return resp.json().get("data", [])
+
+
+def sync_kirim(con, token, verbose=False):
+    """Invan `supplier_order` API'dan INKREMENTAL sinxronizatsiya.
+
+    Bu API sana bo'yicha filtrlashni QO'LLAB-QUVVATLAMAYDI (faqat sahifalab
+    o'qiladi, yangi-birinchi tartibda) — shuning uchun turso_sync_supplier_orders.py
+    dagi bilan bir xil "overlap pages" strategiyasi ishlatiladi: bazadagi eng
+    yangi created_at'ga yetguncha sahifalab o'qiladi, ustiga (server uzoq vaqt
+    o'chiq turgan bo'lsa) qo'shimcha sahifalar ham qayta tekshiriladi — hali
+    yakunlanmagan (Received bo'lmagan) eski buyurtmalarning holati o'zgargan
+    bo'lishi mumkin (Open -> Received)."""
+    last_ct = _kirim_latest_created_at(con)
+    overlap_pages = KIRIM_OVERLAP_PAGES
+    if last_ct:
+        last_dt = datetime.fromisoformat(last_ct.replace("Z", "+00:00")).replace(tzinfo=None)
+        elapsed_days = (datetime.now(timezone.utc).replace(tzinfo=None) - last_dt).total_seconds() / 86400
+        overlap_pages = min(KIRIM_OVERLAP_PAGES + int(elapsed_days), KIRIM_DEEP_OVERLAP_PAGES)
+
+    page, total_orders = 1, 0
+    while True:
+        data = fetch_supplier_page(token, page)
+        if not data:
+            break
+        orders, arrivals = [], []
+        for o in data:
+            order_row, arr_rows = parse_supplier_order(o)
+            if order_row is None:
+                continue
+            orders.append(order_row)
+            arrivals.extend(arr_rows)
+        if orders:
+            with con:
+                con.executemany(ORDER_UPSERT_SQL, orders)
+                # Bitta buyurtmada bir xil SKU bir necha qatorda bo'lishi mumkin
+                # (haqiqiy holat, tasdiqlangan) — qayta sinxronlashda dublikat
+                # bo'lmasligi uchun avval o'sha buyurtmaning eski qatorlari
+                # o'chiriladi, keyin joriy holat qayta yoziladi.
+                ids = [(r[0],) for r in orders]
+                con.executemany("DELETE FROM arrivals WHERE order_id=?", ids)
+                con.executemany(ARRIVAL_INSERT_SQL, arrivals)
+            total_orders += len(orders)
+        oldest_in_page = min((o.get("created_at") or "" for o in data), default="")
+        if verbose:
+            log(f"  kirim {page}-sahifa: {len(data)} ta (jami {total_orders})")
+        if len(data) < KIRIM_PAGE_SIZE:
+            break
+        if last_ct and page >= overlap_pages and oldest_in_page and oldest_in_page <= last_ct:
+            break
+        page += 1
+        time.sleep(0.05)
+    return total_orders
+
+
 # ─── Asosiy sikl ────────────────────────────────────────────────────────────
 
-def run_once(con, token, with_catalog=True, verbose=False):
+def run_once(con, token, with_catalog=True, with_kirim=True, verbose=False):
     t0 = time.time()
     n, days = sync_sales(con, token, verbose=verbose)
     dt = time.time() - t0
@@ -327,6 +406,10 @@ def run_once(con, token, with_catalog=True, verbose=False):
         t1 = time.time()
         c = sync_catalog(con, token, verbose=verbose)
         log(f"Katalog: {c} ta mahsulot/qoldiq yangilandi ({time.time()-t1:.2f}s)")
+    if with_kirim:
+        t2 = time.time()
+        k = sync_kirim(con, token, verbose=verbose)
+        log(f"Kirim: {k} ta buyurtma yangilandi ({time.time()-t2:.2f}s)")
     return n
 
 
@@ -345,18 +428,21 @@ def main():
         log(f"Katalog: {sync_catalog(con, token, verbose=args.verbose)} ta mahsulot yangilandi.")
         return
     if args.once:
-        run_once(con, token, with_catalog=True, verbose=args.verbose)
+        run_once(con, token, with_catalog=True, with_kirim=True, verbose=args.verbose)
         return
 
-    log(f"Doimiy rejim: sotuv har {args.interval}s, katalog har {CATALOG_INTERVAL}s. "
+    log(f"Doimiy rejim: sotuv har {args.interval}s, katalog/kirim har {CATALOG_INTERVAL}s. "
         f"To'xtatish uchun Ctrl+C.")
-    last_catalog = 0.0
+    last_catalog = last_kirim = 0.0
     while True:
         try:
             do_catalog = (time.time() - last_catalog) >= CATALOG_INTERVAL
-            run_once(con, token, with_catalog=do_catalog, verbose=args.verbose)
+            do_kirim = (time.time() - last_kirim) >= KIRIM_INTERVAL
+            run_once(con, token, with_catalog=do_catalog, with_kirim=do_kirim, verbose=args.verbose)
             if do_catalog:
                 last_catalog = time.time()
+            if do_kirim:
+                last_kirim = time.time()
         except KeyboardInterrupt:
             log("To'xtatildi.")
             break

@@ -350,8 +350,12 @@ def _clean_barcode(v):
     return s.split(",")[0].strip().strip('"') if s else ""
 
 
-def migrate_supplier_orders(con, client):
-    """Turso `supplier_orders` (JSON blob) -> supplier_orders + arrivals.
+def parse_supplier_order(o):
+    """Bitta Invan supplier_order'ini (order_row, [arrival_row, ...]) ga o'giradi.
+
+    Bu funksiya `etl_from_turso.py` (bir martalik ko'chirish) VA
+    `sync_worker.py` (jonli inkremental sinxronizatsiya) tomonidan BAHAM
+    ko'riladi — ikkalasi ham bir xil natija berishi uchun.
 
     Ajratish qoidalari backend_p8_kirim.py:48 (`_extract_item_arrivals`) dan
     AYNAN ko'chirilgan — aks holda p8/p9/p10 raqamlari mavjud saytdan farq qiladi:
@@ -359,7 +363,67 @@ def migrate_supplier_orders(con, client):
         narx yangilash psevdo-buyurtmasi, haqiqiy yetkazib berish emas)
       * expected_amount ham, received ham 0 bo'lgan item tashlanadi (draft qator)
       * sana: item.received_date, bo'lmasa order.created_at
+
+    MUHIM (2026-08-03 tuzatildi): har arrival uchun ham `d` (kun aniqligida,
+    oraliq so'rovlar uchun) HAM `raw_ts` (to'liq soat:daqiqa bilan) saqlanadi.
+    Sabab: bitta SKU bir kunda ikki marta kirim qilinishi mumkin (masalan
+    ertalab buyurtma ochilib, tushdan keyin qabul qilinishi) — shunda `d`
+    ikkalasida ham bir xil bo'lib qoladi va "eng so'nggi holat qanday"
+    (Open/Received) savoliga TO'G'RI javob berib bo'lmaydi. `raw_ts` shu
+    muammoni hal qiladi (pipeline_adapter.py:supplier_orders_from_db() shu
+    ustunni ishlatadi).
     """
+    supplier = o.get("supplier") or {}
+    if str(supplier.get("name") or "").strip().upper() == "PRICING":
+        return None, []
+    oid = str(o.get("id") or "")
+    if not oid:
+        return None, []
+    status = str((o.get("status") or {}).get("name") or "")
+    created = str(o.get("created_at") or "")
+    d0 = parse_local_date(created)
+    recv_dates = [str(it.get("received_date") or "") for it in (o.get("items") or [])]
+    order_row = (
+        oid, str(o.get("external_id") or ""), created,
+        d0.isoformat() if d0 else "",
+        str(o.get("expected_date") or ""),
+        max([r for r in recv_dates if r], default=""),
+        status, str(supplier.get("name") or ""), str(supplier.get("id") or ""),
+        float(o.get("total_amount") or 0),
+    )
+    arrivals = []
+    for it in (o.get("items") or []):
+        sku = str(it.get("sku") or "").strip()
+        if not sku:
+            continue
+        expected = float(it.get("expected_amount") or 0)
+        received = float(it.get("received") or 0)
+        if not expected and not received:
+            continue
+        raw_ts = str(it.get("received_date") or created)
+        dt = parse_local_date(raw_ts)
+        arrivals.append((
+            oid, dt.isoformat() if dt else "", raw_ts, status, sku,
+            str(it.get("product_name") or ""), expected, received,
+            float(it.get("cost") or 0), str(supplier.get("name") or ""),
+        ))
+    return order_row, arrivals
+
+
+ORDER_UPSERT_SQL = (
+    "INSERT INTO supplier_orders (id, external_id, created_at, d, expected_date,"
+    " received_at, status, supplier, supplier_id, total_price)"
+    " VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET"
+    " external_id=excluded.external_id, expected_date=excluded.expected_date,"
+    " received_at=excluded.received_at, status=excluded.status,"
+    " supplier=excluded.supplier, total_price=excluded.total_price")
+ARRIVAL_INSERT_SQL = (
+    "INSERT INTO arrivals (order_id, d, raw_ts, status, sku, product_name, qty,"
+    " received_qty, cost, supplier) VALUES (?,?,?,?,?,?,?,?,?,?)")
+
+
+def migrate_supplier_orders(con, client):
+    """Turso `supplier_orders` (JSON blob) -> supplier_orders + arrivals (bir martalik)."""
     total = turso_query(client, "SELECT COUNT(*) AS c FROM supplier_orders", []).rows[0]["c"]
     print(f"Kirim: manbada {total:,} ta ta'minotchi buyurtmasi.")
 
@@ -391,49 +455,14 @@ def migrate_supplier_orders(con, client):
                 o = json.loads(row["data"])
             except (ValueError, TypeError):
                 continue
-            supplier = o.get("supplier") or {}
-            if str(supplier.get("name") or "").strip().upper() == "PRICING":
+            order_row, arr_rows = parse_supplier_order(o)
+            if order_row is None:
                 continue
-            oid = str(o.get("id") or "")
-            if not oid:
-                continue
-            status = str((o.get("status") or {}).get("name") or "")
-            created = str(o.get("created_at") or "")
-            d0 = parse_local_date(created)
-            recv_dates = [str(it.get("received_date") or "") for it in (o.get("items") or [])]
-            orders.append((
-                oid, str(o.get("external_id") or ""), created,
-                d0.isoformat() if d0 else "",
-                str(o.get("expected_date") or ""),
-                max([r for r in recv_dates if r], default=""),
-                status, str(supplier.get("name") or ""), str(supplier.get("id") or ""),
-                float(o.get("total_amount") or 0),
-            ))
-            for it in (o.get("items") or []):
-                sku = str(it.get("sku") or "").strip()
-                if not sku:
-                    continue
-                expected = float(it.get("expected_amount") or 0)
-                received = float(it.get("received") or 0)
-                if not expected and not received:
-                    continue
-                dt = parse_local_date(it.get("received_date") or created)
-                arrivals.append((
-                    oid, dt.isoformat() if dt else "", status, sku,
-                    str(it.get("product_name") or ""), expected, received,
-                    float(it.get("cost") or 0), str(supplier.get("name") or ""),
-                ))
+            orders.append(order_row)
+            arrivals.extend(arr_rows)
 
-        con.executemany(
-            "INSERT INTO supplier_orders (id, external_id, created_at, d, expected_date,"
-            " received_at, status, supplier, supplier_id, total_price)"
-            " VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET"
-            " external_id=excluded.external_id, expected_date=excluded.expected_date,"
-            " received_at=excluded.received_at, status=excluded.status,"
-            " supplier=excluded.supplier, total_price=excluded.total_price", orders)
-        con.executemany(
-            "INSERT INTO arrivals (order_id, d, status, sku, product_name, qty, received_qty,"
-            " cost, supplier) VALUES (?,?,?,?,?,?,?,?,?)", arrivals)
+        con.executemany(ORDER_UPSERT_SQL, orders)
+        con.executemany(ARRIVAL_INSERT_SQL, arrivals)
         con.commit()
 
         n_arr += len(arrivals)

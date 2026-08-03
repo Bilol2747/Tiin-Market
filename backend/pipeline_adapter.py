@@ -103,11 +103,19 @@ def products_from_db(con):
 
 
 def supplier_orders_from_db(con):
-    """SQLite -> Invan `supplier_order` ro'yxati (backend_p8_kirim kutgan shakl)."""
+    """SQLite -> Invan `supplier_order` ro'yxati (backend_p8_kirim kutgan shakl).
+
+    DIQQAT (2026-08-03 tuzatildi): `received_date` uchun `a.raw_ts` (TO'LIQ
+    soat:daqiqa bilan) ishlatiladi, `a.d` (kun aniqligida) EMAS. Avval `a.d`
+    ishlatilganda, bitta SKU bir kunda ikki marta kirim qilingan hollarda
+    (masalan ertalab Open, tushdan keyin Received) ikkala yozuv bir xil
+    sanaga ega bo'lib qolib, `backend_p8_kirim._finalize_sku()` "eng so'nggi
+    holat"ni NOTO'G'RI tanlab qolishi mumkin edi (real ma'lumotda 145 ta
+    zakas farqidan bir qismi shundan kelib chiqqani aniqlangan)."""
     orders, cur = [], None
     for r in con.execute(
             "SELECT o.id, o.external_id, o.created_at, o.status, o.supplier, o.supplier_id,"
-            " o.total_price, a.sku, a.product_name, a.qty, a.received_qty, a.cost, a.d "
+            " o.total_price, a.sku, a.product_name, a.qty, a.received_qty, a.cost, a.raw_ts "
             "FROM supplier_orders o LEFT JOIN arrivals a ON a.order_id = o.id "
             "ORDER BY o.id"):
         if cur is None or cur["id"] != r["id"]:
@@ -124,6 +132,6 @@ def supplier_orders_from_db(con):
             cur["items"].append({
                 "sku": r["sku"], "product_name": r["product_name"],
                 "expected_amount": r["qty"], "received": r["received_qty"],
-                "cost": r["cost"], "received_date": r["d"], "barcode": "",
+                "cost": r["cost"], "received_date": r["raw_ts"], "barcode": "",
             })
     return orders

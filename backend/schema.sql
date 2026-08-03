@@ -144,7 +144,13 @@ CREATE INDEX IF NOT EXISTS ix_so_status ON supplier_orders(status);
 CREATE TABLE IF NOT EXISTS arrivals (
     id            INTEGER PRIMARY KEY,
     order_id      TEXT NOT NULL REFERENCES supplier_orders(id) ON DELETE CASCADE,
-    d             TEXT NOT NULL,            -- denorm: haqiqiy kirim sanasi (yoki created)
+    d             TEXT NOT NULL,            -- denorm: haqiqiy kirim SANASI (kun aniqligida, oraliq so'rovlar uchun)
+    raw_ts        TEXT NOT NULL DEFAULT '', -- TO'LIQ vaqt tamg'asi (item.received_date yoki order.created_at,
+                                             -- SOAT:DAQIQA bilan) — "eng so'nggi holat"ni aniqlash uchun SHART.
+                                             -- `d` faqat kunga qisqartirilgan: bir SKU bir kunda ikki marta
+                                             -- kirim qilsa (masalan ertalab Open, tushdan keyin Received),
+                                             -- `d` ikkalasida ham bir xil bo'lib, qaysi biri "so'nggi" ekanini
+                                             -- ajratib bo'lmay qoladi — pipeline_adapter.py shu ustunni ishlatadi.
     status        TEXT NOT NULL DEFAULT '', -- denorm: supplier_orders.status
     sku           TEXT NOT NULL DEFAULT '',
     product_name  TEXT NOT NULL DEFAULT '',

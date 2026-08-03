@@ -3464,6 +3464,24 @@ function startFreshBuildWatcher(){
 document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
 applyI18n();
 renderP1();
+// P1 (Bosh sahifa) HTML build paytida "pishirilgan" holda darhol ko'rsatiladi
+// (yuqorida, sinxron) — foydalanuvchi kutmasin. Shu bilan bir vaqtda fonda
+// yangi backend'dan yangiroq p1data so'raladi; kelsa, sahifa jimgina
+// yangilanadi (health() false bo'lsa yoki server yo'q bo'lsa, hech narsa
+// o'zgarmaydi — HTML'dagi qiymat qolaveradi).
+(async function _refreshP1FromApi(){
+  try{
+    if(!window.TiinDataAPI)return;
+    const ok=await TiinDataAPI.health();
+    if(!ok)return;
+    const d=await TiinDataAPI.p1data();
+    if(d&&Object.keys(d).length){
+      P1=d;P1FULL=d;
+      renderP1();
+      if(P1FULL.days>1)_applyPageRange("p1");
+    }
+  }catch(e){/* HTML'dagi qiymat bilan davom etamiz */}
+})();
 startFreshBuildWatcher();
 // Buyurtma/Poставщики/Приход/Обороты bo'limlariga tez kira olish uchun ularning
 // umumiy og'ir ma'lumotini (data_kirim.json, data_history.json, stock snapshot)
