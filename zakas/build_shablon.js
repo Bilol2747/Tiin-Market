@@ -131,17 +131,31 @@ function toText(v) {
 // ---- Fayl o'qish ----------------------------------------------------------
 // Ikkala formatni bir xil ko'rinishga keltiramiz: har varaq — qatorlar massivi,
 // har qator — katakchalar massivi (0-indeksli). Shundan keyingi mantiq bitta.
+function readSheetsViaSheetJS(src) {
+  const wb = XLSX.readFile(src, { cellDates: true });
+  return wb.SheetNames.map(name => ({
+    name,
+    rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null, blankrows: true }),
+  }));
+}
+
 async function readSheets(src) {
   if (/\.xls$/i.test(src)) {
     // Eski BIFF (.xls) — ExcelJS o'qiy olmaydi, SheetJS ishlatiladi.
-    const wb = XLSX.readFile(src, { cellDates: true });
-    return wb.SheetNames.map(name => ({
-      name,
-      rows: XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, raw: true, defval: null, blankrows: true }),
-    }));
+    return readSheetsViaSheetJS(src);
   }
-  const wb = new ExcelJS.Workbook();
-  await wb.xlsx.readFile(src);
+  let wb;
+  try {
+    wb = new ExcelJS.Workbook();
+    await wb.xlsx.readFile(src);
+  } catch (e) {
+    // ExcelJS ba'zi .xlsx fayllarni (masalan ichida logotip/rasm bo'lsa)
+    // o'z ichki xatosi bilan o'qiy olmay qoladi ("Cannot read properties of
+    // undefined (reading 'anchors')" - media/drawing reconcile xatosi,
+    // 2026-08-04 "Тиин.xlsx"da uchradi). SheetJS bunday fayllarni muammosiz
+    // o'qiydi, shuning uchun ExcelJS yiqilsa unga tushamiz.
+    return readSheetsViaSheetJS(src);
+  }
   return wb.worksheets.map(ws => {
     const rows = [];
     const maxCol = ws.columnCount;
