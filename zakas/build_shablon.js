@@ -64,7 +64,16 @@ function pickSourceFile() {
 // bir qatorda bir necha nomzod bo'lsa, rank kichigi tanlanadi. Masalan "Кол-во"
 // (rank 0) "Заказ"dan (rank 1) ustun, "Наименование" (rank 0) "Description"dan (rank 1).
 function classifyHeader(text) {
-  const t = String(text || '').toLowerCase().trim();
+  const raw = String(text || '').toLowerCase().trim();
+  if (!raw) return null;
+  // Ba'zi накладныйlarda so'z takroriy harf bilan xato yozilgan bo'ladi
+  // (masalan "Колличество" - to'g'risi bitta "л" bilan "Количество"). Ketma-ket
+  // takrorlangan harflarni bittaga qisqartirib solishtiramiz - shu orqali
+  // bunday oddiy imlo xatolari ham to'g'ri tanilinadi (2026-08-04, "TIIN ЗАКАЗ
+  // 14.xls" faylida uchradi: soni ustuni shu sabab topilmay, butun sarlavha
+  // rad etilgan edi). Maqsadli so'zlarning hech birida ataylab takroriy harf
+  // yo'q, shuning uchun bu almashtirish xavfsiz.
+  const t = raw.replace(/(.)\1+/g, '$1');
   if (!t) return null;
   // shtrix-kod: "штрих код"/"штрих-код"/"штрихкод" yoki xato yozilgan "штри-код" (х tushib
   // qolgan holat, ba'zi накладныйlarda uchraydi) — harf bo'lmagan belgilarni tashlab tekshiramiz
