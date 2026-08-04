@@ -1,0 +1,159 @@
+{
+ "createdAt": "2026-08-04T06:29:23.397Z",
+ "srcFile": "-5325144796_823_Тиин.xlsx",
+ "supplierId": "42052668-eaf9-4db6-b53f-e2e2204223c8",
+ "supplierLabel": "MCHJ UNITED FIRST GROUP (Кофе)",
+ "items": [
+  {
+   "name": "Tushyonka \"Любимый Дом Золотая серия\" Xalol 325gr",
+   "barcode": "4607017616697",
+   "qty": 54,
+   "price": 55400,
+   "status": "aktiv",
+   "sku": "53777",
+   "id": "8cf0b126-5a10-4009-a560-cc625d28acb3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tushyonka \"Любимый Дом Золотая серия\" Xalol 338gr",
+   "barcode": "4607017616673",
+   "qty": 24,
+   "price": 51750,
+   "status": "aktiv",
+   "sku": "53779",
+   "id": "a54557d3-df99-4cb5-8bd7-e52983ab571b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tushyonka \"ОВА\" Mol Go'sht Xalol 325gr",
+   "barcode": "4607017616666",
+   "qty": 36,
+   "price": 33930,
+   "status": "aktiv",
+   "sku": "53778",
+   "id": "221431a2-bda3-46cf-9945-3f34ee46ae58",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tushyonka \"ОВА\" Xalol Mol Go'sht 338gr",
+   "barcode": "4607017616680",
+   "qty": 72,
+   "price": 34740,
+   "status": "aktiv",
+   "sku": "53780",
+   "id": "6a74c4da-b7a6-4cb1-9288-ed8b40d6ef3d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Donli Qahva Barista Desert Cup Funduk 1kg",
+   "barcode": "4813785012498",
+   "qty": 12,
+   "price": 229600,
+   "status": "aktiv",
+   "sku": "53524",
+   "id": "06abda63-efc8-45c4-8376-4e135d160a00",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кофе в зернах Barista Pro Эспрессо 1000гр",
+   "barcode": "4813785011453",
+   "qty": 12,
+   "price": 217600,
+   "status": "aktiv",
+   "sku": "49200",
+   "id": "f7ea650d-dbab-49ae-85d0-cacbc38d22fb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Draje Impact Mints Tarvuz 14gr",
+   "barcode": "4005292650670",
+   "qty": 30,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49194",
+   "id": "83c6e270-905d-4e3b-a278-14a2f227a35d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Impact Mints Classic Mango drajesi 14gr",
+   "barcode": "4005292003018",
+   "qty": 12,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49184",
+   "id": "4f34bc82-d065-4213-8dbb-4283b7b144cf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Драже Impact Mints Classic Orange 14гр",
+   "barcode": "4005292002998",
+   "qty": 12,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49185",
+   "id": "ff066dde-4203-4737-9439-9015e5065c97",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Impact Mints Classic Shaftoli drajesi 14gr",
+   "barcode": "4005292123501",
+   "qty": 12,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49186",
+   "id": "78d7d00c-4457-4bac-9819-2a4b23a4cb0b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Draje Impact Mints Qulupnay 14gr",
+   "barcode": "4005292002059",
+   "qty": 24,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49187",
+   "id": "10e76527-79d4-4f9e-9055-fac9de568296",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Draje Impact Mints Cola Mint 14rg",
+   "barcode": "4005292650229",
+   "qty": 18,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49189",
+   "id": "5a50b9ae-8186-4d2c-a89b-60369a8364d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Draje Impact Mints 14gr",
+   "barcode": "4005292651707",
+   "qty": 12,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49191",
+   "id": "57afce18-f73b-4530-a88b-a4e595db5bb2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Драже Impact Mints Minty Strong Mint 14gr",
+   "barcode": "4005292654234",
+   "qty": 24,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "52318",
+   "id": "991f5f3f-7d9d-4404-9d53-59f293067a63",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Draje Impact Mints Ananas 14gr",
+   "barcode": "4005292650700",
+   "qty": 18,
+   "price": 25200,
+   "status": "aktiv",
+   "sku": "49193",
+   "id": "a4c224fe-40fc-4b86-9418-21c155eed65a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 17405160
+}
