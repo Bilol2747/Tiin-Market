@@ -1,0 +1,119 @@
+{
+ "createdAt": "2026-08-06T13:16:18.132Z",
+ "srcFile": "-5325144796_960_zakas_''AION_BEVERAGES''_MCHJ_№RJ_2025_10_000141_от_29_10_2025_2026.xlsx",
+ "supplierId": "27004f04-27bd-4204-83bb-ed29525803ba",
+ "supplierLabel": "''AION BEVERAGES'' MCHJ (№RJ-2025-10/000141 от 29.10.2025) (Rich dobriy))",
+ "items": [
+  {
+   "name": "Pulpy Apelsin 450ml",
+   "barcode": "4607174577787",
+   "qty": 180,
+   "price": 9500,
+   "status": "aktiv",
+   "sku": "2897",
+   "id": "13fdfa98-a133-4565-9db5-1200ad7f6e2a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Apelsin 200ml",
+   "barcode": "4650075420362",
+   "qty": 180,
+   "price": 6000,
+   "status": "aktiv",
+   "sku": "3625",
+   "id": "9bee1843-827f-42b6-ade8-36bb57da6e99",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Olma 200ml",
+   "barcode": "4650075420386",
+   "qty": 120,
+   "price": 10600,
+   "status": "aktiv",
+   "sku": "2706",
+   "id": "e13f2035-8633-49db-bf18-796e982b2887",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Olcha 200ml",
+   "barcode": "4650075420409",
+   "qty": 120,
+   "price": 10600,
+   "status": "aktiv",
+   "sku": "3627",
+   "id": "9ec10d65-f906-4403-93a2-e912cb258f3a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Apelsin 1l",
+   "barcode": "4607042439155",
+   "qty": 72,
+   "price": 39700,
+   "status": "aktiv",
+   "sku": "16123",
+   "id": "d3f764fc-ae6f-453b-85a9-e6fa4e638dd5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Olma 1l",
+   "barcode": "4607042439216",
+   "qty": 60,
+   "price": 24800,
+   "status": "aktiv",
+   "sku": "16122",
+   "id": "33d319ce-08cc-4e59-a4e7-3d500d3ffe74",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich O'rik 1l",
+   "barcode": "4650075423998",
+   "qty": 48,
+   "price": 24800,
+   "status": "aktiv",
+   "sku": "26623",
+   "id": "f91aa654-2763-49d0-b17d-5eb5ee385ef0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Olcha 1l",
+   "barcode": "4607042439223",
+   "qty": 48,
+   "price": 24800,
+   "status": "aktiv",
+   "sku": "2876552",
+   "id": "33adacae-ecab-4494-ad6f-802f1f716dc6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pulpy Ananas va Mango 450ml",
+   "barcode": "4650075420980",
+   "qty": 36,
+   "price": 10300,
+   "status": "aktiv",
+   "sku": "285861",
+   "id": "429257ec-b0ab-4fd6-bdf3-fb5834f13b09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pulpy Tropik 900ml",
+   "barcode": "4607174579736",
+   "qty": 24,
+   "price": 16300,
+   "status": "aktiv",
+   "sku": "4216",
+   "id": "cacf8032-dcd0-45d3-af80-86cbfb6dd4a9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rich Multifrukt 1l",
+   "barcode": "4607042439209",
+   "qty": 24,
+   "price": 24800,
+   "status": "aktiv",
+   "sku": "20458",
+   "id": "ca92d09f-b0f1-486b-b0e2-5ead9948a2a5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 13418400
+}
