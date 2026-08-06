@@ -1,0 +1,519 @@
+import argparse
+import json
+import math
+import re
+from collections import Counter, defaultdict
+from datetime import datetime, timedelta
+from pathlib import Path
+
+import openpyxl
+
+TASHKENT_OFFSET = timedelta(hours=5)
+
+
+DUMMY_TINS = {"", "999999999", "888888888", "555555555"}
+BUSINESS_WORDS = (
+    "mchj", "ooo", "ооо", "xk", "hotel", "kafe", "cafe", "oshxona",
+    "restaurant", "restoran", "supply", "development", "market", "магазин",
+    "school", "maktab", "bank", "aj ",
+)
+NON_BUSINESS_CUSTOMERS = {"", "xodimlar", "nujda", "farrux"}
+# Mahsulotning o'z favqulodda-ulgurji chegarasidan (threshold) necha baravar
+# katta bo'lsa - takrorlangan bo'lsa ham, baribir chinakam bir martalik
+# reseller xaridi hisoblanib, zakas hisobidan har doim chiqariladi.
+EXTREME_MULTIPLIER = 5
+
+
+def normalize(value):
+    return re.sub(r"\s+", " ", str(value or "")).strip().lower()
+
+
+def percentile(values, p):
+    if not values:
+        return 0.0
+    ordered = sorted(values)
+    index = min(len(ordered) - 1, max(0, math.floor(p * (len(ordered) - 1))))
+    return float(ordered[index])
+
+
+def median(values):
+    return percentile(values, 0.5)
+
+
+def round_quantity(value):
+    if abs(value - round(value)) < 0.001:
+        return int(round(value))
+    return round(value, 3)
+
+
+def is_explicit_wholesale(customer, tin):
+    customer_norm = normalize(customer)
+    tin_norm = str(tin or "").strip()
+    if tin_norm not in DUMMY_TINS and re.fullmatch(r"\d{9}", tin_norm):
+        return True
+    if customer_norm in NON_BUSINESS_CUSTOMERS:
+        return False
+    return any(word in customer_norm for word in BUSINESS_WORDS)
+
+
+def demand_metrics(retail, recurring_wholesale, oneoff_wholesale, retail_cap, threshold):
+    # Zakas/ehtiyoj hisobi sof retail + DOIMIY (takrorlanuvchi) ulgurjiga asoslanadi.
+    # Bir martalik (oneoff) ulgurji bu hisobga kiritilmaydi - aks holda overstock paydo bo'ladi.
+    order_basis = [retail[i] + recurring_wholesale[i] for i in range(len(retail))]
+    days = len(order_basis)
+    total = sum(order_basis)
+    active_days = sum(value > 0.001 for value in order_basis)
+    full_avg = total / days if days else 0
+
+    def window_avg(size):
+        data = order_basis[-min(size, days):]
+        return sum(data) / len(data) if data else 0
+
+    avg7 = window_avg(7)
+    avg14 = window_avg(14)
+    if days >= 21:
+        daily = avg7 * 0.50 + avg14 * 0.30 + full_avg * 0.20
+    elif days >= 14:
+        daily = avg7 * 0.60 + full_avg * 0.40
+    else:
+        daily = full_avg
+
+    first = sum(order_basis[: max(1, days // 3)]) / max(1, days // 3)
+    last = sum(order_basis[-max(1, days // 3):]) / max(1, days // 3)
+    if first <= 0 and last > 0:
+        trend = "new"
+    elif first > 0 and last / first >= 1.25:
+        trend = "up"
+    elif first > 0 and last / first <= 0.75:
+        trend = "down"
+    else:
+        trend = "stable"
+
+    total_recurring = sum(recurring_wholesale)
+    total_oneoff = sum(oneoff_wholesale)
+    observed = total + total_oneoff
+    coverage = min(1.0, days / 56)
+    activity = active_days / days if days else 0
+    sample_strength = min(1.0, math.log10(total + 1) / 2)
+    confidence = round(100 * (0.35 * coverage + 0.35 * activity + 0.30 * sample_strength))
+
+    return {
+        "daily": round(daily, 2),
+        "baselineDaily": round(total / days, 2) if days else 0,
+        "week": round(daily * 7, 2),
+        "month": round(daily * 30, 2),
+        "calendarAvg": round(full_avg, 2),
+        "activeAvg": round(total / active_days, 2) if active_days else 0,
+        "activeDays": active_days,
+        "confidence": max(0, min(100, confidence)),
+        "trend": trend,
+        "wholesalePct": round(total_oneoff / observed * 100, 1) if observed else 0,
+        "recurringWholesale": round_quantity(total_recurring),
+        "oneoffWholesale": round_quantity(total_oneoff),
+        "retailCap": round_quantity(retail_cap),
+        "bulkThreshold": round_quantity(threshold),
+    }
+
+
+def excel_records(input_path):
+    """sotuv_excel.xlsx dan o'qib, har bir sotuv qatorini umumiy formatga o'giradi."""
+    workbook = openpyxl.load_workbook(input_path, read_only=True, data_only=True)
+    sheet = workbook.active
+    sheet.reset_dimensions()
+    rows = sheet.iter_rows(values_only=True)
+    headers = next(rows)
+    index = {str(value): position for position, value in enumerate(headers)}
+    required = {"Date", "Sale Type", "Receipt#", "Sku", "Item", "Qty", "Total Price", "Customer", "TIN"}
+    missing = required - set(index)
+    if missing:
+        raise ValueError(f"Missing columns: {', '.join(sorted(missing))}")
+
+    for row in rows:
+        if normalize(row[index["Sale Type"]]) != "sale":
+            continue
+        qty = float(row[index["Qty"]] or 0)
+        if qty <= 0:
+            continue
+        date_value = row[index["Date"]]
+        if isinstance(date_value, datetime):
+            sale_date = date_value.date()
+        else:
+            sale_date = datetime.fromisoformat(str(date_value)[:10]).date()
+        receipt_id = str(row[index["Receipt#"]] or "").strip()
+        if not receipt_id:
+            continue
+        yield {
+            "date": sale_date,
+            "receipt_id": receipt_id,
+            "sku": str(row[index["Sku"]] or "").strip(),
+            "name": str(row[index["Item"]] or ""),
+            "qty": qty,
+            "total_price": float(row[index["Total Price"]] or 0),
+            "customer": str(row[index["Customer"]] or "").strip(),
+            "tin": str(row[index["TIN"]] or "").strip(),
+        }
+
+
+def safe_item_revenue(item, qty):
+    """total_price manfiy bo'lib qolishi mumkin (Invan tomonidagi izoxsiz xato,
+    masalan bitta buyurtmada -320mln ko'rilgan, holbuki narx*miqdor=to'lov summasiga
+    teng edi) - shu holatda narx*miqdordan qayta hisoblaymiz."""
+    total = float(item.get("total_price") or 0)
+    if total < 0 and qty > 0:
+        return float(item.get("price") or 0) * qty
+    return total
+
+
+def api_records(orders):
+    """Invan API'dan kelgan order ro'yxatini umumiy formatga o'giradi.
+
+    API javobida alohida TIN maydoni yo'q - shuning uchun tin har doim bo'sh
+    qaytariladi, is_explicit_wholesale() faqat xaridor nomidagi biznes-so'zlarga
+    tayanadi. create_time UTC'da keladi, Toshkent (UTC+5) mahalliy sanasiga
+    o'giriladi - chunki kunlik savdo kun chegarasi mahalliy vaqt bo'yicha bo'ladi.
+    """
+    for order in orders:
+        sign = -1 if order.get("type") != "sale" else 1
+        create_time = order.get("create_time")
+        if not create_time:
+            continue
+        try:
+            utc_dt = datetime.fromisoformat(create_time.replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        sale_date = (utc_dt.replace(tzinfo=None) + TASHKENT_OFFSET).date()
+        receipt_id = order.get("id") or ""
+        if not receipt_id:
+            continue
+        client = order.get("client") or {}
+        customer = " ".join(
+            part for part in [client.get("first_name", ""), client.get("last_name", "")] if part
+        ).strip()
+        for it in order.get("items") or []:
+            qty = float(it.get("value") or 0)
+            if qty <= 0:
+                continue
+            yield {
+                "date": sale_date,
+                "receipt_id": receipt_id,
+                "sku": str(it.get("sku") or "").strip(),
+                "name": str(it.get("product_name") or ""),
+                "qty": sign * qty,
+                "total_price": sign * safe_item_revenue(it, qty),
+                "customer": customer,
+                "tin": "",
+            }
+
+
+def build(records):
+    receipts = {}
+    product_names = defaultdict(Counter)
+    product_skus = {}
+    min_date = None
+    max_date = None
+    for rec in records:
+        sale_date = rec["date"]
+        min_date = sale_date if min_date is None or sale_date < min_date else min_date
+        max_date = sale_date if max_date is None or sale_date > max_date else max_date
+
+        receipt_id = rec["receipt_id"]
+        receipt = receipts.setdefault(receipt_id, {
+            "date": sale_date,
+            "customer": "",
+            "tin": "",
+            "total_qty": 0.0,
+            "total_price": 0.0,
+            "items": defaultdict(float),
+            "item_revenue": defaultdict(float),
+            "skus": {},
+        })
+        if rec["customer"]:
+            receipt["customer"] = rec["customer"]
+        if rec["tin"]:
+            receipt["tin"] = rec["tin"]
+        receipt["total_qty"] += rec["qty"]
+        receipt["total_price"] += rec["total_price"]
+        name = normalize(rec["name"])
+        sku = rec["sku"]
+        product_key = "sku:" + sku if sku else "name:" + name
+        product_names[product_key][name] += 1
+        product_skus[product_key] = sku
+        receipt["items"][product_key] += rec["qty"]
+        receipt["item_revenue"][product_key] += rec["total_price"]
+
+    days = (max_date - min_date).days + 1
+    labels = [(min_date.fromordinal(min_date.toordinal() + offset)).isoformat() for offset in range(days)]
+
+    anonymous_quantities = defaultdict(list)
+    for receipt in receipts.values():
+        if is_explicit_wholesale(receipt["customer"], receipt["tin"]):
+            continue
+        for product_key, qty in receipt["items"].items():
+            if qty <= 0:
+                continue
+            anonymous_quantities[product_key].append(qty)
+
+    rules: dict = {}
+    for product_key, quantities in anonymous_quantities.items():
+        med = median(quantities)
+        deviations = [abs(value - med) for value in quantities]
+        robust_sigma = median(deviations) * 1.4826
+        unit_floor = 3 if any(abs(value - round(value)) > 0.001 for value in quantities) else 5
+        preliminary_limit = max(unit_floor, med * 3, med + 6 * robust_sigma)
+        retail_sample = [value for value in quantities if value <= preliminary_limit]
+        if len(retail_sample) < min(5, len(quantities)):
+            retail_sample = quantities
+        retail_med = median(retail_sample)
+        retail_deviations = [abs(value - retail_med) for value in retail_sample]
+        retail_sigma = median(retail_deviations) * 1.4826
+        retail_p90 = percentile(retail_sample, 0.90)
+        retail_p95 = percentile(retail_sample, 0.95)
+        cap = max(unit_floor, retail_p95, retail_med + 4 * retail_sigma)
+        threshold = max(
+            cap + unit_floor,
+            cap * 2,
+            retail_p90 * 3,
+            retail_med + 8 * retail_sigma,
+        )
+        rules[product_key] = {
+            "cap": cap,
+            "threshold": threshold,
+            "median": retail_med,
+            "p90": retail_p90,
+            "sample": len(retail_sample),
+        }
+
+    # Har bir ulgurji voqeasi necha XIL KUNDA takrorlanganini aniqlaymiz.
+    # Aniq (TIN/korporativ) holatda - har bir xaridor alohida kuzatiladi.
+    # Nomsiz (statistik chegaradan oshgan) holatda - mahsulot darajasida kuzatiladi,
+    # chunki xaridor identifikatori yo'q.
+    explicit_customer_days = defaultdict(set)
+    inferred_product_days = defaultdict(set)
+    for receipt in receipts.values():
+        day_index = (receipt["date"] - min_date).days
+        explicit = is_explicit_wholesale(receipt["customer"], receipt["tin"])
+        customer_key = receipt["tin"] or normalize(receipt["customer"])
+        for product_key, qty in receipt["items"].items():
+            if qty <= 0:
+                continue
+            if explicit:
+                explicit_customer_days[(product_key, customer_key)].add(day_index)
+            else:
+                rule = rules.get(product_key, {"cap": qty, "threshold": float("inf")})
+                if qty >= rule["threshold"]:
+                    inferred_product_days[product_key].add(day_index)
+
+    item_data = {}
+    for receipt in receipts.values():
+        day_index = (receipt["date"] - min_date).days
+        explicit = is_explicit_wholesale(receipt["customer"], receipt["tin"])
+        customer_key = receipt["tin"] or normalize(receipt["customer"])
+        for product_key, qty in receipt["items"].items():
+            item = item_data.setdefault(product_key, {
+                "sku": product_skus.get(product_key, ""),
+                "q": [0.0] * days,
+                "r": [0] * days,
+                "x": [0.0] * days,
+                "i": [0.0] * days,
+                "wi": [0.0] * days,
+                "we": [0.0] * days,
+                "wri": [0] * days,
+                "wre": [0] * days,
+                "rr": [0] * days,
+                "wr": [0] * days,
+                "rev_d": [0.0] * days,
+                "revenue": 0.0,
+                "explicit_receipts": 0,
+                "inferred_receipts": 0,
+                "recurring_receipts": 0,
+                "oneoff_receipts": 0,
+                "wholesale_customers": defaultdict(float),
+            })
+            item["q"][day_index] += qty
+            item_revenue = receipt["item_revenue"].get(product_key, 0)
+            item["rev_d"][day_index] += item_revenue
+            item["revenue"] += item_revenue
+            if qty <= 0:
+                continue
+            item["r"][day_index] += 1
+            if explicit:
+                item["x"][day_index] += qty
+                item["wr"][day_index] += 1
+                item["explicit_receipts"] += 1
+                customer_label = receipt["customer"] or receipt["tin"] or "Korporativ xaridor"
+                item["wholesale_customers"][customer_label] += qty
+                recurring = len(explicit_customer_days[(product_key, customer_key)]) >= 2
+                product_rule = rules.get(product_key, {"cap": 0, "threshold": float("inf")})
+                normal_cap = product_rule.get("cap", 0)
+                extreme_threshold = product_rule.get("threshold", float("inf")) * EXTREME_MULTIPLIER
+                if qty > extreme_threshold:
+                    # Mahsulotning o'z statistik favqulodda chegarasidan oshib ketgan -
+                    # takrorlangan bo'lsa ham, bu chinakam reseller/ulgurji xarid,
+                    # kunlik do'kon ehtiyojiga aloqasi yo'q - har doim ajratiladi.
+                    item["we"][day_index] += qty
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
+                elif recurring or qty <= normal_cap:
+                    # Bir martalik bo'lsa ham, miqdor mahsulotning o'z normal retail
+                    # chegarasidan (cap) oshmasa - bu kichik, xavfsiz xarid, ajratilmaydi.
+                    item["wi"][day_index] += qty
+                    item["wri"][day_index] += 1
+                    item["recurring_receipts"] += 1
+                else:
+                    item["we"][day_index] += qty
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
+                continue
+            rule = rules.get(product_key, {
+                "cap": qty,
+                "threshold": float("inf"),
+                "median": qty,
+                "p90": qty,
+                "sample": 0,
+            })
+            cap = rule["cap"]
+            threshold = rule["threshold"]
+            if qty >= threshold:
+                excess = max(0, qty - cap)
+                item["i"][day_index] += excess
+                item["wr"][day_index] += 1
+                if cap > 0:
+                    item["rr"][day_index] += 1
+                item["inferred_receipts"] += 1
+                recurring = len(inferred_product_days[product_key]) >= 2
+                extreme = threshold * EXTREME_MULTIPLIER
+                if recurring and qty <= extreme:
+                    item["wi"][day_index] += excess
+                    item["wri"][day_index] += 1
+                    item["recurring_receipts"] += 1
+                else:
+                    item["we"][day_index] += excess
+                    item["wre"][day_index] += 1
+                    item["oneoff_receipts"] += 1
+            else:
+                item["rr"][day_index] += 1
+
+    # Refund correction: kun uchun net qty (q) ≤ 0 bo'lsa (refund sotuv bilan teng yoki
+    # undan ko'p), ulgurji massivlarini nollash — aks holda refund "Bir martalik ulgurji"
+    # sifatida ko'rinib qoladi. Qisman refundda (0 < q < we+wi) proporsional qisqartirish.
+    for item in item_data.values():
+        for day in range(days):
+            q = item["q"][day]
+            we = item["we"][day]
+            wi = item["wi"][day]
+            total_ws = we + wi
+            if q <= 0:
+                item["we"][day] = 0.0
+                item["wi"][day] = 0.0
+                item["wre"][day] = 0
+                item["wri"][day] = 0
+                item["x"][day] = 0.0
+                item["i"][day] = 0.0
+                item["wr"][day] = 0
+            elif total_ws > q:
+                scale = q / total_ws
+                item["we"][day] = we * scale
+                item["wi"][day] = wi * scale
+                xi = item["x"][day] + item["i"][day]
+                if xi > q:
+                    xi_scale = q / xi
+                    item["x"][day] *= xi_scale
+                    item["i"][day] *= xi_scale
+
+    output_items = {}
+    sku_aliases = {}
+    name_aliases = {}
+    for product_key, item in item_data.items():
+        rule = rules.get(product_key, {
+            "cap": 0,
+            "threshold": 0,
+            "median": 0,
+            "p90": 0,
+            "sample": 0,
+        })
+        cap = rule["cap"]
+        threshold = rule["threshold"]
+        retail = [
+            max(0, item["q"][day] - item["wi"][day] - item["we"][day])
+            for day in range(days)
+        ]
+        wholesale = [item["wi"][day] + item["we"][day] for day in range(days)]
+        canonical_name = product_names[product_key].most_common(1)[0][0]
+        output_items[product_key] = {
+            "name": canonical_name,
+            "sku": item["sku"],
+            "q": [round_quantity(value) for value in item["q"]],
+            "r": item["r"],
+            "rr": item["rr"],
+            "wr": item["wr"],
+            "w": [round_quantity(value) for value in wholesale],
+            "wi": [round_quantity(value) for value in item["wi"]],
+            "we": [round_quantity(value) for value in item["we"]],
+            "wri": item["wri"],
+            "wre": item["wre"],
+            "x": [round_quantity(value) for value in item["x"]],
+            "i": [round_quantity(value) for value in item["i"]],
+            "rt": [round_quantity(value) for value in retail],
+            "rev": [round(value) for value in item["rev_d"]],
+            "m": demand_metrics(retail, item["wi"], item["we"], cap, threshold),
+        }
+        output_items[product_key]["m"]["receiptMedian"] = round_quantity(rule["median"])
+        output_items[product_key]["m"]["receiptP90"] = round_quantity(rule["p90"])
+        output_items[product_key]["m"]["receiptSample"] = rule["sample"]
+        output_items[product_key]["m"]["revenue"] = round(item["revenue"])
+        output_items[product_key]["m"]["totalSold"] = round_quantity(sum(item["q"]))
+        output_items[product_key]["m"]["totalReceipts"] = sum(item["r"])
+        output_items[product_key]["m"]["explicitWholesale"] = round_quantity(sum(item["x"]))
+        output_items[product_key]["m"]["inferredWholesale"] = round_quantity(sum(item["i"]))
+        output_items[product_key]["m"]["explicitReceipts"] = item["explicit_receipts"]
+        output_items[product_key]["m"]["inferredReceipts"] = item["inferred_receipts"]
+        output_items[product_key]["m"]["recurringReceipts"] = item["recurring_receipts"]
+        output_items[product_key]["m"]["oneoffReceipts"] = item["oneoff_receipts"]
+        output_items[product_key]["m"]["wholesaleCustomers"] = [
+            customer for customer, _ in sorted(
+                item["wholesale_customers"].items(),
+                key=lambda pair: pair[1],
+                reverse=True,
+            )[:3]
+        ]
+        if item["sku"]:
+            sku_aliases["sku:" + item["sku"]] = product_key
+        for observed_name in product_names[product_key]:
+            name_aliases[observed_name] = product_key
+
+    return {
+        "__meta__": {
+            "days": days,
+            "start": min_date.isoformat(),
+            "end": max_date.isoformat(),
+            "title": min_date.strftime("%B %Y"),
+            "labels": labels,
+            "method": "sku-customer-tin-recurring-v4",
+        },
+        "items": output_items,
+        "skuAliases": sku_aliases,
+        "nameAliases": name_aliases,
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", default="sotuv_excel.xlsx")
+    parser.add_argument("--output", default="data_daily.json")
+    parser.add_argument("--source", choices=["excel", "api"], default="excel")
+    args = parser.parse_args()
+    if args.source == "api":
+        orders = json.loads(Path(args.input).read_text(encoding="utf-8"))
+        records = api_records(orders)
+    else:
+        records = excel_records(Path(args.input))
+    result = build(records)
+    Path(args.output).write_text(
+        json.dumps(result, ensure_ascii=False, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    print(f"Built {args.output}: {len(result['items']):,} products, {result['__meta__']['days']} days")
+
+
+if __name__ == "__main__":
+    main()
