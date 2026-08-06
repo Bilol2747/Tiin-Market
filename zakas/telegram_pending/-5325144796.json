@@ -1,0 +1,49 @@
+{
+ "createdAt": "2026-08-06T09:38:50.190Z",
+ "srcFile": "-5325144796_887_zakas_SUPPLY_FNB_MCHJ_Evian_VOSS_13_от_04_06_2025_2026_08_05.xlsx",
+ "supplierId": "69800b67-d394-4026-9d2b-89b25fb6f911",
+ "supplierLabel": "SUPPLY FNB MCHJ (Evian VOSS) (13 от 04.06.2025)",
+ "items": [
+  {
+   "name": "Evian негазированный пэт 750ml",
+   "barcode": "3068320014067",
+   "qty": 120,
+   "price": 21300,
+   "status": "aktiv",
+   "sku": "31327",
+   "id": "ea535385-b9e4-4e26-9ecd-27dc29803d6f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Evian негазированный стекло 750ml",
+   "barcode": "3068320103389",
+   "qty": 108,
+   "price": 33000,
+   "status": "aktiv",
+   "sku": "50196",
+   "id": "81dec38f-f6a4-4e04-a572-8b8038467eff",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Evian негазированный стекло 330ml",
+   "barcode": "3068320103631",
+   "qty": 80,
+   "price": 20500,
+   "status": "aktiv",
+   "sku": "5138",
+   "id": "7dd74aec-aefb-40c1-997c-02d93a19d09c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Mineral Suv Evian 1.5l",
+   "barcode": "3068320085005",
+   "qty": 60,
+   "price": 27900,
+   "status": "aktiv",
+   "sku": "31325",
+   "id": "ff358f57-cd45-4aad-988a-6bd0369d4cee",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 9434000
+}
