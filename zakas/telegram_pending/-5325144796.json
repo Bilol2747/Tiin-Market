@@ -1,0 +1,209 @@
+{
+ "createdAt": "2026-08-06T09:25:09.815Z",
+ "srcFile": "-5325144796_854_zakas_''SMART_GLOBAL_DISTRIBUTION''_MCHJ_№215_от_14_01_2022г_Ch.xlsx",
+ "supplierId": "2e712f72-c2b2-40c1-a8e0-9a20b94ed4b0",
+ "supplierLabel": "''SMART GLOBAL DISTRIBUTION'' MCHJ (№215 от 14.01.2022г) (Chernogolovka Rich Dobriy)",
+ "items": [
+  {
+   "name": "Gazli Suv Chortoq Butilka 500ml",
+   "barcode": "4780051070899",
+   "qty": 240,
+   "price": 4498.2,
+   "status": "aktiv",
+   "sku": "8507",
+   "id": "ce9ed821-fd2e-4a71-b038-75e7bd0f3f85",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz SuvChortoq 1.5l",
+   "barcode": "4780051070448",
+   "qty": 100,
+   "price": 11669,
+   "status": "aktiv",
+   "sku": "41295",
+   "id": "1fbfeb22-f16c-4267-8665-b389c82d80d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Chortoq Suv Premium 500ml",
+   "barcode": "4780051070745",
+   "qty": 60,
+   "price": 15834,
+   "status": "aktiv",
+   "sku": "8291",
+   "id": "2b7fe0de-3e55-4fd0-b82f-c8b443d0f174",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Ichimlik Limonhis Limon 250ml",
+   "barcode": "4780142660022",
+   "qty": 50,
+   "price": 9170,
+   "status": "aktiv",
+   "sku": "8349",
+   "id": "545c6503-c5b8-4357-87c9-7f19f29e8ec5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Черноголовка, Тархун New пэт бутилка 0,5 л",
+   "barcode": "4780111553508",
+   "qty": 48,
+   "price": 4999.67,
+   "status": "aktiv",
+   "sku": "33033",
+   "id": "c3c8dfde-936c-4a0c-b4e1-a9fee01f1d55",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Черноголовка, Тархун New пэт бутилка 1,5 л",
+   "barcode": "4780111553522",
+   "qty": 48,
+   "price": 10833.75,
+   "status": "aktiv",
+   "sku": "27806",
+   "id": "21348ef9-3500-44a0-a1a0-fdb4afe6fef8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Dyushes 1.5l",
+   "barcode": "4780111553447",
+   "qty": 45,
+   "price": 10833.73,
+   "status": "aktiv",
+   "sku": "2016",
+   "id": "e4af6d99-70d6-4a53-82da-094d517f08e9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Chortoq Mineral (ko'k shisha)750ml",
+   "barcode": "4780051070516",
+   "qty": 45,
+   "price": 18333,
+   "status": "aktiv",
+   "sku": "43098",
+   "id": "fbf119fd-a4bf-4a8e-8327-ae3218c0ef2d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Buratino 2l",
+   "barcode": "4780111550071",
+   "qty": 36,
+   "price": 13333.5,
+   "status": "aktiv",
+   "sku": "27513",
+   "id": "f699070e-9359-433c-af12-d567414097fc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Черноголовка, Тархун New пэт бутилка 2 л",
+   "barcode": "4780111553539",
+   "qty": 32,
+   "price": 13333.5,
+   "status": "aktiv",
+   "sku": "27517",
+   "id": "6c87ea86-c878-48f6-8501-d8e274ca3a81",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Dyushes 2l",
+   "barcode": "4780111553454",
+   "qty": 30,
+   "price": 13333.6,
+   "status": "aktiv",
+   "sku": "27512",
+   "id": "0b00973f-3ca5-4e02-8454-902044a04d4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Limonad 2l",
+   "barcode": "4780111553577",
+   "qty": 30,
+   "price": 13333.67,
+   "status": "aktiv",
+   "sku": "27515",
+   "id": "03a0e353-5732-4ed1-8fa3-a7ab688c28f4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Limonad Черноголовка 1.5l",
+   "barcode": "4780111553560",
+   "qty": 30,
+   "price": 10833.73,
+   "status": "aktiv",
+   "sku": "2022",
+   "id": "5eb8a8b2-b637-416b-b86f-2747d9878cc2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Chortoq Premium 330ml",
+   "barcode": "4780051070721",
+   "qty": 30,
+   "price": 12502,
+   "status": "aktiv",
+   "sku": "8289",
+   "id": "debc100b-0586-4789-b499-6acda260cdf5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Suv Premium Gazli(ko'k shisha) 500ml",
+   "barcode": "4780051070738",
+   "qty": 30,
+   "price": 15834,
+   "status": "aktiv",
+   "sku": "8290",
+   "id": "51664084-e26d-45a5-ba97-bd72dde5b320",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Напиток Черноголовка Дюшес 500мл",
+   "barcode": "4780049961147",
+   "qty": 24,
+   "price": 4999.67,
+   "status": "aktiv",
+   "sku": "1073",
+   "id": "fec035d9-8ebb-42c9-b659-0fda3c926a7c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Напиток Черноголовка Тархун 500мл",
+   "barcode": "4780049961154",
+   "qty": 24,
+   "price": 4999.67,
+   "status": "aktiv",
+   "sku": "1071",
+   "id": "7abfa67a-e6fb-403f-8d8d-51fa5e66defc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Черноголовка, Лимонад оригинал New пэт бутилка 0,5 л",
+   "barcode": "4780111553546",
+   "qty": 24,
+   "price": 4999.67,
+   "status": "aktiv",
+   "sku": "27807",
+   "id": "dd902872-7506-4544-a5c4-2547867da7e8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Buratino 1.5l",
+   "barcode": "4780049961222",
+   "qty": 24,
+   "price": 10833.75,
+   "status": "aktiv",
+   "sku": "2020",
+   "id": "c3a736a5-a108-4b01-893a-89d5b1d8ee0c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Черноголовка, Лимонад Оригинал таъми шиша бутилка 0,5 л",
+   "barcode": "4780111550491",
+   "qty": 24,
+   "price": 10000.5,
+   "status": "aktiv",
+   "sku": "1170",
+   "id": "d456f454-b969-4bf2-8bda-f4813a5fcf9d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 9469301.25
+}
