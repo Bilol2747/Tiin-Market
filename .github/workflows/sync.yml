@@ -17,6 +17,7 @@ on:
       - "backend_p8_kirim.py"
       - "backend_p9_ombor_aylanmasi.py"
       - "backend_p_calc_stock.py"
+      - "backend_p_zakas_abc.py"
       - "backend_html_embed.py"
       - "build_sales_demand.py"
       - "build_prev_avg.py"

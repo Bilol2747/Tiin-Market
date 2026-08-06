@@ -2030,7 +2030,10 @@ function _zkBuildSuppliers(depth){
       // sotilmagan tovarlar) o'z mantig'ida qoladi, unga zaxira qo'shish ma'nosiz
       // va xavfli (foydalanuvchi so'rovi, 2026-07-21).
       // ABC bo'sh bo'lgan tovar (katalogda bor, oxirgi 30 kunda sotuvi yo'q) C sifatida.
-      const _buf=chuqur?0:(ZK_BUFFER_SKIP_CATS.includes(v.catTop||v.cat||"")?0:(ZK_BUFFER[v.abc]!=null?ZK_BUFFER[v.abc]:ZK_BUFFER.C));
+      // ZABC (kategoriya-ichi ABC, 2026-08-06) ishlatiladi - butun do'kon bo'yicha
+      // global ABC emas (backend_p_zakas_abc.py). FAQAT Zakas'da, boshqa sahifalar
+      // (Stock va h.k.) hali ham global v.abc bilan ishlaydi.
+      const _buf=chuqur?0:(ZK_BUFFER_SKIP_CATS.includes(v.catTop||v.cat||"")?0:(ZK_BUFFER[v.zabc]!=null?ZK_BUFFER[v.zabc]:ZK_BUFFER.C));
       // Zaxira faqat ALLAQACHON zakas kk bo'lgan tovarga qo'llanadi - "buyurtma kerakmi"
       // degan qarorga emas, faqat "qancha buyurtma" degan miqdorga ta'sir qiladi (ombor
       // boshqaruvidagi reorder point / order-up-to-level farqi, foydalanuvchi tuzatishi,
@@ -2070,7 +2073,7 @@ function _zkBuildSuppliers(depth){
       const costManual=_costOv!=null&&_costOv.base===rawCost;
       const rcost=costManual?_costOv.val:rawCost;
       const rcostApprox=costManual?false:!!v.rcostApprox;
-      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.abc,cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,adj,zakasDays,orderQty,minAdd,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
+      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,adj,zakasDays,orderQty,minAdd,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
     }).sort((a,b)=>{
       // zkRowOrder depth+supplier bo'yicha kalitlanadi - Muntazam va Chuqur bo'limlari
       // BIR XIL supplier nomi ostida BUTUNLAY BOSHQA tovarlarga ega bo'lishi mumkin,
@@ -3055,7 +3058,7 @@ function _buildZItems(){
     const _sp=parseFloat(v.suprice||0)||0;
     const _rp=parseFloat(v.iprice||v.p||0)||0;
     const _frozenVal=stock>0?Math.round(stock*(_sp||_rp)):0;
-    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",bc:v.bc||[],abc:v.abc||"",cat:v.cat||"",catTop:v.catTop||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,price:_sp||_rp,sp:_sp,rp:_rp,rcost:v.rcost||0,rcostApprox:!!v.rcostApprox,frozenVal:_frozenVal,ld:v.ld||null,lsd:v.ld||null,pav:v.pav||0,la:v.la||null,calcStock:v.calcStock!=null?v.calcStock:null,calcConf:v.calcConf||null,calcEvidence:v.calcEvidence!=null?v.calcEvidence:null,calcAnchor:v.calcAnchor||null,calcRule:v.calcRule||null,lkQty:v.lkQty!=null?v.lkQty:null,lkSold:v.lkSold!=null?v.lkSold:null,lkDate:v.lkDate||null,...c});
+    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",bc:v.bc||[],abc:v.abc||"",zabc:v.zabc||"",cat:v.cat||"",catTop:v.catTop||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,price:_sp||_rp,sp:_sp,rp:_rp,rcost:v.rcost||0,rcostApprox:!!v.rcostApprox,frozenVal:_frozenVal,ld:v.ld||null,lsd:v.ld||null,pav:v.pav||0,la:v.la||null,calcStock:v.calcStock!=null?v.calcStock:null,calcConf:v.calcConf||null,calcEvidence:v.calcEvidence!=null?v.calcEvidence:null,calcAnchor:v.calcAnchor||null,calcRule:v.calcRule||null,lkQty:v.lkQty!=null?v.lkQty:null,lkSold:v.lkSold!=null?v.lkSold:null,lkDate:v.lkDate||null,...c});
   });
   if(INVDATA){
     const p2skus=new Set(P2.filter(v=>v.sku).map(v=>String(v.sku)));
@@ -3071,7 +3074,7 @@ function _buildZItems(){
       if(stock>0&&iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reasonKey:"reason_slow_recent",reasonN:di60,di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reasonKey:"reason_slow_recent",reasonN:di60,di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
         return;
       }
       // stok bor → muzlagan; stok yo'q + avval sotilgan → eskirgan; stok yo'q + hech sotilmagan → yoq
@@ -3080,7 +3083,7 @@ function _buildZItems(){
       if(stock>0){_sig="muzlagan";_di=_lsdDi;if(iv.lsd){_rk="reason_last_sold_days_ago";_rn=_lsdDi;}else{_rk="reason_no_sale_history";}}
       else if(iv.lsd){_di=_lsdDi;_sig="eskirgan";_rk="reason_last_sold_days_ago_no_stock";_rn=_di;}
       else{_sig="yoq";_rk="reason_no_stock_jan1";}
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:_sig,reasonKey:_rk,reasonN:_rn,di:_di,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,lsd:iv.lsd||null,pav:iv.pav||0,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:_sig,reasonKey:_rk,reasonN:_rn,di:_di,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,lsd:iv.lsd||null,pav:iv.pav||0,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
     });
   }
   // Muzlagan kapital summasi — barcha muzlagan (stok bor, sotuv yo'q) ZITEMS'dan
@@ -3963,7 +3966,7 @@ async function _enrichWithInventory(arr,apiData){
     if(v._i==null)v._i=i;
     let iv=(v.sku!=null&&v.sku!=="")?invBySku[String(v.sku)]:null;
     if(!iv){const norm=nn2(v.name);iv=INV[norm];if(!iv){const pk=invKeys.find(k=>k.startsWith(norm));if(pk)iv=INV[pk];}}
-    if(iv){if(v.sku==null||v.sku==="")v.sku=iv.sku;v.iprice=iv.p;v.suprice=iv.sp;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;v.lsd=iv.lsd||null;v.ld60=iv.ld60||null;v.pav=iv.pav||null;v.pavm=iv.pavm||null;v.avg30sa=iv.avg30sa||null;v.la=iv.la||null;v.bc=iv.bc||[];v.rcost=iv.rcost||0;v.rcostApprox=!!iv.rcost_approx;v.calcStock=iv.calcStock!=null?iv.calcStock:null;v.calcConf=iv.calcConf||null;v.calcEvidence=iv.calcEvidence!=null?iv.calcEvidence:null;v.calcAnchor=iv.calcAnchor||null;v.calcRule=iv.calcRule||null;v.lkQty=iv.lkQty!=null?iv.lkQty:null;v.lkSold=iv.lkSold!=null?iv.lkSold:null;v.lkDate=iv.lkDate||null;}
+    if(iv){if(v.sku==null||v.sku==="")v.sku=iv.sku;v.iprice=iv.p;v.suprice=iv.sp;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;v.lsd=iv.lsd||null;v.ld60=iv.ld60||null;v.pav=iv.pav||null;v.pavm=iv.pavm||null;v.avg30sa=iv.avg30sa||null;v.la=iv.la||null;v.bc=iv.bc||[];v.rcost=iv.rcost||0;v.rcostApprox=!!iv.rcost_approx;v.calcStock=iv.calcStock!=null?iv.calcStock:null;v.calcConf=iv.calcConf||null;v.calcEvidence=iv.calcEvidence!=null?iv.calcEvidence:null;v.calcAnchor=iv.calcAnchor||null;v.calcRule=iv.calcRule||null;v.lkQty=iv.lkQty!=null?iv.lkQty:null;v.lkSold=iv.lkSold!=null?iv.lkSold:null;v.lkDate=iv.lkDate||null;v.zabc=iv.zabc||"";}
   });
 }
 // ─── P2: MAHSULOTLAR ───

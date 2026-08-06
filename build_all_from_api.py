@@ -871,11 +871,23 @@ def main():
     except Exception as e:
         print(f"      ! rcost qo'shishda xato: {e}")
 
+    # Zakas uchun KATEGORIYA-asosli ABC (`zabc`) - butun do'kon bo'yicha global
+    # ABC'dan MUSTAQIL, faqat Zakas bo'limida ko'rinadi (foydalanuvchi so'rovi,
+    # 2026-08-06). calcStock'dan OLDIN chaqiriladi - HTML embed qilmaydi, uning
+    # yozgan `zabc` maydoni keyingi calcStock bosqichidagi <script id="invdata">
+    # splice bilan o'zi HTML'ga tushadi.
+    print(f"\n[10/8] Zakas kategoriya-ABC ('zabc') hisoblanmoqda...")
+    try:
+        from backend_p_zakas_abc import build_zakas_abc
+        build_zakas_abc(ROOT)
+    except Exception as e:
+        print(f"      ! zakas ABC qo'shishda xato: {e}")
+
     # Zakas "Hisoblangan stok" ustuni - Invan qoldig'idan MUSTAQIL, kirim+sotuv
     # oqimidan qayta tiklangan haqiqiy qoldiq (foydalanuvchi so'rovi, 2026-07-27:
     # Invan bilan real tekshiruvda katta farqlar topilgandan keyin). avg30sa/pav/
     # rcost'dan mustaqil, zakas formulasiga tegmaydi - faqat qo'shimcha ma'lumot.
-    print(f"\n[10/8] Zakas 'Hisoblangan stok' (kirim+sotuv asosida) qo'llanmoqda...")
+    print(f"\n[10/9] Zakas 'Hisoblangan stok' (kirim+sotuv asosida) qo'llanmoqda...")
     try:
         from backend_p_calc_stock import build_calc_stock
         build_calc_stock(ROOT)

@@ -4,6 +4,44 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
+## 2026-08-06 — Zakas uchun KATEGORIYA-asosli ABC (`zabc`)
+
+**Muammo:** butun saytda ishlatiladigan ABC ([backend_p2_mahsulotlar.py](backend_p2_mahsulotlar.py)) BUTUN DO'KON bo'yicha, jami tushumga qarab hisoblanadi — bitta global 80/95 Pareto. Zakas uchun bu noto'g'ri savolga javob beradi: kanselyariyaning eng zo'r ruchkasi global ro'yxatda C bo'ladi (butun do'kon aylanmasiga nisbatan arzimas), zakas unga eng kam zaxira beradi va javondagi eng yaxshi ruchka doim tugab turadi.
+
+**Yechim:** [backend_p_zakas_abc.py](backend_p_zakas_abc.py) — yangi modul, har ICHKI KATEGORIYA (`cat`, ~146 ta qiymat) o'z ichida mustaqil ABC hisoblaydi. Natija `zabc` maydoni sifatida `data_inv_new.json`ga yoziladi, **faqat Zakas bo'limida** ishlatiladi (boshqa sahifalar — Stock, Mahsulotlar, ABC tahlili — eski global `abc` bilan davom etadi, foydalanuvchi qarori bilan doira hozircha shu bilan cheklangan).
+
+**Formula** (real ma'lumotda (`ABC_kategoriya_v3.xlsx`, 27 sheet) sinab, foydalanuvchi bilan bir necha bosqichda kelishilgan):
+```
+kuch = jami tushum / sotuv bo'lgan oylar soni        (so'm/oy)
+```
+- Davr: 2026-01-01 (`data_history.json` boshi) dan oxirgi kungacha; **tugallanmagan joriy oy chiqarib tashlanadi** (aks holda maxrajni shishirib o'rtachani sun'iy pasaytiradi — sinovda -13% xato topilgan)
+- Manfiy oy (qaytarish > sotuv) → 0
+- **Ulgurji ajratilmaydi** (foydalanuvchi qarori), **stok ma'lumoti ishlatilmaydi** (u ishonchsiz — calcStock loyihasida uzoq isbotlangan)
+
+**Klass, uch qatlamli (har `cat` ichida mustaqil):**
+1. Yuqori istisno: kuch ≥1,400,000 so'm/oy va ≥10 dona → so'zsiz A (hamma tovari zo'r sotiladigan kategoriyada ham kimdir majburan C bo'lib qolmasin)
+2. Kategoriya o'rni: kumulyativ ulush **mendan oldingi** holat bo'yicha (o'zi qo'shilmaydi) — aks holda kategoriyani yakka egallagan tovar C bo'lib qolardi (`qahva jacobs velvet`: kategoriyasining 99.5%-i, lekin C edi)
+3. Pastki darvoza: A uchun ≥250,000 so'm/oy va ≥10 dona; B uchun ≥100,000 so'm/oy va ≥3 dona. **Pul bo'yicha, dona emas** — saralash ham pul bo'yicha ketgani uchun ikki xil o'lchov ziddiyat berardi (`shakar 50kg` 3.46 mln so'm/oy → avval B, `choy ahmad tea` 52 ming so'm/oy → avval A)
+
+Chegaralar qat'iy raqam (foydalanuvchi qarori) — har build'da qayta hisoblanmaydi.
+
+**Sinab ko'rilgan va rad etilgan yondashuvlar:**
+- Winsorizatsiya (bitta ulgurji oy o'rtachani buzmasin) — TESKARI ta'sir qildi: `щедрое лето margarin 200gr` yanvar-mart oylarida barqaror kuchli sotilgan (16M/53M/54M so'm), keyin to'xtagan; winsor buni "anomaliya" deb 12 barobar pasaytirib yuborgan edi.
+- Darvoza dona/oy bo'yicha — saralash bilan boshqa o'lchov, ziddiyat berdi (yuqorida misol).
+
+**Natija** (`data_history.json` 2026-08-06 holatiga, 21,997 tovar): A=5,190 B=6,120 C=10,687. 7 ta nazorat tovarida (turli sabab bilan tanlangan — kategoriya yetakchisi, yuqori istisno, dalil kamligi) 7/7 to'g'ri.
+
+**Amalga oshirish:**
+- `backend_p_zakas_abc.py` — `backend_p_calc_stock.py` naqshini takrorlaydi (`build_zakas_abc(root, verbose)`, `ZABC_KEYS`-uslubidagi o'zini-tozalash). [build_all_from_api.py](build_all_from_api.py)da `build_calc_stock()`dan **OLDIN** chaqiriladi — HTML embed qilmaydi, faqat `data_inv_new.json`ga yozadi; `zabc` maydoni keyingi calcStock bosqichidagi `<script id="invdata">` splice bilan o'zi HTML'ga tushadi (12MB'lik ikkinchi yozuv oldi olindi)
+- `sync.yml` `paths:`ga qo'shildi (shu bilan birga ro'yxatdan tushib qolgan `backend_p_calc_stock.py` ham qo'shildi — bu 2026-08-04/05 da bir marta muammo bo'lgan edi)
+- `sales_runtime.js`: 5 nuqta — `_enrichWithInventory` (`zabc` P2'ga ko'chiriladi), `_buildZItems` (3 ta push, ZITEMS'ga `zabc`), `_zkBuildSuppliers` (`ZK_BUFFER[v.abc]` → `ZK_BUFFER[v.zabc]` — **zakas miqdoriga ta'sir qiladi**; qator obyektidagi `abc` maydoni endi `v.zabc`dan to'ldiriladi, shuning uchun saralash/sarlavha/nishon kodiga tegilmadi)
+- **Nega yangi nom (`zabc`, `abc` emas):** `_winArr()` sana oralig'i faol bo'lganda barcha `v.abc`ni qayta yozib yuboradi (global Pareto'ni oyna bo'yicha qayta hisoblaydi) — `abc` nomi ishlatilsa qiymat yo'qolardi
+- p5 (Stock/Zaxira) tegilmadi — u ham ZITEMS'dan foydalanadi, lekin `v.abc` o'qib eski global qiymat bilan qoladi
+
+**Tekshirildi:** standalone ishga tushirish (Excel bilan bir xil natija), 7 nazorat tovari, idempotentlik (ikki marta ishga tushirilganda `data_inv_new.json` bayt-baytiga bir xil), to'liq ikki-bosqichli pipeline integratsiyasi (zakas_abc → calcStock, HTML'da ikkalasi ham bor), `index.html`/`sales.html` bayt-baytiga bir xil.
+
+---
+
 ## 2026-07-30 — YANGI BO'LIM: p11 "Firmalar" (xaridor firmalar, qarz muddati)
 
 **Rahbar topshirig'i:** "payment date" bo'limi — bizdan tovar olgan firmalar bilan ishlash.
