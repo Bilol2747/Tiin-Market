@@ -1,0 +1,139 @@
+{
+ "createdAt": "2026-08-06T11:34:55.498Z",
+ "srcFile": "-5325144796_943_321 Накладные 3.2.1(тиин).xlsx",
+ "supplierId": "26b30f45-ae0a-4d7f-9420-bc1e506f4ca9",
+ "supplierLabel": "GI-FMCG (Chirton Бытовая Химия)",
+ "items": [
+  {
+   "name": "Гель Chirton для прочистки сливных труб 500мл",
+   "barcode": "4607145644685",
+   "qty": 12,
+   "price": 30000,
+   "status": "aktiv",
+   "sku": "9685",
+   "id": "6a7cc20e-87e7-4896-bfe5-4d70bb1a6e08",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Тик-Так quvur tozalash vositsi 90gr",
+   "barcode": "4607145644791",
+   "qty": 48,
+   "price": 4953.27,
+   "status": "aktiv",
+   "sku": "46748",
+   "id": "62624576-4554-4919-892b-f3685503cc90",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Pol Uchun Chirton Bio Lavanda 1l",
+   "barcode": "4670013301294",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37136",
+   "id": "0b093142-bfbb-44a9-a76a-180e5b8f3c1d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Средство для Мытья Полов Chirton Аромат Лимона 1л",
+   "barcode": "4670013300198",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37134",
+   "id": "4068876e-3ab9-43d0-9cbb-125f0e7c5c26",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Chirton Bio pol tozalash vositasi 1l",
+   "barcode": "4670013300204",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37137",
+   "id": "7d5f3ff9-247b-45ad-a4e4-60ea134785ac",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pol Yuvuvchi Vosita Chirton Bio 1l",
+   "barcode": "4670013300211",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37138",
+   "id": "22bb7fdc-6ecb-4e53-9643-818b753ea119",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Bloki Chirton Atlantika Sofligi 45gr",
+   "barcode": "4670013302932",
+   "qty": 48,
+   "price": 14314.06,
+   "status": "aktiv",
+   "sku": "41287",
+   "id": "8cff48b3-c6f2-4067-b702-d7159f28d32f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona toalovchi vosita Chirton Qarag'ay 50gr",
+   "barcode": "6944678610717",
+   "qty": 24,
+   "price": 11012.98,
+   "status": "aktiv",
+   "sku": "39399",
+   "id": "fc598c25-39e6-4c3a-8b1a-647cccd2d50f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabletka Unitaz Uchun Chirton Морской Прибой 2х50gr",
+   "barcode": "6944678610380",
+   "qty": 24,
+   "price": 17560.97,
+   "status": "aktiv",
+   "sku": "39400",
+   "id": "8402ad1a-0dd0-4cf4-94b5-6933bed5bfce",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabletka Unitaz Uchun Chirton Морской Бриз 3х50gr",
+   "barcode": "4607145649949",
+   "qty": 24,
+   "price": 23628.65,
+   "status": "aktiv",
+   "sku": "39402",
+   "id": "6b850812-1e74-40fd-8df7-660db31810f9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabletka Unitaz Uchun Chirton Кубик Альпийская Долина 3х50gr",
+   "barcode": "4607145649925",
+   "qty": 12,
+   "price": 24991.18,
+   "status": "aktiv",
+   "sku": "39416",
+   "id": "8d343ac0-35e1-44fd-b382-1623550a76e5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dog' Ketkazuvchi Chirton 150gr",
+   "barcode": "4607145649581",
+   "qty": 36,
+   "price": 14811.66,
+   "status": "aktiv",
+   "sku": "37125",
+   "id": "4273c8cc-4fac-4290-8ffc-92a046d982ec",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dog' Ketkazuvchi-Oqartiruvchi Chirton Oxygen Kislorodli 500gr",
+   "barcode": "4607145649451",
+   "qty": 8,
+   "price": 55708.61,
+   "status": "aktiv",
+   "sku": "9383",
+   "id": "09d5b503-6c22-4e74-9082-0ae18cf16be6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 5665917.04
+}
