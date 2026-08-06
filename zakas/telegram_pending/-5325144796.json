@@ -1,0 +1,309 @@
+{
+ "createdAt": "2026-08-06T09:45:38.652Z",
+ "srcFile": "-5325144796_895_zakas_POSITI MCHJ_2026-08-05.xlsx",
+ "supplierId": "9ea100f8-035b-4b52-b5fd-06671d0990e7",
+ "supplierLabel": "POSITI MCHJ",
+ "items": [
+  {
+   "name": "Coca-Cola 1,5l пэт",
+   "barcode": "4780069000154",
+   "qty": 1200,
+   "price": 11622.55,
+   "status": "aktiv",
+   "sku": "2620",
+   "id": "dd17d507-e96e-4408-ab0f-072a597b4e1e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola 500ml пэт",
+   "barcode": "4780069000130",
+   "qty": 1200,
+   "price": 5448.89,
+   "status": "aktiv",
+   "sku": "1433",
+   "id": "1883ee61-61ea-43ac-8df3-927f71c55163",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazsiz 500ml пэт",
+   "barcode": "4780069000086",
+   "qty": 1200,
+   "price": 2334.93,
+   "status": "aktiv",
+   "sku": "753",
+   "id": "04a7dc22-1349-4108-8e81-cc6e87109fd1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazli 500ml пэт",
+   "barcode": "4780069000055",
+   "qty": 1000,
+   "price": 2334.93,
+   "status": "aktiv",
+   "sku": "754",
+   "id": "ee305adb-5ccb-4e32-9bb2-7c88b6abf018",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola 2l пэт",
+   "barcode": "4780069000734",
+   "qty": 600,
+   "price": 14730,
+   "status": "aktiv",
+   "sku": "29867",
+   "id": "6b414816-5bb9-40dc-a400-706b5d32f486",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola Zero 250ml стекло",
+   "barcode": "4780069000659",
+   "qty": 600,
+   "price": 6974.4,
+   "status": "aktiv",
+   "sku": "2877329",
+   "id": "9cb1b094-fe08-46ad-901f-cdad2c825c3e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola 500ml Zero пэт",
+   "barcode": "4780069000680",
+   "qty": 480,
+   "price": 5448.88,
+   "status": "aktiv",
+   "sku": "18981",
+   "id": "59346a00-f043-4d32-ae15-056a9eb252a9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta 2l пэт",
+   "barcode": "4780069000741",
+   "qty": 360,
+   "price": 14730,
+   "status": "aktiv",
+   "sku": "37553",
+   "id": "2b30e898-d7e4-43bb-b5a0-29ce4e27e06c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola Zero 1l пэт",
+   "barcode": "4780069000697",
+   "qty": 360,
+   "price": 8523.77,
+   "status": "aktiv",
+   "sku": "2009",
+   "id": "2967acf2-b4c4-4609-8b34-d5689f052487",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sprite Moxito 500ml пэт",
+   "barcode": "4780069001182",
+   "qty": 360,
+   "price": 5448.88,
+   "status": "aktiv",
+   "sku": "3853",
+   "id": "eacce028-8aff-4a99-acd8-ba6a84757d4c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola Zero 250ml  ж/б",
+   "barcode": "4780069000512",
+   "qty": 360,
+   "price": 4649.23,
+   "status": "aktiv",
+   "sku": "287268",
+   "id": "fce98dba-6a86-400a-97fd-add33d031ff2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola 1l пэт",
+   "barcode": "4780069000147",
+   "qty": 300,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "2008",
+   "id": "eec9ddf5-b2e9-4a9f-8a61-fbfdfba7f165",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta 1,5l пэт",
+   "barcode": "4780069000192",
+   "qty": 300,
+   "price": 11622.55,
+   "status": "aktiv",
+   "sku": "2621",
+   "id": "5dd9af9f-6b79-4517-9610-0ea02628eabd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sprite 250ml ж/б",
+   "barcode": "4780069000505",
+   "qty": 300,
+   "price": 4649.24,
+   "status": "aktiv",
+   "sku": "286320",
+   "id": "c89df8f2-3ea6-4c36-9b98-e2a234df0333",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazli 1l пэт",
+   "barcode": "4780069001120",
+   "qty": 300,
+   "price": 3871.29,
+   "status": "aktiv",
+   "sku": "51011",
+   "id": "bfa26555-8f94-43f2-8f75-4e3b29dcfbe2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta  1l пэт",
+   "barcode": "4780069000185",
+   "qty": 240,
+   "price": 8523.67,
+   "status": "aktiv",
+   "sku": "2010",
+   "id": "5750b852-e9c1-41aa-ba08-5fb5d1c9a5a8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta 250ml ж/б",
+   "barcode": "4780069000499",
+   "qty": 240,
+   "price": 4649.24,
+   "status": "aktiv",
+   "sku": "286319",
+   "id": "8f3d872b-2760-4cbe-831f-8a3c884994b4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sprite Moxito 1l пэт",
+   "barcode": "4780069001199",
+   "qty": 210,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "2876963",
+   "id": "ce1ac343-b15e-4c05-9682-5f5f0ce32926",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Mango Romashka 1l",
+   "barcode": "4780069000321",
+   "qty": 180,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "1700",
+   "id": "df45e641-c965-4a67-8adf-dc3caa9c4d3f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sprite 1l пэт",
+   "barcode": "4780069000222",
+   "qty": 180,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "2012",
+   "id": "7d7b82e1-d8bb-4dd3-8ebd-c91e05e9de6a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazli 1,5l пэт",
+   "barcode": "4780069000062",
+   "qty": 180,
+   "price": 4747.97,
+   "status": "aktiv",
+   "sku": "1158",
+   "id": "97128b68-84dd-4109-be5d-381d215189ab",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta energy 250мл стекло",
+   "barcode": "4780069000024",
+   "qty": 120,
+   "price": 6974.4,
+   "status": "aktiv",
+   "sku": "5634",
+   "id": "ccfaef1d-2e2e-4c55-b04f-ba5e201cddf7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Cappy Pulpy Apelsin 1l пэт",
+   "barcode": "4780069000376",
+   "qty": 120,
+   "price": 13176.27,
+   "status": "aktiv",
+   "sku": "52670",
+   "id": "90871f9e-dee8-4d72-957f-cfa534e5a5d0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Mango Ananas 1,5l",
+   "barcode": "4780069001151",
+   "qty": 120,
+   "price": 11622.55,
+   "status": "aktiv",
+   "sku": "7881",
+   "id": "6c13436d-b8fa-482d-aff3-7a3bf97de92e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta 450ml ж/б",
+   "barcode": "4780069000994",
+   "qty": 120,
+   "price": 7749.52,
+   "status": "aktiv",
+   "sku": "45670",
+   "id": "686e9661-98e4-4c2a-9ede-96af329dd249",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sprite 500ml пэт",
+   "barcode": "4780069000215",
+   "qty": 120,
+   "price": 5448.88,
+   "status": "aktiv",
+   "sku": "1436",
+   "id": "85226192-bfa3-4d01-a567-ce32b364dcc2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazsiz 1,5l пэт",
+   "barcode": "4780069000093",
+   "qty": 60,
+   "price": 4747.97,
+   "status": "aktiv",
+   "sku": "1157",
+   "id": "c54d81e0-07a2-4cb6-93a2-dc4695b2d305",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta Dyushes 1,5l пэт",
+   "barcode": "4780069001069",
+   "qty": 60,
+   "price": 11622.55,
+   "status": "aktiv",
+   "sku": "7736",
+   "id": "49d96b5b-469b-40f5-8ba6-603f2d9f92f3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Ananas Yalpiz 1l",
+   "barcode": "4780069000871",
+   "qty": 60,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "48229",
+   "id": "5eae90c1-c3c9-4a4f-a65e-aec0c22e32b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Арбуза 1л",
+   "barcode": "4780069001298",
+   "qty": 60,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "53632",
+   "id": "61f727f4-546f-4f25-a044-2c2c567295fe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 78143778
+}
