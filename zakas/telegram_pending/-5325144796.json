@@ -1,0 +1,389 @@
+{
+ "createdAt": "2026-08-06T11:50:05.244Z",
+ "srcFile": "-5325144796_951_ТИИН ОПТОМ НАКЛАДНАЯ- 07.08.2026.xlsx",
+ "supplierId": "3a997c0e-e506-4fa4-b383-78405d8ec3f2",
+ "supplierLabel": "''INSIGNIA TRADE'' MCHJ (№235 от 05.01.2022г) (Vanish)",
+ "items": [
+  {
+   "name": "Средство Harpic Power Plus дезинфицирующее для туалета Оригинальный 450мл",
+   "barcode": "4640018994074",
+   "qty": 12,
+   "price": 20820.75,
+   "status": "aktiv",
+   "sku": "2876074",
+   "id": "020a7f37-8c30-48ef-aa11-dbbd4ff3d0b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Harpic Power Plus Средство дезинфицирующее для туалета Лимон. свеж. 450мл",
+   "barcode": "4640018994081",
+   "qty": 12,
+   "price": 20820.75,
+   "status": "aktiv",
+   "sku": "2876076",
+   "id": "2d1e30e3-16c6-40cf-882e-da010b09b654",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Harpic Power Plus Средство дезинфицирующее для туалета Оригин. 700мл",
+   "barcode": "4640018994043",
+   "qty": 8,
+   "price": 36471,
+   "status": "aktiv",
+   "sku": "2876077",
+   "id": "636260a6-0309-45a9-9473-79ee7f2f4f44",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Harpic Power Plus Средство дезинфицирующее для туалета Лесн. свеж. 700мл",
+   "barcode": "4640018994067",
+   "qty": 8,
+   "price": 36471,
+   "status": "aktiv",
+   "sku": "2876078",
+   "id": "98e23df5-b477-429a-893e-ac1d0fe79c69",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Harpic Power Plus Средство дезинфицирующее для туалета Лимон. свеж. 700мл",
+   "barcode": "4640018994050",
+   "qty": 8,
+   "price": 36471,
+   "status": "aktiv",
+   "sku": "2876079",
+   "id": "f7a0ac94-3461-4f22-871e-8a7f9c7f9033",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tuz Finish Kir Yuvish Moshinasi Uchun 1500gr",
+   "barcode": "8594002682736",
+   "qty": 12,
+   "price": 44091,
+   "status": "aktiv",
+   "sku": "16948",
+   "id": "57282bba-8dd5-4d4d-8a9e-dade6629edb5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Капсулы Finish Quantum для посудомоечной машины 94шт",
+   "barcode": "4640018997679",
+   "qty": 4,
+   "price": 214292.16,
+   "status": "aktiv",
+   "sku": "29223",
+   "id": "bb979556-d141-4335-81a7-71d0aed91267",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель для посудомоечных машин Finish Блеск и защита 450мл",
+   "barcode": "4640018997594",
+   "qty": 10,
+   "price": 56611,
+   "status": "aktiv",
+   "sku": "9512",
+   "id": "7cc8739d-c916-4be0-9abd-46314457f2b4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель Finish для посудомоечных машин Блеск и защита 750мл",
+   "barcode": "4640018997600",
+   "qty": 6,
+   "price": 76914,
+   "status": "aktiv",
+   "sku": "29119",
+   "id": "e64c28b5-243b-4445-b3e9-526371ebf771",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящее средство Vanish gold Шампунь для ручной чистки ковров 450мл",
+   "barcode": "4607109400531",
+   "qty": 14,
+   "price": 39628,
+   "status": "aktiv",
+   "sku": "5608",
+   "id": "683ee5a2-adea-4c3b-ad8d-40dd9fa18737",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящее средство Vanish gold Антибактериальный Шампунь для ручной чистки ковров 450мл",
+   "barcode": "4607109400883",
+   "qty": 14,
+   "price": 39628,
+   "status": "aktiv",
+   "sku": "5609",
+   "id": "9a929653-6e45-4838-8afa-23fc481c6247",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пятновыводитель Vanish порошковый 500гр",
+   "barcode": "4640018992223",
+   "qty": 6,
+   "price": 54011.7,
+   "status": "aktiv",
+   "sku": "25879",
+   "id": "b092b510-bd0d-49af-9a85-19b96cf3aaa4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "VANISH OXI Advance Кристальная белизна отбеливатель Гель 400 мл",
+   "barcode": "4640018995019",
+   "qty": 10,
+   "price": 51848,
+   "status": "aktiv",
+   "sku": "2878157",
+   "id": "a28e758f-5f05-4d96-9b04-8fe6b568b4bf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vanish suyuq dog' ketkazuvchisi 1l",
+   "barcode": "5900627027136",
+   "qty": 12,
+   "price": 54011.7,
+   "status": "aktiv",
+   "sku": "18751",
+   "id": "9cb83c75-3517-4953-9445-49bea95331e9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vanish Oxi dog' ketkizuvchisi 1l",
+   "barcode": "5900627006315",
+   "qty": 12,
+   "price": 54011.7,
+   "status": "aktiv",
+   "sku": "18752",
+   "id": "eaf03894-c934-4d90-811a-1934e6f0e2e8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пятновыводитель Vanish Oxi Action Кристальная белизна для тканей 2л",
+   "barcode": "4607109401958",
+   "qty": 4,
+   "price": 113493,
+   "status": "aktiv",
+   "sku": "25882",
+   "id": "5d4c47b7-b685-46c1-b868-095cf7df528b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vanish Oxi Action suyu dog' ketkazuvchi vositasi 2l",
+   "barcode": "5900627007718",
+   "qty": 4,
+   "price": 113493,
+   "status": "aktiv",
+   "sku": "25883",
+   "id": "e0c3042a-cb1b-4f6d-9354-1425da940621",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vanish Кислородное многофункциональное средство 1кг",
+   "barcode": "4630527210055",
+   "qty": 6,
+   "price": 49044.15,
+   "status": "aktiv",
+   "sku": "51486",
+   "id": "2d083b02-434f-4359-904f-0800b7e9cad5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Zig'ir Salqinligi va Siren Sofligi 250ml",
+   "barcode": "8682539004265",
+   "qty": 6,
+   "price": 46677,
+   "status": "aktiv",
+   "sku": "2875168",
+   "id": "7d03df66-6e65-432d-a9bc-dba0d22c0dc1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick  Aerosol Refill Bahor Gullari 250ml",
+   "barcode": "8682539004272",
+   "qty": 6,
+   "price": 46677,
+   "status": "aktiv",
+   "sku": "5343",
+   "id": "abecff58-bf0d-4bb6-8959-2f80e8d7eafc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Lavanda 300ml",
+   "barcode": "8690570551730",
+   "qty": 6,
+   "price": 39083.2,
+   "status": "aktiv",
+   "sku": "44895",
+   "id": "f6af9110-ef08-46e1-b988-a11f9b1f02df",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Yalpiz Sofligi 300ml",
+   "barcode": "5908252002580",
+   "qty": 6,
+   "price": 39083.2,
+   "status": "aktiv",
+   "sku": "44896",
+   "id": "d54157d1-0223-4a5f-accb-3d07112f3664",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель Calgon 4в1 для Смягчения Воды и Налета 750мл",
+   "barcode": "8002910063405",
+   "qty": 12,
+   "price": 70627,
+   "status": "aktiv",
+   "sku": "47131",
+   "id": "e4798b52-472d-4982-8a8d-c45af4f3b77f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящее средство Cillit Bang Удаление черной плесени 750мл",
+   "barcode": "8682539002216",
+   "qty": 12,
+   "price": 46051.2,
+   "status": "aktiv",
+   "sku": "2877045",
+   "id": "fb6e32c6-524c-4064-ab6a-2cf06ba0b50f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Средство моющее Cillit Bang Антипятна и гигиена 750мл",
+   "barcode": "8682539002209",
+   "qty": 12,
+   "price": 46051.2,
+   "status": "aktiv",
+   "sku": "18756",
+   "id": "7cba56ac-c51b-42cd-a645-17e5f370416e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalash vositasi Cillit Bang Porlash 750ml",
+   "barcode": "8690570522297",
+   "qty": 12,
+   "price": 46051.2,
+   "status": "aktiv",
+   "sku": "46542",
+   "id": "f608d5b4-9c08-41c0-a5f9-b8a8e94ef0ff",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Освежитель воздуха Air Wick автоматический Дикий гранат 250мл",
+   "barcode": "4640018996139",
+   "qty": 6,
+   "price": 54025,
+   "status": "aktiv",
+   "sku": "16363",
+   "id": "20e9605c-7f9e-4062-8b29-cf69ddd4e99c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Gullagan Sakura 250ml",
+   "barcode": "4640018996207",
+   "qty": 6,
+   "price": 54025,
+   "status": "aktiv",
+   "sku": "32854",
+   "id": "22a657ea-8308-408d-93d7-c5af01ddef29",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Освежитель воздуха Air Wick Алтайские луга (Ромашка и Сочная зелень) 290мл",
+   "barcode": "4640018993060",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "18744",
+   "id": "2d0d49dc-9dba-4204-ad57-82cbdfa3c184",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Sibir Сибирская сказка 290ml",
+   "barcode": "4640018993091",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "18740",
+   "id": "8d14964d-0baf-4079-8c36-8d4283d83a38",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Освежитель воздуха Air Wick Японская Весна 290мл",
+   "barcode": "4640018993053",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "18734",
+   "id": "a9e9c06c-184f-43b6-b233-1602fca32681",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Освежитель Воздуха Air Wick Байкальская Свежесть 290мл",
+   "barcode": "4640018993138",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "42241",
+   "id": "b58279fb-db85-465e-8381-a706fa870e8e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Освежитель воздуха Air Wick Гавайский Ритм 290мл",
+   "barcode": "4640018993039",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "287148",
+   "id": "d9c160a5-166b-4535-8e23-caccfe995731",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Марокканское утро 290ml",
+   "barcode": "4640018993145",
+   "qty": 12,
+   "price": 34021,
+   "status": "aktiv",
+   "sku": "42244",
+   "id": "a72641ee-e732-426c-b282-13e73e9cd580",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gel Cillit Bang Pol va Oyna Uchun",
+   "barcode": "4640018997280",
+   "qty": 4,
+   "price": 50215,
+   "status": "aktiv",
+   "sku": "2882203",
+   "id": "0e10fe3f-392d-47f2-86e0-351be0acb600",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Yuvuvchi Vosita Vosita Cillit Bang Oyna va Pol Ucchun Sitrus Nuri",
+   "barcode": "4640018997303",
+   "qty": 4,
+   "price": 50215,
+   "status": "aktiv",
+   "sku": "3490",
+   "id": "6c12c1b2-20bd-4de0-bc41-4c98f0dd16d2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Air Wick Suv Sofligi 300ml",
+   "barcode": "8690570551747",
+   "qty": 6,
+   "price": 39083.2,
+   "status": "noaktiv",
+   "sku": "44894",
+   "id": "e62fe19a-887e-4855-bfd7-ac5307395e85",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Air Wick olchali havo tozalagichi 300ml",
+   "barcode": "8690570551754",
+   "qty": 6,
+   "price": 39083.2,
+   "status": "noaktiv",
+   "sku": "44897",
+   "id": "d69a2368-ea28-40c4-8b34-67d563b68bbb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 15742500.54
+}
