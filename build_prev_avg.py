@@ -254,7 +254,7 @@ def _kirim_local_date(iso_str):
     return (utc_dt.replace(tzinfo=None) + TASHKENT_OFFSET).date()
 
 
-def _compute_avg30_stock_aware(d_arr, rt_arr, wi_arr, cur_stock, kirim_by_date, hist_base, n):
+def _compute_avg30_stock_aware(d_arr, rt_arr, wi_arr, cur_stock, kirim_by_date, hist_base, n, we_arr=None):
     """Oxirgi AVG30_WINDOW kunlik kunlik o'rtacha — stok-asosli.
 
     Har kun uchta turdan biriga ajratiladi:
@@ -285,6 +285,14 @@ def _compute_avg30_stock_aware(d_arr, rt_arr, wi_arr, cur_stock, kirim_by_date, 
     endi faqat xom nisbat (tot/effective) ishlatiladi, AVG30_CAP_MULT bilan cheklab (bitta
     tasodifiy katta sotuvdan portlab ketishdan himoya sifatida qoladi).
 
+    ESLATMA (2026-08-07, foydalanuvchi so'rovi): sukut bo'yicha bu yerga faqat
+    retail+doimiy-ulgurji (we HAMISHA chiqarilgan) kiradi - qolgan butun
+    katalogda o'zgarishsiz. FAQAT "Вода и Напитки" kategoriyasi (va uning
+    subkategoriyalari) uchun chaqiruvchi (recompute_avg30_from_history())
+    ixtiyoriy we_arr uzatadi - shu kategoriyada katta/bir martalik ulgurji
+    ham haqiqiy zaxira ehtiyoji hisoblanadi (suv-napitkalar do'konga yirik
+    hajmda ham muntazam kelib turadi).
+
     Qaytaradi: (avg, active, effective) yoki None (yetarli ma'lumot/tarix bo'lmasa)."""
     if n < AVG30_WINDOW or cur_stock is None:
         return None
@@ -293,7 +301,8 @@ def _compute_avg30_stock_aware(d_arr, rt_arr, wi_arr, cur_stock, kirim_by_date, 
     for i in range(s, n):
         rt_v = rt_arr[i] if i < len(rt_arr) else 0
         wi_v = wi_arr[i] if i < len(wi_arr) else 0
-        combo.append((rt_v or 0) + (wi_v or 0))
+        we_v = (we_arr[i] if we_arr and i < len(we_arr) else 0)
+        combo.append((rt_v or 0) + (wi_v or 0) + (we_v or 0))
     tot = sum(combo)
     active = sum(1 for x in combo if x > 0)
     if tot <= 0:
@@ -343,14 +352,23 @@ def recompute_avg30_from_history(root=ROOT, verbose=True):
     d_map = hist.get("d", {})
     rt_map = hist.get("rt", {})
     wi_map = hist.get("wi", {})
+    we_map = hist.get("we", {})
 
     cur_stock_by_sku = {}
+    # "Вода и Напитки" kategoriyasi (2026-08-07, foydalanuvchi so'rovi): FAQAT shu
+    # kategoriya (va uning subkategoriyalari, catTop bitta bo'lgani uchun avtomatik
+    # qamraladi) uchun katta/bir martalik ulgurji (we) ham kunlik o'rtachaga
+    # qo'shiladi - boshqa hech qaysi kategoriyaga tegilmaydi.
+    WATER_CATTOP = "Вода и Напитки"
+    water_sku = set()
     for iv in inv.values():
         if isinstance(iv, dict) and iv.get("sku") not in (None, ""):
             try:
                 cur_stock_by_sku[str(iv["sku"])] = float(iv.get("a") or 0)
             except (TypeError, ValueError):
                 pass
+            if (iv.get("catTop") or "") == WATER_CATTOP:
+                water_sku.add(str(iv["sku"]))
 
     kirim_by_sku_day = {}
     for sku, entry in kirim.get("skus", {}).items():
@@ -375,8 +393,10 @@ def recompute_avg30_from_history(root=ROOT, verbose=True):
             continue
         rt_arr = rt_map.get(key) or []
         wi_arr = wi_map.get(key) or []
+        we_arr = (we_map.get(key) or []) if sku in water_sku else None
         res = _compute_avg30_stock_aware(d_arr or [], rt_arr, wi_arr, cur,
-                                          kirim_by_sku_day.get(sku, {}), hist_base, n_days)
+                                          kirim_by_sku_day.get(sku, {}), hist_base, n_days,
+                                          we_arr=we_arr)
         if res and res[0] > 0:
             avg30_by_sku[sku] = res[0]
     if verbose:
