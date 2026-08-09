@@ -8,3 +8,7 @@ api_raw_orders.partial.json
 api_raw_products.partial.json
 __pycache__/
 node_modules/
+backend/tiin.db
+backend/tiin.db-shm
+backend/tiin.db-wal
+backend/pipeline_cache.pkl

@@ -4,5 +4,11 @@
     "deploymentEnabled": {
       "telegram-data": false
     }
+  },
+  "functions": {
+    "backend/app.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{*.json,*.xlsx,*.html,*.md,api_raw_*.json,Topshiriq/**,mxik/**,zakas/**,arxiv/**,backend/tiin.db,backend/pipeline_cache.pkl,backend/__pycache__/**,**/__pycache__/**,.git/**,*.pkl}"
+    }
   }
 }
