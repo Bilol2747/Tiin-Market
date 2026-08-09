@@ -2,3 +2,12 @@
 # yo'q, shuning uchun Vercel'ga yuborilmaydi (aks holda tiin-market.vercel.app/zakas/
 # manzilidan ochiq o'qib bo'lardi). Git'da esa SAQLANADI — himoya uchun.
 zakas/
+
+# DIQQAT: .vercelignore BUTUN deploymentdan chiqarib tashlaydi (statik
+# saytdan ham) — index.html/sales.html/data_history.json/data_abc.json kabi
+# jonli saytga KERAK fayllarni bu yerga qo'shib bo'lmaydi. Faqat backend/app.py
+# funksiyasiga tegishli, saytga aloqasi yo'q ogir fayllar:
+backend/tiin.db
+backend/tiin.db-shm
+backend/tiin.db-wal
+backend/pipeline_cache.pkl
