@@ -1,0 +1,39 @@
+{
+ "createdAt": "2026-08-10T10:15:08.679Z",
+ "srcFile": "-5325144796_1012_zakas_MCHJ KAZIMPORT (Bali SunTropic)_2026-08-08 (1).xlsx",
+ "supplierId": "d7d679fc-1318-4983-97f7-f83dcc9ad283",
+ "supplierLabel": "MCHJ KAZIMPORT (Bali SunTropic)",
+ "items": [
+  {
+   "name": "KIDS TOYS Яблоко-Бисквит 430ml пэт бут",
+   "barcode": "4870211291582",
+   "qty": 120,
+   "price": 10960,
+   "status": "aktiv",
+   "sku": "53165",
+   "id": "3ff253ab-36f1-4836-8ffe-17c00057875f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "SUN TROPIC Яблоко 200ml тетра пак",
+   "barcode": "4870001021986",
+   "qty": 48,
+   "price": 3120,
+   "status": "aktiv",
+   "sku": "51640",
+   "id": "d057f68a-02d9-4423-9a9d-07af4ab897ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "SUN TROPIC Мультифрукт 200ml тетра пак",
+   "barcode": "4870001021979",
+   "qty": 48,
+   "price": 3120,
+   "status": "aktiv",
+   "sku": "51638",
+   "id": "b2932e3e-c64c-4f45-8e82-947387b74af2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 1614720
+}
