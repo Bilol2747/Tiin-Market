@@ -1,0 +1,159 @@
+{
+ "createdAt": "2026-08-10T10:08:58.085Z",
+ "srcFile": "-5325144796_996_zakas_NATURAL JUICE MCHJ_2026-08-08.xlsx",
+ "supplierId": "afdb7f2f-204f-4245-a646-d69cc1c8acee",
+ "supplierLabel": "NATURAL JUICE MCHJ",
+ "items": [
+  {
+   "name": "Сочная Долина Rezevor ta'mli 1l",
+   "barcode": "4780032050384",
+   "qty": 300,
+   "price": 9575.4,
+   "status": "aktiv",
+   "sku": "24468",
+   "id": "8760b1d5-7e92-496e-97d3-5676237df33d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pro 100 Sok Olma 200ml",
+   "barcode": "4780032051107",
+   "qty": 270,
+   "price": 2336,
+   "status": "aktiv",
+   "sku": "47488",
+   "id": "dba75587-7daf-4350-9837-a59771d431ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sharbat Viko Apelsin 250ml",
+   "barcode": "4780032053194",
+   "qty": 240,
+   "price": 4958.05,
+   "status": "aktiv",
+   "sku": "53413",
+   "id": "acf9952f-d3e8-4b73-9e63-5caaa677556f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Multifrukt 125ml тетра пак",
+   "barcode": "4780032051817",
+   "qty": 200,
+   "price": 1475.73,
+   "status": "aktiv",
+   "sku": "34845",
+   "id": "11e4f6f6-c7a8-413a-af43-e3d43a80e8e6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Olcha 125ml тетра пак",
+   "barcode": "4780032051787",
+   "qty": 200,
+   "price": 1475.73,
+   "status": "aktiv",
+   "sku": "52038",
+   "id": "073cbe8b-72e2-405d-9112-b9947c57eee5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Apelsin 1l",
+   "barcode": "4780032050322",
+   "qty": 180,
+   "price": 13255.05,
+   "status": "aktiv",
+   "sku": "26210",
+   "id": "f5a7840e-9236-4c96-adec-f72f6e49899f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Olcha 1l",
+   "barcode": "4780032050346",
+   "qty": 180,
+   "price": 10312.44,
+   "status": "aktiv",
+   "sku": "24463",
+   "id": "2fccbb8f-3319-4973-af2c-466fa885cb1a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Ягодный микс 450ml",
+   "barcode": "4780032053316",
+   "qty": 120,
+   "price": 5669.5,
+   "status": "aktiv",
+   "sku": "53418",
+   "id": "8956e3c5-be09-42d6-ba36-b543c9dff9b6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина O'rik 1l",
+   "barcode": "4780032050292",
+   "qty": 84,
+   "price": 9575.4,
+   "status": "aktiv",
+   "sku": "24462",
+   "id": "bb0ccb11-f053-4691-b63f-6de5a384fe66",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Olma Barbaris 1l",
+   "barcode": "4780032053330",
+   "qty": 60,
+   "price": 9575.39,
+   "status": "aktiv",
+   "sku": "53106",
+   "id": "85d41e07-3840-46f5-b85b-ccc98d1aec2b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "VIKO Premium Apelsin 1l",
+   "barcode": "4780032050957",
+   "qty": 60,
+   "price": 17673.4,
+   "status": "aktiv",
+   "sku": "34849",
+   "id": "2d01d823-2785-4e54-8056-478aae94b358",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sharbat Viko Olma пэт 250ml",
+   "barcode": "4780032053187",
+   "qty": 48,
+   "price": 4958.04,
+   "status": "aktiv",
+   "sku": "53415",
+   "id": "8742815a-4d88-489a-9b9e-9e4d73f6606e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "MUZY Shaftoli 900ml",
+   "barcode": "4780032053040",
+   "qty": 40,
+   "price": 5612.79,
+   "status": "aktiv",
+   "sku": "49920",
+   "id": "d388963d-4e2a-4925-bd9c-3b1aead96e6d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik MUZY Lime Fresh 900ml",
+   "barcode": "4780032052883",
+   "qty": 24,
+   "price": 9594.5,
+   "status": "aktiv",
+   "sku": "49911",
+   "id": "274814f7-04de-49b7-8557-9cbf188dd662",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Qora Smorodina 1l",
+   "barcode": "4780032050377",
+   "qty": 12,
+   "price": 9575.4,
+   "status": "aktiv",
+   "sku": "35463",
+   "id": "2ba2496d-e579-429c-96e4-5f7de2d3280b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 13452983.52
+}
