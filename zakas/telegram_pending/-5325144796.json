@@ -1,0 +1,49 @@
+{
+ "createdAt": "2026-08-10T10:11:26.048Z",
+ "srcFile": "-5325144796_1004_zakas_ZAMIN ALLIANCE MAX (Квас)_2026-08-08 (1).xlsx",
+ "supplierId": "2097f9b4-b01f-4926-94a5-c56302303c50",
+ "supplierLabel": "ZAMIN ALLIANCE MAX (Квас)",
+ "items": [
+  {
+   "name": "Смешарики (Копатыч) \"Груши - Яблоко\" 0,35л ПЭТ",
+   "barcode": "4601241016056",
+   "qty": 60,
+   "price": 10450,
+   "status": "aktiv",
+   "sku": "24317",
+   "id": "fe000c8e-48f4-4b76-beb7-0c43d729431f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Смешарики (Бараш) \"Груша-яблоко\" 0,35 ПЭТ",
+   "barcode": "4601241015479",
+   "qty": 60,
+   "price": 10450,
+   "status": "aktiv",
+   "sku": "2880385",
+   "id": "6dbd3acb-8490-450d-8148-1841d558a1d4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kvas Вятский Tabiiy 1.5l",
+   "barcode": "4610082650503",
+   "qty": 36,
+   "price": 22800,
+   "status": "aktiv",
+   "sku": "43073",
+   "id": "d8e5bdfd-a02f-40b7-b702-39434be8a200",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Квас Вятский Горячий Натуральный п/б 1.5л",
+   "barcode": "4610082650589",
+   "qty": 24,
+   "price": 22800,
+   "status": "aktiv",
+   "sku": "43074",
+   "id": "672a8214-c283-4d1f-bf84-cd1b570b32ca",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 2622000
+}
