@@ -6354,14 +6354,33 @@ async function _ensureFirmaData(){
   catch(e){FM={firmalar:[],bugun:new Date().toISOString().slice(0,10),firma_soni:0,chek_soni:0,sana_boshi:"",sana_oxiri:""};}
   return FM;
 }
+// Jadval o'ram balandligini oynaning haqiqiy bo'sh joyiga moslab hisoblaydi —
+// sarlavha balandligi keyinchalik o'zgarsa (masalan yana KPI/qator qo'shilsa)
+// qo'lda qayta sozlash shart emas, CSS'dagi magic-number'ga tayanmaydi
+// (2026-08-11: KPI qator qo'shilganda calc(100vh-250px) eskirib, butun sahifa
+// bitta blok holida skroll bo'lib, sarlavha/filtrlar ko'zdan yo'qolib qolgan edi).
+function _fmFitTable(){
+  const wrap=fmTab==="buyer"?document.getElementById("fm-buyer-panel"):document.getElementById("fm-supplier-panel");
+  const tbl=wrap?wrap.querySelector(".fm-tbl-wrap"):null;
+  if(!tbl)return;
+  const top=tbl.getBoundingClientRect().top;
+  // Xaridorlar panelida jadvaldan KEYIN "qarz/oldindan to'lagan" legend qatori
+  // bor - shu balandlikni ham hisobga olish kerak, aks holda sahifa yana
+  // bir necha o'n piksel ortiqcha bo'lib, tashqi skroll paydo bo'ladi.
+  const legend=wrap?wrap.querySelector(".fm-legend"):null;
+  const legendH=legend?legend.getBoundingClientRect().height:0;
+  tbl.style.maxHeight=Math.max(220,window.innerHeight-top-legendH-60)+"px";
+}
+window.addEventListener("resize",_fmFitTable);
 async function fmInit(){
   await _ensureFirmaData();
   if(!fmFrom){fmFrom=FM.sana_boshi||FM.bugun;fmTo=FM.sana_oxiri||FM.bugun;}
   const i1=document.getElementById("fm-start"),i2=document.getElementById("fm-end");
   if(i1&&i2){i1.min=i2.min=FM.sana_boshi||"";i1.max=i2.max=FM.sana_oxiri||"";i1.value=fmFrom;i2.value=fmTo;}
   fmRender();
+  _fmFitTable();
 }
-// ── Tab almashtirish: Xaridorlar (mavjud) / Ta'minotchilar (yangi, aging'siz — sabab: fetch_supplier_debt.py izohiga qarang) ──
+// ── Tab almashtirish: Xaridorlar (mavjud) / Ta'minotchilar (yangi) ──
 function fmSwitchTab(tab){
   fmTab=tab;
   document.querySelectorAll("#p11 .fm-tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
@@ -6371,6 +6390,7 @@ function fmSwitchTab(tab){
   const title=document.getElementById("fm-page-title");
   if(title){const k=tab==="buyer"?"fm_title":"fm_title_supplier";title.dataset.i18n=k;title.textContent=t(k);}
   if(tab==="supplier")fmsInit();else fmRender();
+  _fmFitTable();
 }
 function _fmCalc(f){
   const o={b15:0,b30:0,b45:0,b60:0,jami:0,pb:0,n:0};
@@ -6557,6 +6577,10 @@ async function _ensureSupplierDebtData(){
 async function fmsInit(){
   await _ensureSupplierDebtData();
   fmsRender();
+  // fmSwitchTab'dagi darhol chaqiruv KPI qatori hali bo'sh (ma'lumot kelmagan)
+  // paytda ishga tushishi mumkin - shu sabab ma'lumot kelib render bo'lgach
+  // yana bir bor to'g'ri balandlikni hisoblaymiz.
+  _fmFitTable();
 }
 let fmsFilt="all";
 // Ta'minotchi obyektidan (backend allaqachon b15/b30/b45/b60'ni TAXMINIY
