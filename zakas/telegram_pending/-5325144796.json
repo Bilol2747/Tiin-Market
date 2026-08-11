@@ -1,0 +1,49 @@
+{
+ "createdAt": "2026-08-11T08:41:19.697Z",
+ "srcFile": "-5325144796_1031_zakas_ИП ООО DUNYA DISTRIBUTION_2026-08-10.xlsx",
+ "supplierId": "5a3915e2-3132-4823-ad68-fdd6dde42a98",
+ "supplierLabel": "ИП ООО DUNYA DISTRIBUTION",
+ "items": [
+  {
+   "name": "Ichimlik Mani Anor 300ml",
+   "barcode": "4780147130506",
+   "qty": 720,
+   "price": 2600,
+   "status": "aktiv",
+   "sku": "40269",
+   "id": "e61dba86-a88e-4e8d-a8cb-20bf73499d59",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Mani Limon-Laym va Yalpiz 300ml",
+   "barcode": "4780147130766",
+   "qty": 600,
+   "price": 3600,
+   "status": "aktiv",
+   "sku": "27228",
+   "id": "02339e71-5cc1-45d7-8fb1-57aa3c3f92ab",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Mani Qora Tut va Qora Qorag'at 300ml",
+   "barcode": "4780147130780",
+   "qty": 480,
+   "price": 3600,
+   "status": "aktiv",
+   "sku": "6962",
+   "id": "3326eb4a-4d81-4df4-879c-ff9e28adbec4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Mani Cola 300ml",
+   "barcode": "4780147130513",
+   "qty": 360,
+   "price": 3600,
+   "status": "aktiv",
+   "sku": "36263",
+   "id": "05bd5a2b-ab5f-486f-b2bb-93552227b21d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 7056000
+}
