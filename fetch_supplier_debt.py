@@ -20,8 +20,15 @@ DEDUP qilinadi — aks holda umumiy qarz summasi shishib ketadi.
 
 Tranzaksiya/invoys darajasidagi ma'lumot (aging — "necha kunlik qarz") uchun
 API endpoint TOPILMADI (bir nechta ehtimoliy yo'l sinaldi, hammasi 404) —
-faqat joriy umumiy balans bor, xaridor-firmalar (p11/`fetch_clients.py`)dagi
-kabi 0-15/16-30/31-45/45+ guruhlash BU YERDA MUMKIN EMAS.
+Invan haqiqiy to'lov holatini bermaydi. Shuning uchun 0-15/16-30/31-45/45+
+guruhlash TAXMINIY hisoblanadi (2026-08-11, Bilol so'rovi bilan):
+`data_kirim.json`dagi shu ta'minotchining haqiqiy qabul qilingan
+(`qty>0`) kirim qatorlari `supplier_id` bo'yicha topiladi (bu ID
+`api/v1/suppliers`dagi `id` bilan BIR XIL namespace — tekshirilgan), eng
+so'nggi sanadan boshlab orqaga qarab, umumiy qarz summasiga yetguncha
+yig'iladi — ya'ni "eski kirimlar to'langan, qarz eng so'nggi xaridlarga
+tegishli" degan taxmin bilan. Bu HAQIQIY emas (qaysi aniq kirim to'langani
+noma'lum), shuning uchun frontendda "taxminiy" deb alohida belgilanadi.
 
 Natija:
   data_ta_qarz.json         — sayt (p11 "Firmalar" > "Ta'minotchilar" tab) o'qiydigan fayl
@@ -76,6 +83,57 @@ def fetch_suppliers(token):
             break
         page += 1
     return list(by_id.values())
+
+
+def load_kirim_by_supplier():
+    """`data_kirim.json`dagi barcha SKU'lar arrivals'ini `supplier_id` bo'yicha
+    guruhlab, sana bo'yicha KAMAYISH tartibida qaytaradi. Faqat haqiqatan
+    qabul qilingan (`qty>0`) qatorlar — "Open"/hali kelmagan buyurtma hali
+    to'lov majburiyati emas."""
+    path = ROOT / "data_kirim.json"
+    if not path.exists():
+        return {}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    by_sup = {}
+    for sku_row in (data.get("skus") or {}).values():
+        for a in sku_row.get("arrivals") or []:
+            qty = a.get("qty") or 0
+            if qty <= 0:
+                continue
+            sid = a.get("supplier_id")
+            d = (a.get("date") or "")[:10]
+            if not sid or not d:
+                continue
+            amount = qty * (a.get("cost") or 0)
+            by_sup.setdefault(sid, []).append((d, amount))
+    for sid in by_sup:
+        by_sup[sid].sort(key=lambda x: x[0], reverse=True)
+    return by_sup
+
+
+def estimate_aging(target, arrivals_desc, today):
+    """TAXMINIY guruhlash — modul docstringiga qarang. `target`: shu
+    ta'minotchiga qarzimiz (musbat son). `arrivals_desc`: [(sana, summa), ...]
+    eng so'nggidan boshlab."""
+    out = {"b15": 0, "b30": 0, "b45": 0, "b60": 0}
+    remaining = target
+    today_d = datetime.fromisoformat(today).date()
+    for d, amount in arrivals_desc:
+        if remaining <= 0:
+            break
+        try:
+            age = (today_d - datetime.fromisoformat(d).date()).days
+        except ValueError:
+            continue
+        bucket = "b15" if age <= 15 else "b30" if age <= 30 else "b45" if age <= 45 else "b60"
+        take = min(amount, remaining)
+        out[bucket] += take
+        remaining -= take
+    if remaining > 0:
+        # Kirim tarixi qarzdan kam (masalan tarix boshlanishidan oldingi
+        # eski qarz) — qolgan qism eng eski guruhga, e'tiborsiz qolmasin uchun.
+        out["b60"] += remaining
+    return {k: round(v) for k, v in out.items()}
 
 
 def ensure_schema(cl):
@@ -171,22 +229,38 @@ def main():
     out_rows.sort(key=lambda r: r["balans"])
 
     n_debt = sum(1 for r in out_rows if r["balans"] < 0)
+
+    print("2) Kirim tarixidan taxminiy aging hisoblanmoqda...")
+    bugun = datetime.now(timezone.utc).date().isoformat()
+    kirim_by_sup = load_kirim_by_supplier()
+    n_aged = 0
+    for r in out_rows:
+        if r["balans"] >= 0:
+            continue
+        arr = kirim_by_sup.get(r["id"]) or []
+        r.update(estimate_aging(-r["balans"], arr, bugun))
+        if arr:
+            n_aged += 1
+    print(f"   {n_aged}/{n_debt} qarzdor ta'minotchi uchun kirim tarixi topildi "
+          f"({n_debt - n_aged} tasi to'liq b60'ga tushadi — kirim tarixi yo'q)")
+
     payload = {
         "gen": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "bugun": datetime.now(timezone.utc).date().isoformat(),
+        "bugun": bugun,
         "ta_soni": len(suppliers),
         "qarzdor_soni": n_debt,
+        "aging_taxminiy": True,
         "taminotchilar": out_rows,
     }
     OUT_JSON.write_text(json.dumps(payload, ensure_ascii=False,
                                    separators=(",", ":")), encoding="utf-8")
     kb = OUT_JSON.stat().st_size / 1024
     jami_qarz = sum(r["balans"] for r in out_rows if r["balans"] < 0)
-    print(f"2) {OUT_JSON.name}: {len(out_rows)} ta'minotchi ({n_debt} qarzdor, "
+    print(f"3) {OUT_JSON.name}: {len(out_rows)} ta'minotchi ({n_debt} qarzdor, "
           f"jami qarz {jami_qarz:,.0f} so'm), {kb:,.0f} KB")
 
     if not args.no_turso:
-        print("3) Turso `suppliers_debt` sinxronlanmoqda...")
+        print("4) Turso `suppliers_debt` sinxronlanmoqda...")
         try:
             sync_turso(flat)
         except SystemExit:

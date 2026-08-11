@@ -269,6 +269,10 @@ const I18N={
   fm_col_ta:{uz:"Ta'minotchi",en:"Supplier",ru:"Поставщик"},
   fm_ta_cnt:{uz:"ta'minotchi",en:"suppliers",ru:"поставщиков"},
   fms_search_ph:{uz:"Ta'minotchi nomi yoki STIR...",en:"Supplier name or TIN...",ru:"Название поставщика или ИНН..."},
+  fm_kpi_cnt_b:{uz:"Qarzdor firmalar",en:"Debtor firms",ru:"Фирмы-должники"},
+  fm_kpi_cnt_s:{uz:"Qarzdor ta'minotchi",en:"Debtor suppliers",ru:"Поставщики-должники"},
+  fm_kpi_top:{uz:"Eng katta qarzdor",en:"Biggest debtor",ru:"Крупнейший должник"},
+  fm_aging_note:{uz:"* Kunlik guruhlash taxminiy — Invan aniq to'lov sanasini bermaydi, bizning kirim tarixi asosida hisoblangan",en:"* Day grouping is an estimate — Invan doesn't provide exact payment dates, calculated from our delivery history",ru:"* Разбивка по дням приблизительна — Invan не даёт точных дат оплаты, расчёт по нашей истории поставок"},
   fm_firma_cnt:{uz:"firma",en:"firms",ru:"фирм"},
   fm_chek:{uz:"chek",en:"receipts",ru:"чеков"},
   fm_jami:{uz:"Jami qarz",en:"Total debt",ru:"Итого долг"},
@@ -6326,6 +6330,24 @@ const FM_DASH='';
 function _fmBucket(kun){return kun<=15?"b15":kun<=30?"b30":kun<=45?"b45":"b60";}
 function _fmAge(d){return Math.round((new Date(FM.bugun+"T00:00:00Z")-new Date(d+"T00:00:00Z"))/864e5);}
 function _fmNum(n){return n?Math.round(n).toLocaleString("ru-RU").replace(/ /g," "):"";}
+// Qarz ustunlari (0-15/16-30/31-45/45+/Jami) — qizil, oldida "-". Refund/ortiqcha
+// to'lov qarzdan ko'p bo'lib qolsa (kamdan-kam holat) manfiy chiqadi - bu holda
+// yashilda "+" bilan ko'rsatiladi ("-"+_fmNum(manfiy) kabi ikki minus bo'lmasin uchun).
+// Xaridorlar (fmRender) va ta'minotchilar (fmsRender) bir xil jadval uslubini
+// ishlatgani uchun umumiy — ikkalasida ham qayta ishlatiladi.
+function _fmDebtCell(v){
+  if(!v)return '<td class="fm-r">'+FM_DASH+"</td>";
+  return v>0?'<td class="fm-r fm-debt">-'+_fmNum(v)+"</td>":'<td class="fm-r fm-pb">+'+_fmNum(-v)+"</td>";
+}
+function _fmDebtJmCell(v){
+  if(!v)return '<td class="fm-r fm-jm">'+FM_DASH+"</td>";
+  return v>0?'<td class="fm-r fm-jm">-'+_fmNum(v)+"</td>":'<td class="fm-r fm-jm" style="color:#1D9E75">+'+_fmNum(-v)+"</td>";
+}
+// Ixcham KPI kartochkalari (jadval balandligiga deyarli ta'sir qilmasin uchun kichik) — [{l,v,s,c}]
+function _fmKpiHtml(tiles){
+  return tiles.map(x=>'<div class="fm-kpi" style="--c:'+x.c+'"><div class="fm-kpi-l">'+esc(x.l)+'</div>'
+    +'<div class="fm-kpi-v">'+esc(x.v)+'</div>'+(x.s?'<div class="fm-kpi-s" title="'+esc(x.s)+'">'+esc(x.s)+'</div>':'')+'</div>').join("");
+}
 async function _ensureFirmaData(){
   if(FM)return FM;
   try{const r=await fetch("data_firmalar.json",{cache:"no-store"});FM=await r.json();}
@@ -6393,18 +6415,15 @@ function fmRender(){
   if(!tb)return;
   const cnt=document.getElementById("fm-cnt");
   if(fmTab==="buyer"&&cnt)cnt.textContent=rows.length+" "+t("fm_firma_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" so'm";
-  // Qarz ustunlari (0-15/16-30/31-45/45+/Jami) — qizil, oldida "-".
-  // Refund (qaytarilgan tovar) qarzdan ko'p bo'lib qolsa (kamdan-kam holat)
-  // buket manfiy chiqadi - bu holda yashilda "+" bilan (sof kredit) ko'rsatiladi,
-  // "-"+_fmNum(manfiy) kabi ikki minus qo'shilib ketmasin uchun.
-  const debt=v=>{
-    if(!v)return '<td class="fm-r">'+FM_DASH+"</td>";
-    return v>0?'<td class="fm-r fm-debt">-'+_fmNum(v)+"</td>":'<td class="fm-r fm-pb">+'+_fmNum(-v)+"</td>";
-  };
-  const debtJm=v=>{
-    if(!v)return '<td class="fm-r fm-jm">'+FM_DASH+"</td>";
-    return v>0?'<td class="fm-r fm-jm">-'+_fmNum(v)+"</td>":'<td class="fm-r fm-jm" style="color:#1D9E75">+'+_fmNum(-v)+"</td>";
-  };
+  const kpiEl=document.getElementById("fm-kpi-row");
+  if(kpiEl){
+    const top=rows[0],topV=top?(top.c.jami||top.c.pb):0;
+    kpiEl.innerHTML=_fmKpiHtml([
+      {l:t("fm_kpi_cnt_b"),v:rows.length+"",c:"#534AB7"},
+      {l:t("fm_jami"),v:(fmt(T.jami)||"0")+" so'm",c:"#C0342F"},
+      {l:t("fm_kpi_top"),v:top?fmt(topV)+" so'm":FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
+    ]);
+  }
   let h="";
   rows.forEach(function(o,i){
     const f=o.f,c=o.c;
@@ -6412,14 +6431,14 @@ function fmRender(){
       +'<td class="fm-z">'+(i+1)+'</td>'
       +'<td><span class="fm-nm" title="'+esc(f.nom)+'">'+esc(f.nom)+'</span></td>'
       +'<td><span class="fm-tin">'+(esc(f.tin)||FM_DASH)+'</span></td>'
-      +debt(c.b15)+debt(c.b30)+debt(c.b45)+debt(c.b60)+debtJm(c.jami)
+      +_fmDebtCell(c.b15)+_fmDebtCell(c.b30)+_fmDebtCell(c.b45)+_fmDebtCell(c.b60)+_fmDebtJmCell(c.jami)
       +'<td class="fm-r'+(c.pb?" fm-pb":"")+'">'+(c.pb?_fmNum(c.pb):FM_DASH)+'</td></tr>';
   });
   h+='<tr class="fm-tot"><td></td><td>'+t("fm_jami")+'</td><td></td>'
-    +debt(T.b15)+debt(T.b30)+debt(T.b45)+debt(T.b60)+debtJm(T.jami)
+    +_fmDebtCell(T.b15)+_fmDebtCell(T.b30)+_fmDebtCell(T.b45)+_fmDebtCell(T.b60)+_fmDebtJmCell(T.jami)
     +'<td class="fm-r fm-pb">'+(_fmNum(T.pb)||FM_DASH)+"</td></tr>";
   tb.innerHTML=h||'<tr><td colspan="9" style="text-align:center;padding:40px;color:#bbb">'+t("fm_bosh")+"</td></tr>";
-  document.querySelectorAll("#p11 .fm-seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.k===fmFilt));
+  document.querySelectorAll("#fm-buyer-panel .fm-seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.k===fmFilt));
 }
 // ── Firma kartochkasi — ALOHIDA OYNA (p10'ning _ktShowOverlay naqshiga o'xshash) ──
 function fmOpen(id){
@@ -6539,59 +6558,90 @@ async function fmsInit(){
   await _ensureSupplierDebtData();
   fmsRender();
 }
+let fmsFilt="all";
+// Ta'minotchi obyektidan (backend allaqachon b15/b30/b45/b60'ni TAXMINIY
+// hisoblab bergan - fetch_supplier_debt.py'dagi estimate_aging() ga qarang)
+// xaridorlar bilan bir xil {b15,b30,b45,b60,jami,pb} shaklini quradi.
+function _fmsCalc(f){
+  return {b15:f.b15||0,b30:f.b30||0,b45:f.b45||0,b60:f.b60||0,
+    jami:f.balans<0?-f.balans:0,pb:f.balans>0?f.balans:0};
+}
 function _fmsRows(){
   const q=fmsQ.trim().toLowerCase();
-  return (FMS.taminotchilar||[]).filter(f=>f.balans<0)
-    .filter(f=>!q||f.nom.toLowerCase().includes(q)||(f.tin||"").includes(q))
-    .sort((a,b)=>a.balans-b.balans);
+  const rows=(FMS.taminotchilar||[]).map(f=>({f,c:_fmsCalc(f)})).filter(function(o){
+    if(q&&!(o.f.nom.toLowerCase().includes(q)||(o.f.tin||"").includes(q)))return false;
+    if(fmsFilt==="all")return o.c.jami>0||o.c.pb>0;
+    if(fmsFilt==="pb")return o.c.pb>0;
+    return o.c[fmsFilt]>0;
+  });
+  const k=fmsFilt==="all"?"jami":fmsFilt==="pb"?"pb":fmsFilt;
+  rows.sort((a,b)=>b.c[k]-a.c[k]);
+  return rows;
 }
+function _fmsTotals(rows){
+  const T={b15:0,b30:0,b45:0,b60:0,jami:0,pb:0};
+  rows.forEach(o=>Object.keys(T).forEach(x=>T[x]+=o.c[x]));
+  return T;
+}
+function fmsSetFilter(k){fmsFilt=k;fmsRender();}
 function fmsRender(){
   if(!FMS)return;
-  const rows=_fmsRows(),tb=document.getElementById("fms-tbody");
+  const rows=_fmsRows(),T=_fmsTotals(rows),tb=document.getElementById("fms-tbody");
   if(!tb)return;
-  const jami=rows.reduce((s,f)=>s+f.balans,0);
   const cnt=document.getElementById("fm-cnt");
-  if(fmTab==="supplier"&&cnt)cnt.textContent=rows.length+" "+t("fm_ta_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(-jami)||"0")+" so'm";
+  if(fmTab==="supplier"&&cnt)cnt.textContent=rows.length+" "+t("fm_ta_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" so'm";
+  const kpiEl=document.getElementById("fms-kpi-row");
+  if(kpiEl){
+    const top=rows[0],topV=top?(top.c.jami||top.c.pb):0;
+    kpiEl.innerHTML=_fmKpiHtml([
+      {l:t("fm_kpi_cnt_s"),v:rows.length+"",c:"#534AB7"},
+      {l:t("fm_jami"),v:(fmt(T.jami)||"0")+" so'm",c:"#C0342F"},
+      {l:t("fm_kpi_top"),v:top?fmt(topV)+" so'm":FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
+    ]);
+  }
   let h="";
-  rows.forEach(function(f,i){
+  rows.forEach(function(o,i){
+    const f=o.f,c=o.c;
     h+='<tr class="fm-row">'
       +'<td class="fm-z">'+(i+1)+'</td>'
       +'<td><span class="fm-nm" title="'+esc(f.nom)+'">'+esc(f.nom)+'</span></td>'
       +'<td><span class="fm-tin">'+(esc(f.tin)||FM_DASH)+'</span></td>'
-      +'<td>'+(esc(f.tel)||FM_DASH)+'</td>'
-      +'<td>'+(esc(f.shartnoma)||FM_DASH)+'</td>'
-      +'<td class="fm-r fm-jm">'+_fmNum(-f.balans)+'</td></tr>';
+      +_fmDebtCell(c.b15)+_fmDebtCell(c.b30)+_fmDebtCell(c.b45)+_fmDebtCell(c.b60)+_fmDebtJmCell(c.jami)
+      +'<td class="fm-r'+(c.pb?" fm-pb":"")+'">'+(c.pb?_fmNum(c.pb):FM_DASH)+'</td></tr>';
   });
-  h+='<tr class="fm-tot"><td></td><td colspan="4">'+t("fm_jami")+'</td>'
-    +'<td class="fm-r fm-jm">'+(_fmNum(-jami)||"0")+'</td></tr>';
-  tb.innerHTML=h||'<tr><td colspan="6" style="text-align:center;padding:40px;color:#bbb">'+t("fm_bosh")+"</td></tr>";
+  h+='<tr class="fm-tot"><td></td><td>'+t("fm_jami")+'</td><td></td>'
+    +_fmDebtCell(T.b15)+_fmDebtCell(T.b30)+_fmDebtCell(T.b45)+_fmDebtCell(T.b60)+_fmDebtJmCell(T.jami)
+    +'<td class="fm-r fm-pb">'+(_fmNum(T.pb)||FM_DASH)+"</td></tr>";
+  tb.innerHTML=h||'<tr><td colspan="9" style="text-align:center;padding:40px;color:#bbb">'+t("fm_bosh")+"</td></tr>";
+  document.querySelectorAll("#fm-supplier-panel .fms-seg-btn").forEach(b=>b.classList.toggle("active",b.dataset.k===fmsFilt));
 }
 function fmsSearchInput(){const el=document.getElementById("fms-q");fmsQ=el?el.value:"";const c=document.getElementById("fms-clear");if(c)c.style.display=fmsQ?"block":"none";fmsRender();}
 function fmsClearSearch(){const el=document.getElementById("fms-q");if(el)el.value="";fmsQ="";const c=document.getElementById("fms-clear");if(c)c.style.display="none";fmsRender();}
 async function fmsExportXLSX(){
   await _ensureExcelJS();
   if(!FMS||typeof ExcelJS==="undefined")return;
-  const rows=_fmsRows(),jami=rows.reduce((s,f)=>s+f.balans,0);
+  const rows=_fmsRows(),T=_fmsTotals(rows);
   const wb=new ExcelJS.Workbook();
-  const ws=wb.addWorksheet(t("fm_tab_supplier"),{views:[{state:"frozen",ySplit:4}]});
-  ws.mergeCells("A1:F1");
-  ws.getCell("A1").value=t("fm_tab_supplier")+" — "+(FMS.bugun||"");
+  const ws=wb.addWorksheet(t("fm_tab_supplier"),{views:[{state:"frozen",ySplit:5}]});
+  ws.mergeCells("A1:I1");
+  ws.getCell("A1").value=t("fm_tab_supplier")+" — "+(FMS.bugun||"")+" ("+t("fm_aging_note")+")";
   ws.getCell("A1").font={bold:true,size:12,color:{argb:"FFFFFF"}};
   ws.getCell("A1").alignment={horizontal:"center",vertical:"middle"};
   ws.getCell("A1").fill={type:"pattern",pattern:"solid",fgColor:{argb:"534AB7"}};
   ws.getRow(1).height=22;
   ws.addRow([]);
-  ws.addRow(["#",t("fm_col_ta"),t("fm_col_stir"),t("fm_fact_tel"),t("fm_fact_shartnoma"),t("fm_jami")]);
-  ws.getRow(3).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"1D9E75"}};c.alignment={horizontal:"center",vertical:"middle",wrapText:true};});
-  rows.forEach(function(f,i){
-    const r=ws.addRow([i+1,f.nom,f.tin||"",f.tel||"",f.shartnoma||"",-f.balans]);
+  ws.addRow([]);
+  ws.addRow(["#",t("fm_col_ta"),t("fm_col_stir"),t("fm_b15"),t("fm_b30"),t("fm_b45"),t("fm_b60"),t("fm_jami"),t("fm_pb")]);
+  ws.getRow(4).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"1D9E75"}};c.alignment={horizontal:"center",vertical:"middle",wrapText:true};});
+  rows.forEach(function(o,i){
+    const r=ws.addRow([i+1,o.f.nom,o.f.tin||"",o.c.b15||null,o.c.b30||null,o.c.b45||null,o.c.b60||null,o.c.jami||null,o.c.pb||null]);
     r.getCell(2).alignment={horizontal:"left"};
-    r.getCell(6).numFmt="#,##0";r.getCell(6).alignment={horizontal:"right"};
+    for(let k=4;k<=9;k++){r.getCell(k).numFmt="#,##0";r.getCell(k).alignment={horizontal:"right"};}
   });
-  const tr=ws.addRow(["",t("fm_jami")+":","","","",-jami]);
+  const tr=ws.addRow(["",t("fm_jami")+":","",T.b15,T.b30,T.b45,T.b60,T.jami,T.pb]);
   tr.eachCell(c=>{c.font={bold:true};});
-  tr.getCell(6).numFmt="#,##0";tr.getCell(6).alignment={horizontal:"right"};
-  ws.columns=[{width:5},{width:42},{width:13},{width:15},{width:22},{width:16}];
+  for(let k=4;k<=9;k++){tr.getCell(k).numFmt="#,##0";tr.getCell(k).alignment={horizontal:"right"};}
+  ws.columns=[{width:5},{width:42},{width:13},{width:15},{width:15},{width:17},{width:17},{width:16},{width:14}];
   const buf=await wb.xlsx.writeBuffer();
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
