@@ -6382,11 +6382,16 @@ function _fmFitTable(){
   if(!tbl)return;
   const top=tbl.getBoundingClientRect().top;
   // Xaridorlar panelida jadvaldan KEYIN "qarz/oldindan to'lagan" legend qatori
-  // bor - shu balandlikni ham hisobga olish kerak, aks holda sahifa yana
-  // bir necha o'n piksel ortiqcha bo'lib, tashqi skroll paydo bo'ladi.
+  // bor - shu balandlikni ham hisobga olish kerak (marginlari bilan birga -
+  // getBoundingClientRect margin'ni hisobga olmaydi), aks holda sahifa kichik
+  // ekranlarda ortiqcha bo'lib, tashqi skroll paydo bo'ladi.
   const legend=wrap?wrap.querySelector(".fm-legend"):null;
-  const legendH=legend?legend.getBoundingClientRect().height:0;
-  tbl.style.maxHeight=Math.max(220,window.innerHeight-top-legendH-60)+"px";
+  let legendH=0;
+  if(legend){
+    const cs=getComputedStyle(legend);
+    legendH=legend.getBoundingClientRect().height+parseFloat(cs.marginTop||0)+parseFloat(cs.marginBottom||0);
+  }
+  tbl.style.maxHeight=Math.max(220,window.innerHeight-top-legendH-32)+"px";
 }
 window.addEventListener("resize",_fmFitTable);
 async function fmInit(){
