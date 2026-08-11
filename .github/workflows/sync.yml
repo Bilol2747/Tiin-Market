@@ -30,8 +30,15 @@ on:
       - "supplier_months_cache.json"
   # 2026-07-28 da vaqtincha o'chirilgan edi (saytda ish olib borilayotgani
   # uchun), 2026-08-04 da Bilol so'rovi bilan QAYTA YOQILDI.
+  # 2026-08-09: 30 daqiqada bir -> soatiga bir (Vercel deploy limiti uchun).
+  # 2026-08-10: kuniga 2 martaga tushirildi - Bilolning asl rejasiga mos:
+  # p1/p3/p6/p9/p10/p11 ("sekin qatlam") kuniga 2 marta yetarli, p2/p5/p7/p8
+  # ("tezkor qatlam") endi bu pipeline'ga BOG'LIQ EMAS - Vercel+Turso orqali
+  # to'g'ridan-to'g'ri jonli (backend/app.py). Vaqt Bilol tomonidan
+  # belgilandi: ertalab soat 9:00 va peshindan keyin 14:00 (Toshkent,
+  # UTC+5) = 04:00 va 09:00 UTC.
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "0 4,9 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -91,11 +98,42 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python -u fetch_clients.py
 
+      # Biz qarzdor bo'lgan ta'minotchilar (p11 "Firmalar" > "Ta'minotchilar"
+      # tab). Xaridor firmalar bilan bir xil ichki API oilasi (api/v1), lekin
+      # `suppliers` endpointi — shu sabab alohida skript. Bu qadam ham
+      # yiqilsa build to'xtamasin.
+      - name: Ta'minotchi qarzini yangilash
+        continue-on-error: true
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u fetch_supplier_debt.py
+
       - name: Butun saytni qayta qurish
         env:
           TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python build_all_from_api.py
+
+      # Yangi (Vercel) backend uchun: yuqoridagi qadam hisoblab chiqqan
+      # data_inv_new.json'dagi OG'IR maydonlarni (avg30sa/zabc/rcost/
+      # calcStock) Turso'ga e'lon qiladi - QAYTA HISOBLAMAYDI, faqat
+      # ko'chiradi. git'ga hech narsa push qilmaydi - Vercel deploy
+      # kvotasiga tegmaydi. Xato bo'lsa ham asosiy build davom etadi.
+      #
+      # 2026-08-10: bu qadam avval "faqat 00/06/12/18 UTC'da" deb cheklangan
+      # edi (chunki tashqi pipeline soatiga ishlardi). Endi tashqi pipeline
+      # o'zi kuniga 2 martaga tushirilgani uchun, bu ham HAR ishga tushishda
+      # (shart qo'shimcha kerak emas) ishlaydi - baribir kuniga atigi 2 marta
+      # chaqiriladi. Diff-asosli yozish (backend/publish_metrics.py)
+      # o'zgarmagan qatorlarni qayta yozmaydi - qo'shimcha kvota xavfi yo'q.
+      - name: Zakas ko'rsatkichlarini Vercel backend uchun Turso'ga e'lon qilish
+        continue-on-error: true
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u backend/publish_metrics.py
 
       - name: O'zgarishlarni commit+push qilish
         run: |
@@ -130,6 +168,13 @@ jobs:
         # qo'ygan bo'lsa, urinish shunchaki bekor bo'ladi (keyingi sync'da qayta
         # urinadi, 30 daqiqadan keyin) - hech narsa yo'qolmaydi.
         run: |
+          # 2026-08-09: avval squash kuniga faqat 1 marta (03:00 UTC)
+          # ishlagan - o'sha payt asosiy pipeline soatiga ishlar edi va har
+          # squash o'z Vercel deployini hosil qilib, kunlik limitni tez
+          # tugatardi. 2026-08-10: asosiy pipeline o'zi kuniga 2 martaga
+          # tushirilgani uchun (06:00/18:00 UTC), squash HAR ishga
+          # tushishda bajarilaveradi - jami kuniga atigi 2x2=4 ta deploy,
+          # hech qanday kvota xavfi yo'q.
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           CUR=$(git rev-parse HEAD)
