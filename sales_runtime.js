@@ -272,6 +272,12 @@ const I18N={
   fm_kpi_cnt_b:{uz:"Qarzdor firmalar",en:"Debtor firms",ru:"Фирмы-должники"},
   fm_kpi_cnt_s:{uz:"Qarzdor ta'minotchi",en:"Debtor suppliers",ru:"Поставщики-должники"},
   fm_kpi_top:{uz:"Eng katta qarzdor",en:"Biggest debtor",ru:"Крупнейший должник"},
+  fm_currency:{uz:"so'm",en:"UZS",ru:"сум"},
+  fm_unit_mlrd:{uz:"mlrd",en:"bn",ru:"млрд"},
+  fm_unit_mln:{uz:"mln",en:"mln",ru:"млн"},
+  fm_unit_ming:{uz:"ming",en:"K",ru:"тыс"},
+  fm_legend_debt:{uz:"qarz",en:"debt",ru:"долг"},
+  fm_legend_prepaid:{uz:"oldindan to'lagan",en:"prepaid",ru:"предоплата"},
   fm_aging_note:{uz:"* Kunlik guruhlash taxminiy — Invan aniq to'lov sanasini bermaydi, bizning kirim tarixi asosida hisoblangan",en:"* Day grouping is an estimate — Invan doesn't provide exact payment dates, calculated from our delivery history",ru:"* Разбивка по дням приблизительна — Invan не даёт точных дат оплаты, расчёт по нашей истории поставок"},
   fm_firma_cnt:{uz:"firma",en:"firms",ru:"фирм"},
   fm_chek:{uz:"chek",en:"receipts",ru:"чеков"},
@@ -764,6 +770,7 @@ function setLang(lang){
   }
   if(curPageId==="p_nazorat"&&typeof _nazRender==="function")_nazRender();
   if(curPageId==="p9"&&typeof oaCompute==="function"&&OA_SNAP)oaCompute();
+  if(curPageId==="p11"){if(fmTab==="supplier"&&typeof fmsRender==="function"&&FMS)fmsRender();else if(typeof fmRender==="function"&&FM)fmRender();}
 }
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(el=>{el.textContent=t(el.dataset.i18n);});
@@ -6343,6 +6350,16 @@ function _fmDebtJmCell(v){
   if(!v)return '<td class="fm-r fm-jm">'+FM_DASH+"</td>";
   return v>0?'<td class="fm-r fm-jm">-'+_fmNum(v)+"</td>":'<td class="fm-r fm-jm" style="color:#1D9E75">+'+_fmNum(-v)+"</td>";
 }
+// KPI kartochkalari uchun til-moslashuvchan summa formati (global fmt() dan
+// farqli - fmt() boshqa ko'p joyda "mlrd/mln/UZS" hardcoded holda ishlatiladi,
+// uni o'zgartirish butun saytga ta'sir qilardi, shuning uchun bu yerga alohida).
+function _fmKpiMoney(n){
+  const s=t("fm_currency"),a=Math.abs(n||0);
+  if(a>=1e9)return(n/1e9).toFixed(2)+" "+t("fm_unit_mlrd")+" "+s;
+  if(a>=1e6)return(n/1e6).toFixed(1)+" "+t("fm_unit_mln")+" "+s;
+  if(a>=1e3)return Math.round(n/1e3)+" "+t("fm_unit_ming")+" "+s;
+  return Math.round(n||0)+" "+s;
+}
 // Ixcham KPI kartochkalari (jadval balandligiga deyarli ta'sir qilmasin uchun kichik) — [{l,v,s,c}]
 function _fmKpiHtml(tiles){
   return tiles.map(x=>'<div class="fm-kpi" style="--c:'+x.c+'"><div class="fm-kpi-l">'+esc(x.l)+'</div>'
@@ -6434,14 +6451,14 @@ function fmRender(){
   const rows=_fmRows(),T=_fmTotals(rows),tb=document.getElementById("fm-tbody");
   if(!tb)return;
   const cnt=document.getElementById("fm-cnt");
-  if(fmTab==="buyer"&&cnt)cnt.textContent=rows.length+" "+t("fm_firma_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" so'm";
+  if(fmTab==="buyer"&&cnt)cnt.textContent=rows.length+" "+t("fm_firma_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" "+t("fm_currency");
   const kpiEl=document.getElementById("fm-kpi-row");
   if(kpiEl){
     const top=rows[0],topV=top?(top.c.jami||top.c.pb):0;
     kpiEl.innerHTML=_fmKpiHtml([
       {l:t("fm_kpi_cnt_b"),v:rows.length+"",c:"#534AB7"},
-      {l:t("fm_jami"),v:(fmt(T.jami)||"0")+" so'm",c:"#C0342F"},
-      {l:t("fm_kpi_top"),v:top?fmt(topV)+" so'm":FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
+      {l:t("fm_jami"),v:_fmKpiMoney(T.jami),c:"#C0342F"},
+      {l:t("fm_kpi_top"),v:top?_fmKpiMoney(topV):FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
     ]);
   }
   let h="";
@@ -6613,14 +6630,14 @@ function fmsRender(){
   const rows=_fmsRows(),T=_fmsTotals(rows),tb=document.getElementById("fms-tbody");
   if(!tb)return;
   const cnt=document.getElementById("fm-cnt");
-  if(fmTab==="supplier"&&cnt)cnt.textContent=rows.length+" "+t("fm_ta_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" so'm";
+  if(fmTab==="supplier"&&cnt)cnt.textContent=rows.length+" "+t("fm_ta_cnt")+" · "+t("fm_jami").toLowerCase()+" "+(_fmNum(T.jami)||"0")+" "+t("fm_currency");
   const kpiEl=document.getElementById("fms-kpi-row");
   if(kpiEl){
     const top=rows[0],topV=top?(top.c.jami||top.c.pb):0;
     kpiEl.innerHTML=_fmKpiHtml([
       {l:t("fm_kpi_cnt_s"),v:rows.length+"",c:"#534AB7"},
-      {l:t("fm_jami"),v:(fmt(T.jami)||"0")+" so'm",c:"#C0342F"},
-      {l:t("fm_kpi_top"),v:top?fmt(topV)+" so'm":FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
+      {l:t("fm_jami"),v:_fmKpiMoney(T.jami),c:"#C0342F"},
+      {l:t("fm_kpi_top"),v:top?_fmKpiMoney(topV):FM_DASH,s:top?top.f.nom:"",c:"#EF9F27"}
     ]);
   }
   let h="";
