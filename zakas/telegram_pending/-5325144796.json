@@ -1,0 +1,79 @@
+{
+ "createdAt": "2026-08-11T09:09:38.820Z",
+ "srcFile": "-5325144796_1047_zakas_ООО_BIZNES_AZIYA_Laimon_Fresh_Ессентуки_2026_08_10.xlsx",
+ "supplierId": "a48cadde-11e1-4398-9ade-055e42b930eb",
+ "supplierLabel": "ООО BIZNES AZIYA (Laimon Fresh/Ессентуки)",
+ "items": [
+  {
+   "name": "LAIMON FRESH, 330ML CAN",
+   "barcode": "4620001311231",
+   "qty": 108,
+   "price": 7840,
+   "status": "aktiv",
+   "sku": "311231",
+   "id": "83fd331d-1d87-4574-94d9-c67b1c7e70ec",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Вода лечебная Ессентуки 4 минеральная с/б 0.45л",
+   "barcode": "4607018771821",
+   "qty": 60,
+   "price": 11368,
+   "status": "aktiv",
+   "sku": "2879996",
+   "id": "d66012a4-799f-4a88-bc83-3c54484373c4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "LAIMON FRESH, Ризовор мевали 330ML CAN",
+   "barcode": "4630065251916",
+   "qty": 60,
+   "price": 7840,
+   "status": "aktiv",
+   "sku": "251916",
+   "id": "60826339-e839-4b59-86f1-9cdeab464a32",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "LAIMON FRESH, 0,5L PET",
+   "barcode": "4620001317080",
+   "qty": 60,
+   "price": 8820,
+   "status": "aktiv",
+   "sku": "317080",
+   "id": "708ff77b-864c-426f-976e-40b6596752c0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Вода минеральная Ессентуки №4 ПЭТ бутилка 1,0 л",
+   "barcode": "4607018771647",
+   "qty": 30,
+   "price": 12936,
+   "status": "aktiv",
+   "sku": "30838",
+   "id": "02a78294-b39e-46ac-94b4-d17f915e45f1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Jermuk, Шиша бутилка 0,5 л",
+   "barcode": "4850013000162",
+   "qty": 24,
+   "price": 12250,
+   "status": "aktiv",
+   "sku": "000162",
+   "id": "d78ee41d-4d5b-4443-ac7d-d08fc99391ed",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Laimon Fresh 900ml PET",
+   "barcode": "4630065255969",
+   "qty": 24,
+   "price": 14700,
+   "status": "aktiv",
+   "sku": "255969",
+   "id": "57ba2d4b-874c-4531-949c-c7a07a28095a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 3563280
+}
