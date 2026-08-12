@@ -1,0 +1,99 @@
+{
+ "createdAt": "2026-08-12T06:29:09.661Z",
+ "srcFile": "-5325144796_1067_211 Накладные 2.1.1(11-08-2026).xlsx",
+ "supplierId": "a5f7ed8d-a1f8-436e-b73e-a67c09c5367f",
+ "supplierLabel": "Kreker Belogorie (Pechenie) ( SUPREME SWEETS )(Filial: OOO Moskovskiy)",
+ "items": [
+  {
+   "name": "Ichimlik Квас Лидский 500ml",
+   "barcode": "4810285011327",
+   "qty": 48,
+   "price": 16600,
+   "status": "aktiv",
+   "sku": "46169",
+   "id": "5b1ab777-cfe5-4793-94f1-220438411866",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Non Kvasi Квас Лидский 500ml",
+   "barcode": "4810285012027",
+   "qty": 48,
+   "price": 16600,
+   "status": "aktiv",
+   "sku": "46168",
+   "id": "b823a725-1261-4499-ab0d-24c9901287d8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kvas Квас Лидский Non 1l",
+   "barcode": "4810285008402",
+   "qty": 12,
+   "price": 35000,
+   "status": "aktiv",
+   "sku": "9368",
+   "id": "ce0e331b-9f97-4105-a729-1a2f0077f26a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Izdeliya xlebobulochniy baranochnie sushki lyubitel'skie s sol'yu kg",
+   "barcode": "4620767132262",
+   "qty": 3,
+   "price": 196000,
+   "status": "aktiv",
+   "sku": "6365",
+   "id": "58ce14dd-b0ff-4f46-b266-00c848cb0f4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Izdeliya xlebobulochniy baranochnie sushki lyubitel'skie mini s makom kg",
+   "barcode": "4620767130671",
+   "qty": 3,
+   "price": 168000,
+   "status": "aktiv",
+   "sku": "6366",
+   "id": "e1a04342-c9c7-42d7-a167-4c13c5fd5218",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Izdeliya xlebobulochniy baranochnie sushki lyubitel'skie s kunjutom kg",
+   "barcode": "4620767135287",
+   "qty": 3,
+   "price": 168000,
+   "status": "aktiv",
+   "sku": "6368",
+   "id": "4d3d6519-00ae-4305-aeb6-3c1a8c51e14c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Izdeliya xlebobulochniy baranochnie sushki lyubitel'skie mini kg",
+   "barcode": "4620767132774",
+   "qty": 3,
+   "price": 196000,
+   "status": "aktiv",
+   "sku": "6369",
+   "id": "97f8c3da-d87f-4fc9-a3af-cad3735d1a67",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крекер Белогорье Кристо-Твисто Вкусный Улов кг",
+   "barcode": "4602292009011",
+   "qty": 3,
+   "price": 209250,
+   "status": "aktiv",
+   "sku": "4733",
+   "id": "9907b32a-c7b9-46ce-8b20-3f88c8519da0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "TM Vibor Lakomki VOT i YA 3kg",
+   "barcode": "4600795025774",
+   "qty": 3,
+   "price": 175500,
+   "status": "noaktiv",
+   "sku": "11004",
+   "id": "b6c293d8-e8e6-4f2e-a63e-e3e1c6bcf65f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 11152350
+}
