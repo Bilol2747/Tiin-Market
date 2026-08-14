@@ -14,6 +14,7 @@ Ishga tushirish (lokal):
 Barcha endpoint'lar `/api/v1` ostida — `sales_api_client.js` allaqachon shu
 manzilni kutadi (DEFAULT_BASE = "/api/v1").
 """
+import json
 import os
 import sys
 from datetime import date, timedelta
@@ -452,10 +453,76 @@ def dailydata(request: Request):
     return _pipe_raw("dailydata", request)
 
 
+_INVDATA_CACHE_TTL = 300   # sekund (2026-08-12: 30s -> 120s -> 300s, "qotish"
+                            # shikoyati sabab. Invan'dan Turso'ga sinxronizatsiya
+                            # o'zi ~1 daqiqada ishlaydi (cron), bu esa faqat
+                            # TAYYOR javobni qancha ushlab turishni belgilaydi -
+                            # eng yomon holatda ma'lumot 5 daqiqagacha eski.)
+_invdata_cache = {"at": 0.0, "raw": None, "gz": None}
+
+
+def _live_invdata():
+    """`invdata`ni JONLI quradi — Turso'ga umuman murojaat qilmay, Invan
+    API'dan TO'G'RIDAN-TO'G'RI (2026-08-14: Turso yozish kvotasi uch marta
+    tugab, stok/narx soatlab eskirib qolgani sabab; Zakas va Mahsulotlar
+    orasidagi son farqi shundan kelib chiqqan edi).
+
+    IKKI QATLAM birlashtiriladi:
+      * ARZON (shu yerda, so'rov paytida): stok/narx/ta'minotchi/kategoriya —
+        `build_invdata()` (backend_p5_stock.py, o'zgarishsiz) orqali,
+        `products_from_invan()` (pipeline_adapter.py, Invan `/products`dan
+        parallel sahifalab, ~15-20s) + Turso'dagi `arrivals` (kirim tarixi,
+        hali ko'chirilmagan — faqat o'qish, kvotaga ta'sir qilmaydi).
+      * OG'IR (oldindan hisoblangan): avg30sa/zabc/rcost/calcStock va h.k. —
+        `sku_metrics` jadvalidan (backend/publish_metrics.py GitHub Actions'da
+        kuniga bir necha marta yozadi, `backend/KODLAR_XARITASI.md`ga qarang).
+
+    Natija shakli eski `data_inv_new.json`/pipe'dagi `invdata` bilan AYNAN
+    bir xil — frontend farqni sezmaydi, faqat OG'IR maydonlar oxirgi
+    e'londan beri biroz eskirgan bo'lishi mumkin (bir necha soat), stok/narx
+    esa har doim joriy (Invan'dan to'g'ridan-to'g'ri)."""
+    from backend_p5_stock import build_invdata
+    from .pipeline_runner import _arrivals_map
+    from .pipeline_adapter import products_from_invan
+
+    con = db.ro()
+    inv = build_invdata(products_from_invan(), _arrivals_map(con))
+    metrics = {r["sku"]: r["data"] for r in db.rows("SELECT sku, data FROM sku_metrics")}
+    for entry in inv.values():
+        raw = metrics.get(entry.get("sku"))
+        if raw:
+            entry.update(json.loads(raw))
+    return inv
+
+
 @app.get("/api/v1/invdata")
 def invdata(request: Request):
     """Zaxira/Zakas uchun asosiy tuzilma — `build_invdata()` chiqishi.
     Frontend shundan `ZITEMS` quradi va zakasni O'ZI hisoblaydi."""
+    if db.USE_TURSO:
+        # DIQQAT: oddiy `return {...}` FastAPI'ning standart (Pydantic
+        # asosidagi) kodlash yo'lidan o'tadi — 22k+ yozuvli katta lug'at
+        # uchun bu SEKIN (sinovda: jonli saytda ~11s). Qo'lda json.dumps +
+        # gzip esa tezroq. Ustiga qisqa (30s) xotira keshi qo'shilgan —
+        # Vercel Fluid Compute funksiyani "issiq" saqlagani uchun, bir necha
+        # soniya ichida qayta ochilgan sahifalar Turso'ga umuman murojaat
+        # qilmaydi (sinovda: ~4-6s -> ~10-20ms). 30s — stok/narx uchun
+        # "jonli" his qilinadigan darajada qisqa, lekin har so'rovda qayta
+        # hisoblashning oldini oladi.
+        import gzip as _gzip
+        import time as _time
+        now = _time.time()
+        if _invdata_cache["raw"] is None or (now - _invdata_cache["at"]) > _INVDATA_CACHE_TTL:
+            inv = _live_invdata()
+            raw = json.dumps(inv, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            _invdata_cache["raw"] = raw
+            _invdata_cache["gz"] = _gzip.compress(raw, compresslevel=6)
+            _invdata_cache["at"] = now
+        accepts_gzip = "gzip" in request.headers.get("accept-encoding", "").lower()
+        if accepts_gzip:
+            return Response(content=_invdata_cache["gz"], media_type="application/json",
+                             headers={"Content-Encoding": "gzip"})
+        return Response(content=_invdata_cache["raw"], media_type="application/json")
     return _pipe_raw("invdata", request)
 
 
@@ -463,6 +530,22 @@ def invdata(request: Request):
 def supplierdata(request: Request):
     """Ta'minotchilar — `build_supplierdata()` chiqishi, o'zgarishsiz."""
     return _pipe_raw("supplierdata", request)
+
+
+_KIRIM_CACHE_TTL = 300   # sekund — /api/v1/invdata'dagi bilan bir xil naqsh/sabab
+_kirim_cache = {"at": 0.0, "raw": None, "gz": None, "dict": None}
+
+
+def _live_kirimdata():
+    """`kirimdata`ni JONLI quradi — Invan `/supplier_order`dan TO'G'RIDAN-TO'G'RI
+    (`supplier_orders_from_invan()`, pipeline_adapter.py, so'nggi 120 kun) +
+    `build_kirimdata()` (backend_p8_kirim.py, O'ZGARISHSIZ). `_live_invdata()`
+    bilan bir xil g'oya/sabab: Turso yozish kvotasi tugashi P8 (Zakas/Kirim/
+    Ta'minotchilar) ma'lumotini soatlab eskirtirib qo'ymasligi kerak."""
+    from .pipeline_adapter import supplier_orders_from_invan
+    from backend_p8_kirim import build_kirimdata
+
+    return build_kirimdata(supplier_orders_from_invan())
 
 
 @app.get("/api/v1/kirimdata")
@@ -474,6 +557,29 @@ def kirimdata(request: Request, sku: str | None = None):
     tarmoqqa 4.8 MB ketadi. Zakas uchun yetarli qisqa variant —
     /api/v1/kirimdata/summary (1.6 MB), `?sku=` bilan bitta tovar ham mumkin.
     """
+    if db.USE_TURSO:
+        import gzip as _gzip
+        import time as _time
+        now = _time.time()
+        # DIQQAT (2026-08-14): `sku` filtri ilgari HAR SAFAR `_live_kirimdata()`ni
+        # noldan qayta hisoblardi (kesh butunlay chetlab o'tilardi) — bu aynan
+        # "mahsulot detali ochish sekin" shikoyatining sababi edi. Endi ikkalasi
+        # ham BITTA 5-daqiqalik keshni ishlatadi.
+        if _kirim_cache["dict"] is None or (now - _kirim_cache["at"]) > _KIRIM_CACHE_TTL:
+            d = _live_kirimdata()
+            _kirim_cache["dict"] = d
+            raw = json.dumps(d, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            _kirim_cache["raw"] = raw
+            _kirim_cache["gz"] = _gzip.compress(raw, compresslevel=6)
+            _kirim_cache["at"] = now
+        if sku:
+            d = _kirim_cache["dict"]
+            return {"skus": {sku: d.get("skus", {}).get(str(sku), {})}}
+        accepts_gzip = "gzip" in request.headers.get("accept-encoding", "").lower()
+        if accepts_gzip:
+            return Response(content=_kirim_cache["gz"], media_type="application/json",
+                             headers={"Content-Encoding": "gzip"})
+        return Response(content=_kirim_cache["raw"], media_type="application/json")
     if sku:
         d = _pipe("kirimdata")
         return {"skus": {sku: d.get("skus", {}).get(str(sku), {})}}
@@ -607,8 +713,64 @@ def internal_sync(
         raise HTTPException(500, "INVAN_API_TOKEN muhit o'zgaruvchisi sozlanmagan")
 
     con = db.rw()
-    n = run_once(con, token, with_catalog=catalog, with_kirim=kirim, verbose=False)
+    try:
+        n = run_once(con, token, with_catalog=catalog, with_kirim=kirim, verbose=False)
+    except Exception as exc:  # 2026-08-11: vaqtincha diagnostika uchun -
+        # SYNC_SECRET bilan himoyalangan, shuning uchun xato tafsilotini
+        # ochib qo'yish xavfsiz (faqat bizga ko'rinadi).
+        import traceback
+        return JSONResponse(status_code=500, content={
+            "ok": False,
+            "error_type": exc.__class__.__name__,
+            "error": str(exc),
+            "traceback": traceback.format_exc(),
+        })
+
     return {"ok": True, "synced_receipts": n, "catalog": catalog, "kirim": kirim}
+
+
+@app.post("/api/v1/_internal/warm")
+def internal_warm(secret: str = Query(...)):
+    """ALOHIDA, YENGIL endpoint — faqat invdata/kirimdata (Invan-to'g'ridan-
+    to'g'ri) keshini oldindan to'ldiradi, Turso'ga umuman yozmaydi.
+
+    2026-08-14: ATAYLAB `_internal/sync`ga QO'SHILMADI — o'sha endpoint
+    allaqachon (Turso katalog/kirim sinxronizatsiyasida) og'ir, ikkalasini
+    bitta so'rovda qilish Vercel'ning 60s chegarasidan oshib ketish xavfini
+    tug'dirardi. Bu — ixtiyoriy: cron-job.org'da alohida (masalan 4 daqiqada
+    bir, 300s keshdan oldinroq) vazifa sifatida qo'shilishi mumkin — lekin
+    shart emas, chunki /invdata va /kirimdata o'zi ham kesh eskirganda
+    so'rov paytida (sekinroq, ~20-40s) hisoblab beradi."""
+    expected = os.environ.get("SYNC_SECRET", "").strip()
+    if not expected or secret != expected:
+        raise HTTPException(403, "ruxsat yo'q")
+
+    import time as _time
+    import gzip as _gzip
+    now = _time.time()
+    warm = {}
+    if now - _invdata_cache["at"] > _INVDATA_CACHE_TTL:
+        try:
+            inv = _live_invdata()
+            raw = json.dumps(inv, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            _invdata_cache.update(raw=raw, gz=_gzip.compress(raw, compresslevel=6), at=now)
+            warm["invdata"] = "ok"
+        except Exception as exc:
+            warm["invdata"] = f"{exc.__class__.__name__}: {exc}"
+    else:
+        warm["invdata"] = "skip (hali eskirmagan)"
+    if now - _kirim_cache["at"] > _KIRIM_CACHE_TTL:
+        try:
+            d = _live_kirimdata()
+            _kirim_cache["dict"] = d
+            raw = json.dumps(d, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+            _kirim_cache.update(raw=raw, gz=_gzip.compress(raw, compresslevel=6), at=now)
+            warm["kirimdata"] = "ok"
+        except Exception as exc:
+            warm["kirimdata"] = f"{exc.__class__.__name__}: {exc}"
+    else:
+        warm["kirimdata"] = "skip (hali eskirmagan)"
+    return {"ok": True, "warm": warm}
 
 
 @app.get("/api/v1/stock")
