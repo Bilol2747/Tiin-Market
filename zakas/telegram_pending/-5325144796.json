@@ -1,0 +1,139 @@
+{
+ "createdAt": "2026-08-14T10:33:55.121Z",
+ "srcFile": "-5325144796_1116_Накладная+2012(14.08.2026+15_14_08).xlsx",
+ "supplierId": "3781ac76-b942-4cd8-b98a-af43a9b92765",
+ "supplierLabel": "''COSMO WORLD'' MCHJ",
+ "items": [
+  {
+   "name": "Havo Spreyi Symphony ''Симфония Антитабак''300ml",
+   "barcode": "4600104028984",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "26770",
+   "id": "44781d85-9021-413c-920f-7fc978a6030c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Symphony Bahorgi 300ml",
+   "barcode": "4600104032295",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "2878057",
+   "id": "08ed86e5-e728-4577-a329-44aac0ce3690",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Symphony nilufar havo tozalagichi 300ml",
+   "barcode": "4600104028977",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "26772",
+   "id": "55d0965d-c6f9-4a51-8ea2-732111b571af",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Symphony''Морской бриз'' 300ml",
+   "barcode": "4600104028991",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "26773",
+   "id": "1579c985-fee0-4c00-89f3-3a02c39a622e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Symphony olmali havo tozalagichi 300ml",
+   "barcode": "4600104030321",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "26752",
+   "id": "f0b7ae55-6d5e-4b20-b23b-2af40f42a325",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Havo Spreyi Symphony Olcha 300ml",
+   "barcode": "4660222726926",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "7679",
+   "id": "0848db86-421c-40f6-a43f-5133f33d209e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Symphony jasmin havo tozalovchisi 300ml",
+   "barcode": "4660222726643",
+   "qty": 12,
+   "price": 14820,
+   "status": "aktiv",
+   "sku": "7680",
+   "id": "1fa9b45a-d197-416b-b436-91ca2ad813d2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь Прелесть Professional 380мл",
+   "barcode": "4600104035036",
+   "qty": 12,
+   "price": 27645,
+   "status": "aktiv",
+   "sku": "49725",
+   "id": "76994df3-bbf5-4a68-acb4-c8b5753c2bb5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Полироль Mebelux для любых поверхностей 500мл",
+   "barcode": "4600104032356",
+   "qty": 24,
+   "price": 25650,
+   "status": "aktiv",
+   "sku": "16517",
+   "id": "35aedd56-bd00-4ac8-907c-8a5e98b114ab",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Полироль для мебели Mebelux очищает без разводов 300мл",
+   "barcode": "4606682000701",
+   "qty": 24,
+   "price": 30590,
+   "status": "aktiv",
+   "sku": "16516",
+   "id": "ff32c900-2a0e-449e-bc12-92860cbe21f0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Peros matik color canli renkler 3kg",
+   "barcode": "8697713831742",
+   "qty": 6,
+   "price": 66108,
+   "status": "aktiv",
+   "sku": "286825",
+   "id": "196d3a5d-945a-4660-b5b0-6d38696ef88c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Asperox Magic Yellow Universal 1l",
+   "barcode": "8697713836068",
+   "qty": 12,
+   "price": 39520,
+   "status": "aktiv",
+   "sku": "13830",
+   "id": "f2628e67-8033-476e-9661-5965e9f7d2dc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sorti для мытья посуды Лимон 900 мл",
+   "barcode": "4604049095520",
+   "qty": 24,
+   "price": 21470,
+   "status": "aktiv",
+   "sku": "2878728",
+   "id": "729113f5-3301-4a96-9dc0-7a6522f84151",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 9469148
+}
