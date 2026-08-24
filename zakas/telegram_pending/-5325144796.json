@@ -1,0 +1,149 @@
+{
+ "createdAt": "2026-08-24T08:24:30.773Z",
+ "srcFile": "-5325144796_1316_Якс Зелений Чай заказ 11.xlsx",
+ "supplierId": "0d629e0d-adb3-482e-92b4-ffadf00b3311",
+ "supplierLabel": "MCHJ YAKS-ZELYONIY CHAY PRODUCTS",
+ "items": [
+  {
+   "name": "Пена Puffix 350 гр + 50 гр бонус Fashion Мария аромата",
+   "barcode": "4780072990060",
+   "qty": 12,
+   "price": 13580,
+   "status": "aktiv",
+   "sku": "33535",
+   "id": "a409d76d-0570-404c-b103-607058f6a793",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пена Puffix 350 гр + 50 гр бонус Лимон",
+   "barcode": "4780035401572",
+   "qty": 12,
+   "price": 13580,
+   "status": "aktiv",
+   "sku": "3996",
+   "id": "fbecad4a-3f02-4d58-b8c9-f18a1680bba8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пена Puffix 350 гр + 50 гр бонус АНТИБАКТЕРИАЛЬНОЕ",
+   "barcode": "4780072990268",
+   "qty": 12,
+   "price": 13580,
+   "status": "aktiv",
+   "sku": "3997",
+   "id": "901f4764-180d-427f-82ea-92f89a1b2944",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suyuq Idish Yuvish Geli Зелёный чай 500ml",
+   "barcode": "4780079820452",
+   "qty": 12,
+   "price": 7904,
+   "status": "aktiv",
+   "sku": "7235",
+   "id": "5b24173e-c971-44a5-8818-0fed9cedd602",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "С.пор 3/Н - 250 гр ручной Белая роза",
+   "barcode": "4780130230190",
+   "qty": 20,
+   "price": 5880,
+   "status": "aktiv",
+   "sku": "20476",
+   "id": "8cbfa514-437a-4b5d-beb9-8337c2d4d4bb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Chistol Zel. chay Olma 800gr",
+   "barcode": "4780035402425",
+   "qty": 12,
+   "price": 11760,
+   "status": "aktiv",
+   "sku": "25555",
+   "id": "9271a9a5-ec12-48b6-af74-5102f9a52897",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистоль 3/Н НОВЫЙ (12) Свежесть лугов 400 гр",
+   "barcode": "4780035400490",
+   "qty": 12,
+   "price": 7700,
+   "status": "aktiv",
+   "sku": "38046",
+   "id": "89ee3fe1-adb6-4670-91ea-75d02d9c902f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Зелёный чай 400gr",
+   "barcode": "4780035400544",
+   "qty": 12,
+   "price": 7700,
+   "status": "aktiv",
+   "sku": "38047",
+   "id": "7186557e-eb53-4932-a8cd-34078ea1aa6f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Зелёный чай Total 400gr",
+   "barcode": "4780010370596",
+   "qty": 12,
+   "price": 7700,
+   "status": "aktiv",
+   "sku": "2875290",
+   "id": "26659b58-29e4-4b7b-8a9c-7449aa8bd89e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Zelyoniy chay poroshok avtomat 900gr belya roza",
+   "barcode": "4780085300344",
+   "qty": 10,
+   "price": 23408,
+   "status": "aktiv",
+   "sku": "285671",
+   "id": "587e237b-d088-40a6-bd7c-05f9e63623a7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Zel. chay chistol 800gr limon big",
+   "barcode": "4780035402449",
+   "qty": 12,
+   "price": 11760,
+   "status": "aktiv",
+   "sku": "2952",
+   "id": "a403b044-0117-48d3-865f-6d311065efa3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "С.пор 3/Н - 250 гр автомат Лимон",
+   "barcode": "4780056840015",
+   "qty": 20,
+   "price": 8260,
+   "status": "aktiv",
+   "sku": "2109",
+   "id": "56e9630b-516d-4c67-9d2f-fa7e5b9e620f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистоль 3/Н НОВЫЙ (12) Яблоко 400 гр",
+   "barcode": "4780035401404",
+   "qty": 12,
+   "price": 7700,
+   "status": "aktiv",
+   "sku": "19186",
+   "id": "02bf9470-7cbd-4ac6-8b85-c20b83df2cb1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Zel. chay ruch. poroshok 900gr limon",
+   "barcode": "4780056840268",
+   "qty": 10,
+   "price": 16912,
+   "status": "aktiv",
+   "sku": "4107",
+   "id": "1ac43e0d-504e-4a28-9791-a54dd0045ea2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 1921568
+}
