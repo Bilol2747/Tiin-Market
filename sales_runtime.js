@@ -4523,7 +4523,7 @@ function renderP2(idx){
       ?arrivals.map(a=>{
         const notReceived=a.status&&a.status!=="Received";
         const badge=notReceived?' <span class="'+krStatusBadgeCls(a.status)+'" style="font-size:9px;padding:2px 7px;margin-left:4px;vertical-align:1px">'+esc(a.status)+'</span>':'';
-        return '<div class="prod-row"><div class="pname">'+krFmtDate(a.date)+' — '+esc(a.supplier||"")+badge+'</div><div class="ppct" style="color:#1D9E75">'+(a.qty||0).toLocaleString()+'</div></div>';
+        return '<div class="prod-row"><div class="pname" title="'+esc(a.supplier||"")+'">'+krFmtDate(a.date)+' — '+esc(a.supplier||"")+badge+'</div><div class="ppct" style="color:#1D9E75">'+(a.qty||0).toLocaleString()+'</div></div>';
       }).join("")
       :'<div class="empty"><div class="empty-txt">Kirim tarixi topilmadi</div></div>';
 
@@ -6174,7 +6174,7 @@ function krOpenDetail(i){
   let ov=document.getElementById("kr-fullscreen");
   if(!ov){ov=document.createElement("div");ov.id="kr-fullscreen";p8el.appendChild(ov);}
   const arrivals=[...entry.arrivals].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td>${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
+  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td title="${esc(a.supplier)}">${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
   ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
     <button onclick="krCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
