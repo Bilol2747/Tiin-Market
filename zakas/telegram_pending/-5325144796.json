@@ -1,0 +1,69 @@
+{
+ "createdAt": "2026-08-24T10:15:23.484Z",
+ "srcFile": "-5325144796_1324_Заказ клиента (2).xlsx",
+ "supplierId": "ba0446d1-a800-4b74-a40f-c621f3694dc1",
+ "supplierLabel": "United distribution (ushastiy nyan bella symphony)",
+ "items": [
+  {
+   "name": "Чистящее средство Sanita Gold Жироудалитель мгновенного действия 500мл",
+   "barcode": "4602984017294",
+   "qty": 15,
+   "price": 32450,
+   "status": "aktiv",
+   "sku": "31427",
+   "id": "f30d4cd0-2430-44b6-b560-88c4abff7c39",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Sanita Антижир 500ml",
+   "barcode": "4602984004393",
+   "qty": 15,
+   "price": 24650,
+   "status": "aktiv",
+   "sku": "25520",
+   "id": "12eb4cb7-a458-4ccc-b08a-26284f0bbe16",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Средство Sanita для Удаления Жира Казан-Мангал 500мл",
+   "barcode": "4602984015542",
+   "qty": 15,
+   "price": 25775,
+   "status": "aktiv",
+   "sku": "26765",
+   "id": "da2098ea-697d-4f8f-b1fb-60781c14fc62",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящее Средство ЧисТин Универсальное 400гр",
+   "barcode": "4602984000425",
+   "qty": 40,
+   "price": 8450,
+   "status": "aktiv",
+   "sku": "2875997",
+   "id": "998cb7cb-2b93-456c-b6c8-b0029571d229",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистин Limonli tozalash vositasi 400gr",
+   "barcode": "4602984002795",
+   "qty": 40,
+   "price": 8450,
+   "status": "aktiv",
+   "sku": "2875998",
+   "id": "51ce7275-463d-4009-ac13-fabd8e8bf19a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Чистин Olma 400gr",
+   "barcode": "4602984002788",
+   "qty": 40,
+   "price": 8450,
+   "status": "aktiv",
+   "sku": "2875999",
+   "id": "7c4092c0-06c9-4297-974a-6e397abb473c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 2764125
+}
