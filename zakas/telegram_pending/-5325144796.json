@@ -1,0 +1,39 @@
+{
+ "createdAt": "2026-08-24T11:42:27.218Z",
+ "srcFile": "-5325144796_1333_zakas_''IMPORT_HDD''_MCHJ_Вода_Kelechek_2026_08_24.xlsx",
+ "supplierId": "11461558-24c5-4321-b8a3-c6fbfd988807",
+ "supplierLabel": "''IMPORT HDD'' MCHJ (Вода Kelechek)",
+ "items": [
+  {
+   "name": "Kelechek Gazli 1l пэт",
+   "barcode": "4700000310395",
+   "qty": 81,
+   "price": 9112,
+   "status": "aktiv",
+   "sku": "45223",
+   "id": "8cd7853b-2350-4b0b-abfe-3eed23cd5b44",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kelechek Gazli 500ml",
+   "barcode": "4700000310036",
+   "qty": 48,
+   "price": 4166,
+   "status": "aktiv",
+   "sku": "45222",
+   "id": "4ba49d89-3100-402b-a299-b42fa28ae97f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kelechek Gazli 450ml стекло",
+   "barcode": "4700000310142",
+   "qty": 48,
+   "price": 10000,
+   "status": "aktiv",
+   "sku": "2608",
+   "id": "892ac3db-6c9a-44b2-9c19-0de8c909a6a1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 1418040
+}
