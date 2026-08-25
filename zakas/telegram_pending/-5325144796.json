@@ -1,0 +1,89 @@
+{
+ "createdAt": "2026-08-25T04:26:23.810Z",
+ "srcFile": "-5325144796_1352_Счет-фактура-с-НДС(24.08.2026+23_24_54).xlsx",
+ "supplierId": "ffd225da-452a-4dba-911c-7ec809474abd",
+ "supplierLabel": "Green Line Trading (roshen)",
+ "items": [
+  {
+   "name": "Pechenye Roshen 2 Crack Какао-Орех 190gr",
+   "barcode": "4823077646546",
+   "qty": 26,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "5870",
+   "id": "6db560e1-9976-405d-8fd0-72c56347c40d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen 2 Crack Shokolad 190gr",
+   "barcode": "4823077646539",
+   "qty": 26,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "25777",
+   "id": "91e22305-bdba-4faf-a60a-0041ed4a9d11",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Butter Cookies Cocoa 140gr",
+   "barcode": "4823077648113",
+   "qty": 36,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "51756",
+   "id": "e2c93788-b551-4115-bfca-f3b7d8dd67b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Butter Cookies Yog'li Klassik 140gr",
+   "barcode": "4823077648106",
+   "qty": 36,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "51758",
+   "id": "5e86374e-5f6e-42b6-abe5-79949e18f43b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Orange Lovita 420gr",
+   "barcode": "4823077636110",
+   "qty": 28,
+   "price": 25608,
+   "status": "aktiv",
+   "sku": "14305",
+   "id": "7f8064c4-ec7f-4cc2-a991-65571b9ba68b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Lovita Jelly Olcha 420gr",
+   "barcode": "4823077636059",
+   "qty": 21,
+   "price": 25608,
+   "status": "aktiv",
+   "sku": "14304",
+   "id": "ed104ffb-4131-474e-ab23-f1e603afb018",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Lovita Cocoa 127gr",
+   "barcode": "4823077641367",
+   "qty": 36,
+   "price": 8536,
+   "status": "aktiv",
+   "sku": "43246",
+   "id": "1f7ffb40-c548-4866-ab45-15199db174f0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Butter Milk 1kg",
+   "barcode": "4823077628054",
+   "qty": 8,
+   "price": 46075,
+   "status": "aktiv",
+   "sku": "16698",
+   "id": "bc9c8ffb-f1ac-4ed7-b965-c9ba46660c7e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 3780672
+}
