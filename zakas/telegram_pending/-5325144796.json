@@ -1,0 +1,329 @@
+{
+ "createdAt": "2026-08-26T08:09:34.572Z",
+ "srcFile": "-5325144796_1379_zakas_PROFIT_EXPERT_MCHJ_M_FOOD_17_от_19_02_2025_руский_продукт.xlsx",
+ "supplierId": "6591f2ed-2395-4586-93fe-fed6d0058715",
+ "supplierLabel": "PROFIT EXPERT MCHJ (M/FOOD-17 от  19.02.2025) руский продукт",
+ "items": [
+  {
+   "name": "Pryanik Тульский Лакомка Вареная сгущенка 130gr",
+   "barcode": "4601713009173",
+   "qty": 50,
+   "price": 5400,
+   "status": "aktiv",
+   "sku": "50537",
+   "id": "990827a3-bf2c-432d-afbd-34592b91d8c2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Геркулес jo'xori donochalari 500gr",
+   "barcode": "4602112100393",
+   "qty": 36,
+   "price": 20000,
+   "status": "aktiv",
+   "sku": "20424",
+   "id": "81f12287-b493-4092-8a78-0f7683a3817b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "So'li Yormasi Геркулес 420gr",
+   "barcode": "4602112208860",
+   "qty": 35,
+   "price": 13300,
+   "status": "aktiv",
+   "sku": "2840",
+   "id": "8d564a3d-5ab6-42ef-aa05-576755855f13",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Зефир РотФронт Сладкие Истории с Кусочками Клюквы 250гр",
+   "barcode": "4607144733625",
+   "qty": 32,
+   "price": 16650,
+   "status": "aktiv",
+   "sku": "18798",
+   "id": "839e96df-e2b5-427f-a894-02ccf30eb122",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sutli Pechenye Алёнка Vitamin 190gr",
+   "barcode": "4600080431082",
+   "qty": 30,
+   "price": 9150,
+   "status": "aktiv",
+   "sku": "2160",
+   "id": "fd5943bc-8e3b-4ee2-88b8-36204ca99f5d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ugra Суперсуп \"Куриный со зездочками\" 70gr",
+   "barcode": "4602112507260",
+   "qty": 30,
+   "price": 9150,
+   "status": "aktiv",
+   "sku": "52781",
+   "id": "6a1e5f72-c1da-42cd-a9d7-60f53b9360a6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ugra Суперсуп Алфавит куриный 70gr",
+   "barcode": "4602112512912",
+   "qty": 30,
+   "price": 9150,
+   "status": "aktiv",
+   "sku": "52782",
+   "id": "0ae7025a-3982-4156-96ab-832d2cde74d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kisel брикет Mevali 190gr",
+   "barcode": "4602112511281",
+   "qty": 30,
+   "price": 12050,
+   "status": "aktiv",
+   "sku": "7031",
+   "id": "68df9623-17c2-45e2-97cc-5033afec51f2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Геркулес jo'xori yormalari 500gr",
+   "barcode": "4602112502333",
+   "qty": 28,
+   "price": 16000,
+   "status": "aktiv",
+   "sku": "20423",
+   "id": "feb3e9ba-eef7-4275-a638-26a098f8ea99",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Суп Дачный Грибной с вермишелью 60гр",
+   "barcode": "4602112517108",
+   "qty": 25,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "20399",
+   "id": "966768b5-27d5-490b-995c-6aff96758908",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Суп Дачный Куринный 60гр",
+   "barcode": "4602112517023",
+   "qty": 25,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "50860",
+   "id": "664fc6f1-19fc-4182-b13a-e12812937847",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Суп Дачный Сезон мясной с вермишелью 60гр",
+   "barcode": "4602112517047",
+   "qty": 25,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "49933",
+   "id": "efb31859-4a5b-4940-a72f-537c8e51903d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabiiy Sikoriy Старая мельница Golubika Bilan 85gr",
+   "barcode": "4602112517931",
+   "qty": 24,
+   "price": 17500,
+   "status": "aktiv",
+   "sku": "7030",
+   "id": "ecbca40d-0228-42f6-8c12-451ffc1842ae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Цикорий Традиция Натуральный Порошкообразный 100гр",
+   "barcode": "4602112511045",
+   "qty": 24,
+   "price": 26650,
+   "status": "aktiv",
+   "sku": "36576",
+   "id": "cc0a4201-3a1a-480e-aa20-b002fb03d486",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabiiy Sikoriy Старая мельница Namatak Bilan 85gr",
+   "barcode": "4602112515326",
+   "qty": 24,
+   "price": 17500,
+   "status": "aktiv",
+   "sku": "7029",
+   "id": "cf501578-27e4-459a-b233-7781020b15c6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sutli Shokolad Аленка Bodomli 75gr",
+   "barcode": "4600080294311",
+   "qty": 16,
+   "price": 12150,
+   "status": "aktiv",
+   "sku": "53721",
+   "id": "bd88a59d-f485-440b-96f3-9fb4b6eee769",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shirin Zefir РотФронт 250gr",
+   "barcode": "4607144733496",
+   "qty": 16,
+   "price": 16650,
+   "status": "aktiv",
+   "sku": "4011",
+   "id": "5a801a23-ed18-4d47-86b7-d838553b63f4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pishirish aralashmasi Печём дома Оладьи деревенские 250gr",
+   "barcode": "4602112506324",
+   "qty": 16,
+   "price": 16650,
+   "status": "aktiv",
+   "sku": "22502",
+   "id": "e15850bc-6112-4ad5-bd53-b27c78da7737",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pishiriq Aralashma  Печём дома Blinchik 250gr",
+   "barcode": "4602112506348",
+   "qty": 16,
+   "price": 16650,
+   "status": "aktiv",
+   "sku": "22504",
+   "id": "4a4b6475-574b-44ab-9833-b2616df9f24c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Алёнка Funduq 75gr",
+   "barcode": "4600080294267",
+   "qty": 16,
+   "price": 12150,
+   "status": "aktiv",
+   "sku": "7035",
+   "id": "05f574f3-d60b-419b-997d-e81758cf4427",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Русский olchali kiseli 190gr",
+   "barcode": "4602112511205",
+   "qty": 14,
+   "price": 12050,
+   "status": "aktiv",
+   "sku": "2882996",
+   "id": "4821b4d5-edca-4458-97ad-7cae466a597e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bo'tqa Русский Геркулес Bolalar 350gr",
+   "barcode": "4602112506423",
+   "qty": 12,
+   "price": 14640,
+   "status": "aktiv",
+   "sku": "20425",
+   "id": "bb936a9a-21b4-4e2c-b967-3bdd966758c1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Jo'xori Yormalari Геркулес 350gr",
+   "barcode": "4602112502357",
+   "qty": 12,
+   "price": 18300,
+   "status": "aktiv",
+   "sku": "20418",
+   "id": "17d63eca-bc8f-46ce-85e5-c1e7a6b8c9a6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Геркулесjo'xori donalari 450gr",
+   "barcode": "4602112503606",
+   "qty": 12,
+   "price": 16000,
+   "status": "aktiv",
+   "sku": "20420",
+   "id": "465f884b-e4de-4651-b266-f96038601e22",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Геркулес 5 xil donli don yormasi 400gr",
+   "barcode": "4602112505563",
+   "qty": 12,
+   "price": 18300,
+   "status": "aktiv",
+   "sku": "22501",
+   "id": "7285a04e-f699-4629-8168-8a95167f99f7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Халва Рот Фронт вес",
+   "barcode": "2460008028180",
+   "qty": 10,
+   "price": 95800,
+   "status": "aktiv",
+   "sku": "9959",
+   "id": "67d4c7c6-ee0c-4e89-ad6f-47a27e4a0966",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Karamel Рот Фронт Москвичка Kg",
+   "barcode": "4600080304625",
+   "qty": 10,
+   "price": 70800,
+   "status": "aktiv",
+   "sku": "7038",
+   "id": "da3ca9bf-1fe7-4fe6-901b-ce18050acb1e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Конфеты Алёнка Красный Октябрь конверт вес",
+   "barcode": "4600300088492",
+   "qty": 8,
+   "price": 130500,
+   "status": "aktiv",
+   "sku": "5185",
+   "id": "8887e69b-457c-4f16-9624-90d9ca3505c3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Jo'xori Bo'tqa Геркулес Assorti Sut 175gr",
+   "barcode": "4602112514688",
+   "qty": 6,
+   "price": 29000,
+   "status": "aktiv",
+   "sku": "46779",
+   "id": "0bdc608c-f5a8-4b45-9421-b7d5be2cbeb0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Jo'xori Yorma Геркулес Ekstra 1000gr",
+   "barcode": "4602112510260",
+   "qty": 6,
+   "price": 45800,
+   "status": "aktiv",
+   "sku": "2883001",
+   "id": "556716e4-4b08-427a-9ddf-8d206c93f788",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Конфеты Красный Октябрь Аленка 1000гр",
+   "barcode": "4600300081233",
+   "qty": 5,
+   "price": 130625,
+   "status": "aktiv",
+   "sku": "275040",
+   "id": "32057d2e-c897-41f5-b19b-120fa8cace7b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Рот Фронт Осенний вальс 950gr",
+   "barcode": "4600080318130",
+   "qty": 4,
+   "price": 137500,
+   "status": "aktiv",
+   "sku": "2880117",
+   "id": "11fbd783-5f33-4f27-9267-f7fc345eabe7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 14484105
+}
