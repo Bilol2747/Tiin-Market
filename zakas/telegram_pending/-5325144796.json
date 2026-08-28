@@ -1,0 +1,139 @@
+{
+ "createdAt": "2026-08-28T05:36:08.461Z",
+ "srcFile": "-5325144796_1471_zakas_NDT_distribution_18+_montella_ice_tea_2026_08_27_2.xlsx",
+ "supplierId": "28ed243d-2f67-42d0-9580-10fc22a019d7",
+ "supplierLabel": "NDT distribution (18+ montella ice tea)",
+ "items": [
+  {
+   "name": "Montella Gazsiz 330ml",
+   "barcode": "4780101733767",
+   "qty": 1200,
+   "price": 1670,
+   "status": "aktiv",
+   "sku": "570",
+   "id": "7565f429-a6af-4b3e-b769-c923eecd4c4c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Montella Gazsiz 500ml",
+   "barcode": "4780101733774",
+   "qty": 360,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "603",
+   "id": "417d3263-a998-4aad-9464-72f870ac4863",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Montella Gazli 1,5l",
+   "barcode": "4780101731466",
+   "qty": 120,
+   "price": 4174,
+   "status": "aktiv",
+   "sku": "890",
+   "id": "8b7c0041-aa04-4164-b04b-fae29f9d40d2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Montella Gazsiz 1,5l",
+   "barcode": "4780101733798",
+   "qty": 120,
+   "price": 4174,
+   "status": "aktiv",
+   "sku": "889",
+   "id": "e2f3db45-0d12-41bc-be3b-d6d42fcb574e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qora Choy Ays O'rmon meva 500ml",
+   "barcode": "4780101733873",
+   "qty": 84,
+   "price": 5000,
+   "status": "aktiv",
+   "sku": "941",
+   "id": "46fda2a0-1493-4ff5-abd3-659b3c5ef0e1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Montella Daily 6l",
+   "barcode": "4780101732326",
+   "qty": 60,
+   "price": 7500,
+   "status": "aktiv",
+   "sku": "33841",
+   "id": "d6cfd0a0-ee04-4215-b5ba-a61d51b87877",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qora Choy Ays O'rmon meva 1,25l",
+   "barcode": "4780101732104",
+   "qty": 60,
+   "price": 8333,
+   "status": "aktiv",
+   "sku": "1610",
+   "id": "0b616921-34f3-4342-85b2-0dd7c9f8e08e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Montella Daily 10l",
+   "barcode": "4780101734764",
+   "qty": 60,
+   "price": 10000,
+   "status": "aktiv",
+   "sku": "24036",
+   "id": "fd1ccd64-fcf1-48d4-b694-6b9b85d4e5c0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ko'k Choy Ays Shaftoli 1,23l",
+   "barcode": "4780101732128",
+   "qty": 60,
+   "price": 8333,
+   "status": "aktiv",
+   "sku": "1612",
+   "id": "1442045f-e688-4274-9d83-d292b875ce5b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ko'k Choy Ays Shaftoli 500ml",
+   "barcode": "4780101732364",
+   "qty": 60,
+   "price": 5000,
+   "status": "aktiv",
+   "sku": "943",
+   "id": "6e7e1467-f647-40aa-b58c-a44d67d55d38",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qora Choy Ice Mango Romashka 1,25l",
+   "barcode": "4780101735563",
+   "qty": 60,
+   "price": 8333,
+   "status": "aktiv",
+   "sku": "51008",
+   "id": "891d33f3-a6eb-41ec-8603-f25eaf96d6d6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Energetik Ichimlik 18+ Kaktus 450ml",
+   "barcode": "4780101734849",
+   "qty": 24,
+   "price": 10000,
+   "status": "aktiv",
+   "sku": "45329",
+   "id": "32378266-a203-4781-a63f-21f6e387378f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Tropic Mix 1l",
+   "barcode": "4780101734009",
+   "qty": 24,
+   "price": 10000,
+   "status": "aktiv",
+   "sku": "20190",
+   "id": "7b8f7644-feff-464e-b066-2694e93e80e9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 7655700
+}
