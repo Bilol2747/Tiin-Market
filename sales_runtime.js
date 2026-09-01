@@ -2511,7 +2511,8 @@ function _renderZkSupListMerged(supN,supC){
   else if(zkSlSort==="chuqur")withNeed.sort((a,b)=>zkSlAsc?a.needC-b.needC:b.needC-a.needC);
   else withNeed.sort((a,b)=>zkSlAsc?a.needN-b.needN:b.needN-a.needN);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${all.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>`;
+  if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${all.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>${_zkMobMoreBtnHtml()}`;
+  const confirmSlot0=document.getElementById("zk-confirm-slot");if(confirmSlot0)confirmSlot0.innerHTML="";
   const body=document.getElementById("zk-body");if(!body)return;
   const prevSl=body.querySelector(".zk-sl");const prevSt=prevSl?prevSl.scrollTop:0;
   const sa=(k)=>k===zkSlSort?(zkSlAsc?'▲':'▼'):'<span style="color:#ddd">▼</span>';
@@ -2550,7 +2551,8 @@ function _renderZkSupList(allSups){
   else if(zkSlSort==="total")withNeed.sort((a,b)=>zkSlAsc?a.rows.length-b.rows.length:b.rows.length-a.rows.length);
   else withNeed.sort((a,b)=>zkSlAsc?a.needCount-b.needCount:b.needCount-a.needCount);
   const supCountEl=document.getElementById("zk-sup-count");
-  if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${allSups.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>`;
+  if(supCountEl)supCountEl.innerHTML=`<div class="zk-sl-stat"><span class="zk-sl-stat-n">${allSups.length}</span><span class="zk-sl-stat-l">${t("zk_stat_all")}</span></div><div class="zk-sl-stat zk-sl-stat-red"><span class="zk-sl-stat-n">${withNeed.length}</span><span class="zk-sl-stat-l">${t("zk_stat_need")}</span></div>${_zkMobMoreBtnHtml()}`;
+  const confirmSlot1=document.getElementById("zk-confirm-slot");if(confirmSlot1)confirmSlot1.innerHTML="";
   zkAutoRemoveConfirmed(allSups);
   const body=document.getElementById("zk-body");if(!body)return;
   const prevSl=body.querySelector(".zk-sl");const prevSt=prevSl?prevSl.scrollTop:0;
@@ -2935,11 +2937,19 @@ function renderZakas(){
   }
   sups=sups.slice().sort((a,b)=>b.valTotal-a.valTotal);
   const supCountEl=document.getElementById("zk-sup-count");
+  // Mobil "⋮" tugmasi - Tezkor ro'yxat/Sozlamalar/Tozalash/Export panelini ochadi
+  // (desktopda display:none, joyni egallamaydi). Chuqur zakas tabining yonida
+  // ko'rinishi uchun dtabs ichiga, ro'yxat rejimida esa hisoblagich matni yoniga
+  // qo'shiladi (foydalanuvchi so'rovi, 2026-09-01).
+  const mobMoreBtn=_zkMobMoreBtnHtml();
+  const confirmSlot=document.getElementById("zk-confirm-slot");
   if(supCountEl){if(zkSupFilter){const conf=zkIsConfirmed(zkSupFilter);const supJ=JSON.stringify(zkSupFilter).replace(/"/g,'&quot;');
     const needN=zkDepth==="normal"?window._zkNeedCur:window._zkNeedOther;
     const needC=zkDepth==="chuqur"?window._zkNeedCur:window._zkNeedOther;
-    const dtabs=`<div class="zk-dtabs-detail"><button class="zk-dtab${zkDepth==="normal"?" active":""}" onclick="zkSetDepth('normal')">${t("zk_depth_normal")} <b>${needN||0}</b></button><button class="zk-dtab${zkDepth==="chuqur"?" active":""}" onclick="zkSetDepth('chuqur')">${t("zk_depth_chuqur")} <b>${needC||0}</b></button></div>`;
-    supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>${t("zk_back_list")}</button>${dtabs}<button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;}else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")}`;}}
+    const dtabs=`<div class="zk-dtabs-detail"><button class="zk-dtab${zkDepth==="normal"?" active":""}" onclick="zkSetDepth('normal')">${t("zk_depth_normal")} <b>${needN||0}</b></button><button class="zk-dtab${zkDepth==="chuqur"?" active":""}" onclick="zkSetDepth('chuqur')">${t("zk_depth_chuqur")} <b>${needC||0}</b></button>${mobMoreBtn}</div>`;
+    supCountEl.innerHTML=`<button class="zk-back-btn" onclick="zkBackToList()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>${t("zk_back_list")}</button>${dtabs}<button class="zk-confirm-btn${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;
+    if(confirmSlot)confirmSlot.innerHTML=`<button class="zk-confirm-btn zk-confirm-btn-mob${conf?' zk-confirm-btn-ok':''}" onclick="zkMarkConfirmedFromDetail(${supJ})">${conf?'✓ '+t('zk_confirm_cancel'):t('zk_confirm_btn')}</button>`;
+    }else{supCountEl.innerHTML=`<b>${sups.length}</b> ${t("zk_sum_sup")} ${mobMoreBtn}`;if(confirmSlot)confirmSlot.innerHTML="";}}
   const body=document.getElementById("zk-body");if(!body)return;
   if(!sups.length){body.innerHTML=_zkBcBanner()+`<div class="zk-empty">${zkBcFilter?"Bu ta'minotchida faylдаgi shtrix-kodlarga mos tovar topilmadi. Topilmagan tovarlarni banner'dagi \"ko'rish\" orqali ko'ring.":t("zk_empty")}</div>`;const pag=document.getElementById("zk-pag");if(pag)pag.innerHTML="";return;}
   const totalSups=sups.length;
@@ -3340,6 +3350,7 @@ function closeMobileSidebar(){document.body.classList.remove("mb-open");}
 // Export) mobil kenglikda "⋮ Ko'proq" tugmasi ostida yig'ish/yoyish - desktopda bu
 // funksiya chaqirilmaydi (tugma display:none bo'lgani uchun bosilmaydi).
 function toggleZkMobileMore(){const m=document.getElementById("zk-mobile-more");if(m)m.classList.toggle("open");}
+function _zkMobMoreBtnHtml(){return `<button class="zk-mobile-more-toggle" type="button" onclick="toggleZkMobileMore()" title="${esc(t("zk_more_btn"))}"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg></button>`;}
 // ─── showPage(): sahifa almashtirish dispatcheri — BARCHA sahifalar
 // (p1-p9, nazorat) shu funksiya orqali ochiladi, har sahifaning
 // birinchi marta ochilishida kerakli ma'lumotni yuklaydi ───
