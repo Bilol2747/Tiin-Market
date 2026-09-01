@@ -5944,7 +5944,7 @@ function _p6ShowOverlay(name,stickyExtra,tableH,monthName,abc,mzCount,mzSearchH,
   const detExportBtn=`<button class="xls-export-btn" onclick="exportP6DetailXLSX()" style="flex-shrink:0">${xlsIcon}${t("export_btn")}</button>`;
   const mzExportBtn=`<button class="xls-export-btn" onclick="exportP6MzXLSX()" style="flex-shrink:0;margin-left:auto">${xlsIcon}${t("export_btn")}</button>`;
   ov.innerHTML=`<div id="sp-ov-header" style="position:sticky;top:0;background:#fff;z-index:2">
-    <div style="padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
+    <div class="mob-ov-hdr" style="padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
       <button onclick="p6CloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         ${t("sp_back_sup")}
@@ -5959,7 +5959,7 @@ function _p6ShowOverlay(name,stickyExtra,tableH,monthName,abc,mzCount,mzSearchH,
   <div class="sp-det-wrap">${tableH}</div>`;
   if(mzCount&&mzTableH){
     mzPage.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2">
-      <div style="padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
+      <div class="mob-ov-hdr" style="padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
         <button onclick="document.getElementById('sp-mz-page').style.display='none'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           ${t("sp_back_sup")}
@@ -6462,7 +6462,7 @@ function _ktShowOverlay(sub){
   const mzCount=ktMzAllItems.length;
   const mzToggle=mzCount?`<button onclick="ktShowMzPage()" style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;border:1.5px solid #d4f0e5;background:#f0faf6;color:#1D9E75;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0">🛒 ${t("sp_mz_btn")} <span style="background:#1D9E75;color:#fff;border-radius:8px;padding:1px 8px;font-size:11px;font-weight:700">${mzCount}</span></button>`:"";
   ov.innerHTML=`<div id="kt-ov-header" style="position:sticky;top:0;background:#fff;z-index:2">
-    <div style="padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
+    <div class="mob-ov-hdr" style="padding:14px 14px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px;flex-wrap:nowrap;min-width:0;overflow:hidden">
       <button onclick="ktCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
         ${t("kt_back_cat")}
@@ -6477,7 +6477,7 @@ function _ktShowOverlay(sub){
   if(mzCount){
     const mzSearchH=`<div style="padding:0 0 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="kt-mz-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(ktMzQ)}" oninput="ktMzSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();ktMzSearchSubmit(this.value);}">${clearBtn("kt-mz-clear","ktMzClearSearch()",ktMzQ)}</div></div>`;
     mzPage.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2">
-      <div style="padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
+      <div class="mob-ov-hdr" style="padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
         <button onclick="document.getElementById('kt-mz-page').style.display='none'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
           ${t("kt_back_cat")}
@@ -7064,7 +7064,7 @@ function krOpenDetail(i){
   if(!ov){ov=document.createElement("div");ov.id="kr-fullscreen";p8el.appendChild(ov);}
   const arrivals=[...entry.arrivals].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td>${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
-  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
+  ov.innerHTML=`<div class="mob-ov-hdr" style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
     <button onclick="krCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       ${esc(t("kr_back"))}
@@ -7410,7 +7410,7 @@ function fmOpen(id){
   const ov=document.getElementById("fm-ov");
   const facts=[[t("fm_col_stir"),f.tin||"—"],[t("fm_fact_shartnoma"),f.shartnoma||"—"],
     [t("fm_fact_tel"),f.tel||"—"],[t("fm_fact_chek"),c.n]];
-  ov.innerHTML='<div class="fm-ov-head"><div class="fm-ov-bar">'
+  ov.innerHTML='<div class="fm-ov-head"><div class="fm-ov-bar mob-ov-hdr">'
     +'<button class="fm-back" onclick="fmClose()">'
     +'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>'
     +t("fm_back")+'</button>'
