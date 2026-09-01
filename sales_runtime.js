@@ -741,6 +741,7 @@ const I18N={
   zk_empty:{uz:"Hozircha shoshilinch yoki tugashga yaqin tovar yo'q",en:"No urgent or low-stock items right now",ru:"Пока нет срочных или заканчивающихся товаров"},
   zk_need_label:{uz:"zakas kerak",en:"need order",ru:"нужен заказ"},
   zk_quicklist_btn:{uz:"Tezkor ro'yxat",en:"Quick list",ru:"Быстрый список"},
+  zk_more_btn:{uz:"Ko'proq",en:"More",ru:"Ещё"},
   zk_reset_btn:{uz:"Tozalash",en:"Reset",ru:"Сбросить"},
   zk_tab_auto:{uz:"Avtomatik buyurtma",en:"Automatic order",ru:"Автоматический заказ"},
   zk_tab_file:{uz:"Hujjatdan buyurtma",en:"Order from document",ru:"Заказ из документа"},
@@ -3335,6 +3336,10 @@ function toggleSidebar(){
 // desktopdagi toggleSidebar() (rail kengligini o'zgartiradi) bilan aralashmaydi.
 function toggleMobileSidebar(){document.body.classList.toggle("mb-open");}
 function closeMobileSidebar(){document.body.classList.remove("mb-open");}
+// Zakas ta'minotchi qatoridagi tugmalar guruhini (Tezkor ro'yxat/Sozlamalar/Tozalash/
+// Export) mobil kenglikda "⋮ Ko'proq" tugmasi ostida yig'ish/yoyish - desktopda bu
+// funksiya chaqirilmaydi (tugma display:none bo'lgani uchun bosilmaydi).
+function toggleZkMobileMore(){const m=document.getElementById("zk-mobile-more");if(m)m.classList.toggle("open");}
 // ─── showPage(): sahifa almashtirish dispatcheri — BARCHA sahifalar
 // (p1-p9, nazorat) shu funksiya orqali ochiladi, har sahifaning
 // birinchi marta ochilishida kerakli ma'lumotni yuklaydi ───
