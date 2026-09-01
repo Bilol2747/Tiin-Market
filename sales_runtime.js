@@ -15,9 +15,15 @@ function _authToken(){try{return JSON.parse(localStorage.getItem("tiin_user")||"
 async function _authCall(action,extra){
   const body=Object.assign({action,token:_authToken()},extra||{});
   let res;
+  // networkError=true - so'rov serverga UMUMAN yetib bormadi (internet uzilishi,
+  // vaqtinchalik server ishlamay qolishi va h.k.) - bu FARQLANISHI kk sessiya
+  // haqiqatan ham bekor qilinganidan (server aniq javob bergan holatdan),
+  // aks holda _authCheckOnce() mobil internetdagi oddiy uzilishda ham
+  // foydalanuvchini login oynasiga chiqarib tashlardi (2026-09-01, foydalanuvchi
+  // topilmasi - "har kirganda qayta login so'raydi" muammosining yana bir sababi).
   try{res=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});}
-  catch(_){return {ok:false,error:"Serverga ulanib bo'lmadi"};}
-  try{return await res.json();}catch(_){return {ok:false,error:"Server javobini o'qib bo'lmadi"};}
+  catch(_){return {ok:false,networkError:true,error:"Serverga ulanib bo'lmadi"};}
+  try{return await res.json();}catch(_){return {ok:false,networkError:true,error:"Server javobini o'qib bo'lmadi"};}
 }
 
 // Sessiya sayt ochiq turgan paytda ham davriy tekshiriladi (har 20s) - parol
@@ -35,7 +41,11 @@ function _authKick(reason){
 async function _authCheckOnce(){
   if(!_authToken())return;
   const data=await _authCall("session_check",{});
-  if(!data.ok){_authKick(data.reason);return;}
+  // Faqat SERVER aniq "sessiya bekor" deb javob bersa (blocked/password_changed/
+  // deleted/expired) chiqarib yuboriladi - networkError bo'lsa (internet uzilishi
+  // yoki server vaqtincha ishlamay qolishi) sessiya HECH NARSA qilinmasdan
+  // qoldiriladi, keyingi 20s'da qayta urinilaveradi.
+  if(!data.ok){if(!data.networkError)_authKick(data.reason);return;}
   try{
     const merged=Object.assign(JSON.parse(localStorage.getItem("tiin_user")||"{}"),data.user);
     localStorage.setItem("tiin_user",JSON.stringify(merged));

@@ -215,7 +215,9 @@ tr:hover td{background:#fafaf5;}tr.sel td{background:#E6F1FB !important;}
 .lg-label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:7px}
 .lg-inp-wrap{position:relative;display:flex;align-items:center}
 .lg-inp-wrap svg{position:absolute;left:14px;width:18px;height:18px;color:#b5bac4;pointer-events:none}
+.lg-phone-prefix{position:absolute;left:14px;font-size:14px;font-weight:600;color:#555;pointer-events:none}
 .lg-inp{width:100%;box-sizing:border-box;padding:13px 14px 13px 42px;border:1.6px solid #e6e8ec;border-radius:12px;font-size:14px;outline:none;transition:all .18s;background:#fafbfc}
+.lg-inp-phone{padding-left:58px}
 .lg-inp:focus{border-color:#1D9E75;background:#fff;box-shadow:0 0 0 3.5px rgba(29,158,117,.13)}
 .lg-eye{position:absolute;right:12px;left:auto!important;cursor:pointer;pointer-events:auto!important;color:#b5bac4}
 .lg-eye:hover{color:#1D9E75}
@@ -275,8 +277,8 @@ body.sb-collapsed #sb-logout span{display:none}
 <div class="lg-field">
 <label class="lg-label">Telefon raqam</label>
 <div class="lg-inp-wrap">
-<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-<input class="lg-inp" id="lg-phone" type="tel" autocomplete="username" inputmode="numeric" placeholder="777777777" autocomplete="off">
+<span class="lg-phone-prefix">+998</span>
+<input class="lg-inp lg-inp-phone" id="lg-phone" type="tel" autocomplete="username" inputmode="numeric" placeholder="90 123 45 67" autocomplete="off" maxlength="12">
 </div>
 </div>
 <div class="lg-field">
