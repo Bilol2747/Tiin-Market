@@ -1,14 +1,50 @@
-﻿// ─── Firebase + Login ───
-const _FB_CFG={apiKey:"AIzaSyCCggP0Pa9WiZ8nSZeHhG-w8-k-IUNFrXA",authDomain:"tiim-market.firebaseapp.com",projectId:"tiim-market",storageBucket:"tiim-market.firebasestorage.app",messagingSenderId:"612281029036",appId:"1:612281029036:web:3ef1b2022cb25e1be56a09"};
-let _db=null;
-try{
-  if(!firebase.apps.length)firebase.initializeApp(_FB_CFG);
-  _db=firebase.firestore();
-}catch(e){console.error("Firebase init xatosi:",e);}
-const _ADM_PHONE="910758080",_ADM_PASS="12345678";
-const _ALL_TABS=["p1","p2","p3","p5","p7","p6","p8","p9","p10","p11","p_nazorat"];
+﻿// ─── Login (server orqali, /api/auth — brauzer endi Firestore'ga hech qachon
+// to'g'ridan-to'g'ri murojaat qilmaydi, 2026-08-25 xavfsizlik tuzatishi) ───
 
-async function _sha256(s){const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("");}
+function _authToken(){try{return JSON.parse(sessionStorage.getItem("tiin_user")||"{}").token||"";}catch(_){return "";}}
+
+async function _authCall(action,extra){
+  const body=Object.assign({action,token:_authToken()},extra||{});
+  let res;
+  try{res=await fetch("/api/auth",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});}
+  catch(_){return {ok:false,error:"Serverga ulanib bo'lmadi"};}
+  try{return await res.json();}catch(_){return {ok:false,error:"Server javobini o'qib bo'lmadi"};}
+}
+
+// Sessiya sayt ochiq turgan paytda ham davriy tekshiriladi (har 20s) - parol
+// o'zgartirilsa yoki blok qilinsa, foydalanuvchi "chiqish" bosmasdan ham
+// avtomatik login oynasiga chiqarib tashlanadi, sababi bilan.
+let _authWatchTimer=null;
+function _authStopWatch(){if(_authWatchTimer){clearInterval(_authWatchTimer);_authWatchTimer=null;}}
+function _authStartWatch(){_authStopWatch();_authWatchTimer=setInterval(_authCheckOnce,20000);}
+function _authKick(reason){
+  _authStopWatch();
+  try{sessionStorage.removeItem("tiin_user");}catch(_){}
+  try{sessionStorage.setItem("tiin_kick_reason",reason||"");}catch(_){}
+  location.reload();
+}
+async function _authCheckOnce(){
+  if(!_authToken())return;
+  const data=await _authCall("session_check",{});
+  if(!data.ok){_authKick(data.reason);return;}
+  try{
+    const merged=Object.assign(JSON.parse(sessionStorage.getItem("tiin_user")||"{}"),data.user);
+    sessionStorage.setItem("tiin_user",JSON.stringify(merged));
+    _applyUser(merged);
+  }catch(_){}
+}
+function _authShowKickReason(){
+  let reason=null;
+  try{reason=sessionStorage.getItem("tiin_kick_reason");sessionStorage.removeItem("tiin_kick_reason");}catch(_){}
+  if(!reason)return;
+  const MSG={
+    blocked:"Hisobingiz administrator tomonidan bloklandi",
+    password_changed:"Parolingiz o'zgartirildi — yangi parol bilan qayta kiring",
+    deleted:"Hisobingiz topilmadi — qayta kiring",
+    expired:"Sessiya muddati tugadi — qayta kiring",
+  };
+  _lgErr(MSG[reason]||"Qayta kiring");
+}
 
 function lgEye(){const i=document.getElementById("lg-pass");i.type=i.type==="password"?"text":"password";}
 
@@ -91,31 +127,14 @@ async function lgSubmit(e){
   const btn=document.querySelector(".lg-btn");
   btn.disabled=true;btn.textContent="Tekshirilmoqda...";
   try{
-    const hash=await _sha256(pw);
-    const snap=await _db.collection("users").where("phone","==",ph).where("active","==",true).limit(5).get();
-    let matched=null;
-    if(!snap.empty){snap.forEach(doc=>{const d=doc.data();if(d.password_hash===hash)matched={...d,id:doc.id};});}
-    // Zaxira: admin uchun
-    if(!matched&&ph===_ADM_PHONE&&pw===_ADM_PASS){
-      const admHash=await _sha256(_ADM_PASS);
-      const admSnap=await _db.collection("users").where("phone","==",_ADM_PHONE).get();
-      const admData={phone:_ADM_PHONE,name:"Bilol",role:"admin",tabs:_ALL_TABS,active:true};
-      if(admSnap.empty){
-        admData.password_hash=admHash;
-        admData.created=firebase.firestore.FieldValue.serverTimestamp();
-        await _db.collection("users").add(admData);
-      }
-      matched={...admData,password_hash:admHash};
-    }
-    if(!matched){_lgErr("Telefon raqam yoki parol noto'g'ri");btn.disabled=false;btn.textContent="Kirish";return false;}
-    // Admin uchun p_nazorat saqlashdan oldin qo'shilsin
-    if((matched.role==="admin"||matched.phone===_ADM_PHONE)&&!(matched.tabs||[]).includes("p_nazorat")){
-      matched.tabs=(matched.tabs||[]).concat(["p_nazorat"]);
-    }
-    try{localStorage.setItem("tiin_user",JSON.stringify(matched));}catch(_){}
-    _tgNotify(matched);
-    _applyUser(matched);
+    const data=await _authCall("login",{phone:ph,password:pw});
+    if(!data.ok){_lgErr(data.error||"Telefon raqam yoki parol noto'g'ri");btn.disabled=false;btn.textContent="Kirish";return false;}
+    const session=Object.assign({},data.user,{token:data.token,exp:data.exp});
+    try{sessionStorage.setItem("tiin_user",JSON.stringify(session));}catch(_){}
+    _tgNotify(session);
+    _applyUser(session);
     lgUnlock();
+    _authStartWatch();
   }catch(err){
     console.error(err);
     _lgErr("Xatolik yuz berdi, qayta urinib ko'ring");
@@ -124,7 +143,17 @@ async function lgSubmit(e){
   return false;
 }
 
-function lgLogout(){try{localStorage.removeItem("tiin_user");}catch(_){}location.reload();}
+function lgLogout(){_authStopWatch();try{sessionStorage.removeItem("tiin_user");}catch(_){}location.reload();}
+
+// 2026-08-25: sessiya endi Firestore onSnapshot (real vaqtli, lekin
+// brauzerdan to'g'ridan-to'g'ri Firestore ulanishi talab qiladigan)
+// o'rniga /api/auth "session_check" so'rovi orqali davriy (har 20s)
+// tekshiriladi - _authCheckOnce()/_authStartWatch() (fayl boshida).
+// Bu biroz sekinroq (onSnapshot kechikishsiz edi), lekin brauzer endi
+// Firestore'ga UMUMAN ulanmaydi - ochiq to'plam muammosi shu bilan
+// yopiladi. Eski _watchSession() (2026-08-12, xuddi shu maqsadda
+// qo'shilgan edi) olib tashlandi - yangi shifrlangan parol format bilan
+// (password_hash o'rniga password_enc) baribir ishlamay qolgan bo'lardi.
 
 // ─── I18N LUG'AT (uz/en/ru — barcha sahifalar matnlari shu yerda) ───
 const I18N={
@@ -198,7 +227,8 @@ const I18N={
   naz_role_staff:{uz:"Xodim",en:"Employee",ru:"Сотрудник"},
   naz_role_admin:{uz:"Admin (barcha bo'limlar)",en:"Admin (all sections)",ru:"Админ (все разделы)"},
   naz_save:{uz:"Saqlash",en:"Save",ru:"Сохранить"},
-  naz_pass_hint:{uz:"Bo'sh qoldiring — parol o'zgarmaydi",en:"Leave empty — password won't change",ru:"Оставьте пустым — пароль не изменится"},
+  naz_pass_hint:{uz:"Joriy parol ko'rsatilgan (ko'zcha bilan). O'zgartirish uchun ustiga yozing, aks holda shu parol saqlanib qoladi",en:"Current password shown (toggle with the eye icon). Type over it to change, otherwise it stays the same",ru:"Показан текущий пароль (переключить значком глаза). Впишите новый, чтобы изменить, иначе останется прежним"},
+  naz_pass_hint_new:{uz:"Bu xodim hali yangi tizimga o'tmagan — joriy parolini ko'rsatib bo'lmaydi. Kiritsangiz, yangi parol sifatida saqlanadi",en:"This employee hasn't logged in under the new system yet — current password can't be shown. If you type one, it will be saved as the new password",ru:"Этот сотрудник ещё не входил в новую систему — текущий пароль показать нельзя. Если введёте, он сохранится как новый пароль"},
   naz_empty:{uz:"Hali foydalanuvchilar qo'shilmagan",en:"No users added yet",ru:"Пользователи ещё не добавлены"},
   naz_loading:{uz:"Yuklanmoqda...",en:"Loading...",ru:"Загрузка..."},
   naz_confirm_block:{uz:"Bu xodimni bloklashni xohlaysizmi?",en:"Block this employee?",ru:"Заблокировать этого сотрудника?"},
@@ -262,6 +292,14 @@ const I18N={
   sp6_no_data:{uz:"Ma'lumot yo'q",en:"No data",ru:"Нет данных"},
   nav_p10:{uz:"Kategoriyalar",en:"Categories",ru:"Категории"},
   nav_p11:{uz:"Firmalar",en:"Firms",ru:"Фирмы"},
+  nav_p12:{uz:"Marja nazorati",en:"Margin Watch",ru:"Контроль маржи"},
+  mg_search_ph:{uz:"Tovar, SKU qidirish...",en:"Search product, SKU...",ru:"Поиск товара, SKU..."},
+  mg_threshold_label:{uz:"Marja chegarasi:",en:"Margin threshold:",ru:"Порог маржи:"},
+  mg_cnt_unit:{uz:"ta tovar",en:"products",ru:"товаров"},
+  mg_col_cat:{uz:"Kategoriya",en:"Category",ru:"Категория"},
+  mg_col_stock:{uz:"Qolgan",en:"Remaining",ru:"Остаток"},
+  mg_col_suggested:{uz:"Tavsiya narx",en:"Suggested price",ru:"Рекомендуемая цена"},
+  mg_empty:{uz:"Belgilangan chegaradan past marjali tovar yo'q",en:"No products below the threshold",ru:"Нет товаров с маржой ниже порога"},
   fm_title:{uz:"Xaridor firmalar",en:"Buyer firms",ru:"Фирмы-покупатели"},
   fm_title_supplier:{uz:"Ta'minotchilarga qarz",en:"Supplier debt",ru:"Долг поставщикам"},
   fm_tab_buyer:{uz:"Xaridorlar",en:"Buyers",ru:"Покупатели"},
@@ -289,6 +327,7 @@ const I18N={
   fm_b60:{uz:"45+ kun",en:"45+ days",ru:"45+ дней"},
   fm_f_all:{uz:"Hammasi",en:"All",ru:"Все"},
   fm_q7:{uz:"7 kun",en:"7 days",ru:"7 дней"},
+  fms_q90:{uz:"90 kun",en:"90 days",ru:"90 дней"},
   fm_q30:{uz:"30 kun",en:"30 days",ru:"30 дней"},
   fm_search_ph:{uz:"Firma nomi yoki STIR...",en:"Firm name or TIN...",ru:"Название фирмы или ИНН..."},
   fm_qall:{uz:"Butun davr",en:"Full period",ru:"Весь период"},
@@ -317,6 +356,7 @@ const I18N={
   kt_back_cat:{uz:"Kategoriya",en:"Category",ru:"Категория"},
   kt_back_label:{uz:"Kategoriyalar",en:"Categories",ru:"Категории"},
   kt_search_ph:{uz:"Kategoriya qidirish...",en:"Search category...",ru:"Поиск категории..."},
+  kt_col_share:{uz:"Ulush",en:"Share",ru:"Доля выручки"},
   kt_unit_top:{uz:"kategoriya",en:"categories",ru:"категорий"},
   kt_unit_sub:{uz:"mahsulot",en:"products",ru:"товаров"},
   kt_unknown_cost_note:{uz:"kirim narxi yo'q",en:"no cost data",ru:"без цены прихода"},
@@ -707,6 +747,14 @@ const I18N={
   zk_file_sup_placeholder:{uz:"Ta'minotchini qidiring...",en:"Search supplier...",ru:"Поиск поставщика..."},
   zk_file_sup_clear:{uz:"Tozalash",en:"Clear",ru:"Очистить"},
   zk_reset_confirm:{uz:"Barcha qo'lda kiritilgan o'zgarishlar (qo'shimcha kunlar, miqdorlar, maqsad kunlar) o'chiriladi. Davom etasizmi?",en:"All manual changes (extra days, quantities, target days) will be cleared. Continue?",ru:"Все ручные изменения (доп. дни, количества, целевые дни) будут сброшены. Продолжить?"},
+  zk_reset_menu_manual:{uz:"Qo'lda kiritilgan o'zgarishlarni tozalash",en:"Clear manually entered changes",ru:"Очистить ручные изменения"},
+  zk_reset_menu_openpo_sup:{uz:"«{sup}»dagi Open buyurtmalarni tozalash",en:"Clear Open orders in \"{sup}\"",ru:"Очистить Open-заказы у «{sup}»"},
+  zk_reset_menu_openpo_all:{uz:"Open buyurtmalarni tozalash",en:"Clear Open orders",ru:"Очистить Open-заказы"},
+  zk_reset_openpo_sup_confirm:{uz:"«{sup}» ta'minotchisida hozir \"Open\" buyurtma sabab zakas 0 bo'lib turgan tovarlar bor bo'lsa - ular normal zakasga qaytariladi (agar o'sha buyurtma kelmaydigan bo'lsa shu uchun kerak).\n\nQo'lda kiritilgan boshqa o'zgarishlarga (miqdor/narx/kun) tegilmaydi.\n\nDavom etasizmi?",en:"Any products in \"{sup}\" currently locked to 0 order due to an \"Open\" PO will return to the normal order formula (use this if that PO will never arrive).\n\nOther manual changes (quantity/price/days) are left untouched.\n\nContinue?",ru:"Товары у «{sup}», заказ которых сейчас заблокирован на 0 из-за \"Open\" заказа, вернутся к обычной формуле (используйте, если тот заказ не придёт).\n\nДругие ручные изменения (кол-во/цена/дни) не затрагиваются.\n\nПродолжить?"},
+  zk_reset_openpo_all_confirm:{uz:"BUTUN ro'yxat bo'yicha hozir \"Open\" buyurtma sabab zakas 0 bo'lib turgan barcha tovarlar normal zakasga qaytariladi (agar o'sha buyurtmalar kelmaydigan bo'lsa shu uchun kerak).\n\nQo'lda kiritilgan boshqa o'zgarishlarga (miqdor/narx/kun) tegilmaydi.\n\nDavom etasizmi?",en:"Across the WHOLE list, any products currently locked to 0 order due to an \"Open\" PO will return to the normal order formula (use this if those POs will never arrive).\n\nOther manual changes (quantity/price/days) are left untouched.\n\nContinue?",ru:"По ВСЕМУ списку товары, заказ которых сейчас заблокирован на 0 из-за \"Open\" заказа, вернутся к обычной формуле (используйте, если те заказы не придут).\n\nДругие ручные изменения (кол-во/цена/дни) не затрагиваются.\n\nПродолжить?"},
+  zk_reset_openpo_none:{uz:"Hozir Open buyurtma sabab bloklangan tovar topilmadi.",en:"No products currently blocked by an Open PO were found.",ru:"Товаров, заблокированных из-за Open-заказа, не найдено."},
+  zk_sup_reset_done:{uz:"{n} ta tovarning ochiq buyurtma bloki tozalandi - zakas ro'yxatida qayta hisoblanadi.",en:"Cleared the open-PO block on {n} product(s) - they'll be recalculated in the order list.",ru:"Блокировка от открытого заказа снята для {n} тов. - будут пересчитаны в списке заказа."},
+  zk_kr_click_tt:{uz:"bosing - kirim tarixini ko'rish",en:"click to see arrival history",ru:"нажмите - история прихода"},
   zk_clear_checked_btn:{uz:"Belgilarni tozalash",en:"Clear checks",ru:"Снять отметки"},
   zk_show_need_only:{uz:"faqat kerak bo'lganlarni ko'rsat",en:"show needed only",ru:"показать только нужные"},
   zk_show_all_n:{uz:"barchasini ko'rsat ({n})",en:"show all ({n})",ru:"показать все ({n})"},
@@ -721,24 +769,23 @@ function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
 // ishlaydi (faqat localStorage'ga bog'liq, Firebasega emas) ───
 (function(){
   try{
-    const us=localStorage.getItem("tiin_user");
+    const us=sessionStorage.getItem("tiin_user");
     if(us){
       const user=JSON.parse(us);
-      // Admin uchun p_nazorat va p8 (Kirim) har doim qo'shilsin (eski keshlangan tabs ro'yxati yangi sahifalarni bilmasligi mumkin)
-      if(user.role==="admin"||user.phone===_ADM_PHONE){
-        const _missing=["p_nazorat","p8","p9","p10","p11"].filter(x=>!(user.tabs||[]).includes(x));
-        if(_missing.length){
-          user.tabs=(user.tabs||[]).concat(_missing);
-          try{localStorage.setItem("tiin_user",JSON.stringify(user));}catch(_){}
-        }
-      }
       // AVVAL tablarni chekla, KEYIN login screeni olib tashlash (flash oldini olish)
       _applyUser(user);
       // Avtomatik sessiya tiklashda ham "kim kirdi" xabari (kuniga 1 marta).
       _tgNotifyDaily(user);
       const s=document.getElementById("login-screen");if(s)s.remove();
       document.body.classList.remove("locked");
+      // Fonda darhol + har 20s serverdan tekshiriladi - shu payt ichida
+      // hisob bloklangan/o'chirilgan yoki parol o'zgartirilgan bo'lsa,
+      // foydalanuvchi "chiqish" bosmasdan ham avtomatik login oynasiga
+      // chiqarib tashlanadi (sababi bilan - _authShowKickReason()).
+      _authCheckOnce();
+      _authStartWatch();
     }else{
+      _authShowKickReason();
       const p=document.getElementById("lg-phone");if(p)p.focus();
     }
   }catch(_){const p=document.getElementById("lg-phone");if(p)p.focus();}
@@ -801,7 +848,7 @@ function zSortBy(key){
   if(zSort.key===key){zSort.dir=-zSort.dir;}else{zSort.key=key;zSort.dir=1;}
   zPage=1;renderZaxira();
 }
-let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
+let P2=null,P3=null,P4=null,DAILY=null,DSKU={},DNAME={},DBC={},DMETA=null,p2chart=null,p4sk="v",p4sa=false,curTab3="A",curRows3=[];
 let p3Sort={key:null,dir:1};
 function p3SortBy(key){if(p3Sort.key===key){p3Sort.dir=-p3Sort.dir;}else{p3Sort.key=key;p3Sort.dir=1;}renderTable3(curRows3);}
 let donut3Chart=null,monthly3Chart=null,MONTHLY_REV_DATA=null,_monthlyRevLoadPromise=null;
@@ -875,6 +922,15 @@ let zkRowCost=_zkLoad("zk_row_cost");         // qator -> qo'lda kiritilgan narx
 // aks holda (kalit yo'q) sukut bo'yicha Invan (v.stock). Boshqa qator-holatlar (adj/qty/cost) bilan
 // bir xil naqsh - localStorage'da qator-kalit bo'yicha saqlanadi.
 let zkRowStockMode=_zkLoad("zk_row_stockmode");
+// SKU -> {po} - menejer "bu Open buyurtma kelmaydi" deb qo'lda belgilagan tovarlar
+// (zkResetOpenPo() orqali, ta'minotchi bo'yicha). krPendingQty() shu ro'yxatdagi
+// SKU'ni Open bo'lsa ham darhol e'tiborsiz qoldiradi (odatdagi 30-kunlik avtomatik
+// muddatni kutmasdan). `po` - BELGILANGAN PAYTDAGI aniq buyurtma raqami (order_no) -
+// agar keyinroq HAQIQIY YANGI Open buyurtma kelsa (order_no farq qiladi), eski
+// belgi endi O'SHA YANGI buyurtmaga tegishli EMAS deb avtomatik e'tiborsiz qoldiriladi
+// (zkRowCost'dagi costManual/base tekshiruvi bilan bir xil "eskirgan qo'lda belgi
+// avtomatik bekor bo'lsin" naqshi).
+let zkIgnoreOpenPo=_zkLoad("zk_ignore_open_po");
 function zkSaveManual(){try{
   localStorage.setItem("zk_sup_targets",JSON.stringify(zkSupTargets));
   localStorage.setItem("zk_row_adj",JSON.stringify(zkRowAdj));
@@ -882,6 +938,7 @@ function zkSaveManual(){try{
   localStorage.setItem("zk_row_cost",JSON.stringify(zkRowCost));
   localStorage.setItem("zk_row_checked",JSON.stringify(zkRowChecked));
   localStorage.setItem("zk_row_stockmode",JSON.stringify(zkRowStockMode));
+  localStorage.setItem("zk_ignore_open_po",JSON.stringify(zkIgnoreOpenPo));
 }catch(e){}}
 // Kategoriya/Subkategoriya filtri - bitta supplier ichida ko'rib chiqilayotganda, MUNTAZAM
 // va CHUQUR bo'limlari o'rtasida UMUMIY (ikkalasiga ham qo'llanadi), lekin supplier
@@ -1162,6 +1219,31 @@ function zkResetAll(){
   zkSaveManual();
   renderZakas();
 }
+// Hozir "Open" (kelmaydigan) buyurtma sabab zakas 0'ga qulflangan qatorlarni ANIQLAB,
+// ularni zkIgnoreOpenPo'ga qo'shadi - shundan keyin krPendingQty() ularni darhol
+// e'tiborsiz qoldiradi, tovar oddiy (maqsadli kun) formulasiga qaytadi (foydalanuvchi
+// so'rovi, 2026-08-18: ta'minotchi hech qachon yopmagan Open buyurtma tufayli tovar
+// zakasdan abadiy chetlab o'tilib qolmasin, 30-kunlik avtomatik muddatni kutmasdan ham).
+// Bitta ta'minotchi ko'rsatilayotgan bo'lsa (Detail + filtr) - FAQAT shu ta'minotchi
+// doirasida; aks holda (Ro'yxat ko'rinishi) - butun katalog bo'yicha.
+function zkResetOpenPo(){
+  const scoped=zkMode==="detail"&&zkSupFilter;
+  const msgKey=scoped?"zk_reset_openpo_sup_confirm":"zk_reset_openpo_all_confirm";
+  if(!confirm(t(msgKey).replace("{sup}",scoped?zkSupFilter:"")))return;
+  const allSups=_zkBuildSuppliers("normal").concat(_zkBuildSuppliers("chuqur"));
+  const rows=scoped?(allSups.find(s=>s.sup===zkSupFilter)?.rows||[]):allSups.flatMap(s=>s.rows);
+  let ignored=0;
+  rows.forEach(r=>{
+    if(r.pendingQty>0&&r.sku){
+      const entry=P8&&P8.skus?P8.skus[String(r.sku)]:null;
+      const latest=entry&&entry.arrivals&&entry.arrivals.length?entry.arrivals.reduce((a,b)=>(b.date||"")>(a.date||"")?b:a):null;
+      if(latest){zkIgnoreOpenPo["s:"+r.sku]={po:latest.order_no||latest.order_id||latest.date};ignored++;}
+    }
+  });
+  zkSaveManual();
+  renderZakas();
+  alert(ignored?t("zk_sup_reset_done").replace("{n}",ignored):t("zk_reset_openpo_none"));
+}
 // Eksport uchun BELGILANGAN (checked) tovarlarni BARCHA supplierlar bo'yicha bir
 // zumda tozalaydi - foydalanuvchi bir supplierda galochka qo'yib, keyin boshqa
 // supplierga o'tib yana belgilasa, eskilari "esidan chiqib" eksportga qo'shilib
@@ -1173,17 +1255,46 @@ function zkClearAllChecked(){
   renderZakas();
   _zkRenderQuickPanel();
 }
+// "Tozalash" endi ikkita alohida narsani BITTA tugma ostida taklif qiladi (foydalanuvchi
+// so'rovi, 2026-08-18: ilgari ta'minotchi header'ida yana bitta alohida "Tozalash" tugmasi
+// bor edi - ikkita bir xil nomli tugma chalkashtirardi): (1) qo'lda kiritilgan
+// o'zgarishlarni tozalash (zkResetAll, avvalgidek), (2) Open buyurtma bloklarini tozalash
+// (zkResetOpenPo, yangi). Импорт tugmasi bilan bir xil kichik menyu naqshi.
 function _zkInitResetBtn(){
-  let btn=document.getElementById("zk-reset-btn");
-  if(!btn){
-    const wrap=document.getElementById("zk-quickbtn-wrap");if(!wrap)return;
-    btn=document.createElement("button");
-    btn.id="zk-reset-btn";btn.type="button";btn.onclick=zkResetAll;
-    btn.style.cssText="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:16px;background:#fff;border:1.5px solid #fde8e8;font-size:12px;font-weight:600;color:#E24B4A;cursor:pointer;flex-shrink:0;margin-right:8px";
-    wrap.parentNode.insertBefore(btn,wrap);
+  let wrap=document.getElementById("zk-reset-wrap");
+  if(!wrap){
+    const qwrap=document.getElementById("zk-quickbtn-wrap");if(!qwrap)return;
+    wrap=document.createElement("span");
+    wrap.id="zk-reset-wrap";
+    wrap.style.cssText="position:relative;display:inline-flex;margin-right:8px";
+    const btn=document.createElement("button");
+    btn.id="zk-reset-btn";btn.type="button";
+    btn.onclick=e=>{e.stopPropagation();_zkToggleResetMenu();};
+    btn.style.cssText="display:flex;align-items:center;gap:5px;padding:7px 12px;border-radius:16px;background:#fff;border:1.5px solid #fde8e8;font-size:12px;font-weight:600;color:#E24B4A;cursor:pointer;flex-shrink:0";
+    wrap.appendChild(btn);
+    const menu=document.createElement("div");
+    menu.id="zk-reset-menu";
+    menu.style.cssText="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:#fff;border:1px solid #fde8e8;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.14);overflow:hidden;min-width:250px";
+    menu.innerHTML=
+      `<button type="button" class="zk-reset-mitem" data-t="manual" style="display:flex;align-items:center;gap:9px;width:100%;padding:11px 15px;border:none;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#534AB7;text-align:left"><span style="flex-shrink:0">↺</span><span></span></button>`+
+      `<button type="button" class="zk-reset-mitem" data-t="openpo" style="display:flex;align-items:center;gap:9px;width:100%;padding:11px 15px;border:none;border-top:1px solid #f7ece2;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#B4690E;text-align:left"><span style="flex-shrink:0">📦</span><span></span></button>`;
+    wrap.appendChild(menu);
+    menu.querySelectorAll(".zk-reset-mitem").forEach(it=>{
+      it.onmouseenter=()=>{it.style.background="#f7f6fc";};
+      it.onmouseleave=()=>{it.style.background="#fff";};
+      it.onclick=e=>{e.stopPropagation();menu.style.display="none";if(it.getAttribute("data-t")==="manual")zkResetAll();else zkResetOpenPo();};
+    });
+    qwrap.parentNode.insertBefore(wrap,qwrap);
   }
-  btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg> ${t("zk_reset_btn")}`;
+  const btn=document.getElementById("zk-reset-btn");
+  if(btn)btn.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg> ${t("zk_reset_btn")}`;
+  const manualLbl=wrap.querySelector('.zk-reset-mitem[data-t="manual"] span:last-child');
+  if(manualLbl)manualLbl.textContent=t("zk_reset_menu_manual");
+  const openLbl=wrap.querySelector('.zk-reset-mitem[data-t="openpo"] span:last-child');
+  if(openLbl)openLbl.textContent=(zkMode==="detail"&&zkSupFilter)?t("zk_reset_menu_openpo_sup").replace("{sup}",zkSupFilter):t("zk_reset_menu_openpo_all");
 }
+function _zkToggleResetMenu(){const m=document.getElementById("zk-reset-menu");if(m)m.style.display=(m.style.display==="none"||!m.style.display)?"block":"none";}
+document.addEventListener("click",function(e){const w=document.getElementById("zk-reset-wrap");const m=document.getElementById("zk-reset-menu");if(w&&m&&!w.contains(e.target))m.style.display="none";});
 // ─── Zakas → Invan'ga TO'G'RIDAN-TO'G'RI yuborish (2026-07-23) ───
 // IKKITA tugma: DEMO (yashil, sinov uchun - har doim ishlaydi, real akkauntga
 // ta'sir qilmaydi) va INVAN/HAQIQIY (qizil, ehtiyot rangida - hozircha backend
@@ -1245,7 +1356,7 @@ function _zkToggleInvanMenu(){const m=document.getElementById("zk-invan-menu");i
 // Joriy login menejer ismi (buyurtma izohiga yoziladi - Invan'da "yaratgan" maydoni
 // static token egasi (integratsiya akkaunti) bo'lib qoladi, shuning uchun haqiqiy
 // menejerни izohда qayd etamiz).
-function _zkManagerName(){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return (u.name||u.phone||"").trim();}catch(e){return "";}}
+function _zkManagerName(){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return (u.name||u.phone||"").trim();}catch(e){return "";}}
 // ─── Invan SHAXSIY hisob (login) ───
 // Muammo (foydalanuvchi topilmasi, 2026-07-25): "Invan'ga yuborish" bosilganda
 // buyurtma HAR DOIM bitta umumiy statik token (integratsiya hisobi) nomidan
@@ -1259,7 +1370,7 @@ function _zkManagerName(){try{const u=JSON.parse(localStorage.getItem("tiin_user
 // holda bitta kompyuterda ikkinchi xodim kirganda ham birinchisining Invan
 // hisobi ishlatilib qolaverar edi (foydalanuvchi topilmasi, 2026-07-25: "boshqa
 // user o'zinikidan kirib zakas bossa meni akkauntimdan ketib qolmaydimi").
-function _zkInvanUserSuffix(){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return String(u.id||u.phone||"anon");}catch(e){return "anon";}}
+function _zkInvanUserSuffix(){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return String(u.id||u.phone||"anon");}catch(e){return "anon";}}
 function _zkInvanTokenKey(target){return "invan_my_token_"+target+"_"+_zkInvanUserSuffix();}
 function _zkInvanNameKey(target){return "invan_my_name_"+target+"_"+_zkInvanUserSuffix();}
 function _zkInvanMyToken(target){try{return localStorage.getItem(_zkInvanTokenKey(target))||"";}catch(e){return "";}}
@@ -2029,13 +2140,30 @@ function _zkInvanOrdersUrl(isProd){
 // buyurtmaga qaraladi (barcha Open'larni jamlamaydi) - aks holda eski Ochiq buyurtma
 // keyinroq boshqa (alohida) buyurtma orqali Qabul qilingan bo'lsa ham "Open" bo'lib
 // noto'g'ri ko'rinib qolar edi.
+// 2026-08-17 (Bilol so'rovi): "Open" buyurtma abadiy ochiq qolib ketishi mumkin
+// (ta'minotchi hech qachon yopmagan/unutilgan) - shunday tovar Zakas'da CHEKSIZ
+// muddat chetlab o'tilib qolmasin. Shu limitdan o'tgan "Open" buyurtma Zakas
+// UCHUN (FAQAT shu yerda - Kirim/p8 bo'limidagi haqiqiy status buzilmaydi)
+// endi yo'q hisoblanadi, tovar oddiy formulaga qaytadi.
+const KR_OPEN_PO_ZAKAS_LIMIT_DAYS=30;
 function krPendingQty(sku){
   if(!P8||!P8.skus||!sku)return 0;
   const entry=P8.skus[String(sku)];
   if(!entry||!entry.arrivals||!entry.arrivals.length)return 0;
   const latest=entry.arrivals.reduce((a,b)=>(b.date||"")>(a.date||"")?b:a);
-  if(latest.status==="Open"||latest.status==="New")return latest.expected||0;
-  return 0;
+  if(latest.status!=="Open"&&latest.status!=="New")return 0;
+  // Menejer "bu Open buyurtma kelmaydi" deb qo'lda belgilagan bo'lsa (zkResetOpenPo())
+  // - 30-kunlik muddatni kutmasdan darhol e'tiborsiz qoldiriladi. Belgi FAQAT
+  // belgilangan PAYTDAGI aniq buyurtmaga tegishli - shu orada YANGI Open buyurtma
+  // kelgan bo'lsa (order_no farq qiladi), eski belgi endi mos kelmaydi va tabiiy
+  // ravishda o'tkazib yuboriladi (qo'lda tozalash shart emas).
+  const ign=zkIgnoreOpenPo["s:"+sku];
+  if(ign&&ign.po===(latest.order_no||latest.order_id||latest.date))return 0;
+  if(latest.date){
+    const openDays=Math.round((Date.now()-new Date(latest.date).getTime())/86400000);
+    if(openDays>KR_OPEN_PO_ZAKAS_LIMIT_DAYS)return 0;
+  }
+  return latest.expected||0;
 }
 // Shu SKU'ning ehtimoliy karobka/blok o'lchamini P8 (kirim tarixi) orqali
 // taxmin qiladi - hech qanday ta'minotchi/rasmiy manbada bu ma'lumot yozilmagan
@@ -2122,12 +2250,21 @@ function _zkBuildSuppliers(depth){
       // Shuning uchun mantiq TESKARI saqlanadi: xotirada BELGI YO'Q = "calc",
       // "invan" esa foydalanuvchi ataylab tanlaganda yoziladi (eski xotirada
       // saqlangan "calc" qiymatlar ham to'g'ri ishlayveradi - ular ham !== "invan").
-      // Qo'lda tuzatish (STOCK_OV, Turso'dan) bo'lsa - u calcStock'ning USTIDAN
-      // eng yuqori ustuvorlik bilan qo'llaniladi (menejer jismonan sanagan son,
-      // modeldan ishonchliroq). "Invan" rejimi tanlangan bo'lsa ham bu tuzatish
-      // ko'rsatiladi - tuzatish aynan "hisoblangan" tarafning o'rnini bosadi.
+      // Qo'lda tuzatish (STOCK_OV, Vercel Blob'dan) bo'lsa - u calcStock'ning
+      // USTIDAN eng yuqori ustuvorlik bilan qo'llaniladi (menejer jismonan
+      // sanagan son, modeldan ishonchliroq). "Invan" rejimi tanlangan bo'lsa
+      // ham bu tuzatish ko'rsatiladi - tuzatish aynan "hisoblangan" tarafning
+      // o'rnini bosadi.
+      // 2026-08-19 (Bilol so'rovi: "qo'lda o'zgartirsam ham savdo/kirim bilan
+      // yangilanib borsin" - avval qiymat butunlay QOTIB QOLARDI). Backend
+      // (_live_invdata) endi tuzatish kiritilgan VAQTdan (updated_at) buyon
+      // Invan'da sodir bo'lgan sotuv/kirimni hisobga olib, jonli yangilangan
+      // qiymatni `v.ovEffective`da beradi - calcStock live-tuzatishi bilan
+      // BIR XIL mantiq, faqat har tuzatish O'Z vaqtidan boshlanadi. Server
+      // shu safar hisoblay olmasa (masalan Blob/Invan vaqtincha xato bersa)
+      // xom `_ov.value`ga qaytiladi - hech qachon butunlay yo'qolib qolmaydi.
       const _ov=v.sku?STOCK_OV[String(v.sku)]:null;
-      const _effCalc=_ov?_ov.value:v.calcStock;
+      const _effCalc=_ov?(v.ovEffective!=null?v.ovEffective:_ov.value):v.calcStock;
       const useCalcStock=_effCalc!=null&&zkRowStockMode[key]!=="invan";
       const stock=(useCalcStock?_effCalc:v.stock)||0;
       const _da=eda(v);
@@ -2209,7 +2346,7 @@ function _zkBuildSuppliers(depth){
       const costManual=_costOv!=null&&_costOv.base===rawCost;
       const rcost=costManual?_costOv.val:rawCost;
       const rcostApprox=costManual?false:!!v.rcostApprox;
-      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
+      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
     }).sort((a,b)=>{
       // zkRowOrder depth+supplier bo'yicha kalitlanadi - Muntazam va Chuqur bo'limlari
       // BIR XIL supplier nomi ostida BUTUNLAY BOSHQA tovarlarga ega bo'lishi mumkin,
@@ -2235,12 +2372,20 @@ function _zkBuildSuppliers(depth){
   out.forEach((s,si)=>{s._si=si;s.rows.forEach(r=>{r._ri=_localRows.length;_localRows.push(r);});});
   return out;
 }
+// 2026-08-12: zkQuery/renderZakas() endi HAR HARFDA emas, faqat Enter
+// bosilganda ishga tushadi (foydalanuvchi so'rovi - katta ro'yxatni har
+// harfda qayta hisoblash "qotish"dek sezilar edi). Tugma/dropdown ko'rinishi
+// (arzon, DOM-only) va ta'minotchi-ichi tez qidiruv (_zkRenderSupDrop,
+// qisqa ro'yxat) hamon HAR HARFDA yangilanadi - faqat asosiy og'ir
+// renderZakas() kechiktiriladi.
 function zkSearchInput(v){
-  zkQuery=v.toLowerCase().trim();
-  if(zkMode!=="detail")zkSupFilter="";
-  zkPage=1;
   const x=document.getElementById("zk-search-x");if(x)x.style.display=v?"flex":"none";
   if(zkMode!=="list")_zkRenderSupDrop();
+}
+function zkSearchSubmit(v){
+  zkQuery=(v||"").toLowerCase().trim();
+  if(zkMode!=="detail")zkSupFilter="";
+  zkPage=1;
   renderZakas();
 }
 function zkSearchFocus(){if(zkMode==="list")return;_zkRenderSupDrop();}
@@ -2290,11 +2435,21 @@ function zkOpenSupplier(sup){
   const dx=document.getElementById("zk-detail-search-x");if(dx)dx.style.display=_keepQ?"flex":"none";
   _zkRefreshCatFilters();_zkSaveViewState();renderZakas();
 }
-function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkDetailQuery="";zkPage=1;zkCatFilter="";zkSubFilter="";zkBcFilter=null;zkBcShowAll=false;zkBcStats=null;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";const di=document.getElementById("zk-detail-search");if(di)di.value="";const fp=document.getElementById("zk-fpop");if(fp)fp.classList.remove("open");_zkSaveViewState();renderZakas();}
+function zkBackToList(){zkMode="list";zkSupFilter="";zkQuery="";zkDetailQuery="";zkPage=1;zkCatFilter="";zkSubFilter="";zkBcFilter=null;zkBcShowAll=false;zkBcStats=null;const inp=document.getElementById("zk-search");if(inp)inp.value="";const x=document.getElementById("zk-search-x");if(x)x.style.display="none";const di=document.getElementById("zk-detail-search");if(di)di.value="";const fp=document.getElementById("zk-fpop");if(fp)fp.classList.remove("open");_zkSaveViewState();
+  // Zakas oynasi yopildi — orqa fonda kelib turgan yangilanish endi
+  // xavfsiz qo'llanadi (ish ustida turgan sonlar o'zgarmasligi uchun u
+  // shu paytgacha ushlab turilgan edi).
+  if(_pendingBg){const _d=_pendingBg;_pendingBg=null;if(_d.inventory)INVDATA=_d.inventory;if(_d.kirim)P8=_d.kirim;if(P2)_buildZItems();}
+  if(typeof _pendingStaticRefresh!=="undefined"&&_pendingStaticRefresh){_pendingStaticRefresh=false;_quietBuildRefresh();}
+  renderZakas();}
 // ── Detail (bitta supplier) ichida qidiruv: shu supplierning tovarlarini nom/SKU/barcode
 // bo'yicha filtrlaydi. Enter bosilganda — agar moslik joriy bo'limda topilmasa, lekin
 // ikkinchi bo'limda (Muntazam ↔ Chuqur) bo'lsa, avtomatik o'sha bo'limga o'tadi.
+// 2026-08-12: og'ir qism (renderZakas) faqat Enter bosilganda.
 function zkDetailSearchInput(v){
+  const x=document.getElementById("zk-detail-search-x");if(x)x.style.display=v?"flex":"none";
+}
+function zkDetailSearchSubmit(v){
   zkDetailQuery=(v||"").toLowerCase().trim();
   zkPage=1;
   const x=document.getElementById("zk-detail-search-x");if(x)x.style.display=v?"flex":"none";
@@ -2454,7 +2609,10 @@ function zkToggleSettingsPanel(e){
   if(zkSetOpen){zkSetQuery="";zkSetPickedSku=null;zkSetMsg="";}
   _zkRenderSettingsPanel();
 }
-function zkSetSearchInput(v){
+// 2026-08-12: har harfda emas, faqat Enter bosilganda (boshqa qidiruvlar
+// bilan bir xil tuzatish - katta ro'yxatni har harfda qayta chizish
+// "qotish"dek sezilardi).
+function zkSetSearchSubmit(v){
   zkSetQuery=(v||"").toLowerCase().trim();
   _zkRenderSettingsPanel();
 }
@@ -2550,9 +2708,9 @@ function _zkRenderSettingsPanel(){
   panel.innerHTML=`
     <div class="zk-settings-title">Stokni qo'lda tuzatish</div>
     <div class="zk-settings-hint">Model hisoblagan "Hisoblangan stok" xato bo'lsa (masalan jismonan sanaganda son boshqacha chiqsa) - shu yerdan tovarni qidirib, to'g'ri sonni kiriting. O'zgarish darhol BARCHA kompyuterlarda ko'rinadi.</div>
-    <div class="zk-set-search"><input type="text" placeholder="Mahsulot nomi, SKU yoki shtrix-kod..." value="${esc(q)}" oninput="zkSetSearchInput(this.value)" autocomplete="off"></div>
+    <div class="zk-set-search"><input type="text" placeholder="Mahsulot nomi, SKU yoki shtrix-kod..." value="${esc(q)}" onkeydown="if(event.key==='Enter'){event.preventDefault();zkSetSearchSubmit(this.value);}" autocomplete="off"></div>
     ${q?`<div class="zk-set-results">${results.length?results.map(it=>`<div class="zk-set-result-row" onclick="zkSetPick('${it.sku}')"><span class="zk-set-result-name">${esc(it.name)}</span><span class="zk-set-result-stock">${it.calcStock!=null?it.calcStock:(it.stock!=null?it.stock:"—")}${STOCK_OV[String(it.sku)]?" ✎":""}</span></div>`).join(""):'<div style="padding:10px;text-align:center;color:#bbb;font-size:11.5px">Topilmadi</div>'}</div>`:""}
-    ${!q&&ovEntries.length?`<div class="zk-set-ov-list"><div style="font-size:11px;color:#999;margin-bottom:4px">Qo'lda tuzatilgan tovarlar (${ovEntries.length}):</div>${ovEntries.map(([sku,ov])=>{const it=(ZITEMS||[]).find(z=>String(z.sku)===sku);return `<div class="zk-set-ov-row"><span class="zk-set-ov-name" onclick="zkSetPick('${sku}')">${esc(it?it.name:sku)}</span><b>${ov.value}</b></div>`;}).join("")}</div>`:""}
+    ${!q&&ovEntries.length?`<div class="zk-set-ov-list"><div style="font-size:11px;color:#999;margin-bottom:4px">Qo'lda tuzatilgan tovarlar (${ovEntries.length}):</div>${ovEntries.map(([sku,ov])=>{const it=(ZITEMS||[]).find(z=>String(z.sku)===sku);const _eff=it&&it.ovEffective!=null?it.ovEffective:null;const _valTxt=(_eff!=null&&_eff!==ov.value)?`${_eff} <span style="color:#bbb;font-weight:400;text-decoration:line-through">${ov.value}</span>`:ov.value;return `<div class="zk-set-ov-row"><span class="zk-set-ov-name" onclick="zkSetPick('${sku}')">${esc(it?it.name:sku)}</span><b>${_valTxt}</b></div>`;}).join("")}</div>`:""}
   `;
 }
 // Ro'yxat sahifasidagi "N zakasga muhtoj" bilan HAR DOIM mos bo'lishi uchun - ikkala
@@ -2823,12 +2981,20 @@ function renderZakas(){
       const _fmt=n=>r.kg?n.toFixed(2):n.toLocaleString();
       const invTxt=_fmt(r.invanStock);
       let calcCell, invCell;
-      // Qo'lda tuzatish (r.calcOverride, Turso'dan) bo'lsa - u calcStock o'rnida
-      // ko'rsatiladi (binafsha rang + qalam belgisi). Qator ichida alohida
-      // tahrir belgisi YO'Q (foydalanuvchi so'rovi, 2026-08-10) - tuzatish
-      // faqat yuqoridagi ⚙ Sozlamalar panelidan (qidiruv orqali) kiritiladi.
+      // Qo'lda tuzatish (r.calcOverride, Vercel Blob'dan) bo'lsa - u calcStock
+      // o'rnida ko'rsatiladi (binafsha rang + qalam belgisi). Qator ichida
+      // alohida tahrir belgisi YO'Q (foydalanuvchi so'rovi, 2026-08-10) -
+      // tuzatish faqat yuqoridagi ⚙ Sozlamalar panelidan (qidiruv orqali)
+      // kiritiladi.
+      // 2026-08-20 (Bilol topilmasi, real misol: "coca-cola 2l" 680 kiritilgan,
+      // 22 dona sotilgan, lekin bu yerda hamon 680 ko'rinardi): bu yerda
+      // ATAYLAB alohida hisoblanadigan _effStock bor edi (yuqoridagi
+      // _zkBuildSuppliers'dagi jonli-tuzatilgan `stock`dan MUSTAQIL) - shu
+      // sabab u yerdagi tuzatish (ovEffective) bu YERGA yetib bormagan edi.
+      // Endi bu ham xuddi calcStock live-tuzatishi kabi `r.ovEffective`ni
+      // ishlatadi (mavjud bo'lmasa xom qiymatga qaytadi).
       const _ovActive=!!r.calcOverride;
-      const _effStock=_ovActive?r.calcOverride.value:r.calcStock;
+      const _effStock=_ovActive?(r.ovEffective!=null?r.ovEffective:r.calcOverride.value):r.calcStock;
       if(_effStock==null){
         const invStyle=r.invanStock<=0?"color:#E24B4A;font-weight:700":"font-weight:600";
         calcCell=`<span class="zk-stock-half zk-stock-calc" style="color:#ccc">—</span>`;
@@ -2872,7 +3038,12 @@ function renderZakas(){
       const oqRaw=r.kg?r.orderQty:r.orderQty;
       const isManual=zkRowQty[r.key]!=null;
       const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
-      const statusCell=r.pendingQty>0?`<span class="zk-open-badge" title="${r.pendingQty.toLocaleString()} dona yo'lda">Open</span>`:`<span class="status-dot ${sl[0]}" title="${esc(sl[1])}"></span>`;
+      // Bosilganda Kirim (p8) bo'limidagi kabi shu tovarning TO'LIQ kirim tarixini
+      // ko'rsatadi (zkOpenKirimDetail) - foydalanuvchi so'rovi (2026-08-18): "Open"
+      // buyurtma haqiqiy kelmaydigan bo'lsa, buni Zakas'ning o'zidan (Kirim bo'limiga
+      // alohida o'tmasdan) darhol tekshirib ko'rish uchun.
+      const _krClick=r.sku?` onclick="event.stopPropagation();zkOpenKirimDetail('${esc(String(r.sku))}')" style="cursor:pointer"`:"";
+      const statusCell=r.pendingQty>0?`<span class="zk-open-badge"${_krClick} title="${r.pendingQty.toLocaleString()} dona yo'lda - ${t("zk_kr_click_tt")}">Open</span>`:`<span class="status-dot ${sl[0]}"${_krClick} title="${esc(sl[1])}"></span>`;
       // Narx: eng ishonchli tannarx (haqiqiy kirim tarixi, topilmasa katalog fallback -
       // build_prev_avg.py: recompute_current_cost()). Taxminiy bo'lsa (kirim tarixi hali
       // yo'q - yangi tovar) "≈" bilan belgilanadi va tooltip'da tushuntiriladi.
@@ -2896,7 +3067,7 @@ function renderZakas(){
       const _checked=_zkIsChecked(r);
       const sumVal=_checked?r.orderQty*r.rcost:0;
       const sumTxt=_checked&&sumVal>0?`<span style="color:#1D9E75">${Math.round(sumVal).toLocaleString()}</span>`:"—";
-      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_checked?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:12px">${i+1}</td><td><div class="zk-prod-link" onclick="zkOpenProduct(${r._ri})">${esc(r.name)}</div>${r.sku?`<div style="font-size:11px;color:#aaa">${esc(r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:4px;background:${r.abc==="A"?"#d7f3ea":r.abc==="B"?"#e3ddf9":"#fce8c8"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#c97f14"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:center">${lkTxt}</td><td style="text-align:right;color:#666">${dTxt}</td><td style="text-align:right;color:#666">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)" onclick="event.stopPropagation()"></td><td style="text-align:center">${statusCell}</td><td style="text-align:right">${costCell}</td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:11px;margin-right:3px">+${r.minAdd}</span>`:"" }${r.boxAdd>0&&!isManual?`<span style="color:#1D9E75;font-size:11px;margin-right:3px" title="Karobka: ${r.boxSize} dona (tarixiy kirimdan taxmin qilingan)">+${r.boxAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:12px">${u}</span></td><td style="text-align:right;font-weight:600">${sumTxt}</td></tr>`;
+      h+=`<tr><td style="text-align:center"><input type="checkbox" class="zk-chk" ${_checked?"checked":""} onchange="zkToggleRow(${r._ri})" onclick="event.stopPropagation()"></td><td style="color:#bbb;font-size:12px">${i+1}</td><td><div class="zk-prod-link" onclick="zkOpenProduct(${r._ri})">${esc(r.name)}</div>${(r.bc&&r.bc.length)||r.sku?`<div style="font-size:11px;color:#aaa">${esc(r.bc&&r.bc.length?r.bc.join(", "):r.sku)}</div>`:""}</td><td style="text-align:center"><span style="font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:4px;background:${r.abc==="A"?"#d7f3ea":r.abc==="B"?"#e3ddf9":"#fce8c8"};color:${r.abc==="A"?"#1D9E75":r.abc==="B"?"#534AB7":"#c97f14"}">${r.abc||"—"}</span></td><td style="text-align:right">${stTxt}</td><td style="text-align:center">${lkTxt}</td><td style="text-align:right;color:#666">${dTxt}</td><td style="text-align:right;color:#666">${dlTxt}</td><td style="text-align:right"><input class="zk-adj-inp${r.adj?" nonzero":""}" type="number" value="${r.adj}" onchange="zkSetAdj(${r._ri},this.value)" onclick="event.stopPropagation()"></td><td style="text-align:center">${statusCell}</td><td style="text-align:right">${costCell}</td><td style="text-align:right;padding:2px 4px">${r.minAdd>0&&!isManual?`<span style="color:#EF9F27;font-size:11px;margin-right:3px">+${r.minAdd}</span>`:"" }${r.boxAdd>0&&!isManual?`<span style="color:#1D9E75;font-size:11px;margin-right:3px" title="Karobka: ${r.boxSize} dona (tarixiy kirimdan taxmin qilingan)">+${r.boxAdd}</span>`:"" }<input class="zk-adj-inp${isManual?' nonzero':''}" type="number" min="0" step="${r.kg?'0.1':'1'}" value="${oqRaw}" onchange="zkSetQty(${r._ri},this.value)" onclick="event.stopPropagation()"> <span style="color:#888;font-size:12px">${u}</span></td><td style="text-align:right;font-weight:600">${sumTxt}</td></tr>`;
     });
     // Belgilangan (galochka qo'yilgan) qatorlarning summasi - jadval OSTIDA, o'ng
     // burchakda (foydalanuvchi so'rovi, 2026-07-22). Faqat shu supplierning qatorlari
@@ -3122,21 +3293,69 @@ function _spFitTableHeight(){
   });
   window.addEventListener("resize",_spFitTableHeight);
 })();
+// 2026-08-18 (Bilol so'rovi): Kategoriyalar jadvali (.kt-scroller) statik
+// CSS "calc(100vh - 268px)" bilan cheklangan edi - bu qiymat sahifa
+// tarkibiga qarab ba'zan haqiqiy bo'sh joydan kamroq bo'lib, pastda
+// foydalanilmagan joy qolib ketardi. p5/p6'dagi kabi DINAMIK usulga
+// o'tkazildi - haqiqiy joylashuvdan (getBoundingClientRect) hisoblanadi.
+// 2026-08-19 (Bilol so'rovi): birinchi hisob ba'zan bir necha piksel
+// yetishmay, BUTUN SAHIFA (tashqi) skrollanib qolar edi - sarlavha qisman
+// ko'rinmay ketardi. Endi ikkinchi (o'z-o'zini tuzatuvchi) qadam qo'shildi:
+// agar shu qadamdan keyin ham HUJJAT balandligi oyna balandligidan katta
+// bo'lsa (biror hisobga olinmagan element sabab), aynan shu farqga jadval
+// balandligi yana qisqartiriladi - tashqi skroll HECH QACHON chiqmasligi
+// kafolatlanadi, ichki (jadval o'zi) skroll esa avvalgidek ishlayveradi.
+function _ktFitTableHeight(){
+  const p10=document.getElementById("p10");
+  const wrap=document.querySelector("#p10 .kt-scroller");
+  if(!p10||!wrap||!p10.classList.contains("active"))return;
+  const top=wrap.getBoundingClientRect().top;
+  let h=window.innerHeight-top-32;
+  wrap.style.maxHeight=Math.max(200,Math.round(h))+"px";
+  const overflow=document.documentElement.scrollHeight-window.innerHeight;
+  if(overflow>0){
+    h=Math.max(200,h-overflow-4);
+    wrap.style.maxHeight=Math.round(h)+"px";
+  }
+}
+(function(){
+  const ro=new ResizeObserver(()=>_ktFitTableHeight());
+  window.addEventListener("load",()=>{
+    const h=document.querySelector(".kt-header"),tb=document.querySelector("#p10 .kt-toolbar");
+    if(h)ro.observe(h);
+    if(tb)ro.observe(tb);
+  });
+  window.addEventListener("resize",_ktFitTableHeight);
+})();
 function toggleSidebar(){
   document.body.classList.toggle("sb-collapsed");
   localStorage.setItem("tiin_sidebar",document.body.classList.contains("sb-collapsed")?"collapsed":"open");
 }
+// Mobil ekranlarda sidebar overlay (drawer) sifatida ochiladi/yopiladi -
+// desktopdagi toggleSidebar() (rail kengligini o'zgartiradi) bilan aralashmaydi.
+function toggleMobileSidebar(){document.body.classList.toggle("mb-open");}
+function closeMobileSidebar(){document.body.classList.remove("mb-open");}
 // ─── showPage(): sahifa almashtirish dispatcheri — BARCHA sahifalar
 // (p1-p9, nazorat) shu funksiya orqali ochiladi, har sahifaning
 // birinchi marta ochilishida kerakli ma'lumotni yuklaydi ───
-async function showPage(btn){const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}await _ensureP2Data(apiData);await initP2(apiData);}loadHistory();}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){const _r=await fetch("data_abc.json",{cache:"no-store"});_p3v=await _r.json();}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
-if(pid==="p5"){if(!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
-if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}const _kirimP=_ensureKirimData();if(!P2){let apiData=null;if(window.TiinDataAPI){try{apiData=await window.TiinDataAPI.bootstrap();}catch(e){apiData=null;}}await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();await _kirimP;renderZakas();await _ensureStockOverrides();renderZakas();}
+async function showPage(btn){closeMobileSidebar();const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11"||pid==="p12")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){const _r=await fetch("data_abc.json",{cache:"no-store"});_p3v=await _r.json();}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+if(pid==="p5"){if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
+if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}const _kirimP=_ensureKirimData();if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();await _kirimP;
+  // 2026-08-15: qotish tekshiruvida topildi — Zakas'ga har kirishda
+  // renderZakas() IKKI MARTA chaqirilardi (har biri ~22k tovarni to'liq
+  // qayta hisoblaydi). Birinchi marta zarur (stok tuzatishlari hali
+  // yuklanmagan bo'lishi mumkin), lekin `_ensureStockOverrides()` bir
+  // martalik (`_stockOvLoaded` bilan keshlanadi) — sessiyada Zakas'ga
+  // IKKINCHI marta kirilganda ular ALLAQACHON yuklangan, shuning uchun
+  // qayta render shart emas.
+  const _zkNeedSecondRender=!_stockOvLoaded;
+  renderZakas();await _ensureStockOverrides();if(_zkNeedSecondRender)renderZakas();}
 if(pid==="p6"){const _kirimP=P8?null:_ensureKirimData();const _supP=P6?null:_ensureSupplierData();if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(_kirimP)await _kirimP;if(_supP){await _supP;initP6();}setTimeout(_spFitTableHeight,0);}
 if(pid==="p8"){if(!P8){await _ensureKirimData();}initP8();}
 if(pid==="p9"){oaInit();}
-if(pid==="p10"){await ktInit();}
+if(pid==="p10"){await ktInit();setTimeout(_ktFitTableHeight,0);}
 if(pid==="p11"){await fmInit();}
+if(pid==="p12"){await mgInit();}
 if(pid==="p_nazorat"){nazLoad();}_applyPageRange(pid);};
 function initP4(){if(!P4)return;renderP4Table(P4);renderP4Heatmap(P4);}
 function initP5(){if(!P2)return;_buildZItems();renderZaxira();}
@@ -3345,7 +3564,7 @@ function _buildZItems(){
     const _sp=parseFloat(v.suprice||0)||0;
     const _rp=parseFloat(v.iprice||v.p||0)||0;
     const _frozenVal=stock>0?Math.round(stock*(_sp||_rp)):0;
-    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",bc:v.bc||[],abc:v.abc||"",zabc:v.zabc||"",cat:v.cat||"",catTop:v.catTop||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,price:_sp||_rp,sp:_sp,rp:_rp,rcost:v.rcost||0,rcostApprox:!!v.rcostApprox,frozenVal:_frozenVal,ld:v.ld||null,lsd:v.ld||null,pav:v.pav||0,la:v.la||null,calcStock:v.calcStock!=null?v.calcStock:null,calcConf:v.calcConf||null,calcEvidence:v.calcEvidence!=null?v.calcEvidence:null,calcAnchor:v.calcAnchor||null,calcRule:v.calcRule||null,lkQty:v.lkQty!=null?v.lkQty:null,lkSold:v.lkSold!=null?v.lkSold:null,lkDate:v.lkDate||null,...c});
+    ZITEMS.push({_zi:ZITEMS.length,name:v.name,sku:v.sku||"",bc:v.bc||[],abc:v.abc||"",zabc:v.zabc||"",cat:v.cat||"",catTop:v.catTop||"",sup:v.sup||"",itype:v.itype||"",sub:v.sub||"",rev:v.rev||0,kg:v.kg||false,price:_sp||_rp,sp:_sp,rp:_rp,rcost:v.rcost||0,rcostApprox:!!v.rcostApprox,frozenVal:_frozenVal,ld:v.ld||null,lsd:v.ld||null,pav:v.pav||0,la:v.la||null,calcStock:v.calcStock!=null?v.calcStock:null,calcConf:v.calcConf||null,calcEvidence:v.calcEvidence!=null?v.calcEvidence:null,calcAnchor:v.calcAnchor||null,calcRule:v.calcRule||null,lkQty:v.lkQty!=null?v.lkQty:null,lkSold:v.lkSold!=null?v.lkSold:null,lkDate:v.lkDate||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,...c});
   });
   if(INVDATA){
     const p2skus=new Set(P2.filter(v=>v.sku).map(v=>String(v.sku)));
@@ -3361,7 +3580,7 @@ function _buildZItems(){
       if(stock>0&&iv.ld60){
         // So'nggi 30 kunda emas, lekin 60 kunlik oynada sotilgan — "aktiv" tarafda, sekinlashgan
         const di60=Math.max(0,Math.round((_endRef-new Date(iv.ld60))/86400000));
-        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reasonKey:"reason_slow_recent",reasonN:di60,di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
+        ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:"sekin",reasonKey:"reason_slow_recent",reasonN:di60,di:di60,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null,ovEffective:iv.ovEffective!=null?iv.ovEffective:null});
         return;
       }
       // stok bor → muzlagan; stok yo'q + avval sotilgan → eskirgan; stok yo'q + hech sotilmagan → yoq
@@ -3370,7 +3589,7 @@ function _buildZItems(){
       if(stock>0){_sig="muzlagan";_di=_lsdDi;if(iv.lsd){_rk="reason_last_sold_days_ago";_rn=_lsdDi;}else{_rk="reason_no_sale_history";}}
       else if(iv.lsd){_di=_lsdDi;_sig="eskirgan";_rk="reason_last_sold_days_ago_no_stock";_rn=_di;}
       else{_sig="yoq";_rk="reason_no_stock_jan1";}
-      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:_sig,reasonKey:_rk,reasonN:_rn,di:_di,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,lsd:iv.lsd||null,pav:iv.pav||0,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null});
+      ZITEMS.push({_zi:ZITEMS.length,name:key,sku:iv.sku||"",bc:iv.bc||[],abc:"",zabc:iv.zabc||"",cat:iv.catTop||iv.cat||"",catTop:iv.catTop||iv.cat||"",sup:iv.su||"",itype:iv.t||"",sub:iv.sb||"",rev:0,signal:_sig,reasonKey:_rk,reasonN:_rn,di:_di,dailyAvg:0,daysLeft:null,stock,wasGoodSeller:false,histRatio:0,frozenVal,price,sp,rp,rcost:iv.rcost||0,rcostApprox:!!iv.rcost_approx,la,lsd:iv.lsd||null,pav:iv.pav||0,calcStock:iv.calcStock!=null?iv.calcStock:null,calcConf:iv.calcConf||null,calcEvidence:iv.calcEvidence!=null?iv.calcEvidence:null,calcAnchor:iv.calcAnchor||null,calcRule:iv.calcRule||null,lkQty:iv.lkQty!=null?iv.lkQty:null,lkSold:iv.lkSold!=null?iv.lkSold:null,lkDate:iv.lkDate||null,ovEffective:iv.ovEffective!=null?iv.ovEffective:null});
     });
   }
   // Muzlagan kapital summasi — barcha muzlagan (stok bor, sotuv yo'q) ZITEMS'dan
@@ -3409,7 +3628,13 @@ function zFilter(f){
 }
 function pfQToggle(){const i=document.getElementById("pf-q"),c=document.getElementById("pf-q-clear");if(c)c.classList.toggle("show",!!(i&&i.value));}
 function pfQClear(){const i=document.getElementById("pf-q");if(i)i.value="";const c=document.getElementById("pf-q-clear");if(c)c.classList.remove("show");if(typeof p2Filter==='function')p2Filter();}
+// 2026-08-12: og'ir qism (renderZaxira) faqat Enter bosilganda - har harfda
+// minglab qatorni qayta chizish "qotish"dek sezilar edi.
 function zSearchInput(){
+  const inp=document.getElementById("z-q");
+  const cl=document.getElementById("z-clear");if(cl)cl.classList.toggle("show",!!(inp&&inp.value));
+}
+function zSearchSubmit(){
   const inp=document.getElementById("z-q");
   zQuery=(inp?inp.value:"").toLowerCase().trim();
   zPage=1;
@@ -3754,13 +3979,72 @@ function extractBuiltAt(html){
   const m=String(html||"").match(/"builtAt"\s*:\s*"([^"]+)"/);
   return m?m[1]:"";
 }
+// 2026-08-15 (Bilol talabi): yangi build (pipeline commit'i, kuniga 2 marta,
+// yoki har qanday kod push'i, masalan faqat .github/workflows o'zgarishi)
+// chiqqanda sahifa ILGARI TO'LIQ QAYTA YUKLANARDI — foydalanuvchi kutmagan
+// holda "Yuklanmoqda..." ko'rar, joriy scroll/filtr/holat yo'qolar edi.
+// Endi HECH QACHON QAYTA YUKLANMAYDI: har bo'lim o'z ALOHIDA JSON faylidan
+// (data_daily.json emas — p1data HTML ichida, p2/p3 esa data_mahsulotlar.json/
+// data_abc.json'da, chunki `backend_html_embed.py` ularni HTML hajmini
+// kichraytirish uchun ATAYLAB bo'sh qoldiradi — tekshirilgan) jimgina qayta
+// olinadi va — FAQAT o'sha sahifa hozir ochiq bo'lsa — qayta chiziladi.
+// Boshqa sahifalar (P4/P6/P9/P10/P11) hozircha shu yo'lda emas — ularning
+// keshi bo'shatiladi, keyingi tabiiy o'tishda o'zi yangi ma'lumot oladi
+// (mavjud fetch-zaxira orqali, allaqachon bor).
+// 2026-08-15: XATO TUZATILDI — bu funksiya `check()`dan `await`SIZ
+// chaqirilardi, ya'ni bir necha marta ustma-ust (ayniqsa bugungi kabi
+// tez-tez push ketganda) BIR VAQTDA ishga tushishi mumkin edi — har
+// birida 12-13 MB fayl yuklab, sinxron JSON.parse qilib, sahifani
+// SEZILARLI sekinlashtirardi ("juda asta ishlayapti" shikoyati shundan).
+// Endi: (1) bir vaqtda faqat BITTASI ishlaydi (`_quietRefreshBusy`),
+// (2) ketma-ket juda tez-tez ishlamasligi uchun eng kami 2 daqiqa oraliq,
+// (3) P1 uchun BUTUN 13 MB sahifa faqat foydalanuvchi HOZIR aynan Bosh
+// sahifada bo'lsa yuklanadi (aks holda foydasiz tarmoq/CPU bosimi).
+let _quietRefreshBusy=false,_lastQuietRefresh=0;
+async function _quietBuildRefresh(){
+  if(_quietRefreshBusy)return;
+  const now=Date.now();
+  if(now-_lastQuietRefresh<120000)return;   // 2 daqiqadan tez-tez emas
+  _quietRefreshBusy=true;_lastQuietRefresh=now;
+  try{
+    // p1data — faqat HTML ichida (alohida fayli yo'q). Foydasiz 13 MB
+    // yuklamaslik uchun faqat aynan shu sahifa ochiq bo'lsa so'raladi.
+    if(curPageId==="p1"){
+      try{
+        const url=new URL(window.location.href);
+        url.searchParams.set("_bg",Date.now().toString());
+        const res=await fetch(url.toString(),{cache:"no-store"});
+        const html=await res.text();
+        const m=html.match(/<script id="p1data"[^>]*>([\s\S]*?)<\/script>/);
+        if(m){const v=JSON.parse(m[1]);if(v&&v.daily&&v.daily.length){P1=v;P1FULL=v;renderP1();}}
+      }catch(e){/* jim - keyingi urinishda qayta */}
+    }
+    if(P2){                       // faqat allaqachon ochilgan bo'lsa yangilanadi
+      try{
+        const r=await fetch("data_mahsulotlar.json?_bg="+Date.now(),{cache:"no-store"});
+        const v=await r.json();
+        if(v&&v.length){P2=v;_p2BcMap=null;if(curPageId==="p2")p2Filter();}
+      }catch(e){}
+    }
+    if(P3){
+      try{
+        const r=await fetch("data_abc.json?_bg="+Date.now(),{cache:"no-store"});
+        const v=await r.json();
+        if(v&&v.length){P3=v;if(curPageId==="p3")initP3();}
+      }catch(e){}
+    }
+    // P4/P6/P8/P9/P10/P11: soddalik uchun keshini bo'shatamiz — mavjud
+    // "ensure"/fetch-zaxira funksiyalari keyingi tabiiy o'tishda o'zi
+    // yangi ma'lumotni oladi (reload shart emas).
+    P4=null;P6=null;
+  }finally{_quietRefreshBusy=false;}
+}
 function startFreshBuildWatcher(){
   if(!window.fetch||window.__tiinBuildWatcher)return;
   window.__tiinBuildWatcher=true;
-  // Faqat HEAD so'rovi (Last-Modified) bilan tekshiramiz - butun sahifani (~7MB)
-  // qayta yuklamaslik uchun. Shu tufayli bu tekshiruvni fon rejimida (document.hidden)
-  // ham xavfsiz ishlatish mumkin - shunda yangi build allaqachon jimgina kelib
-  // bo'lgan bo'ladi, foydalanuvchi qaytgan zumda emas.
+  // Faqat HEAD so'rovi (Last-Modified) bilan tekshiramiz - to'liq sahifani
+  // har 5 daqiqada yuklamaslik uchun (u faqat HAQIQATAN o'zgargandagina
+  // GET qilinadi, quyida).
   let baseLM=null,checking=false;
   const headLM=async()=>{
     const url=new URL(window.location.href);
@@ -3776,18 +4060,19 @@ function startFreshBuildWatcher(){
       if(lm){
         // Birinchi muvaffaqiyatli tekshiruv - hozirgi holatni bazaviy qiymat
         // sifatida belgilaydi (solishtirmaydi), keyingisidan boshlab solishtiradi.
-        // Shu bilan tarmoq vaqtincha uzilib turgani noto'g'ri "yangilandi" deb
-        // ko'rsatib qo'yishining oldi olinadi.
         if(baseLM===null){baseLM=lm;}
         else if(lm!==baseLM){
-          // Bo'lim/tab qaysi joyda turganini saqlab qo'yamiz - qayta yuklangach
-          // avtomatik bosh sahifaga (p1) o'tib qolmasin, o'sha bo'limga qaytsin.
-          try{sessionStorage.setItem("tiin_resume_page",curPageId||"p1");}catch(_){}
-          const next=new URL(window.location.href);
-          next.searchParams.delete("_check");
-          next.searchParams.set("_v",Date.now().toString());
-          window.location.replace(next.toString());
-          return;
+          baseLM=lm;
+          // Supplier zakasi ustida ishlayotgan bo'lsa — hozir umuman
+          // tegilmaydi (ekrandagi sonlar joyida qoladi). Kutib turgan
+          // yangilanish `zkBackToList()`da qo'llanadi (_bgSilentRefresh
+          // bilan bir xil `_pendingBg` mexanizmi FOYDALANMAYDI — bu yerda
+          // statik bloklar, alohida; shuning uchun oddiy sharti yetarli:
+          // oyna ochiq bo'lsa, keyingi tekshiruv (5 daqiqadan keyin)da
+          // baribir qayta urinadi, chunki `baseLM` allaqachon yangilangan
+          // bo'lsa-da, statik ma'lumot ALIB QO'YILMAGAN).
+          if(typeof _zkEditingSupplier==="function"&&_zkEditingSupplier())_pendingStaticRefresh=true;
+          else await _quietBuildRefresh();
         }
       }
     }catch(_){}
@@ -3797,6 +4082,7 @@ function startFreshBuildWatcher(){
   setInterval(check,5*60*1000);
   document.addEventListener("visibilitychange",()=>{if(!document.hidden)check();});
 }
+let _pendingStaticRefresh=false;
 document.querySelectorAll(".lang-btn").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
 applyI18n();
 renderP1();
@@ -3919,7 +4205,7 @@ function dtCalApply(){
   let a=_dtIdx(from),b=_dtIdx(to);
   if(a<0)a=0;if(b<0)b=n-1;if(a>b){const tmp=a;a=b;b=tmp;}
   _dtApplyRange(a,b);
-  if(HISTMETA){const hf=_dateToHistIdx(from),ht=_dateToHistIdx(to);if(hf>=0&&ht>=hf){p2HistCustom={from:hf,to:ht};p2HistDays=null;if(curPageId==='p2'&&Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}}
+  if(curPageId==='p2')_histApplyRange(from,to);
   const p=document.getElementById('dt-pop');if(p)p.classList.remove('open');
 }
 function dtToggle(e){if(e)e.stopPropagation();const p=document.getElementById("dt-pop");if(p){p.classList.toggle("open");if(p.classList.contains("open"))_dtCalOpen();}}
@@ -3936,7 +4222,7 @@ function dtPreset(kind){
     const n=(P1FULL.dates||[]).length||P1FULL.days||60;
     let a=_dtIdx(fs),b=_dtIdx(ts);if(a<0)a=0;if(b<0)b=n-1;if(a>b){const tmp=a;a=b;b=tmp;}
     _dtApplyRange(a,b);
-    if(HISTMETA){const hf=_dateToHistIdx(fs),ht=_dateToHistIdx(ts);if(hf>=0&&ht>=hf){p2HistCustom={from:hf,to:ht};p2HistDays=null;if(curPageId==='p2'&&Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}}
+    if(curPageId==='p2')_histApplyRange(fs,ts);
     const p=document.getElementById('dt-pop');if(p)p.classList.remove('open');
   };
   if(kind==='today'){_apply(todayS,todayS);}
@@ -3945,7 +4231,7 @@ function dtPreset(kind){
   else if(kind==='lastweek'){_apply(fmt(new Date(y,mo,d-((td.getDay()+6)%7)-7)),fmt(new Date(y,mo,d-((td.getDay()+6)%7)-1)));}
   else if(kind==='thismonth'){_apply(`${y}-${String(mo+1).padStart(2,'0')}-01`,todayS);}
   else if(kind==='lastmonth'){const lm=mo===0?{y:y-1,m:12}:{y,m:mo};_apply(`${lm.y}-${String(lm.m).padStart(2,'0')}-01`,fmt(new Date(y,mo,0)));}
-  else{const dates=P1FULL.dates||(DMETAFULL&&DMETAFULL.labels)||[];const n=dates.length||P1FULL.days||60;let a,b=n-1;if(kind==="all")a=0;else a=Math.max(0,n-(+kind));_dtApplyRange(a,b);_calSel.from=dates[a]||null;_calSel.to=dates[b]||null;if(HISTMETA&&_calSel.from&&_calSel.to){const hf=_dateToHistIdx(_calSel.from),ht=_dateToHistIdx(_calSel.to);if(hf>=0&&ht>=hf){p2HistCustom={from:hf,to:ht};p2HistDays=null;if(curPageId==='p2'&&Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}}const p=document.getElementById('dt-pop');if(p)p.classList.remove('open');}
+  else{const dates=P1FULL.dates||(DMETAFULL&&DMETAFULL.labels)||[];const n=dates.length||P1FULL.days||60;let a,b=n-1;if(kind==="all")a=0;else a=Math.max(0,n-(+kind));_dtApplyRange(a,b);_calSel.from=dates[a]||null;_calSel.to=dates[b]||null;if(curPageId==='p2'&&_calSel.from&&_calSel.to)_histApplyRange(_calSel.from,_calSel.to);const p=document.getElementById('dt-pop');if(p)p.classList.remove('open');}
 }
 function dtApply(){const s=document.getElementById("dt-start").value,e=document.getElementById("dt-end").value;if(s)dtCalApply();}
 function _pageDefaultRange(pid){const n=P1FULL?P1FULL.days:0;const grp=PAGE_GROUP[pid]||pid;if(grp==="p3"){const months=_p3MonthsInWindow();if(months.length)return[months[months.length-1].from,months[months.length-1].to];}const days=PAGE_DEFAULT_DAYS[grp]||30;return [Math.max(0,n-days),n-1];}
@@ -3967,9 +4253,39 @@ if(ZITEMS!==null){
 const st=document.getElementById("dt-start"),en=document.getElementById("dt-end");if(st&&P1FULL.dates){st.value=P1FULL.dates[a];en.value=P1FULL.dates[b];}
 const nt=document.getElementById("dt-note");if(nt)nt.textContent=full?t("dt_note_full"):t("dt_note_range");
 }
-function dailyForFull(v){if(!DAILYFULL||!v)return null;const sk=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;const nk=DNAME?DNAME[nn2(v.name)]:null;return DAILYFULL[sk]||DAILYFULL[nk]||DAILYFULL[nn2(v.name)]||null;}
-// ── Tarix (data_history.json) lazy load ──
-let _histLoadPromise=null;
+// 2026-08-18 (Bilol topilmasi, real misol: SKU 001267 "coca-cola" mahsuloti
+// kartochkasini ochganda SKU 1267 "Al-Safi pishloq" savdosi ko'rsatilgan -
+// ikkalasi Mahsulotlar sahifasida TASODIFAN bir xil nomga ega bo'lib chiqqan,
+// chunki Invan'da SKU vaqti bilan boshqa tovarga qayta biriktirilishi mumkin
+// ekan, eski savdo yozuvi esa eski nom bilan saqlanib qolgan). SKU orqali
+// topilmasa, endi NOMDAN OLDIN SHTRIX-KODga qaraladi (Bilol so'rovi,
+// 2026-08-18) - shtrix-kod fizik/global identifikator, SKU kabi qayta
+// ishlatilmaydi, shuning uchun ancha ishonchli. Nom bo'yicha moslashtirish
+// FAQAT shtrix-kod ham topilmagandagina, va ikkala tomonning SKU'si BOR-u
+// BOSHQA-BOSHQA bo'lsa ishlatilmaydi - haqiqiy boshqa tovarga boshqasining
+// ma'lumotini ko'rsatishdan ko'ra umuman ko'rsatmaslik xavfsizroq.
+function dailyForFull(v){
+  if(!DAILYFULL||!v)return null;
+  const sk=v.sku&&DSKU?DSKU["sku:"+String(v.sku)]:null;
+  if(sk&&DAILYFULL[sk])return DAILYFULL[sk];
+  if(DBC&&Array.isArray(v.bc)){
+    for(const b of v.bc){
+      const bk=b&&DBC[b];
+      if(bk&&DAILYFULL[bk])return DAILYFULL[bk];
+    }
+  }
+  const nk=DNAME?DNAME[nn2(v.name)]:null;
+  const nameHit=DAILYFULL[nk]||DAILYFULL[nn2(v.name)]||null;
+  if(nameHit&&v.sku&&nameHit.sku&&String(nameHit.sku)!==String(v.sku))return null;
+  return nameHit;
+}
+// ── Tarix (data_history.json, ~85MB) LAZY load ──
+// 2026-08-17: ilgari Mahsulotlar bo'limi OCHILGANDA (kerak-kerakmasligidan
+// qat'iy nazar) darhol yuklanardi. Standart (<=60 kunlik) ko'rinish aslida
+// buni ishlatmaydi — kichikroq data_daily.json (DAILYFULL) yetarli. Endi
+// FAQAT foydalanuvchi haqiqatan 60 kundan uzoqroq/maxsus sana oralig'ini
+// yoki "to'liq tarix"ni so'raganda yuklanadi (pastdagi chaqiruvchilarga q.).
+let _histLoadPromise=null,_histPendingRange=null;
 function loadHistory(){
   if(_histLoadPromise)return _histLoadPromise;
   if(histLoadState==="loaded")return Promise.resolve();
@@ -3983,10 +4299,17 @@ function loadHistory(){
       const [by,bm,bd]=data.base.split("-").map(Number);
       const labels=[];
       for(let i=0;i<data.days;i++){const d=new Date(Date.UTC(by,bm-1,bd+i));labels.push(d.toISOString().slice(0,10));}
-      HIST={d:data.d,r:data.r,rc:data.rc||{},wi:data.wi||{},we:data.we||{},rt:data.rt||{},rr:data.rr||{},wri:data.wri||{},wre:data.wre||{}};
+      HIST={d:data.d,r:data.r,rc:data.rc||{},wi:data.wi||{},we:data.we||{},rt:data.rt||{},rr:data.rr||{},wri:data.wri||{},wre:data.wre||{},qf:data.qf||{},rf:data.rf||{}};
       HISTMETA={base:data.base,days:data.days,labels};
       histLoadState="loaded";
       if(ind)ind.style.display="none";
+      // Yuklash tugashidan OLDIN so'ralgan maxsus sana oralig'i bo'lsa (masalan
+      // global sana tanlagichdan) - endi HISTMETA tayyor, shu holda qo'llaymiz.
+      if(_histPendingRange){
+        const{from,to}=_histPendingRange;_histPendingRange=null;
+        const hf=_dateToHistIdx(from),ht=_dateToHistIdx(to);
+        if(hf>=0&&ht>=hf){p2HistCustom={from:hf,to:ht};p2HistDays=null;}
+      }
       _histSyncInputs();
       if(Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);
     }catch(e){
@@ -3997,6 +4320,24 @@ function loadHistory(){
     }
   })();
   return _histLoadPromise;
+}
+// Sana oralig'i (masalan global sana tanlagichdan) HIST'ga bog'liq bo'lsa
+// shu orqali qo'llanadi: HIST hali yuklanmagan bo'lsa - yuklashni boshlaydi
+// va oraliqni "kutilayotgan" qilib saqlaydi (yuqoridagi loadHistory() uni
+// yuklash tugagach qo'llaydi), aks holda darhol qo'llaydi.
+function _histApplyRange(fromISO,toISO){
+  if(!HISTMETA){
+    _histPendingRange={from:fromISO,to:toISO};
+    loadHistory();
+    // Yuklash sinxron ravishda histLoadState="loading" qilib qo'yadi (loadHistory()
+    // ichida) - shu yerda DARHOL qayta chizib, "yuklanmoqda..." ko'rinishi (hist-range-bar,
+    // renderP2 ichida) darhol chiqishini ta'minlaymiz - global sana tanlagichdan
+    // (dtCalApply/dtPreset) kelganda ham setHistDays bilan bir xil tez fikr-mulohaza.
+    if(curPageId==='p2'&&Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);
+    return;
+  }
+  const hf=_dateToHistIdx(fromISO),ht=_dateToHistIdx(toISO);
+  if(hf>=0&&ht>=hf){p2HistCustom={from:hf,to:ht};p2HistDays=null;if(curPageId==='p2'&&Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}
 }
 function _dateToHistIdx(dateStr){
   if(!HISTMETA||!dateStr)return -1;
@@ -4054,7 +4395,12 @@ function histDateChange(){
 function histClearCustom(){window._p2PavSku=null;p2HistCustom=null;p2HistDays=60;_histSyncInputs();if(Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);}
 function setHistDays(d){
   window._p2PavSku=null;
-  p2HistDays=d;p2HistCustom=null;_histSyncInputs();
+  p2HistDays=d;p2HistCustom=null;
+  // 60 kundan uzoqroq (yoki "to'liq") so'ralganda — 85MB HIST hali
+  // yuklanmagan bo'lsa, shu yerda LAZY boshlanadi (renderP2 yuklangach
+  // avtomatik qayta chiziladi, loadHistory() ichida).
+  if((d==='full'||+d>60)&&histLoadState!=="loaded")loadHistory();
+  _histSyncInputs();
   if(HISTMETA){const total=HISTMETA.days,lab=HISTMETA.labels;const n=(d==='full')?total:Math.min(+d,total);const from=(total-n)<10?0:(total-n);_calSel.from=lab[from];_calSel.to=lab[total-1];}
   const dp=document.getElementById('dt-pop');if(dp)dp.classList.remove('open');
   if(Number.isInteger(window.p2ActiveIndex))renderP2(window.p2ActiveIndex);
@@ -4161,21 +4507,80 @@ function _p2BcBySku(sku){
 // ─── MA'LUMOTNI YUKLASH YORDAMCHILARI (fetch on demand) — P2/INVDATA/
 // DAILYFULL/SUPPLIERDATA/ExcelJS'ni faqat kerak bo'lganda yuklaydi,
 // bir necha sahifa (p2/p5/p6/p7) tomonidan ishlatiladi ───
+// 2026-08-19 (Bilol so'rovi, sahifa tezligi): ilgari bu FAQAT initP2() ichida
+// invdata (_apiBoot) TO'LIQ kutilgandan KEYIN boshlanardi - ikkalasi bir-
+// biriga bog'liq bo'lmasa ham, ketma-ket kutilgani uchun sovuq holatda
+// vaqt qo'shilib ketardi (~15s + ~6.5s = ~21.5s). Endi promise-kesh bilan
+// himoyalangan - showPage() ikkalasini (_apiBoot va shu funksiyani)
+// BIR VAQTDA ishga tushiradi, keyinroq initP2() ichidagi qayta chaqiruv
+// esa shu ALLAQACHON ishlab turgan (yoki tugagan) so'rovni qayta ishlatadi
+// - qo'shimcha tarmoq so'rovi yubormaydi, faqat kutadi.
+let _dailyDemandP=null;
 async function _ensureDailyDemand(apiData){
   if(DAILYFULL)return;
-  try{
-    let _dp=apiData&&apiData.demand?apiData.demand:JSON.parse(document.getElementById("dailydata").textContent);
-    if(!_dp||!Object.keys(_dp).length){const _r=await fetch("data_daily.json",{cache:"no-store"});_dp=await _r.json();}
-    DAILYFULL=_dp.items;DSKU=_dp.skuAliases||{};DNAME=_dp.nameAliases||{};DMETAFULL=_dp.__meta__;
-    _winDaily();
-    const ph=document.getElementById("p2-period");if(ph)ph.textContent=(DMETA.title||"")+" · "+DMETA.days+" kun";
-  }catch(e){DAILY=null;DSKU={};DNAME={};DMETA=null;}
+  if(_dailyDemandP)return _dailyDemandP;
+  _dailyDemandP=(async()=>{
+    try{
+      let _dp=apiData&&apiData.demand?apiData.demand:JSON.parse(document.getElementById("dailydata").textContent);
+      if(!_dp||!Object.keys(_dp).length){const _r=await fetch("data_daily.json",{cache:"no-store"});_dp=await _r.json();}
+      DAILYFULL=_dp.items;DSKU=_dp.skuAliases||{};DNAME=_dp.nameAliases||{};DMETAFULL=_dp.__meta__;
+      // 2026-08-18 (Bilol so'rovi): shtrix-kod SKU'dan ham ishonchliroq
+      // identifikator (SKU Invan'da qayta ishlatilishi mumkin, shtrix-kod
+      // esa fizik/global). build_all_from_api.py endi har yozuvga "bc"
+      // (shtrix-kodlar ro'yxati) qo'shadi - shu yerda bitta marta
+      // shtrix-kod->kalit indeksi quriladi, dailyForFull() shundan
+      // foydalanadi (SKU topilmasa, NOMDAN OLDIN shtrix-kodga qaraydi).
+      DBC={};
+      for(const key in DAILYFULL){
+        const bc=DAILYFULL[key].bc;
+        if(bc)for(const b of bc)if(b&&!(b in DBC))DBC[b]=key;
+      }
+      _winDaily();
+      const ph=document.getElementById("p2-period");if(ph)ph.textContent=(DMETA.title||"")+" · "+DMETA.days+" kun";
+    }catch(e){DAILY=null;DSKU={};DNAME={};DBC={};DMETA=null;_dailyDemandP=null;}
+  })();
+  return _dailyDemandP;
+}
+// JONLI ma'lumot uchun BITTA umumiy so'rov — bir necha bo'lim bir vaqtda
+// so'rasa ham Invan'dan bir marta olinadi (bootstrap ~15-20s).
+let _apiBootP=null;
+function _apiBoot(){
+  if(!window.TiinDataAPI)return Promise.resolve(null);
+  if(!_apiBootP)_apiBootP=window.TiinDataAPI.bootstrap().catch(()=>null);
+  return _apiBootP;
 }
 async function _ensureInvData(apiData){
   if(!INVDATA){
-    let _iv=apiData&&apiData.inventory?apiData.inventory:JSON.parse(document.getElementById("invdata").textContent);
-    if(!_iv||!Object.keys(_iv).length){const _r=await fetch("data_inv_new.json",{cache:"no-store"});_iv=await _r.json();}
-    INVDATA=_iv;
+    let _iv=apiData&&apiData.inventory?apiData.inventory:null;
+    // 2026-08-15: MUHIM TUZATISH. Ilgari `apiData` berilmasa TO'G'RIDAN-TO'G'RI
+    // HTML ichidagi statik (eski) ma'lumotga tushardi. Ba'zi yo'llar esa uni
+    // ataylab bermaydi — p6 "Ta'minotchilar" (initP2(null)) va p10
+    // "Kategoriyalar" (ktEnsureData). Ya'ni foydalanuvchi Zakas'ga O'SHA
+    // yo'ldan kirsa, INVDATA butun sessiya davomida STATIK qolar edi
+    // (`if(!INVDATA)` sabab qayta so'ralmaydi) — stok/narx eski ko'rinardi,
+    // garchi API to'g'ri javob berayotgan bo'lsa ham. Endi manba qaysi
+    // yo'ldan kirilganiga bog'liq emas: avval har doim API sinaladi.
+    if(!_iv){const _b=await _apiBoot();_iv=(_b&&_b.inventory)||null;}
+    // 2026-08-17 TUZATISH: "Buyurtma"da barcha tovarlar bitta "Noma'lum"
+    // ta'minotchi ostiga tushib qolish shikoyati tekshirildi. Sabab: bu
+    // yerdagi JSON.parse/fetch HIMOYASIZ edi — HTML ichidagi statik blok
+    // buzilgan/to'liqsiz bo'lsa (yoki data_inv_new.json fetch xato bersa),
+    // istisno TASHQARIGA chiqib ketardi va `initP2()` yarim bajarilgan
+    // holda to'xtardi: P2 ALLAQACHON o'rnatilgan (shuning uchun keyingi
+    // sahifaga kirishlarda `if(!P2)` qayta urinib ko'rmaydi), lekin
+    // `.sup`/`.amt` HECH QACHON to'ldirilmagan — sessiya oxirigacha (to'liq
+    // sahifa yangilanmaguncha) HAR BIR tovar ta'minotchisiz qolib, Zakas
+    // butun katalogni bitta "Noma'lum" guruhga yig'ib qo'yardi. Endi har
+    // qadam alohida ushlanadi, va agar HAMMASI muvaffaqiyatsiz tugasa
+    // `INVDATA` bo'sh holda KESHLANMAYDI — keyingi chaqiruv qayta urinadi.
+    if(!_iv){
+      try{_iv=JSON.parse(document.getElementById("invdata").textContent);}catch(e){_iv=null;}
+    }
+    if(!_iv||!Object.keys(_iv).length){
+      try{const _r=await fetch("data_inv_new.json",{cache:"no-store"});_iv=await _r.json();}catch(e){/* pastda bo'sh qaytariladi */}
+    }
+    if(_iv&&Object.keys(_iv).length){INVDATA=_iv;}
+    else return _iv||{};
   }
   return INVDATA;
 }
@@ -4197,12 +4602,19 @@ async function _ensureSupplierData(){
 // backend/app.py: _live_kirimdata() - Turso'dan real vaqtda), tarmoq
 // xatosida yoki file:// rejimida avtomatik statik data_kirim.json'ga
 // qaytadi. Natija shakli ikkalasida ham bir xil ({skus:{...}}).
+// DIQQAT: API varianti (`/api/v1/kirimdata`) ATAYLAB faqat SO'NGGI 120 KUNni
+// qaytaradi (supplier_orders_from_invan(max_days=120) — Vercel'ning 60s
+// chegarasiga sig'ish uchun). Zakas/Kirim uchun bu yetarli, LEKIN tarixiy
+// tannarx hisobi (p9 Ombor aylanmasi, p10 Kategoriyalar) uchun YETARLI EMAS:
+// oxirgi kirimi 120 kundan eski tovar "kirim narxi yo'q" bo'lib qolardi.
+// Shuning uchun manba `window._p8FromApi` bilan belgilanadi — ombor_aylanmasi.js
+// shunga qarab to'liq statik tarixni (data_kirim.json) alohida yuklaydi.
 async function _ensureKirimData(){
   if(P8)return P8;
   if(window.TiinDataAPI){
-    try{P8=await window.TiinDataAPI.kirimdata();return P8;}catch(e){/* pastga, statik zaxiraga */}
+    try{P8=await window.TiinDataAPI.kirimdata();window._p8FromApi=true;return P8;}catch(e){/* pastga, statik zaxiraga */}
   }
-  try{const _r=await fetch("data_kirim.json",{cache:"no-store"});P8=await _r.json();}catch(e){P8={skus:{}};}
+  try{const _r=await fetch("data_kirim.json",{cache:"no-store"});P8=await _r.json();window._p8FromApi=false;}catch(e){P8={skus:{}};window._p8FromApi=false;}
   return P8;
 }
 // ExcelJS (~925KB) endi HTML'da darhol yuklanmaydi - faqat Export/Import
@@ -4256,16 +4668,55 @@ async function _zkStripDrawingsAndRetry(buf){
   }
   return zip.generateAsync({type:"arraybuffer"});
 }
+// 2026-08-15: Zakas/Mahsulotlar ochilishi va ichkaridagi qotish shikoyati
+// tekshirildi — asosiy sabablardan biri shu yerda topildi. Avval SKU/aniq
+// nom bilan topilmagan har bir tovar uchun `invKeys.find(k=>k.startsWith(norm))`
+// BUTUN ~22k kalitni CHIZIQLI qidirardi — ya'ni eng yomon holatda ~22k x
+// ~22k = ~484 million amal, BOSH OQIMNI (main thread) sezilarli bloklardi.
+// Endi kalitlar BIR MARTA saralanadi, har qidiruv esa ikkilik qidiruv
+// (binary search) bilan O(log n) — amalda sezilmas tezlikda.
+function _prefixIndex(keys){
+  const sorted=keys.slice().sort();
+  return norm=>{
+    let lo=0,hi=sorted.length;
+    while(lo<hi){const mid=(lo+hi)>>1;if(sorted[mid]<norm)lo=mid+1;else hi=mid;}
+    return (lo<sorted.length&&sorted[lo].startsWith(norm))?sorted[lo]:null;
+  };
+}
 async function _enrichWithInventory(arr,apiData){
   const INV=await _ensureInvData(apiData);
   const invKeys=Object.keys(INV);
   const invBySku={};
-  for(const _k of invKeys){const _s=INV[_k]&&INV[_k].sku;if(_s!=null&&_s!=="")invBySku[String(_s)]=INV[_k];}
+  const invKeyBySku={};
+  for(const _k of invKeys){const _s=INV[_k]&&INV[_k].sku;if(_s!=null&&_s!==""){invBySku[String(_s)]=INV[_k];invKeyBySku[String(_s)]=_k;}}
+  const findByPrefix=_prefixIndex(invKeys);
   arr.forEach((v,i)=>{
     if(v._i==null)v._i=i;
     let iv=(v.sku!=null&&v.sku!=="")?invBySku[String(v.sku)]:null;
-    if(!iv){const norm=nn2(v.name);iv=INV[norm];if(!iv){const pk=invKeys.find(k=>k.startsWith(norm));if(pk)iv=INV[pk];}}
-    if(iv){if(v.sku==null||v.sku==="")v.sku=iv.sku;v.iprice=iv.p;v.suprice=iv.sp;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;v.lsd=iv.lsd||null;v.ld60=iv.ld60||null;v.pav=iv.pav||null;v.pavm=iv.pavm||null;v.avg30sa=iv.avg30sa||null;v.la=iv.la||null;v.bc=iv.bc||[];v.rcost=iv.rcost||0;v.rcostApprox=!!iv.rcost_approx;v.calcStock=iv.calcStock!=null?iv.calcStock:null;v.calcConf=iv.calcConf||null;v.calcEvidence=iv.calcEvidence!=null?iv.calcEvidence:null;v.calcAnchor=iv.calcAnchor||null;v.calcRule=iv.calcRule||null;v.lkQty=iv.lkQty!=null?iv.lkQty:null;v.lkSold=iv.lkSold!=null?iv.lkSold:null;v.lkDate=iv.lkDate||null;v.zabc=iv.zabc||"";}
+    const matchedBySku=!!iv;
+    if(!iv){const norm=nn2(v.name);iv=INV[norm];if(!iv){const pk=findByPrefix(norm);if(pk)iv=INV[pk];}}
+    if(iv){
+      if(v.sku==null||v.sku==="")v.sku=iv.sku;
+      // 2026-08-18/19 (Bilol topilmasi, real misol: SKU 3326 avval "borjomi,
+      // gruziya limonadi nok" edi, Invan'da endi butunlay boshqa tovarga
+      // - "kakao" ga qayta biriktirilgan, borjomi esa YANGI SKU'ga ko'chgan.
+      // Bizning eski savdo tarixi hali ham SKU 3326'ni "borjomi" deb
+      // ataydi, shu payt unga stok/narx/ta'minotchi/shtrix-kod JONLI
+      // Invan'dan (hozirgi - kakao'niki) qo'shilib, chalkash aralashma
+      // hosil bo'lardi ("borjomi" nomi + kakao'ning ta'minotchisi/stoki).
+      // Bu xato boshqa SKU'da ham TAKRORLANISHI mumkin (Invan istalgan
+      // vaqt SKU'ni qayta ishlatishi mumkin) - shuning uchun BIR MARTALIK
+      // (faqat shu SKU uchun) tuzatish o'rniga UMUMIY qoida qo'yildi: SKU
+      // orqali ISHONCHLI moslik topilganda (nom-fallback EMAS), nom ham
+      // joriy Invan katalogidan yangilanadi - shunda nom va stok/narx
+      // doim BIR XIL (joriy) tovarga tegishli bo'lib qoladi, SKU qayta
+      // ishlatilgan har qanday holatda ham avtomatik to'g'irlanadi.
+      if(matchedBySku){
+        const curName=invKeyBySku[String(v.sku)];
+        if(curName)v.name=curName;
+      }
+      v.iprice=iv.p;v.suprice=iv.sp;v.amt=iv.a;v.itype=iv.t;v.sub=iv.sb;v.sup=iv.su;v.lsd=iv.lsd||null;v.ld60=iv.ld60||null;v.pav=iv.pav||null;v.pavm=iv.pavm||null;v.avg30sa=iv.avg30sa||null;v.la=iv.la||null;v.bc=iv.bc||[];v.rcost=iv.rcost||0;v.rcostApprox=!!iv.rcost_approx;v.calcStock=iv.calcStock!=null?iv.calcStock:null;v.calcConf=iv.calcConf||null;v.calcEvidence=iv.calcEvidence!=null?iv.calcEvidence:null;v.calcAnchor=iv.calcAnchor||null;v.calcRule=iv.calcRule||null;v.lkQty=iv.lkQty!=null?iv.lkQty:null;v.lkSold=iv.lkSold!=null?iv.lkSold:null;v.lkDate=iv.lkDate||null;v.zabc=iv.zabc||"";v.ovEffective=iv.ovEffective!=null?iv.ovEffective:null;
+    }
   });
 }
 // ─── P2: MAHSULOTLAR ───
@@ -4523,7 +4974,7 @@ function renderP2(idx){
       ?arrivals.map(a=>{
         const notReceived=a.status&&a.status!=="Received";
         const badge=notReceived?' <span class="'+krStatusBadgeCls(a.status)+'" style="font-size:9px;padding:2px 7px;margin-left:4px;vertical-align:1px">'+esc(a.status)+'</span>':'';
-        return '<div class="prod-row"><div class="pname" title="'+esc(a.supplier||"")+'">'+krFmtDate(a.date)+' — '+esc(a.supplier||"")+badge+'</div><div class="ppct" style="color:#1D9E75">'+(a.qty||0).toLocaleString()+'</div></div>';
+        return '<div class="prod-row"><div class="pname">'+krFmtDate(a.date)+' — '+esc(a.supplier||"")+badge+'</div><div class="ppct" style="color:#1D9E75">'+(a.qty||0).toLocaleString()+'</div></div>';
       }).join("")
       :'<div class="empty"><div class="empty-txt">Kirim tarixi topilmadi</div></div>';
 
@@ -4854,7 +5305,13 @@ function p6SetFilter(f){
   if(f!=="all"){const el=document.getElementById("sp-card-"+f);if(el)el.classList.add("sp-selected");}
   renderP6();
 }
+// 2026-08-12: og'ir qism (renderP6) faqat Enter bosilganda.
 function p6SearchInput(){
+  const inp=document.getElementById("sp-q");
+  const clr=document.getElementById("sp-clear");
+  if(clr)clr.style.display=(inp&&inp.value)?"inline-block":"none";
+}
+function p6SearchSubmit(){
   const inp=document.getElementById("sp-q");
   p6Q=inp?inp.value.toLowerCase().trim():"";
   const clr=document.getElementById("sp-clear");
@@ -5301,13 +5758,13 @@ function p6OpenSupplierDetail(r){
   }
   const searchIcon=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#b5bac4;pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>`;
   const clearBtn=(id,fn,q)=>`<button id="${id}" onclick="${fn}" style="display:${q?"flex":"none"};align-items:center;justify-content:center;position:absolute;right:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:none;border:none;cursor:pointer;color:#b5bac4;font-size:13px;line-height:1;padding:0;" title="Tozalash">✕</button>`;
-  const searchH=`<div style="padding:0 14px 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="sp6-det-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(_p6DetailQ)}" oninput="p6DetailSearch(this.value)">${clearBtn("sp6-det-clear","p6DetailClearSearch()",_p6DetailQ)}</div></div>`;
+  const searchH=`<div style="padding:0 14px 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="sp6-det-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(_p6DetailQ)}" oninput="p6DetailSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();p6DetailSearchSubmit(this.value);}">${clearBtn("sp6-det-clear","p6DetailClearSearch()",_p6DetailQ)}</div></div>`;
   const tableH=`<div id="sp6-matrix-wrap-outer">${_p6DetailMatrixInner()}</div>`;
   // Build mz (unsold) page
   _p6MzAllItems=ZITEMS?ZITEMS.filter(v=>v.signal==="muzlagan"&&v.sup===S.name).sort((a,b)=>(b.frozenVal||0)-(a.frozenVal||0)):[];
   let mzSearchH="",mzTableH="";
   if(_p6MzAllItems.length){
-    mzSearchH=`<div style="padding:0 0 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="sp6-mz-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(_p6MzQ)}" oninput="p6MzSearch(this.value)">${clearBtn("sp6-mz-clear","p6MzClearSearch()",_p6MzQ)}</div></div>`;
+    mzSearchH=`<div style="padding:0 0 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="sp6-mz-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(_p6MzQ)}" oninput="p6MzSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();p6MzSearchSubmit(this.value);}">${clearBtn("sp6-mz-clear","p6MzClearSearch()",_p6MzQ)}</div></div>`;
     mzTableH=`<div id="sp6-mz-wrap-outer">${_p6MzMatrixInner()}</div>`;
   }
   // Show per-month stats row at top (tanlangan oy bo'yicha, p6CardMonth orqali)
@@ -5356,17 +5813,21 @@ function _p6SyncDetailStickyTop(){
   ov.querySelectorAll("#sp6-matrix-wrap .sp6-matrix th").forEach(th=>{th.style.top=h+"px";});
 }
 function p6DetailSearch(val){
+  const clr=document.getElementById("sp6-det-clear");
+  if(clr)clr.style.display=val?"flex":"none";
+}
+// 2026-08-12: og'ir qism (jadval qayta chizish) faqat Enter bosilganda.
+function p6DetailSearchSubmit(val){
   _p6DetailQ=(val||"").toLowerCase().trim();
   const wrap=document.getElementById("sp6-matrix-wrap-outer");
   if(wrap)wrap.innerHTML=_p6DetailMatrixInner();
-  const clr=document.getElementById("sp6-det-clear");
-  if(clr)clr.style.display=_p6DetailQ?"flex":"none";
   requestAnimationFrame(_p6SyncDetailStickyTop);
 }
 function p6DetailClearSearch(){
   const inp=document.getElementById("sp6-det-q");
   if(inp)inp.value="";
   p6DetailSearch("");
+  p6DetailSearchSubmit("");
   if(inp)inp.focus();
 }
 let _p6MzSortKey=null,_p6MzSortDir=-1;
@@ -5424,17 +5885,21 @@ function _p6SyncMzStickyTop(){
   mz.querySelectorAll("#sp6-mz-thead th").forEach(th=>{th.style.top=h+"px";});
 }
 function p6MzSearch(val){
+  const clr=document.getElementById("sp6-mz-clear");
+  if(clr)clr.style.display=val?"flex":"none";
+}
+// 2026-08-12: og'ir qism (jadval qayta chizish) faqat Enter bosilganda.
+function p6MzSearchSubmit(val){
   _p6MzQ=(val||"").toLowerCase().trim();
   const wrap=document.getElementById("sp6-mz-wrap-outer");
   if(wrap)wrap.innerHTML=_p6MzMatrixInner();
-  const clr=document.getElementById("sp6-mz-clear");
-  if(clr)clr.style.display=_p6MzQ?"flex":"none";
   requestAnimationFrame(_p6SyncMzStickyTop);
 }
 function p6MzClearSearch(){
   const inp=document.getElementById("sp6-mz-q");
   if(inp)inp.value="";
   p6MzSearch("");
+  p6MzSearchSubmit("");
   if(inp)inp.focus();
 }
 async function p6GoToProduct(pi){
@@ -5572,7 +6037,16 @@ function renderP6Pag(totalP){
 // summa" (naqd oqim ko'rsatkichi). ABC — har mahsulotning P2'da allaqachon hisoblangan GLOBAL
 // (butun do'kon bo'yicha) klassifikatsiyasi qayta ishlatiladi (p6 supplierlar bilan bir xil
 // mantiq), kategoriya kesimida alohida qayta hisoblanmaydi.
-let KT_TOP=null,ktStart=null,ktEnd=null,ktRangeInited=false;
+let KT_TOP=null,ktStart=null,ktEnd=null,ktRangeInited=false,ktRevMode="chakana";
+function ktSetRevMode(mode){
+  if(ktRevMode===mode)return;
+  ktRevMode=mode;
+  const bAll=document.getElementById("kt-revmode-all"),bRet=document.getElementById("kt-revmode-retail");
+  if(bAll)bAll.classList.toggle("kt-revmode-active",mode==="umumiy");
+  if(bRet)bRet.classList.toggle("kt-revmode-active",mode==="chakana");
+  ktCompute();
+  ktRenderList();
+}
 let ktLevel="top",ktCurTop=null,ktQ="",ktSortKey=null,ktSortDir=-1,_ktRenderedItems=[];
 let ktSelTop=null,ktSelSub=null,ktDetailAllProds=[],ktDetailProds=[],ktDetailQ="",ktDetailSortKey=null,ktDetailSortDir=-1;
 let ktMzAllItems=[],ktMzQ="",ktMzViewItems=[],ktMzSortKey=null,ktMzSortDir=-1;
@@ -5595,6 +6069,23 @@ function ktInitRangeDefaults(){
   if(si){si.value=ktStart;si.min=minDate;si.max=today;}
   if(ei){ei.value=ktEnd;ei.min=minDate;ei.max=today;}
 }
+// Kirim tarixi UMUMAN yo'q tovarlar (2026-08-18 holatiga 289 ta, tushumning ~2.4%i -
+// Invan'da hech qachon kirim hujjati yozilmagan, ko'pchiligining qoldig'i ham manfiy)
+// uchun ZAXIRA tannarx manbai: Invan katalogidagi `sp` (last_supply_price).
+// DIQQAT: sotuv narxi `p` ATAYLAB ishlatilmaydi - u tannarx emas; undan hisoblangan
+// "foyda" nolga teng bo'lib marjani buzardi. `sp` ham yo'q bo'lsa - tovar avvalgidek
+// "kirim narxi yo'q" bo'lib qoladi (tannarx/foyda/marjaga umuman kirmaydi).
+let _KT_SP=null;
+function _ktSpAt(sku){
+  if(_KT_SP===null){
+    _KT_SP={};
+    if(INVDATA)Object.keys(INVDATA).forEach(k=>{
+      const iv=INVDATA[k];
+      if(iv&&iv.sku!=null&&iv.sku!==""&&(iv.sp||0)>0)_KT_SP[String(iv.sku)]=iv.sp;
+    });
+  }
+  return _KT_SP[String(sku)]||0;
+}
 function ktCompute(){
   KT_TOP=null;
   if(!P2||!HIST||!HISTMETA||!ktStart||!ktEnd)return;
@@ -5603,14 +6094,27 @@ function ktCompute(){
   const e=Math.min(HISTMETA.days-1,_oaDayIdx(HISTMETA.base,ktEnd));
   const unk=t("kt_unknown");
   const baseMs=new Date(HISTMETA.base).getTime();
+  const _ktExclFirma=ktRevMode==="chakana";
   P2.forEach(v=>{
     if(!v.sku)return;
     const key="sku:"+v.sku;
     const dArr=HIST.d[key],rArr=HIST.r[key];
-    let qty=0,rev=0,cost=0,knownQty=0;
+    const qfArr=_ktExclFirma&&HIST.qf?HIST.qf[key]:null;
+    const rfArr=_ktExclFirma&&HIST.rf?HIST.rf[key]:null;
+    let qty=0,rev=0,cost=0,knownQty=0,approxQty=0;
     if(dArr||rArr){
       for(let i=s;i<=e;i++){
-        const q=dArr&&dArr[i]?dArr[i]:0;
+        // "Faqat chakana" rejimida (ktRevMode==="chakana") - shu kunning Firmalar
+        // (p11, client.id) ro'yxatidagi RASMIY biznes-mijozlarga tegishli miqdori/tushumi
+        // ayriladi (HIST.qf/rf, build_sales_demand.py'dagi q_firma/rev_d_firma'dan) -
+        // tannarx ham shu (chakana) miqdorga qarab hisoblanadi, aks holda foyda/marja
+        // to'g'ri chiqmasdi (kirim summasi o'zgarmay, tushum kamayib qolardi).
+        let q=dArr&&dArr[i]?dArr[i]:0;
+        let rDay=rArr&&rArr[i]?rArr[i]:0;
+        if(_ktExclFirma){
+          if(qfArr&&qfArr[i])q=Math.max(0,q-qfArr[i]);
+          if(rfArr&&rfArr[i])rDay-=rfArr[i];
+        }
         if(q){
           qty+=q;
           // Sotilgan birlik uchun tannarx - shu SOTUV kunidan OLDINGI (yoki shu kundagi) eng
@@ -5622,38 +6126,45 @@ function ktCompute(){
           const dateIso=new Date(baseMs+i*86400000).toISOString().slice(0,10);
           const unitCost=_oaLastKirimCostAt(v.sku,dateIso);
           if(unitCost!=null){cost+=q*unitCost;knownQty+=q;}
+          else{const sp=_ktSpAt(v.sku);if(sp>0){cost+=q*sp;knownQty+=q;approxQty+=q;}}
         }
-        if(rArr&&rArr[i])rev+=rArr[i];
+        if(rDay)rev+=rDay;
       }
     }
     if(!qty&&!rev)return;
     const costKnown=knownQty>0;
+    // Tannarxning qancha qismi `sp`dan (taxminiy) olingani - foydalanuvchiga "≈" bilan
+    // ko'rsatiladi, chunki bu haqiqiy kirim hujjatidan emas, katalog narxidan olingan.
+    const approxRev=qty?rev*(approxQty/qty):0;
     const topName=v.catTop||v.cat||unk;
     const subName=v.cat||unk;
-    if(!topMap.has(topName))topMap.set(topName,{name:topName,rev:0,cost:0,knownRev:0,costKnownCnt:0,abcCnt:{A:0,B:0,C:0},subs:new Map()});
+    if(!topMap.has(topName))topMap.set(topName,{name:topName,rev:0,cost:0,knownRev:0,approxRev:0,costKnownCnt:0,abcCnt:{A:0,B:0,C:0},subs:new Map()});
     const top=topMap.get(topName);
-    const abc=v.abc||"";
-    top.rev+=rev;top.cost+=cost;
+    // ABC: kategoriya-ICHI tasnif (`zabc`, backend_p_zakas_abc.py) - global do'kon
+    // bo'yicha `abc` EMAS. Sabab: bu bo'lim aynan kategoriya kesimida tahlil qiladi,
+    // global Pareto'da kichik kategoriyaning eng yaxshi tovari ham C bo'lib chiqardi.
+    const abc=v.zabc||v.abc||"";
+    top.rev+=rev;top.cost+=cost;top.approxRev+=approxRev;
     if(costKnown){top.costKnownCnt++;top.knownRev+=rev;}
     if(top.abcCnt[abc]!=null)top.abcCnt[abc]++;
-    if(!top.subs.has(subName))top.subs.set(subName,{name:subName,rev:0,cost:0,knownRev:0,costKnownCnt:0,abcCnt:{A:0,B:0,C:0},items:[]});
+    if(!top.subs.has(subName))top.subs.set(subName,{name:subName,rev:0,cost:0,knownRev:0,approxRev:0,costKnownCnt:0,abcCnt:{A:0,B:0,C:0},items:[]});
     const sub=top.subs.get(subName);
-    sub.rev+=rev;sub.cost+=cost;
+    sub.rev+=rev;sub.cost+=cost;sub.approxRev+=approxRev;
     if(costKnown){sub.costKnownCnt++;sub.knownRev+=rev;}
     if(sub.abcCnt[abc]!=null)sub.abcCnt[abc]++;
-    sub.items.push({name:v.name,sku:v.sku,bc:v.bc||[],rev:Math.round(rev),cost:costKnown?Math.round(cost):null,qty:Math.round(qty*100)/100,abc});
+    sub.items.push({name:v.name,sku:v.sku,bc:v.bc||[],rev:Math.round(rev),cost:costKnown?Math.round(cost):null,qty:Math.round(qty*100)/100,abc,approx:approxQty>0});
   });
   // Foyda/marja FAQAT tannarxi ma'lum bo'lgan tushum qismidan hisoblanadi (knownRev) - jami
   // tushum (rev, "noma'lum tannarxli" mahsulotlarni ham qamrab oladi) bilan aralashtirilsa,
   // marja sun'iy shishib ketardi (chunki noma'lum-tannarxli tushum "0 xarajat"dek hisoblanardi).
-  const mkEntry=(name,rev,cost,cnt,abcCnt,costKnownCnt,knownRev)=>{
+  const mkEntry=(name,rev,cost,cnt,abcCnt,costKnownCnt,knownRev,approxRev)=>{
     const costKnown=costKnownCnt>0;
-    return {name,rev:Math.round(rev),cost:costKnown?Math.round(cost):null,profit:costKnown?Math.round(knownRev-cost):null,marja:costKnown&&knownRev?Math.round((knownRev-cost)/knownRev*1000)/10:null,unknownRev:Math.round(rev-knownRev),cnt,abcCnt};
+    return {name,rev:Math.round(rev),cost:costKnown?Math.round(cost):null,profit:costKnown?Math.round(knownRev-cost):null,marja:costKnown&&knownRev?Math.round((knownRev-cost)/knownRev*1000)/10:null,unknownRev:Math.round(rev-knownRev),approxRev:Math.round(approxRev||0),cnt,abcCnt};
   };
   KT_TOP=[...topMap.values()].map(top=>{
-    const subs=[...top.subs.values()].map(sub=>Object.assign(mkEntry(sub.name,sub.rev,sub.cost,sub.items.length,sub.abcCnt,sub.costKnownCnt,sub.knownRev),{items:sub.items.sort((a,b)=>b.rev-a.rev)})).sort((a,b)=>b.rev-a.rev);
+    const subs=[...top.subs.values()].map(sub=>Object.assign(mkEntry(sub.name,sub.rev,sub.cost,sub.items.length,sub.abcCnt,sub.costKnownCnt,sub.knownRev,sub.approxRev),{items:sub.items.sort((a,b)=>b.rev-a.rev)})).sort((a,b)=>b.rev-a.rev);
     const cnt=subs.reduce((a,s)=>a+s.cnt,0);
-    return Object.assign(mkEntry(top.name,top.rev,top.cost,cnt,top.abcCnt,top.costKnownCnt,top.knownRev),{subs});
+    return Object.assign(mkEntry(top.name,top.rev,top.cost,cnt,top.abcCnt,top.costKnownCnt,top.knownRev,top.approxRev),{subs});
   }).sort((a,b)=>b.rev-a.rev);
 }
 async function ktInit(){
@@ -5670,7 +6181,13 @@ function ktRangeChange(){
   ktCompute();
   ktRenderList();
 }
+// 2026-08-12: og'ir qism (ktRenderList) faqat Enter bosilganda.
 function ktSearchInput(){
+  const inp=document.getElementById("kt-q");
+  const clr=document.getElementById("kt-clear");
+  if(clr)clr.classList.toggle("show",!!(inp&&inp.value));
+}
+function ktSearchSubmit(){
   const inp=document.getElementById("kt-q");
   ktQ=inp?inp.value.toLowerCase().trim():"";
   const clr=document.getElementById("kt-clear");
@@ -5709,9 +6226,14 @@ function ktBack(){
 }
 function ktRenderList(){
   const tbody=document.getElementById("kt-tbody");
+  const tfoot=document.getElementById("kt-tfoot");
   if(!tbody)return;
-  if(!KT_TOP){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("yuklanmoqda")}</td></tr>`;return;}
-  let items=ktCurItems();
+  if(!KT_TOP){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${t("yuklanmoqda")}</td></tr>`;if(tfoot)tfoot.innerHTML="";return;}
+  // Ulush/foizlar joriy DARAJANING TO'LIQ ro'yxatiga nisbatan hisoblanadi (qidiruv
+  // matni ta'sir qilmasin - aks holda qidiruv yozganda foizlar "joriy ko'rinishga
+  // nisbatan"ga aylanib, tushunarsiz bo'lib qolardi).
+  const allItems=ktCurItems();
+  let items=allItems;
   if(ktQ)items=items.filter(it=>it.name.toLowerCase().includes(ktQ));
   if(ktSortKey){
     const gv=it=>{switch(ktSortKey){case "name":return it.name.toLowerCase();case "cnt":return it.cnt;case "rev":return it.rev;case "cost":return it.cost;case "profit":return it.profit;case "marja":return it.marja;default:return 0;}};
@@ -5726,6 +6248,10 @@ function ktRenderList(){
   const fmtSom=n=>Math.round(n||0).toLocaleString();
   const chevron=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;color:#8B95A6;flex-shrink:0"><polyline points="9 6 15 12 9 18"/></svg>`;
   const dash=`<span style="color:#c8c8ce">—</span>`;
+  const T={cnt:0,rev:0,cost:0,profit:0,known:false};
+  allItems.forEach(it=>{T.cnt+=it.cnt;T.rev+=it.rev;if(it.cost!=null){T.cost+=it.cost;T.profit+=it.profit;T.known=true;}});
+  const pct=(v,tot)=>tot?(v/tot*100).toFixed(1)+"%":"";
+  const shareBar=share=>`<div class="kt-share-wrap"><span class="kt-share-pct">${share.toFixed(1)}%</span><span class="kt-share-track"><span class="kt-share-fill" style="width:${Math.min(100,share).toFixed(2)}%"></span></span></div>`;
   const rows=items.map((it,i)=>{
     const costKnown=it.cost!=null;
     const profColor=costKnown&&it.profit<0?"#E24B4A":"#1D9E75";
@@ -5733,15 +6259,34 @@ function ktRenderList(){
     const profCell=costKnown?`<span style="color:${profColor};font-weight:700">${fmtSom(it.profit)}</span>`:dash;
     const marjaCell=costKnown?it.marja+"%":dash;
     const unknownNote=it.unknownRev>0?`<div style="font-size:10px;color:#c7ac27;font-weight:600;margin-top:1px">+${fmtSom(it.unknownRev)} ${t("kt_unknown_cost_note")}</div>`:"";
-    return `<tr class="kt-row" onclick="ktRowClick(${i})"><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="p2-prod-name" style="display:flex;align-items:center;gap:6px">${chevron}${esc(it.name)}</div></td><td style="text-align:right">${it.cnt.toLocaleString()}</td><td style="text-align:right;font-weight:600">${fmtSom(it.rev)}${unknownNote}</td><td style="text-align:right;color:#EF9F27">${costCell}</td><td style="text-align:right">${profCell}</td><td style="text-align:right">${marjaCell}</td><td class="kt-abc-td" style="text-align:center"><span class="p2-abc p2-abc-A">${it.abcCnt.A}</span> <span class="p2-abc p2-abc-B">${it.abcCnt.B}</span> <span class="p2-abc p2-abc-C">${it.abcCnt.C}</span></td></tr>`;
+    const costSh=costKnown?`<div class="kt-sh">${pct(it.cost,T.cost)}</div>`:"";
+    const profSh=costKnown?`<div class="kt-sh">${pct(it.profit,T.profit)}</div>`:"";
+    const share=T.rev?it.rev/T.rev*100:0;
+    return `<tr class="kt-row" onclick="ktRowClick(${i})"><td style="color:#bbb;font-size:11px">${i+1}</td><td><div class="p2-prod-name" style="display:flex;align-items:center;gap:6px">${chevron}${esc(it.name)}</div></td><td style="text-align:right">${it.cnt.toLocaleString()}</td><td style="text-align:right;font-weight:600">${fmtSom(it.rev)}${unknownNote}</td><td style="text-align:right;color:#EF9F27">${costCell}${costSh}</td><td style="text-align:right">${profCell}${profSh}</td><td style="text-align:right">${marjaCell}</td><td class="kt-share-td">${shareBar(share)}</td></tr>`;
   }).join("");
   tbody.innerHTML=rows||`<tr><td colspan="8" style="text-align:center;padding:40px;color:#bbb">${ktQ?t("p2_not_found"):t("sp6_no_data")}</td></tr>`;
+  if(tfoot){
+    if(!allItems.length){tfoot.innerHTML="";}
+    else{
+      const profColor=T.known&&T.profit<0?"#E24B4A":"#1D9E75";
+      tfoot.innerHTML=`<tr>
+<td></td>
+<td class="kt-foot-lbl">${t("sp_stat_jami")}</td>
+<td style="text-align:right;font-weight:800">${T.cnt.toLocaleString()}</td>
+<td style="text-align:right;font-weight:800">${fmtSom(T.rev)}</td>
+<td style="text-align:right;font-weight:800;color:#EF9F27">${T.known?fmtSom(T.cost):dash}</td>
+<td style="text-align:right;font-weight:800;color:${profColor}">${T.known?fmtSom(T.profit):dash}</td>
+<td></td>
+<td class="kt-share-td">${shareBar(100)}</td>
+</tr>`;
+    }
+  }
 }
 function _ktEnsureDetailStyles(){
   if(document.getElementById("kt-detail-style"))return;
   const st=document.createElement("style");
   st.id="kt-detail-style";
-  st.textContent=`#kt-fullscreen,#kt-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #kt-fullscreen,body.sb-collapsed #kt-mz-page{left:64px}#kt-fullscreen{overflow-y:auto;overflow-x:auto;z-index:1500}#kt-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}.kt-prod-link{cursor:pointer}.kt-prod-link:hover{text-decoration:underline;color:#1D9E75}.kt-dtbl{table-layout:fixed;width:100%;font-size:12px;border-collapse:collapse}.kt-dtbl th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#94A3B8;font-size:10.5px;font-weight:700;text-align:left;padding:11px 14px;border-bottom:1.5px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.04em;text-transform:uppercase;user-select:none}.kt-dtbl th[onclick]{cursor:pointer}.kt-dtbl td{padding:11px 14px;border-bottom:1px solid #ebe8e0;color:#1F2937;vertical-align:middle;overflow-wrap:break-word;font-variant-numeric:tabular-nums}.kt-dtbl tbody tr:hover td{background:#f0faf6}`;
+  st.textContent=`#kt-fullscreen,#kt-mz-page{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease}body.sb-collapsed #kt-fullscreen,body.sb-collapsed #kt-mz-page{left:64px}#kt-fullscreen{overflow-y:auto;overflow-x:auto;z-index:1500}#kt-mz-page{overflow-y:auto;overflow-x:hidden;padding:0 24px 60px;z-index:1600}.kt-prod-link{cursor:pointer}.kt-prod-link:hover{text-decoration:underline;color:#1D9E75}.kt-dtbl{table-layout:fixed;width:100%;font-size:13.5px;border-collapse:collapse}.kt-dtbl th{position:sticky;top:0;z-index:1;background:#fafaf5;color:#94A3B8;font-size:11px;font-weight:700;text-align:left;padding:12px 14px;border-bottom:1.5px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.04em;text-transform:uppercase;user-select:none}.kt-dtbl th[onclick]{cursor:pointer}.kt-dtbl td{padding:12px 14px;border-bottom:1px solid #ebe8e0;color:#1F2937;vertical-align:middle;overflow-wrap:break-word;font-variant-numeric:tabular-nums}.kt-dtbl th:last-child,.kt-dtbl td:last-child{padding-right:22px}.kt-dtbl tbody tr:hover td{background:#f0faf6}`;
   document.head.appendChild(st);
 }
 function _ktDetailStats(){
@@ -5771,11 +6316,17 @@ function _ktSummaryH(){
     +abcTile("A","#085041",st.a)+abcTile("B","#633806",st.b)+abcTile("C","#A32D2D",st.c)
     +`</div>`;
 }
+// 2026-08-19 (Bilol so'rovi): har mahsulot uchun MARJA (foyda/tushum %)
+// ustuni qo'shildi - kategoriya darajasidagi jadvalda allaqachon bor edi
+// (ktCompute()dagi mkEntry), shu FORMULA (foyda/tushum*100) aynan bir xil
+// har bir QATOR uchun ham qo'llanildi - shu bo'linmada qaysi mahsulot
+// narxi past/baland (marja g'ayrioddiy past yoki manfiy) darhol ko'rinadi.
 function _ktDetailMatrixInner(){
   const q=ktDetailQ;
   let items=q?ktDetailAllProds.filter(p=>_matchNSB(p,q)):ktDetailAllProds.slice();
+  const marjaOf=p=>(p.cost!=null&&p.rev)?((p.rev-p.cost)/p.rev*100):null;
   if(ktDetailSortKey){
-    const gv=p=>{switch(ktDetailSortKey){case "name":return (p.name||"").toLowerCase();case "qty":return p.qty||0;case "rev":return p.rev||0;case "cost":return p.cost||0;case "profit":return (p.rev||0)-(p.cost||0);case "abc":return p.abc||"";default:return 0;}};
+    const gv=p=>{switch(ktDetailSortKey){case "name":return (p.name||"").toLowerCase();case "qty":return p.qty||0;case "rev":return p.rev||0;case "cost":return p.cost||0;case "profit":return (p.rev||0)-(p.cost||0);case "marja":return marjaOf(p)??-Infinity;case "abc":return p.abc||"";default:return 0;}};
     items=items.slice().sort((a,b)=>{const av=gv(a),bv=gv(b);if(typeof av==="string")return ktDetailSortDir*av.localeCompare(bv,"ru");return ktDetailSortDir*(av-bv);});
   }
   ktDetailProds=items;
@@ -5791,24 +6342,30 @@ function _ktDetailMatrixInner(){
     const abcCell=abc?`<span style="display:inline-block;padding:2px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${abcBg[abc]};color:${abcFg[abc]}">${abc}</span>`:dash;
     const costCell=costKnown?_ktFmtSom(p.cost):dash;
     const profCell=costKnown?`<span style="color:${profColor};font-weight:700">${_ktFmtSom(profit)}</span>`:dash;
-    return `<tr><td style="color:#bbb;font-size:10px;text-align:center">${i+1}</td><td><div class="p2-prod-name kt-prod-link" onclick="ktGoToProduct(${i})" title="${esc(p.name)}">${esc(p.name)}</div>${skuLine}</td><td style="text-align:right">${p.qty.toLocaleString()}</td><td style="text-align:right;font-weight:600">${_ktFmtSom(p.rev)}</td><td style="text-align:right;color:#EF9F27">${costCell}</td><td style="text-align:right">${profCell}</td><td style="text-align:center">${abcCell}</td></tr>`;
+    const marja=marjaOf(p);
+    const marjaCell=marja!=null?`<span style="color:${marja<0?"#E24B4A":"#1D9E75"};font-weight:700">${marja.toFixed(1)}%</span>`:dash;
+    return `<tr><td style="color:#bbb;font-size:10px;text-align:center">${i+1}</td><td><div class="p2-prod-name kt-prod-link" onclick="ktGoToProduct(${i})" title="${esc(p.name)}">${esc(p.name)}</div>${skuLine}</td><td style="text-align:center">${abcCell}</td><td style="text-align:right">${p.qty.toLocaleString()}</td><td style="text-align:right;font-weight:600">${_ktFmtSom(p.rev)}</td><td style="text-align:right;color:#EF9F27">${costCell}</td><td style="text-align:right">${profCell}</td><td style="text-align:right">${marjaCell}</td></tr>`;
   }).join("");
   const th=(label,key,align)=>{const st=align?` style="text-align:${align}"`:"";if(!key)return `<th${st}>${label}</th>`;const s=ktDetailSortKey===key;const arrow=s?(ktDetailSortDir===1?" ↑":" ↓"):"";return `<th${st} onclick="ktDetailSortBy('${key}')">${label}${arrow}</th>`;};
-  return `<table class="kt-dtbl"><colgroup><col style="width:5%"><col style="width:32%"><col style="width:11%"><col style="width:16%"><col style="width:16%"><col style="width:14%"><col style="width:6%"></colgroup><thead><tr>${th("#",null,"center")}${th(t("sp_prod_name"),"name")}${th(t("kt_col_qty"),"qty","right")}${th(t("sp_stat_tushum"),"rev","right")}${th(t("sp_stat_tannarx"),"cost","right")}${th(t("sp_stat_foyda"),"profit","right")}${th("ABC","abc","center")}</tr></thead><tbody>${rows}</tbody></table>`;
+  return `<table class="kt-dtbl"><colgroup><col style="width:5%"><col style="width:25%"><col style="width:6%"><col style="width:10%"><col style="width:14%"><col style="width:14%"><col style="width:13%"><col style="width:13%"></colgroup><thead><tr>${th("#",null,"center")}${th(t("sp_prod_name"),"name")}${th("ABC","abc","center")}${th(t("kt_col_qty"),"qty","right")}${th(t("sp_stat_tushum"),"rev","right")}${th(t("sp_stat_tannarx"),"cost","right")}${th(t("sp_stat_foyda"),"profit","right")}${th(t("sp_stat_marja"),"marja","right")}</tr></thead><tbody>${rows}</tbody></table>`;
 }
 function ktDetailSortBy(key){
   if(ktDetailSortKey===key){ktDetailSortDir=-ktDetailSortDir;}else{ktDetailSortKey=key;ktDetailSortDir=key==="name"?1:-1;}
   const wrap=document.getElementById("kt-matrix-wrap-outer");if(wrap)wrap.innerHTML=_ktDetailMatrixInner();
 }
 function ktDetailSearch(val){
+  const clr=document.getElementById("kt-det-clear");if(clr)clr.style.display=val?"flex":"none";
+}
+// 2026-08-12: og'ir qism (jadval qayta chizish) faqat Enter bosilganda.
+function ktDetailSearchSubmit(val){
   ktDetailQ=(val||"").toLowerCase().trim();
   const wrap=document.getElementById("kt-matrix-wrap-outer");if(wrap)wrap.innerHTML=_ktDetailMatrixInner();
-  const clr=document.getElementById("kt-det-clear");if(clr)clr.style.display=ktDetailQ?"flex":"none";
   requestAnimationFrame(_ktSyncDetailStickyTop);
 }
 function ktDetailClearSearch(){
   const inp=document.getElementById("kt-det-q");if(inp)inp.value="";
   ktDetailSearch("");
+  ktDetailSearchSubmit("");
   if(inp)inp.focus();
 }
 function _ktMzMatrixInner(){
@@ -5838,20 +6395,26 @@ function ktMzSortBy(key){
   const wrap=document.getElementById("kt-mz-wrap-outer");if(wrap)wrap.innerHTML=_ktMzMatrixInner();
 }
 function ktMzSearch(val){
+  const clr=document.getElementById("kt-mz-clear");if(clr)clr.style.display=val?"flex":"none";
+}
+// 2026-08-12: og'ir qism (jadval qayta chizish) faqat Enter bosilganda.
+function ktMzSearchSubmit(val){
   ktMzQ=(val||"").toLowerCase().trim();
   const wrap=document.getElementById("kt-mz-wrap-outer");if(wrap)wrap.innerHTML=_ktMzMatrixInner();
-  const clr=document.getElementById("kt-mz-clear");if(clr)clr.style.display=ktMzQ?"flex":"none";
   requestAnimationFrame(_ktSyncMzStickyTop);
 }
 function ktMzClearSearch(){
   const inp=document.getElementById("kt-mz-q");if(inp)inp.value="";
   ktMzSearch("");
+  ktMzSearchSubmit("");
   if(inp)inp.focus();
 }
 function ktShowMzPage(){
   const mz=document.getElementById("kt-mz-page");if(!mz)return;
   mz.style.display="block";mz.scrollTop=0;
+  _ktSyncMzStickyTop();
   requestAnimationFrame(_ktSyncMzStickyTop);
+  _ktObserveHeaderResize(mz.firstElementChild,_ktSyncMzStickyTop);
 }
 // Sotilmayotgan ro'yxati Kategoriyalar sahifasining O'ZIGA tanlangan sana oralig'iga mos
 // bo'lishi kerak (Stock/p5'ning global, doim 15/30-kunlik oynaga qarab hisoblangan "signal"
@@ -5893,7 +6456,7 @@ function _ktShowOverlay(sub){
   if(!mzPage){mzPage=document.createElement("div");mzPage.id="kt-mz-page";mzPage.style.display="none";p10el.appendChild(mzPage);}
   const searchIcon=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:#b5bac4;pointer-events:none"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>`;
   const clearBtn=(id,fn,q)=>`<button id="${id}" onclick="${fn}" style="display:${q?"flex":"none"};align-items:center;justify-content:center;position:absolute;right:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;background:none;border:none;cursor:pointer;color:#b5bac4;font-size:13px;line-height:1;padding:0;" title="Tozalash">✕</button>`;
-  const searchH=`<div style="padding:0 14px 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="kt-det-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(ktDetailQ)}" oninput="ktDetailSearch(this.value)">${clearBtn("kt-det-clear","ktDetailClearSearch()",ktDetailQ)}</div></div>`;
+  const searchH=`<div style="padding:0 14px 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="kt-det-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(ktDetailQ)}" oninput="ktDetailSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();ktDetailSearchSubmit(this.value);}">${clearBtn("kt-det-clear","ktDetailClearSearch()",ktDetailQ)}</div></div>`;
   const xlsIcon=`<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2F6FED" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>`;
   const detExportBtn=`<button class="xls-export-btn" onclick="ktExportDetailXLSX()" style="flex-shrink:0">${xlsIcon}${t("export_btn")}</button>`;
   const mzCount=ktMzAllItems.length;
@@ -5912,7 +6475,7 @@ function _ktShowOverlay(sub){
   </div>
   <div style="padding:0 14px 40px" id="kt-matrix-wrap-outer">${_ktDetailMatrixInner()}</div>`;
   if(mzCount){
-    const mzSearchH=`<div style="padding:0 0 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="kt-mz-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(ktMzQ)}" oninput="ktMzSearch(this.value)">${clearBtn("kt-mz-clear","ktMzClearSearch()",ktMzQ)}</div></div>`;
+    const mzSearchH=`<div style="padding:0 0 12px"><div class="sp-search" style="max-width:340px">${searchIcon}<input id="kt-mz-q" type="text" placeholder="${esc(t("p2_search_ph"))}" value="${esc(ktMzQ)}" oninput="ktMzSearch(this.value)" onkeydown="if(event.key==='Enter'){event.preventDefault();ktMzSearchSubmit(this.value);}">${clearBtn("kt-mz-clear","ktMzClearSearch()",ktMzQ)}</div></div>`;
     mzPage.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2">
       <div style="padding:14px 0 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
         <button onclick="document.getElementById('kt-mz-page').style.display='none'" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
@@ -5930,7 +6493,23 @@ function _ktShowOverlay(sub){
     mzPage.innerHTML="";mzPage.style.display="none";
   }
   ov.style.display="block";ov.scrollTop=0;
+  _ktSyncDetailStickyTop();
   requestAnimationFrame(_ktSyncDetailStickyTop);
+  _ktObserveHeaderResize(document.getElementById("kt-ov-header"),_ktSyncDetailStickyTop);
+}
+// Sarlavha balandligi bir marta (rAF'da) o'lchanib QOTIRILGAN edi - agar keyinroq
+// (shrift yuklanishi, oyna o'lchami, qidiruv "tozalash" tugmasi ko'rinishi kabi
+// sabablar bilan) balandlik o'zgarsa, jadval sarlavhasi statistik panel bilan
+// ustma-ust tushib qolardi (2026-08-18, foydalanuvchi skrinshotda topdi).
+// ResizeObserver har o'zgarishda avtomatik qayta hisoblaydi - bir martalik
+// o'lchashga qaraganda ancha ishonchli.
+const _ktRO={};
+function _ktObserveHeaderResize(hdrEl,syncFn){
+  if(!hdrEl||typeof ResizeObserver==="undefined")return;
+  const key=hdrEl.id||"mz";
+  if(_ktRO[key])_ktRO[key].disconnect();
+  _ktRO[key]=new ResizeObserver(()=>syncFn());
+  _ktRO[key].observe(hdrEl);
 }
 function _ktSyncDetailStickyTop(){
   const ov=document.getElementById("kt-fullscreen");
@@ -6000,39 +6579,303 @@ async function ktExportTopXLSX(){
   a.download=`kategoriyalar_${ktStart}_${ktEnd}.xlsx`;
   a.click();URL.revokeObjectURL(a.href);
 }
+// 2026-08-19 (Bilol so'rovi): "oxirgi kelish narxi" va "hozirgi sotilish
+// narxi" o'rtasidagi marja (davr bo'yicha o'rtacha EMAS, aynan HOZIRGI ikki
+// narx nisbati) 20%dan kam bo'lgan BARCHA tovarlarni (butun katalog
+// bo'yicha, faqat joriy kategoriya emas) Excel'ga chiqaradi. Kelish narxi
+// - v.rcost (build_prev_avg.py: haqiqiy kirim tarixidagi ENG SO'NGGI narx,
+// kirim topilmasa taxminiy katalog narxiga tushadi - shu holat rcostApprox
+// bilan belgilanadi va bu ro'yxatdan CHIQARIB TASHLANADI, chunki "aniq
+// hisoblangan" so'ralgan edi, taxminiy emas).
+const KT_LOW_MARGIN_PCT=20;
+async function ktExportLowMarginXLSX(){
+  await _ensureExcelJS();
+  if(!P2||typeof ExcelJS==="undefined")return;
+  const rows=[];
+  P2.forEach(v=>{
+    // v.rcost enrichment paytida "iv.rcost||0" bilan o'rnatiladi - ya'ni
+    // "ma'lumot yo'q" va "haqiqatan 0 so'm" ikkalasi ham 0 bo'lib chiqadi.
+    // Bu yerda "aniq hisoblangan" so'ralgani uchun ikkalasi ham chetlab
+    // o'tiladi (0/noma'lum narxni "100% marja" deb noto'g'ri hisoblab
+    // qo'ymaslik uchun).
+    if(!v.rcost||v.rcostApprox)return;
+    const sell=v.iprice||v.p||0;
+    if(!sell)return;
+    const cost=v.rcost;
+    const profit=sell-cost;
+    const marja=profit/sell*100;
+    if(marja>=KT_LOW_MARGIN_PCT)return;
+    rows.push({bc:(v.bc||[]).join(", "),name:v.name,sku:v.sku||"",sell,cost,profit,marja});
+  });
+  rows.sort((a,b)=>a.marja-b.marja);
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet(t("nav_p10"),{views:[{state:"frozen",ySplit:2}]});
+  ws.mergeCells("A1:F1");
+  ws.getCell("A1").value=`Marja < ${KT_LOW_MARGIN_PCT}% (${rows.length} ta tovar)`;
+  ws.getCell("A1").font={bold:true,size:12,color:{argb:"FFFFFF"}};
+  ws.getCell("A1").alignment={horizontal:"center",vertical:"middle"};
+  ws.getCell("A1").fill={type:"pattern",pattern:"solid",fgColor:{argb:"E24B4A"}};
+  ws.getRow(1).height=22;
+  ws.addRow(["Shtrix kod",t("sp_prod_name"),t("xls_th_sell_price"),t("kpi_cost_l"),t("sp_stat_foyda"),t("sp_stat_marja")]);
+  ws.getRow(2).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"1D9E75"}};c.alignment={horizontal:"center",vertical:"middle"};});
+  rows.forEach(r=>{
+    const row=ws.addRow([r.bc,r.name,Math.round(r.sell),Math.round(r.cost),Math.round(r.profit),Math.round(r.marja*10)/10+"%"]);
+    row.getCell(2).alignment={horizontal:"left"};
+    [3,4,5].forEach(c=>{row.getCell(c).numFmt='#,##0 "so\'m"';row.getCell(c).alignment={horizontal:"right"};});
+    row.getCell(6).alignment={horizontal:"right"};
+    if(r.marja<0)row.getCell(6).font={color:{argb:"E24B4A"},bold:true};
+  });
+  ws.columns=[{width:16},{width:42},{width:16},{width:16},{width:16},{width:10}];
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  a.download=`past_marjali_tovarlar_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// ─── p12 "Marja nazorati" — sotilish narxi va OXIRGI kelish narxi orasidagi
+// marjasi belgilangan chegaradan past BARCHA tovarlarni bildirishnoma-oqim
+// (kartochkalar) sifatida doim ko'rsatib turadi, eng past marjali eng
+// tepada (foydalanuvchi so'rovi, 2026-08-21). ktExportLowMarginXLSX() bilan
+// BIR XIL formula (v.rcost/v.iprice, taxminiy narxlilar chetlab o'tiladi) -
+// lekin bu yerda chegara QOTIB QOLMAGAN (mgThreshold, standart 20%),
+// foydalanuvchi o'zgartirishi mumkin. Yangi kirim kelib v.rcost oshsa
+// (yoki kamaysa) - keyingi renderda (bg-refresh yoki qayta ochilganda)
+// marja o'zi qayta hisoblanadi, alohida "yangi/eski" holat saqlanmaydi -
+// har doim JORIY holatni ko'rsatadi. Sodda/tushunarli bo'lishi uchun
+// interaktiv ustun-saralash yo'q - doim eng past marjadan boshlanadi.
+let mgThreshold=20,mgQ="",mgCatFilter="",mgSupFilter="",mgSortKey="marja",mgSortDir=1;
+function mgCurRows(){
+  const rows=[];
+  if(!P2)return rows;
+  P2.forEach(v=>{
+    if(!v.rcost||v.rcostApprox)return;
+    const sell=v.iprice||v.p||0;
+    if(!sell)return;
+    const cost=v.rcost;
+    const profit=sell-cost;
+    const marja=profit/sell*100;
+    if(marja>=mgThreshold)return;
+    const stock=v.calcStock!=null?v.calcStock:(v.amt!=null?v.amt:null);
+    rows.push({bc:(v.bc||[]).join(", "),name:v.name,sku:v.sku||"",cat:v.catTop||v.cat||"",sup:v.sup||"",sell,cost,profit,marja,stock,kg:!!v.kg});
+  });
+  rows.sort((a,b)=>a.marja-b.marja);
+  return rows;
+}
+async function mgInit(){
+  if(!P2){
+    _ensureDailyDemand();
+    // _apiBoot() ba'zan (server sovuq boshlanishi va h.k.) uzoq osilib qolishi
+    // mumkin - p2/p5/p7 buni sezmaydi, chunki foydalanuvchi odatda avval
+    // boshqa sahifani ochib ulguradi (shu payt _apiBoot() allaqachon tayyor
+    // bo'ladi). Bu yerga TO'G'RIDAN-TO'G'RI (sovuq) kirilishi mumkinligi
+    // uchun 6 soniyadan keyin sekinroq, lekin ISHONCHLI zaxira yo'lga
+    // (_ensureP2Data() ning statik fayl fallback'iga) o'tamiz - "Yuklanmoqda..."
+    // abadiy qolib ketmasligi uchun.
+    let apiData=null;
+    try{
+      apiData=await Promise.race([_apiBoot(),new Promise((_,rej)=>setTimeout(()=>rej(new Error("apiBoot timeout")),6000))]);
+    }catch(e){apiData=null;}
+    await _ensureP2Data(apiData);
+    await initP2(apiData);
+  }
+  _mgRefreshFilters();
+  mgRenderList();
+}
+// Kategoriya/Ta'minotchi filtri (foydalanuvchi so'rovi, 2026-08-22) - Zakas
+// ro'yxat darajasidagi filtr bilan BIR XIL naqsh (p2-fwrap/p2-fbtn/zk-fpop/
+// p2-fgrp, _zkRefreshListCatFilters() ga o'xshash) - variantlar HOZIRGI
+// chegaradan past tovarlar orasidan yig'iladi.
+function _mgRefreshFilters(){
+  const sel1=document.getElementById("mg-cat-filter");
+  const sel2=document.getElementById("mg-sup-filter");
+  if(!sel1||!sel2)return;
+  const rows=mgCurRows();
+  const cats=[...new Set(rows.map(r=>r.cat).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+  sel1.innerHTML=`<option value="">${t("zk_all_cat")}</option>`+cats.map(c=>`<option value="${esc(c)}"${c===mgCatFilter?" selected":""}>${esc(c)}</option>`).join("");
+  const sups=[...new Set(rows.map(r=>r.sup).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ru"));
+  sel2.innerHTML=`<option value="">${t("filt_all")}</option>`+sups.map(s=>`<option value="${esc(s)}"${s===mgSupFilter?" selected":""}>${esc(s)}</option>`).join("");
+  sselAttach("mg-cat-filter");sselAttach("mg-sup-filter");
+  _mgFCount();
+}
+function mgCatFilterChange(v){mgCatFilter=v;_mgFCount();mgRenderList();}
+function mgSupFilterChange(v){mgSupFilter=v;_mgFCount();mgRenderList();}
+function _mgFCount(){
+  let n=0;if(mgCatFilter)n++;if(mgSupFilter)n++;
+  const b=document.getElementById("mg-fcount");if(b)b.textContent=n?"("+n+")":"";
+  const btn=document.getElementById("mg-fbtn");if(btn)btn.classList.toggle("has",n>0);
+}
+function mgFToggle(e){if(e)e.stopPropagation();const p=document.getElementById("mg-fpop");if(p)p.classList.toggle("open");}
+function mgClearFilters(){
+  mgCatFilter="";mgSupFilter="";
+  _mgRefreshFilters();
+  mgRenderList();
+  const p=document.getElementById("mg-fpop");if(p)p.classList.remove("open");
+}
+document.addEventListener("click",function(e){const w=document.getElementById("mg-fwrap");const p=document.getElementById("mg-fpop");if(w&&p&&!w.contains(e.target))p.classList.remove("open");});
+function mgSortBy(key){
+  if(mgSortKey===key)mgSortDir=-mgSortDir;else{mgSortKey=key;mgSortDir=key==="name"?1:-1;}
+  mgRenderList();
+}
+function mgRenderList(){
+  const tbody=document.getElementById("mg-tbody");
+  if(!tbody)return;
+  let items=mgCurRows();
+  if(mgCatFilter)items=items.filter(v=>v.cat===mgCatFilter);
+  if(mgSupFilter)items=items.filter(v=>v.sup===mgSupFilter);
+  if(mgQ){
+    const q=mgQ;
+    items=items.filter(v=>v.name.toLowerCase().includes(q)||String(v.sku).toLowerCase().includes(q)||v.bc.toLowerCase().includes(q));
+  }
+  const suggOf=it=>mgThreshold>=100?Infinity:it.cost/(1-mgThreshold/100);
+  const gv=it=>{switch(mgSortKey){case "name":return it.name.toLowerCase();case "sell":return it.sell;case "cost":return it.cost;case "suggested":return suggOf(it);case "profit":return it.profit;default:return it.marja;}};
+  items=items.slice().sort((a,b)=>{const av=gv(a),bv=gv(b);if(typeof av==="string")return mgSortDir*av.localeCompare(bv,"ru");return mgSortDir*(av-bv);});
+  const cnt=document.getElementById("mg-cnt");
+  if(cnt)cnt.textContent=items.length.toLocaleString()+" "+t("mg_cnt_unit");
+  document.querySelectorAll("#p12 .kt-tbl thead th").forEach(th=>{th.classList.remove("z-sort-asc","z-sort-desc");if(th.dataset.sortkey===mgSortKey)th.classList.add(mgSortDir>0?"z-sort-asc":"z-sort-desc");});
+  if(!items.length){
+    tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:40px;color:#bbb">${esc(t("mg_empty"))}</td></tr>`;
+    return;
+  }
+  const fmtSom=n=>Math.round(n||0).toLocaleString();
+  tbody.innerHTML=items.map(v=>{
+    const sevColor=v.marja<0?"#E24B4A":v.marja<10?"#EF9F27":"#534AB7";
+    const meta=v.sup||"";
+    const sub=v.bc?esc(v.bc)+(meta?" | ":""):"";
+    const subFull=(v.bc?v.bc+(meta?" | ":""):"")+meta;
+    const sugg=suggOf(v);
+    const suggTxt=isFinite(sugg)?fmtSom(sugg):"—";
+    return `<tr><td><div class="mg-name mg-name-link" onclick="mgOpenKirimDetail('${esc(String(v.sku))}')" title="${esc(t("kr_det_sana"))}">${esc(v.name)}</div>${(sub||meta)?`<div class="mg-sub" title="${esc(subFull).replace(/"/g,"&quot;")}">${sub}${esc(meta)}</div>`:""}</td><td class="mg-num" style="text-align:right">${fmtSom(v.sell)}</td><td class="mg-num" style="text-align:right">${fmtSom(v.cost)}</td><td class="mg-num${v.profit<0?" mg-neg":""}" style="text-align:right">${fmtSom(v.profit)}</td><td class="mg-sugg" style="text-align:right">${suggTxt}</td><td class="mg-marja" style="text-align:right;font-weight:750;color:${sevColor}">${Math.round(v.marja*10)/10}%</td></tr>`;
+  }).join("");
+}
+// Tovar nomi bosilganda Kirim bo'limidagi shu tovarning to'liq kelish tarixi
+// ochiladi (foydalanuvchi so'rovi, 2026-08-22) - zkOpenKirimDetail() (p7)
+// bilan AYNAN bir xil naqsh/jadval, faqat #p12 ichida mustaqil overlay
+// (krOpenDetail/zkOpenKirimDetail'dagi bilan bir xil sabab - #p8/#p7'dagi
+// overlay bilan ID to'qnashmasin, sahifalar orasida bir vaqtda DOM'da
+// qolishi mumkin).
+function _mgKrEnsureStyles(){
+  krEnsureDetailStyles();
+  if(document.getElementById("mg-kr-detail-style"))return;
+  const st=document.createElement("style");
+  st.id="mg-kr-detail-style";
+  st.textContent=`#mg-kr-fullscreen{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease;overflow-y:auto;z-index:1500;display:none}body.sb-collapsed #mg-kr-fullscreen{left:64px}`;
+  document.head.appendChild(st);
+}
+async function mgOpenKirimDetail(sku){
+  if(!P8)await _ensureKirimData();
+  if(!P8||!P8.skus||!sku)return;
+  const entry=P8.skus[String(sku)];if(!entry)return;
+  _mgKrEnsureStyles();
+  const p12el=document.getElementById("p12");if(!p12el)return;
+  p12el.style.position="relative";
+  let ov=document.getElementById("mg-kr-fullscreen");
+  if(!ov){ov=document.createElement("div");ov.id="mg-kr-fullscreen";p12el.appendChild(ov);}
+  const arrivals=[...(entry.arrivals||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td>${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
+    <button onclick="mgKrCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      ${esc(t("kr_back"))}
+    </button>
+    <span style="font-size:15px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(entry.name)} (${esc(sku)})</span>
+  </div>
+  <div class="kr-det-wrap">${arrivals.length?`<table class="kr-det-tbl"><thead><tr><th>${esc(t("kr_det_sana"))}</th><th>${esc(t("kr_det_sup"))}</th><th>${esc(t("kr_det_expected"))}</th><th>${esc(t("kr_det_qty"))}</th><th>${esc(t("kr_det_cost"))}</th><th>${esc(t("kr_det_summa"))}</th><th>${esc(t("kr_det_status"))}</th></tr></thead><tbody>${rows}</tbody></table>`:`<div style="text-align:center;padding:40px;color:#bbb">${esc(t("kr_not_found"))}</div>`}</div>`;
+  ov.style.display="block";
+  ov.scrollTop=0;
+}
+function mgKrCloseOverlay(){
+  const ov=document.getElementById("mg-kr-fullscreen");
+  if(ov)ov.style.display="none";
+}
+function mgSetThreshold(val){
+  const n=parseFloat(val);
+  mgThreshold=isNaN(n)?20:Math.max(0,Math.min(100,n));
+  mgRenderList();
+}
+function mgSearchInput(){
+  const inp=document.getElementById("mg-q");
+  const clr=document.getElementById("mg-clear");
+  if(clr)clr.classList.toggle("show",!!(inp&&inp.value));
+}
+function mgSearchSubmit(){
+  const inp=document.getElementById("mg-q");
+  mgQ=inp?inp.value.toLowerCase().trim():"";
+  const clr=document.getElementById("mg-clear");
+  if(clr)clr.classList.toggle("show",mgQ.length>0);
+  mgRenderList();
+}
+function mgClearSearch(){
+  const inp=document.getElementById("mg-q");if(inp){inp.value="";inp.focus();}
+  const clr=document.getElementById("mg-clear");if(clr)clr.classList.remove("show");
+  mgQ="";mgRenderList();
+}
+async function mgExportXLSX(){
+  await _ensureExcelJS();
+  if(!P2||typeof ExcelJS==="undefined")return;
+  const rows=mgCurRows().slice().sort((a,b)=>a.marja-b.marja);
+  const wb=new ExcelJS.Workbook();
+  const ws=wb.addWorksheet(t("nav_p12"),{views:[{state:"frozen",ySplit:2}]});
+  ws.mergeCells("A1:I1");
+  ws.getCell("A1").value=`Marja < ${mgThreshold}% (${rows.length} ta tovar)`;
+  ws.getCell("A1").font={bold:true,size:12,color:{argb:"FFFFFF"}};
+  ws.getCell("A1").alignment={horizontal:"center",vertical:"middle"};
+  ws.getCell("A1").fill={type:"pattern",pattern:"solid",fgColor:{argb:"E24B4A"}};
+  ws.getRow(1).height=22;
+  ws.addRow(["Shtrix kod",t("sp_prod_name"),t("mg_col_cat"),t("kr_det_sup"),t("xls_th_sell_price"),t("kpi_cost_l"),t("sp_stat_foyda"),t("mg_col_suggested"),t("sp_stat_marja")]);
+  ws.getRow(2).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"1D9E75"}};c.alignment={horizontal:"center",vertical:"middle"};});
+  rows.forEach(r=>{
+    const sugg=mgThreshold>=100?null:r.cost/(1-mgThreshold/100);
+    const row=ws.addRow([r.bc,r.name,r.cat,r.sup,Math.round(r.sell),Math.round(r.cost),Math.round(r.profit),sugg==null?"—":Math.round(sugg),Math.round(r.marja*10)/10+"%"]);
+    row.getCell(2).alignment={horizontal:"left"};
+    [5,6,7,8].forEach(c=>{row.getCell(c).numFmt='#,##0 "so\'m"';row.getCell(c).alignment={horizontal:"right"};});
+    row.getCell(8).font={color:{argb:"2FAF7F"},bold:true};
+    row.getCell(9).alignment={horizontal:"right"};
+    if(r.marja<0)row.getCell(9).font={color:{argb:"E24B4A"},bold:true};
+  });
+  ws.columns=[{width:16},{width:38},{width:20},{width:20},{width:14},{width:14},{width:14},{width:14},{width:10}];
+  const buf=await wb.xlsx.writeBuffer();
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
+  a.download=`marja_nazorati_${new Date().toISOString().slice(0,10)}.xlsx`;
+  a.click();URL.revokeObjectURL(a.href);
+}
+
 async function ktExportDetailXLSX(){
   await _ensureExcelJS();
   if(!ktSelSub||typeof ExcelJS==="undefined")return;
   const wb=new ExcelJS.Workbook();
   const ws=wb.addWorksheet(_ktSafeSheetName(ktSelSub),{views:[{state:"frozen",ySplit:4}]});
-  ws.mergeCells("A1:H1");
+  ws.mergeCells("A1:I1");
   ws.getCell("A1").value=ktSelSub;
   ws.getCell("A1").font={bold:true,size:13,color:{argb:"FFFFFF"}};
   ws.getCell("A1").alignment={horizontal:"center",vertical:"middle"};
   ws.getCell("A1").fill={type:"pattern",pattern:"solid",fgColor:{argb:"534AB7"}};
   ws.getRow(1).height=24;
   const st=_ktDetailStats();
-  ws.mergeCells("A2:H2");
+  ws.mergeCells("A2:I2");
   ws.getCell("A2").value=`${ktStart} — ${ktEnd}`;
   ws.getCell("A2").font={bold:true,size:11,color:{argb:"1D9E75"}};
   ws.getCell("A2").alignment={horizontal:"center",vertical:"middle"};
-  ws.mergeCells("A3:H3");
+  ws.mergeCells("A3:I3");
   ws.getCell("A3").value=`${t("sp_stat_tushum")}: ${_ktFmtSom(st.rev)}   |   ${t("sp_stat_tannarx")}: ${_ktFmtSom(st.cost)}   |   ${t("sp_stat_foyda")}: ${_ktFmtSom(st.profit)}   |   ${t("sp_stat_jami")}: ${st.jami}   |   A: ${st.a}  B: ${st.b}  C: ${st.c}`;
   ws.getCell("A3").font={size:10.5,color:{argb:"444444"}};
   ws.getCell("A3").alignment={horizontal:"center",vertical:"middle"};
   ws.getRow(3).height=20;
-  ws.addRow(["#",t("sp_prod_name"),"SKU",t("kt_col_qty"),t("sp_stat_tushum"),t("sp_stat_tannarx"),t("sp_stat_foyda"),"ABC"]);
+  ws.addRow(["#",t("sp_prod_name"),"ABC","SKU",t("kt_col_qty"),t("sp_stat_tushum"),t("sp_stat_tannarx"),t("sp_stat_foyda"),t("sp_stat_marja")]);
   ws.getRow(4).eachCell(c=>{c.font={bold:true,color:{argb:"FFFFFF"}};c.fill={type:"pattern",pattern:"solid",fgColor:{argb:"1D9E75"}};c.alignment={horizontal:"center",vertical:"middle"};});
   ktDetailProds.forEach((p,i)=>{
     const costKnown=p.cost!=null;
     const profit=costKnown?(p.rev||0)-p.cost:null;
-    const row=ws.addRow([i+1,p.name,p.sku||"",p.qty,Math.round(p.rev),costKnown?Math.round(p.cost):"—",costKnown?Math.round(profit):"—",p.abc||"—"]);
+    const marja=(costKnown&&p.rev)?Math.round(profit/p.rev*1000)/10:null;
+    const row=ws.addRow([i+1,p.name,p.abc||"—",p.sku||"",p.qty,Math.round(p.rev),costKnown?Math.round(p.cost):"—",costKnown?Math.round(profit):"—",marja!=null?marja+"%":"—"]);
     row.getCell(2).alignment={horizontal:"left"};
-    row.getCell(5).numFmt='#,##0 "so\'m"';row.getCell(5).alignment={horizontal:"right"};
-    if(costKnown){[6,7].forEach(c=>{row.getCell(c).numFmt='#,##0 "so\'m"';row.getCell(c).alignment={horizontal:"right"};});}
-    else{[6,7].forEach(c=>{row.getCell(c).alignment={horizontal:"right"};});}
+    row.getCell(6).numFmt='#,##0 "so\'m"';row.getCell(6).alignment={horizontal:"right"};
+    if(costKnown){[7,8].forEach(c=>{row.getCell(c).numFmt='#,##0 "so\'m"';row.getCell(c).alignment={horizontal:"right"};});}
+    else{[7,8].forEach(c=>{row.getCell(c).alignment={horizontal:"right"};});}
+    row.getCell(9).alignment={horizontal:"right"};
   });
-  ws.columns=[{width:6},{width:38},{width:12},{width:10},{width:16},{width:16},{width:16},{width:6}];
+  ws.columns=[{width:6},{width:38},{width:6},{width:12},{width:10},{width:16},{width:16},{width:16},{width:10}];
   const buf=await wb.xlsx.writeBuffer();
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
@@ -6076,7 +6919,13 @@ async function ktExportMzXLSX(){
 // ─── P8 Kirim (ta'minotchidan kelgan tovar) tarixi ───
 let _krPageItems=[];
 function initP8(){if(!P8)return;renderP8();}
+// 2026-08-12: og'ir qism (renderP8) faqat Enter bosilganda.
 function krSearchInput(){
+  const inp=document.getElementById("kr-q");
+  const clr=document.getElementById("kr-clear");
+  if(clr)clr.classList.toggle("show",!!(inp&&inp.value));
+}
+function krSearchSubmit(){
   const inp=document.getElementById("kr-q");
   krQ=inp?nn2(inp.value):"";
   const clr=document.getElementById("kr-clear");
@@ -6166,6 +7015,46 @@ function krCloseOverlay(){
   const ov=document.getElementById("kr-fullscreen");
   if(ov)ov.style.display="none";
 }
+// Zakas (p7)'dan bosilganda, Kirim (p8)'ga o'tmasdan, shu tovarning TO'LIQ kirim
+// tarixini (krOpenDetail bilan bir xil jadval) ko'rsatadi. #p8'dagi #kr-fullscreen'ni
+// QAYTA ISHLATMAYDI (mustaqil #zk-kr-fullscreen, #p7 ichida) - ikkalasi bir vaqtda
+// DOM'da bo'lishi mumkin (foydalanuvchi p7'dan p8'ga o'tishi mumkin), ID to'qnashuvi
+// va noto'g'ri joylashuv (chap panel kengligi p8/p7'da bir xil, lekin mustaqil
+// bo'lish xavfsizroq) oldini olish uchun. .kr-det-wrap/.kr-det-tbl klasslari umumiy
+// (krEnsureDetailStyles() orqali) - qayta e'lon qilinmaydi.
+function _zkKrEnsureStyles(){
+  krEnsureDetailStyles();
+  if(document.getElementById("zk-kr-detail-style"))return;
+  const st=document.createElement("style");
+  st.id="zk-kr-detail-style";
+  st.textContent=`#zk-kr-fullscreen{position:fixed!important;top:0;bottom:0;left:195px;right:0;background:#fff;box-sizing:border-box;transition:left .18s ease;overflow-y:auto;z-index:1500;display:none}body.sb-collapsed #zk-kr-fullscreen{left:64px}`;
+  document.head.appendChild(st);
+}
+function zkOpenKirimDetail(sku){
+  if(!P8||!P8.skus||!sku)return;
+  const entry=P8.skus[String(sku)];if(!entry)return;
+  _zkKrEnsureStyles();
+  const p7el=document.getElementById("p7");if(!p7el)return;
+  p7el.style.position="relative";
+  let ov=document.getElementById("zk-kr-fullscreen");
+  if(!ov){ov=document.createElement("div");ov.id="zk-kr-fullscreen";p7el.appendChild(ov);}
+  const arrivals=[...(entry.arrivals||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td>${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
+  ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
+    <button onclick="zkKrCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      ${esc(t("kr_back"))}
+    </button>
+    <span style="font-size:15px;font-weight:700;color:#1a1a2e;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(entry.name)} (${esc(sku)})</span>
+  </div>
+  <div class="kr-det-wrap">${arrivals.length?`<table class="kr-det-tbl"><thead><tr><th>${esc(t("kr_det_sana"))}</th><th>${esc(t("kr_det_sup"))}</th><th>${esc(t("kr_det_expected"))}</th><th>${esc(t("kr_det_qty"))}</th><th>${esc(t("kr_det_cost"))}</th><th>${esc(t("kr_det_summa"))}</th><th>${esc(t("kr_det_status"))}</th></tr></thead><tbody>${rows}</tbody></table>`:`<div style="text-align:center;padding:40px;color:#bbb">${esc(t("kr_not_found"))}</div>`}</div>`;
+  ov.style.display="block";
+  ov.scrollTop=0;
+}
+function zkKrCloseOverlay(){
+  const ov=document.getElementById("zk-kr-fullscreen");
+  if(ov)ov.style.display="none";
+}
 function krOpenDetail(i){
   const entry=_krPageItems[i];if(!entry)return;
   krEnsureDetailStyles();
@@ -6174,7 +7063,7 @@ function krOpenDetail(i){
   let ov=document.getElementById("kr-fullscreen");
   if(!ov){ov=document.createElement("div");ov.id="kr-fullscreen";p8el.appendChild(ov);}
   const arrivals=[...entry.arrivals].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
-  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td title="${esc(a.supplier)}">${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
+  const rows=arrivals.map(a=>`<tr><td>${krFmtDate(a.date)}</td><td>${esc(a.supplier)}</td><td>${(a.expected||0).toLocaleString()}</td><td>${(a.qty||0).toLocaleString()}</td><td>${(a.cost||0).toLocaleString()}</td><td>${Math.round((a.qty||0)*(a.cost||0)).toLocaleString()}</td><td><span class="${krStatusBadgeCls(a.status)}">${esc(a.status||"")}</span></td></tr>`).join("");
   ov.innerHTML=`<div style="position:sticky;top:0;background:#fff;z-index:2;padding:14px 24px 12px;border-bottom:1.5px solid #f0f0ec;display:flex;align-items:center;gap:12px">
     <button onclick="krCloseOverlay()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:14px;border:1.5px solid #e6e2f7;background:#fff;font-size:13px;font-weight:600;color:#534AB7;cursor:pointer;flex-shrink:0">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
@@ -6191,7 +7080,7 @@ function krOpenDetail(i){
 // Yangi bo'lim (pN) qo'shilganda FAQAT shu ro'yxatga bitta yozuv qo'shish kifoya -
 // "Xodim qo'shish/tahrirlash" oynasidagi checkbox'lar shundan avtomatik yasaladi
 // (_nazBuildTabsGrid), alohida HTML tahrirlash shart emas.
-const NAZ_TABS=[{id:"p1",label:"Bosh sahifa"},{id:"p2",label:"Mahsulotlar"},{id:"p3",label:"ABC tahlili"},{id:"p5",label:"Stock"},{id:"p7",label:"Buyurtma"},{id:"p6",label:"Suppliers"},{id:"p8",label:"Kirim"},{id:"p9",label:"Ombor aylanmasi"},{id:"p10",label:"Kategoriyalar"},{id:"p11",label:"Firmalar"},{id:"p_nazorat",label:"Nazorat"}];
+const NAZ_TABS=[{id:"p1",label:"Bosh sahifa"},{id:"p2",label:"Mahsulotlar"},{id:"p3",label:"ABC tahlili"},{id:"p5",label:"Stock"},{id:"p7",label:"Buyurtma"},{id:"p6",label:"Suppliers"},{id:"p8",label:"Kirim"},{id:"p9",label:"Ombor aylanmasi"},{id:"p10",label:"Kategoriyalar"},{id:"p11",label:"Firmalar"},{id:"p12",label:"Marja nazorati"},{id:"p_nazorat",label:"Nazorat"}];
 function _nazBuildTabsGrid(){
   const grid=document.getElementById("naz-tabs-grid");
   if(!grid||grid.dataset.built)return;
@@ -6210,14 +7099,15 @@ function nazRoleChange(){
   if(role==="admin"){wrap.style.display="";cb.checked=true;}
   else{wrap.style.display="none";cb.checked=false;}
 }
-let _nazUsers=[],_nazEditing=null;
+let _nazUsers=[],_nazEditing=null,_nazOrigPass="";
+
+function nazPassEye(){const i=document.getElementById("naz-pass");i.type=i.type==="password"?"text":"password";}
 
 async function nazLoad(){
   try{
-    const snap=await _db.collection("users").get();
-    _nazUsers=[];
-    snap.forEach(doc=>_nazUsers.push({...doc.data(),id:doc.id}));
-    _nazUsers.sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+    const data=await _authCall("list_users",{});
+    if(!data.ok)throw new Error(data.error||"Ruxsat yo'q");
+    _nazUsers=data.users||[];
     _nazRender();
   }catch(e){console.error(e);const tb=document.getElementById("naz-tbody");if(tb)tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#E24B4A;padding:20px">Xatolik: '+e.message+'</td></tr>';}
 }
@@ -6249,6 +7139,7 @@ function _nazRender(){
 
 function nazShowAdd(){
   _nazEditing=null;
+  _nazOrigPass="";
   _nazBuildTabsGrid();
   document.getElementById("naz-modal-title").textContent=t("naz_modal_add");
   document.getElementById("naz-form").reset();
@@ -6259,9 +7150,10 @@ function nazShowAdd(){
   setTimeout(()=>document.getElementById("naz-fname").focus(),100);
 }
 
-function nazEdit(id){
+async function nazEdit(id){
   const u=_nazUsers.find(x=>x.id===id);if(!u)return;
   _nazEditing=id;
+  _nazOrigPass="";
   _nazBuildTabsGrid();
   document.getElementById("naz-modal-title").textContent=t("naz_modal_edit");
   const parts=(u.name||"").trim().split(/\s+/);
@@ -6269,32 +7161,49 @@ function nazEdit(id){
   document.getElementById("naz-lname").value=parts.slice(1).join(" ")||"";
   document.getElementById("naz-phone").value=u.phone||"";
   document.getElementById("naz-role").value=u.role||"staff";
-  document.getElementById("naz-pass").value="";
-  document.getElementById("naz-pass-hint").textContent=t("naz_pass_hint");
+  const passEl=document.getElementById("naz-pass");
+  passEl.type="password";passEl.value="";
+  document.getElementById("naz-pass-hint").textContent="";
   NAZ_TABS.forEach(tb=>{const cb=document.getElementById("naz-tab-"+tb.id);if(cb)cb.checked=(u.tabs||[]).includes(tb.id);});
   nazRoleChange();
   document.getElementById("naz-modal").style.display="flex";
   setTimeout(()=>document.getElementById("naz-fname").focus(),100);
+  // Joriy parolni fonda olib, maydonga (nuqta holida) to'ldiramiz - ko'zcha
+  // bosilsa ko'rinadi. Agar tahrirlash oynasi shu orada yopilgan/boshqa
+  // foydalanuvchiga o'tilgan bo'lsa, natijani qo'llamaymiz.
+  const data=await _authCall("reveal_password",{id});
+  if(_nazEditing!==id)return;
+  if(data.ok){
+    _nazOrigPass=data.password;
+    passEl.value=data.password;
+    document.getElementById("naz-pass-hint").textContent=t("naz_pass_hint");
+  }else{
+    document.getElementById("naz-pass-hint").textContent=t("naz_pass_hint_new");
+  }
 }
 
-function _nazSelf(phone){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return u.phone===phone;}catch(_){return false;}}
+function _nazSelf(phone){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return u.phone===phone;}catch(_){return false;}}
 
 async function nazToggle(id,active){
   if(!confirm(active?t("naz_confirm_activate"):t("naz_confirm_block")))return;
-  try{await _db.collection("users").doc(id).update({active});await nazLoad();}
-  catch(e){alert("Xatolik: "+e.message);}
+  try{
+    const data=await _authCall("toggle_active",{id,active});
+    if(!data.ok)throw new Error(data.error||"Xatolik");
+    await nazLoad();
+  }catch(e){alert("Xatolik: "+e.message);}
 }
 
 async function nazDelete(id){
   const u=_nazUsers.find(x=>x.id===id);if(!u)return;
   if(!confirm(t("naz_confirm_delete")))return;
   try{
-    await _db.collection("users").doc(id).delete();
+    const data=await _authCall("delete_user",{id});
+    if(!data.ok)throw new Error(data.error||"Xatolik");
     await nazLoad();
   }catch(e){alert("Xatolik: "+e.message);}
 }
 
-function nazClose(){document.getElementById("naz-modal").style.display="none";_nazEditing=null;}
+function nazClose(){document.getElementById("naz-modal").style.display="none";_nazEditing=null;_nazOrigPass="";}
 
 async function nazSave(e){
   e.preventDefault();
@@ -6304,20 +7213,30 @@ async function nazSave(e){
   const phone=(document.getElementById("naz-phone").value||"").replace(/\D/g,"");
   const role=document.getElementById("naz-role").value;
   const pass=document.getElementById("naz-pass").value;
+  // Parol maydoni endi joriy parol bilan oldindan to'ldirilgan (nuqta
+  // holida) - agar admin uni tegmasdan qoldirsa yoki o'chirib bo'sh
+  // qoldirsa, parol O'ZGARMAYDI. Faqat ustiga BOSHQA qiymat yozilsa,
+  // yangi parol sifatida yuboriladi.
+  const passChanged=!!pass&&pass!==_nazOrigPass;
   if(!fname){alert(t("naz_lbl_fname")+" kiriting");return;}
   if(!lname){alert(t("naz_lbl_lname")+" kiriting");return;}
   if(!phone){alert("Telefon kiriting");return;}
   if(!_nazEditing&&!pass){alert("Parol kiriting");return;}
-  if(pass&&pass.length<6){alert("Parol kamida 6 belgi bo'lishi kerak");return;}
+  if(passChanged&&pass.length<6){alert("Parol kamida 6 belgi bo'lishi kerak");return;}
   const tabs=NAZ_TABS.filter(tb=>{const cb=document.getElementById("naz-tab-"+tb.id);return cb&&cb.checked;}).map(tb=>tb.id);
   if(role==="admin"&&!tabs.includes("p_nazorat"))tabs.push("p_nazorat");
   const saveBtn=document.getElementById("naz-save-btn");
   saveBtn.disabled=true;saveBtn.textContent="Saqlanmoqda...";
   try{
-    const data={name,phone,role,tabs,active:true};
-    if(pass)data.password_hash=await _sha256(pass);
-    if(_nazEditing){await _db.collection("users").doc(_nazEditing).update(data);}
-    else{data.created=firebase.firestore.FieldValue.serverTimestamp();await _db.collection("users").add(data);}
+    // E'TIBOR: `active` ataylab yuborilmaydi - server uni saqlash amalida
+    // o'zgartirmaydi, faqat "Bloklash/Faollashtirish" tugmasi orqali
+    // (avvalgi xato: har saqlashda bloklangan xodim bexosdan qayta faollashib
+    // qolardi).
+    const payload={name,phone,role,tabs};
+    if(passChanged)payload.password=pass;
+    if(_nazEditing)payload.id=_nazEditing;
+    const data=await _authCall(_nazEditing?"update_user":"create_user",payload);
+    if(!data.ok)throw new Error(data.error||"Xatolik");
     nazClose();await nazLoad();
   }catch(err){alert("Xatolik: "+err.message);}
   finally{saveBtn.disabled=false;saveBtn.textContent="Saqlash";}
@@ -6596,13 +7515,39 @@ async function _ensureSupplierDebtData(){
   catch(e){FMS={taminotchilar:[],ta_soni:0,qarzdor_soni:0,bugun:new Date().toISOString().slice(0,10)};}
   return FMS;
 }
+let fmsFrom="",fmsTo="";
 async function fmsInit(){
   await _ensureSupplierDebtData();
+  if(!fmsFrom){fmsFrom=FMS.sana_boshi||FMS.bugun;fmsTo=FMS.sana_oxiri||FMS.bugun;}
+  const i1=document.getElementById("fms-start"),i2=document.getElementById("fms-end");
+  if(i1&&i2){i1.min=i2.min=FMS.sana_boshi||"";i1.max=i2.max=FMS.sana_oxiri||"";i1.value=fmsFrom;i2.value=fmsTo;}
   fmsRender();
   // fmSwitchTab'dagi darhol chaqiruv KPI qatori hali bo'sh (ma'lumot kelmagan)
   // paytda ishga tushishi mumkin - shu sabab ma'lumot kelib render bo'lgach
   // yana bir bor to'g'ri balandlikni hisoblaymiz.
   _fmFitTable();
+}
+function fmsRangeChange(){
+  const i1=document.getElementById("fms-start"),i2=document.getElementById("fms-end");
+  if(i1&&i1.value)fmsFrom=i1.value;
+  if(i2&&i2.value)fmsTo=i2.value;
+  document.querySelectorAll("#fm-supplier-panel .fms-q-btn").forEach(b=>b.classList.remove("active"));
+  fmsRender();
+}
+function fmsQuick(kun,btn){
+  if(!FMS)return;
+  fmsTo=FMS.sana_oxiri||FMS.bugun;
+  if(!kun){fmsFrom=FMS.sana_boshi||fmsTo;}
+  else{
+    const d=new Date(new Date(fmsTo+"T00:00:00Z").getTime()-(kun-1)*864e5).toISOString().slice(0,10);
+    fmsFrom=(FMS.sana_boshi&&d<FMS.sana_boshi)?FMS.sana_boshi:d;
+  }
+  const i1=document.getElementById("fms-start"),i2=document.getElementById("fms-end");
+  if(i1)i1.value=fmsFrom;
+  if(i2)i2.value=fmsTo;
+  document.querySelectorAll("#fm-supplier-panel .fms-q-btn").forEach(b=>b.classList.remove("active"));
+  if(btn)btn.classList.add("active");
+  fmsRender();
 }
 let fmsFilt="all";
 // Ta'minotchi obyektidan (backend allaqachon b15/b30/b45/b60'ni TAXMINIY
@@ -6616,6 +7561,10 @@ function _fmsRows(){
   const q=fmsQ.trim().toLowerCase();
   const rows=(FMS.taminotchilar||[]).map(f=>({f,c:_fmsCalc(f)})).filter(function(o){
     if(q&&!(o.f.nom.toLowerCase().includes(q)||(o.f.tin||"").includes(q)))return false;
+    // Sana oralig'i - "oxirgi kirim sanasi" bo'yicha filtrlaydi (kirim tarixi
+    // yo'q ta'minotchilar HAR DOIM ko'rsatiladi - qarzni sanasiz sabab bilan
+    // yashirmaslik uchun, chunki bu qarz kuzatuv vositasi).
+    if(o.f.last_kirim&&fmsFrom&&fmsTo&&(o.f.last_kirim<fmsFrom||o.f.last_kirim>fmsTo))return false;
     if(fmsFilt==="all")return o.c.jami>0||o.c.pb>0;
     if(fmsFilt==="pb")return o.c.pb>0;
     return o.c[fmsFilt]>0;
@@ -6694,3 +7643,93 @@ async function fmsExportXLSX(){
   a.download="taminotchi_qarzi_"+(FMS.bugun||"")+".xlsx";
   a.click();URL.revokeObjectURL(a.href);
 }
+
+// Sahifa ochilishi bilanoq, foydalanuvchi hali hech qayerga bosmasdan, jonli
+// API'dan INVDATA/P8 (kirim) ni fonda oldindan yuklab qo'yamiz - 2026-08-12,
+// foydalanuvchi shikoyati: API'ga ulangan bo'limlarda (p2/p5/p7/p8) HAR bir
+// tugma bosilganda ~3-5s kutish "qotish"dek sezilar edi, chunki bu ma'lumot
+// avval FAQAT o'sha bo'lim ochilganda so'ralardi. _ensureInvData/
+// _ensureKirimData ichidagi keshlash (INVDATA/P8 global o'zgaruvchilar)
+// o'zgarishsiz qoladi - shu funksiyalarni shunchaki ERTAROQ chaqiramiz,
+// keyinroq chaqirilganda esa allaqachon tayyor natijani darhol qaytaradi.
+if(location.protocol!=="file:"){
+  _ensureInvData().catch(()=>{});
+  _ensureKirimData().catch(()=>{});
+}
+
+// Fonda, sezilmasdan yangilanish - har 5 daqiqada. Foydalanuvchi so'rovi
+// (2026-08-13): sayt kun bo'yi ochiq tursa, stok/kirim ma'lumoti jimgina
+// eskirib boradi (faqat sahifa qayta yuklanganda yangilanardi). MUHIM
+// QOIDA: agar foydalanuvchi Zakas'da aynan bitta ta'minotchini ochib,
+// miqdor kiritayotgan bo'lsa (zkMode==="detail") - HECH NARSA qayta
+// chizilmaydi, ishini buzmaslik uchun. Ma'lumotning o'zi baribir fonda
+// yangilanadi (INVDATA/P8/ZITEMS) - o'sha ta'minotchidan chiqqach yangi
+// holat avtomatik ko'rinadi. Boshqa barcha holatda (ro'yxat ko'rinishi,
+// boshqa sahifalar) darhol qayta chiziladi.
+// ─── ORQA FONDA JIM YANGILANISH ───────────────────────────────────────────
+// Talab (Bilol, 2026-08-15): ma'lumot o'zi yangilanib tursin, "yuklanmoqda"
+// ko'rinmasin, va foydalanuvchi BIROR SUPPLIER ZAKASI ustida ishlayotgan
+// bo'lsa — o'sha oyna umuman o'zgarmasin (kiritgan sonlari yo'qolmasin);
+// yangilanish faqat o'sha oynadan chiqqandan keyin qo'llansin.
+let _pendingBg=null;   // qo'llanishi kutilayotgan yangi ma'lumot
+
+// Foydalanuvchi aynan bitta supplier zakasi ustida ishlayaptimi?
+function _zkEditingSupplier(){return curPageId==="p7"&&zkMode==="detail";}
+
+// 2026-08-19 (Bilol topilmasi, TAKRORLANUVCHI "Noma'lum" bug): P2'ning
+// har tovar uchun sup/amt/price kabi maydonlari FAQAT BIR MARTA
+// (_enrichWithInventory, birinchi sahifa yuklanishida) to'ldirilardi.
+// Agar o'sha BIR MARTALIK to'ldirish biror sababdan (vaqtinchalik tarmoq
+// muammosi, sovuq boshlanish va h.k.) to'liq bo'lmay qolsa, P2 butun
+// sessiya davomida BUZUQ qolib ketardi - _bgSilentRefresh() har 15
+// daqiqada YANGI, TO'G'RI INVDATA olib kelsa ham, hech kim P2'ning
+// mavjud qatorlarini o'sha yangi ma'lumot bilan QAYTA to'ldirmasdi
+// (_buildZItems() faqat P2'da ALLAQACHON turgan qiymatni o'qiydi).
+// Endi INVDATA yangilanganda P2 ham QAYTA boyitiladi - shu sabab bir
+// martalik xato o'zi tuzalib ketadi (foydalanuvchi qayta yuklashi shart
+// emas), va bug qaytalanmaydi.
+async function _applyBgData(d){
+  if(d.inventory)INVDATA=d.inventory;
+  if(d.kirim)P8=d.kirim;
+  if(P2){
+    if(d.inventory)await _enrichWithInventory(P2);
+    _buildZItems();
+  }
+  if(curPageId==="p7"&&ZITEMS)renderZakas();
+  else if(curPageId==="p5"&&ZITEMS)renderZaxira();
+  else if(curPageId==="p8"&&P8)renderP8();
+  else if(curPageId==="p12"&&P2){_mgRefreshFilters();mgRenderList();}
+}
+
+// Kutib turgan yangilanishni qo'llaydi — zakas oynasidan chiqilganda
+// (zkBackToList) va bo'lim almashtirilganda (showPage) chaqiriladi.
+function _flushPendingBg(){
+  if(!_pendingBg||_zkEditingSupplier())return;
+  const d=_pendingBg;_pendingBg=null;_applyBgData(d);
+}
+
+let _bgSilentBusy=false;
+async function _bgSilentRefresh(){
+  if(!window.TiinDataAPI||location.protocol==="file:"||_bgSilentBusy)return;
+  _bgSilentBusy=true;
+  let d;
+  try{
+    // DIQQAT: ma'lumot avval TO'LIQ olinadi, keyingina qo'llanadi. Ilgari
+    // INVDATA/P8/ZITEMS zakas oynasi ochiq turganda ham yangilanib,
+    // faqat qayta chizish o'tkazib yuborilardi — ya'ni foydalanuvchining
+    // ostidagi sonlar jimgina o'zgarib ketardi.
+    const boot=await window.TiinDataAPI.bootstrap();
+    const inv=(boot&&boot.inventory&&Object.keys(boot.inventory).length)?boot.inventory:null;
+    const kirim=await window.TiinDataAPI.kirimdata();
+    d={inventory:inv,kirim:kirim||null};
+  }catch(e){_bgSilentBusy=false;return;}  // tarmoq xatosi — jimgina o'tkaziladi, keyingi urinishda qayta
+  _bgSilentBusy=false;
+  if(_zkEditingSupplier()){_pendingBg=d;return;}   // ochiq oynaga TEGMAYDI
+  await _applyBgData(d);
+}
+// 2026-08-15: 5 -> 15 daqiqa (Bilol so'rovi) - backend keshi ham 15
+// daqiqalik (calcStock endi shu oraliqda Invan'dagi jonli sotuv/kirim
+// bilan tuzatiladi, backend/app.py: `_live_invdata()`). Bu so'rov ham
+// ma'lumotni yangilab turadi, ham funksiyani "issiq" saqlaydi — foydalanuvchi
+// sahifani ochganda sovuq boshlanishni (~20-25s) kutmaydi.
+if(location.protocol!=="file:")setInterval(_bgSilentRefresh,15*60*1000);
