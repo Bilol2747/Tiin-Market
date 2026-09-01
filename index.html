@@ -1709,16 +1709,29 @@ body.sb-collapsed .lic,body.sb-collapsed .ltxt{display:flex;}
 body.sb-collapsed .lang-switch{display:flex;}
 body.sb-collapsed .last-updated{display:block;}
 .main,#p_nazorat,#p6,#p7,#p8,#p9,#p10,#p11,#p12{margin-left:0!important;}
-.topbar{padding:0 12px;gap:8px;}
-.tb-crumb{font-size:15px;max-width:38vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* Ixcham rejim: telefonda hamma narsa "kattalashib" ko'rinib, ekranga kam
+   sig'ardi (foydalanuvchi so'rovi, 2026-09-01) - shrift/bo'shliqlar biroz
+   kichraytirildi, teginish uchun tugma o'lchamlari (>=32px) saqlab qolindi. */
+body{font-size:12px;}
+.topbar{padding:0 12px;gap:8px;height:44px;}
+.tb-crumb{font-size:14px;max-width:38vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .tb-right{gap:8px;}
 .tb-dt .dt-btn span{max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
-.dt-btn{padding:7px 9px;font-size:11px;}
+.dt-btn{padding:6px 8px;font-size:11px;}
 .tb-uname{display:none;}
-.page{padding:14px 10px 60px;}
-.kpi-row{grid-template-columns:repeat(2,1fr);gap:8px;}
-.kpi{min-width:0;padding:13px 12px 14px;}
-.kpi-v{font-size:18px;overflow-wrap:anywhere;}
+.tb-ava{width:28px;height:28px;font-size:12px;}
+.page{padding:10px 10px 50px;}
+.page-title{font-size:18px;margin-bottom:2px;}
+.page-sub{font-size:11px;margin-bottom:12px;}
+.kpi-row{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.kpi{min-width:0;padding:11px 12px 12px;}
+.kpi-l{font-size:11px;margin-bottom:6px;}
+.kpi-v{font-size:17px;overflow-wrap:anywhere;}
+.card{padding:11px;}
+.card-h{font-size:11px;margin-bottom:8px;}
+.search-card{padding:11px 13px;}
+.sb-item{padding:9px 13px;font-size:13px;}
+.sb-logo{padding:16px 12px 14px;}
 .grid2,.grid2b,.three-col,.mid-row{grid-template-columns:1fr!important;}
 .dstats{grid-template-columns:repeat(2,1fr);}
 .ds,.kpi3,.naz-stat,.sp-card,.z-card{min-width:0;}
