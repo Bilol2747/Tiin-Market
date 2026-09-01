@@ -1,6 +1,15 @@
 ﻿// ─── Login (server orqali, /api/auth — brauzer endi Firestore'ga hech qachon
 // to'g'ridan-to'g'ri murojaat qilmaydi, 2026-08-25 xavfsizlik tuzatishi) ───
 
+// curPageId bu yerda (faylning boshida) e'lon qilinadi, quyidagi login-sessiyani
+// tiklovchi IIFE _applyUser()'ni chaqiradi va u ichida curPageId'ga murojaat
+// qiladi - "let" TDZ (temporal dead zone) qoidasi bo'yicha o'zgaruvchi keyinroq
+// (P1 holat bo'limida) e'lon qilinsa, shu yerdagi erta chaqiruv
+// "Cannot access before initialization" xatosini berardi va bu xato butun
+// login-tiklash IIFE'sini (catch bilan) jimgina to'xtatib qo'yardi - foydalanuvchi
+// localStorage'da sessiyasi bo'lsa ham har safar qayta login qilishga majbur
+// bo'lardi (2026-09-01, foydalanuvchi topilmasi).
+let curPageId="p1";
 function _authToken(){try{return JSON.parse(localStorage.getItem("tiin_user")||"{}").token||"";}catch(_){return "";}}
 
 async function _authCall(action,extra){
@@ -832,7 +841,6 @@ function applyI18n(){
 let P1=JSON.parse(document.getElementById("p1data").textContent);let P1FULL=P1;
 let GRA=null,GRB=null,DAILYFULL=null,DMETAFULL=null;
 let HIST=null,HISTMETA=null,histLoadState="idle",p2HistDays=60,p2HistCustom=null;
-let curPageId="p1";
 // Mahsulotlar (p2) va Stock (p5) bitta umumiy oraliqni baham ko'radi (Zakas ro'yxati ham shu
 // orqali yangilanadi) - biridan o'zgartirilsa, ikkinchisi qayta tashrif buyurganda eskisiga
 // qaytib ketmaydi. Bosh sahifa va boshqalar mustaqil o'z oralig'ini saqlaydi.
