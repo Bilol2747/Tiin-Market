@@ -1,7 +1,7 @@
 ﻿// ─── Login (server orqali, /api/auth — brauzer endi Firestore'ga hech qachon
 // to'g'ridan-to'g'ri murojaat qilmaydi, 2026-08-25 xavfsizlik tuzatishi) ───
 
-function _authToken(){try{return JSON.parse(sessionStorage.getItem("tiin_user")||"{}").token||"";}catch(_){return "";}}
+function _authToken(){try{return JSON.parse(localStorage.getItem("tiin_user")||"{}").token||"";}catch(_){return "";}}
 
 async function _authCall(action,extra){
   const body=Object.assign({action,token:_authToken()},extra||{});
@@ -19,7 +19,7 @@ function _authStopWatch(){if(_authWatchTimer){clearInterval(_authWatchTimer);_au
 function _authStartWatch(){_authStopWatch();_authWatchTimer=setInterval(_authCheckOnce,20000);}
 function _authKick(reason){
   _authStopWatch();
-  try{sessionStorage.removeItem("tiin_user");}catch(_){}
+  try{localStorage.removeItem("tiin_user");}catch(_){}
   try{sessionStorage.setItem("tiin_kick_reason",reason||"");}catch(_){}
   location.reload();
 }
@@ -28,8 +28,8 @@ async function _authCheckOnce(){
   const data=await _authCall("session_check",{});
   if(!data.ok){_authKick(data.reason);return;}
   try{
-    const merged=Object.assign(JSON.parse(sessionStorage.getItem("tiin_user")||"{}"),data.user);
-    sessionStorage.setItem("tiin_user",JSON.stringify(merged));
+    const merged=Object.assign(JSON.parse(localStorage.getItem("tiin_user")||"{}"),data.user);
+    localStorage.setItem("tiin_user",JSON.stringify(merged));
     _applyUser(merged);
   }catch(_){}
 }
@@ -130,7 +130,7 @@ async function lgSubmit(e){
     const data=await _authCall("login",{phone:ph,password:pw});
     if(!data.ok){_lgErr(data.error||"Telefon raqam yoki parol noto'g'ri");btn.disabled=false;btn.textContent="Kirish";return false;}
     const session=Object.assign({},data.user,{token:data.token,exp:data.exp});
-    try{sessionStorage.setItem("tiin_user",JSON.stringify(session));}catch(_){}
+    try{localStorage.setItem("tiin_user",JSON.stringify(session));}catch(_){}
     _tgNotify(session);
     _applyUser(session);
     lgUnlock();
@@ -143,7 +143,7 @@ async function lgSubmit(e){
   return false;
 }
 
-function lgLogout(){_authStopWatch();try{sessionStorage.removeItem("tiin_user");}catch(_){}location.reload();}
+function lgLogout(){_authStopWatch();try{localStorage.removeItem("tiin_user");}catch(_){}location.reload();}
 
 // 2026-08-25: sessiya endi Firestore onSnapshot (real vaqtli, lekin
 // brauzerdan to'g'ridan-to'g'ri Firestore ulanishi talab qiladigan)
@@ -770,7 +770,7 @@ function t(key){const e=I18N[key];return e?(e[LANG]||e.uz):key;}
 // ishlaydi (faqat localStorage'ga bog'liq, Firebasega emas) ───
 (function(){
   try{
-    const us=sessionStorage.getItem("tiin_user");
+    const us=localStorage.getItem("tiin_user");
     if(us){
       const user=JSON.parse(us);
       // AVVAL tablarni chekla, KEYIN login screeni olib tashlash (flash oldini olish)
@@ -1357,7 +1357,7 @@ function _zkToggleInvanMenu(){const m=document.getElementById("zk-invan-menu");i
 // Joriy login menejer ismi (buyurtma izohiga yoziladi - Invan'da "yaratgan" maydoni
 // static token egasi (integratsiya akkaunti) bo'lib qoladi, shuning uchun haqiqiy
 // menejerни izohда qayd etamiz).
-function _zkManagerName(){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return (u.name||u.phone||"").trim();}catch(e){return "";}}
+function _zkManagerName(){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return (u.name||u.phone||"").trim();}catch(e){return "";}}
 // ─── Invan SHAXSIY hisob (login) ───
 // Muammo (foydalanuvchi topilmasi, 2026-07-25): "Invan'ga yuborish" bosilganda
 // buyurtma HAR DOIM bitta umumiy statik token (integratsiya hisobi) nomidan
@@ -1371,7 +1371,7 @@ function _zkManagerName(){try{const u=JSON.parse(sessionStorage.getItem("tiin_us
 // holda bitta kompyuterda ikkinchi xodim kirganda ham birinchisining Invan
 // hisobi ishlatilib qolaverar edi (foydalanuvchi topilmasi, 2026-07-25: "boshqa
 // user o'zinikidan kirib zakas bossa meni akkauntimdan ketib qolmaydimi").
-function _zkInvanUserSuffix(){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return String(u.id||u.phone||"anon");}catch(e){return "anon";}}
+function _zkInvanUserSuffix(){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return String(u.id||u.phone||"anon");}catch(e){return "anon";}}
 function _zkInvanTokenKey(target){return "invan_my_token_"+target+"_"+_zkInvanUserSuffix();}
 function _zkInvanNameKey(target){return "invan_my_name_"+target+"_"+_zkInvanUserSuffix();}
 function _zkInvanMyToken(target){try{return localStorage.getItem(_zkInvanTokenKey(target))||"";}catch(e){return "";}}
@@ -7198,7 +7198,7 @@ async function nazEdit(id){
   }
 }
 
-function _nazSelf(phone){try{const u=JSON.parse(sessionStorage.getItem("tiin_user")||"{}");return u.phone===phone;}catch(_){return false;}}
+function _nazSelf(phone){try{const u=JSON.parse(localStorage.getItem("tiin_user")||"{}");return u.phone===phone;}catch(_){return false;}}
 
 async function nazToggle(id,active){
   if(!confirm(active?t("naz_confirm_activate"):t("naz_confirm_block")))return;
