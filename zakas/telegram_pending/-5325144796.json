@@ -1,0 +1,359 @@
+{
+ "createdAt": "2026-09-02T09:56:32.250Z",
+ "srcFile": "-5325144796_1675_Tiin.xlsx",
+ "supplierId": "900c2ee9-c91e-495c-bbb6-6fc1c73145d1",
+ "supplierLabel": "OOO ''HORECA EXPERT '' (Kotanyi)",
+ "items": [
+  {
+   "name": "Ziravor Kotanyi Qalampir 12gr",
+   "barcode": "9001414011652",
+   "qty": 28,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "29860",
+   "id": "d0cda0eb-1cc8-418e-a3e1-937a3b4a21ef",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor Kotanyi Lavloriy Barg 5g",
+   "barcode": "9001414015346",
+   "qty": 100,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "10800",
+   "id": "8d25b2bc-9d34-42ed-bc1d-b0570e7b5e7b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Гималайская соль поваренная с йодом 88 гр",
+   "barcode": "9001414441633",
+   "qty": 16,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2881110",
+   "id": "cf505d3f-25a8-4b49-81be-4770dbd7e43c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor Kotanyi Qora Qalampir 36gr",
+   "barcode": "9001414041116",
+   "qty": 12,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "25049",
+   "id": "bbdfc014-70f1-45a4-8321-afdbbaac31f6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Чеснок 48 гр",
+   "barcode": "9001414741351",
+   "qty": 8,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2881118",
+   "id": "6b272f75-9847-4859-849c-3058eefc3ff5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Гималайская соль с прованскими травами приправа 72 гр",
+   "barcode": "9001414543986",
+   "qty": 12,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2881111",
+   "id": "cc6da161-fe56-4567-b8f6-239464c3286b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Qalampir Aralashma 35gr",
+   "barcode": "9001414043967",
+   "qty": 12,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2881112",
+   "id": "55d8bb1e-0582-4069-aef3-ec35d21c1838",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi priprava 4 persa 35gr",
+   "barcode": "9001414041130",
+   "qty": 8,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "274781",
+   "id": "bd2c8048-329b-4da0-b770-73c3430e4c44",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi italyanskie travi priprava 48gr",
+   "barcode": "9001414041178",
+   "qty": 12,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "25050",
+   "id": "b7b4dc79-ecb4-4da5-9469-0a5cc79a0519",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi Тоскана Итальянская кухня Приправа 32гр",
+   "barcode": "9001414441695",
+   "qty": 8,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2877849",
+   "id": "8f575a5c-d19f-4f60-a5a4-94518aa1e689",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi Fransuzskie travi priprava 48gr",
+   "barcode": "9001414041185",
+   "qty": 12,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2877848",
+   "id": "d49bb114-4b96-48e0-9b52-fca95b2e1ae9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi chili ostriy priprava 35gr",
+   "barcode": "9001414041154",
+   "qty": 4,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "25048",
+   "id": "6f2da604-4dd4-4886-9ac6-3e087990c60f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Масло тыквенное из Штирии Gourmet KOTANYI 500мл",
+   "barcode": "9001414200193",
+   "qty": 6,
+   "price": 310000,
+   "status": "aktiv",
+   "sku": "14217",
+   "id": "f76c17bd-a591-4c06-aa04-d81290ad4a3b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Приправа Корица-Сахар KOTANYI мельница 66гр",
+   "barcode": "9001414004180",
+   "qty": 4,
+   "price": 39000,
+   "status": "aktiv",
+   "sku": "2881116",
+   "id": "1a801b85-20ad-4fbc-9a14-2733d093aa2a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi maydalangan sarimsoq 28gr",
+   "barcode": "9001414015261",
+   "qty": 75,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881088",
+   "id": "9bc1e969-f59f-4100-bca2-13436ae45d74",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravorlar KOTANYI 4 Qalampir 20gr",
+   "barcode": "9001414715116",
+   "qty": 60,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881100",
+   "id": "5f0b6cc8-62cd-4201-886e-59de2f81ddb3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI  Qora Murch 20gr",
+   "barcode": "9001414015452",
+   "qty": 44,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881101",
+   "id": "d871112e-5a7a-4a09-9bfa-d9c13a6323ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Murchi 20 gr",
+   "barcode": "9001414015469",
+   "qty": 58,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881104",
+   "id": "0c753412-9895-451b-94c2-0d4df37a67fd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Maydalangan Dolchin KOTANYI 25gr",
+   "barcode": "9001414015650",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881098",
+   "id": "0b4baa70-7a9b-404d-858e-b1d3198e1a8a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Italyan o'tlari 14gr",
+   "barcode": "9001414202470",
+   "qty": 15,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881090",
+   "id": "eac1900e-4390-41b3-9677-98d05d0d606d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Paprika 25gr",
+   "barcode": "9001414019207",
+   "qty": 88,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881107",
+   "id": "a4d6aa7e-8db6-420d-bb91-c9e3c402391f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravorlar KOTANYI Maydalangan Paprika 25 gr",
+   "barcode": "9001414219263",
+   "qty": 44,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881106",
+   "id": "5b34b657-f6ed-4cee-bca5-800d6a4b0715",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Provencal herbs 10gr",
+   "barcode": "9001414019832",
+   "qty": 46,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "26084",
+   "id": "7396e4d5-618b-4513-ac25-80e99a22ab67",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi chinnigullar ziravori 18gr",
+   "barcode": "9001414015407",
+   "qty": 30,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2882556",
+   "id": "96abb786-9e1b-4ee8-a0f0-fb21b106d913",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi Мускатный орех молотый 18 гр",
+   "barcode": "9001414015391",
+   "qty": 20,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881087",
+   "id": "e3df1d9f-99d5-4066-bda8-55b99fc665ae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor Kotanyi Sarimsoq-Tomat 20gr",
+   "barcode": "9001414018866",
+   "qty": 50,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881089",
+   "id": "a8e48b9b-ed15-4c0d-a8cf-2681fc79a6dd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi Кавказские травы приправа 9гр",
+   "barcode": "9001414018804",
+   "qty": 30,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881091",
+   "id": "0b890a18-e79e-49f6-a06a-d8b06b78edf2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI ''Хмели-сунели''30gr",
+   "barcode": "9001414015131",
+   "qty": 20,
+   "price": 14000,
+   "status": "aktiv",
+   "sku": "2881093",
+   "id": "f3704e2a-6baf-4937-b458-9297999abc8e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Kartoshka Uchun 30gr",
+   "barcode": "9001414015582",
+   "qty": 25,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881094",
+   "id": "723a51ea-d168-475f-96e1-e92d1555beb4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Tovuq Indeyka 30gr",
+   "barcode": "9001414015056",
+   "qty": 52,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881095",
+   "id": "dfa6b66c-870f-4dc7-8737-a6013c29d57d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Приправа для курицы с чеснаком 30 гр",
+   "barcode": "9001414018293",
+   "qty": 38,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881096",
+   "id": "1c42862a-5d14-43c2-ae0b-846aa9578765",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "KOTANYI Ванильный сахар с натуральной ванилью 10 гр",
+   "barcode": "9001414010129",
+   "qty": 25,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2881099",
+   "id": "b13675ac-a45b-4877-a4e6-ce4db47087f3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ziravor KOTANYI Razmarin 15gr",
+   "barcode": "9001414718087",
+   "qty": 20,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2882562",
+   "id": "3edfcd7e-c4cb-4e0f-8aa8-c1ce1ad81003",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qovoq Yog'i Kotanyi Gourment 250ml",
+   "barcode": "9001414061312",
+   "qty": 6,
+   "price": 162000,
+   "status": "aktiv",
+   "sku": "52988",
+   "id": "fb7548a3-3fe1-4f7e-8d0d-9c71e20b85fd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kotanyi chesnok travi-sol priprava 50gr",
+   "barcode": "9001414041208",
+   "qty": 8,
+   "price": 39000,
+   "status": "noaktiv",
+   "sku": "25047",
+   "id": "8d855a2c-721e-4865-bbb5-1bfb964e328b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 20358000
+}
