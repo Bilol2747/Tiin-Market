@@ -898,6 +898,72 @@ async function _ensureStockOverrides(){
     if(d&&d.ok&&d.overrides)STOCK_OV=d.overrides;
   }catch(e){/* jonli bo'lmasa (masalan lokal test) - shunchaki bosh qoladi, calcStock ishlataveradi */}
 }
+// ─── Zakas qo'lda tahrirlarini UMUMIY qilish (2026-09-02, foydalanuvchi topilmasi:
+// "shu tovarlar tahrirlanganmi - nega saytda ko'rinmayapdi") ───
+// stock-override.py bilan bir xil naqsh: miqdor/qo'shimcha kun/narx/stok rejimi/
+// ta'minotchi maqsadli kuni endi FAQAT shu brauzerda emas, Turso'dagi umumiy
+// zakas_draft jadvalida saqlanadi - har kim ko'radi. localStorage hali ham
+// zaxira/tezkor kesh sifatida ishlatiladi (internet uzilsa ham qator qiymatlari
+// yo'qolmasin).
+let _zkDraftLoaded=false,_zkDraftPollTimer=null;
+function _zkDraftEndpoint(){return (location.protocol==="file:"?"https://tiin-market.vercel.app":"")+"/api/zakas-draft";}
+// Fire-and-forget - internet vaqtincha uzilsa ham foydalanuvchini kutkazib
+// qo'ymaydi (localStorage'da qiymat allaqachon saqlangan, keyingi muvaffaqiyatli
+// so'rovda avtomatik tenglashadi).
+function _zkDraftPush(ops,clearNs){
+  try{
+    fetch(_zkDraftEndpoint(),{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({ops:ops||[],clear_ns:clearNs||null,updated_by:_zkManagerName()})}).catch(()=>{});
+  }catch(e){}
+}
+const _ZK_DRAFT_MAPS=()=>({qty:zkRowQty,adj:zkRowAdj,cost:zkRowCost,stockmode:zkRowStockMode,suptarget:zkSupTargets});
+async function _ensureZkDraft(){
+  if(_zkDraftLoaded)return;
+  _zkDraftLoaded=true;
+  try{
+    const r=await fetch(_zkDraftEndpoint(),{cache:"no-store"});
+    const d=await r.json();
+    if(!d||!d.ok||!d.data)return;
+    const maps=_ZK_DRAFT_MAPS();
+    const migrateOps=[];
+    for(const ns in maps){
+      const local=maps[ns],remote=d.data[ns]||{};
+      // Server allaqachon bilgan kalitlar uchun - server g'olib (boshqa qurilmada
+      // yangilangan bo'lishi mumkin).
+      for(const k in remote)local[k]=remote[k];
+      // Faqat SHU brauzerda bor, serverda hali yo'q bo'lgan eski (migratsiya
+      // qilinmagan) tahrirlar - serverga yuklanadi, shunda darhol hammaga
+      // ko'rinadigan bo'ladi ("kecha tahrirlanganlarini ham ko'rinadigan qil").
+      for(const k in local)if(!(k in remote))migrateOps.push({ns,k,v:local[k]});
+    }
+    if(migrateOps.length)_zkDraftPush(migrateOps);
+    zkSaveManual();
+  }catch(e){/* jonli bo'lmasa - lokal holat bilan davom etiladi */}
+}
+function _zkDraftStopPoll(){if(_zkDraftPollTimer){clearInterval(_zkDraftPollTimer);_zkDraftPollTimer=null;}}
+function _zkDraftStartPoll(){_zkDraftStopPoll();_zkDraftPollTimer=setInterval(_zkDraftPollOnce,15000);}
+// Boshqa xodim tahrirlagan qiymatlar ~15s ichida ko'rinishi uchun (foydalanuvchi
+// so'rovi: "bir kunda ikki marta emas, tezroq ko'rinishi kk"). Foydalanuvchi
+// hozir bir katakchaga yozayotgan bo'lsa, uni chalg'itmaslik uchun shu safar
+// o'tkazib yuboriladi - keyingi urinishda sinxronlanadi.
+async function _zkDraftPollOnce(){
+  if(curPageId!=="p7")return;
+  const ae=document.activeElement;
+  if(ae&&ae.classList&&ae.classList.contains("zk-adj-inp"))return;
+  try{
+    const r=await fetch(_zkDraftEndpoint(),{cache:"no-store"});
+    const d=await r.json();
+    if(!d||!d.ok||!d.data)return;
+    let changed=false;
+    const cmp=(a,b)=>JSON.stringify(a)!==JSON.stringify(b);
+    if(cmp(zkRowQty,d.data.qty||{})){zkRowQty=d.data.qty||{};changed=true;}
+    if(cmp(zkRowAdj,d.data.adj||{})){zkRowAdj=d.data.adj||{};changed=true;}
+    if(cmp(zkRowCost,d.data.cost||{})){zkRowCost=d.data.cost||{};changed=true;}
+    if(cmp(zkRowStockMode,d.data.stockmode||{})){zkRowStockMode=d.data.stockmode||{};changed=true;}
+    if(cmp(zkSupTargets,d.data.suptarget||{})){zkSupTargets=d.data.suptarget||{};changed=true;}
+    if(changed){zkSaveManual();renderZakas();}
+  }catch(e){}
+}
 const KRPS=50;
 const ZK_DEFAULT_TARGET=20;
 const ZK_MIN_ORDER=3;
@@ -1236,6 +1302,7 @@ function zkResetAll(){
   if(!confirm(t("zk_reset_confirm")))return;
   zkRowQty={};zkRowAdj={};zkSupTargets={};zkRowOrder={};zkRowCost={};zkRowStockMode={};
   zkSaveManual();
+  _zkDraftPush([],["qty","adj","cost","stockmode","suptarget"]);
   renderZakas();
 }
 // Hozir "Open" (kelmaydigan) buyurtma sabab zakas 0'ga qulflangan qatorlarni ANIQLAB,
@@ -2825,16 +2892,19 @@ document.addEventListener("click",e=>{
 function zkSetTarget(si,val){
   const s=_ZK_SUPPLIERS[si];if(!s)return;
   let v=parseInt(val);if(isNaN(v)||v<0)v=ZK_DEFAULT_TARGET;
-  s.rows.forEach(r=>{delete zkRowQty[r.key];});
+  const _ops=[{ns:"suptarget",k:s.sup,v}];
+  s.rows.forEach(r=>{if(zkRowQty[r.key]!=null)_ops.push({ns:"qty",k:r.key,delete:true});delete zkRowQty[r.key];});
   delete zkRowOrder["normal:"+s.sup];delete zkRowOrder["chuqur:"+s.sup];
   zkSupTargets[s.sup]=v;
   zkSaveManual();
+  _zkDraftPush(_ops);
   renderZakas();
 }
 function zkSetQty(ri,val){
   const r=_ZK_ALLROWS[ri];if(!r)return;
   const v=r.kg?parseFloat(val):parseInt(val);
-  if(!isNaN(v)&&v>=0)zkRowQty[r.key]=v;else delete zkRowQty[r.key];
+  if(!isNaN(v)&&v>=0){zkRowQty[r.key]=v;_zkDraftPush([{ns:"qty",k:r.key,v}]);}
+  else{delete zkRowQty[r.key];_zkDraftPush([{ns:"qty",k:r.key,delete:true}]);}
   zkSaveManual();
   renderZakas();
 }
@@ -2844,8 +2914,8 @@ function zkSetQty(ri,val){
 // qoldiriladi (render'da allaqachon shu tomon ko'rsatilmaydi - ikki tomonlama himoya).
 function zkSetRowStockMode(ri,mode){
   const r=_ZK_ALLROWS[ri];if(!r)return;
-  if(mode==="calc"){if(r.calcStock==null)return;delete zkRowStockMode[r.key];}
-  else zkRowStockMode[r.key]="invan";
+  if(mode==="calc"){if(r.calcStock==null)return;delete zkRowStockMode[r.key];_zkDraftPush([{ns:"stockmode",k:r.key,delete:true}]);}
+  else{zkRowStockMode[r.key]="invan";_zkDraftPush([{ns:"stockmode",k:r.key,v:"invan"}]);}
   zkSaveManual();
   renderZakas();
 }
@@ -2854,11 +2924,14 @@ function zkSetRowStockMode(ri,mode){
 // ishonchli qiymati yo'q qatorlar Invan'da qoladi. zkSetTarget() bilan bir xil naqsh.
 function zkSetSupplierStockMode(si,mode){
   const s=_ZK_SUPPLIERS[si];if(!s)return;
+  const _ops=[];
   s.rows.forEach(r=>{
     if(r.calcStock==null)return;
-    if(mode==="calc")delete zkRowStockMode[r.key];else zkRowStockMode[r.key]="invan";
+    if(mode==="calc"){delete zkRowStockMode[r.key];_ops.push({ns:"stockmode",k:r.key,delete:true});}
+    else{zkRowStockMode[r.key]="invan";_ops.push({ns:"stockmode",k:r.key,v:"invan"});}
   });
   zkSaveManual();
+  if(_ops.length)_zkDraftPush(_ops);
   renderZakas();
 }
 function zkSetAdj(ri,val){
@@ -2866,6 +2939,7 @@ function zkSetAdj(ri,val){
   let v=parseInt(val);if(isNaN(v))v=0;
   zkRowAdj[r.key]=v;
   zkSaveManual();
+  _zkDraftPush([{ns:"adj",k:r.key,v}]);
   renderZakas();
 }
 // Narxni qo'lda tuzatish (foydalanuvchi so'rovi, 2026-07-22). "base" - kiritilgan
@@ -2876,7 +2950,8 @@ function zkSetCost(ri,val){
   const r=_ZK_ALLROWS[ri];if(!r)return;
   // Ming ajratkichlarni (vergul, bo'shliq va h.k.) tozalab, faqat raqam+nuqtani qoldiramiz.
   const v=parseFloat(String(val).replace(/[^0-9.]/g,""));
-  if(!isNaN(v)&&v>=0)zkRowCost[r.key]={val:v,base:r.rawCost};else delete zkRowCost[r.key];
+  if(!isNaN(v)&&v>=0){const _cv={val:v,base:r.rawCost};zkRowCost[r.key]=_cv;_zkDraftPush([{ns:"cost",k:r.key,v:_cv}]);}
+  else{delete zkRowCost[r.key];_zkDraftPush([{ns:"cost",k:r.key,delete:true}]);}
   zkSaveManual();
   renderZakas();
 }
@@ -2889,22 +2964,24 @@ function _zkAutoClearManualCost(){
   if(!ZITEMS)return;
   const keys=Object.keys(zkRowCost);
   if(!keys.length)return;
-  let changed=false;
+  let changed=false;const _delOps=[];
   keys.forEach(key=>{
     const raw=key.replace(/^(normal|chuqur):/,"");
     let v=null;
     if(raw.startsWith("s:")){const sku=raw.slice(2);v=ZITEMS.find(x=>x.sku&&String(x.sku)===sku);}
     else if(raw.startsWith("n:")){const nm=raw.slice(2);v=ZITEMS.find(x=>!x.sku&&x.name===nm);}
     const curRcost=v?(v.rcost||0):0;
-    if(zkRowCost[key].base!==curRcost){delete zkRowCost[key];changed=true;}
+    if(zkRowCost[key].base!==curRcost){delete zkRowCost[key];changed=true;_delOps.push({ns:"cost",k:key,delete:true});}
   });
-  if(changed)zkSaveManual();
+  if(changed){zkSaveManual();_zkDraftPush(_delOps);}
 }
 function zkAddAdj(ri,delta){
   const r=_ZK_ALLROWS[ri];if(!r)return;
   const cur=zkRowAdj[r.key]||r.adj||0;
-  zkRowAdj[r.key]=Math.max(0,cur+delta);
+  const v=Math.max(0,cur+delta);
+  zkRowAdj[r.key]=v;
   zkSaveManual();
+  _zkDraftPush([{ns:"adj",k:r.key,v}]);
   renderZakas();
 }
 function renderZakas(){
@@ -3372,7 +3449,7 @@ function _zkMobMoreBtnHtml(){return `<button class="zk-mobile-more-toggle" type=
 // ─── showPage(): sahifa almashtirish dispatcheri — BARCHA sahifalar
 // (p1-p9, nazorat) shu funksiya orqali ochiladi, har sahifaning
 // birinchi marta ochilishida kerakli ma'lumotni yuklaydi ───
-async function showPage(btn){closeMobileSidebar();const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11"||pid==="p12")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){const _r=await fetch("data_abc.json",{cache:"no-store"});_p3v=await _r.json();}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
+async function showPage(btn){closeMobileSidebar();const _zb=document.getElementById("z-back");if(_zb)_zb.style.display="none";const _pb=document.getElementById("p5-back");if(_pb)_pb.style.display="none";document.querySelectorAll(".sb-item").forEach(b=>b.classList.remove("active"));btn.classList.add("active");document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));const pid=btn.dataset.page;if(curPageId==="p7"&&pid!=="p7")_zkDraftStopPoll();curPageId=pid;try{sessionStorage.setItem("tiin_resume_page",pid);}catch(_){}document.getElementById(pid).classList.add("active");const _cr=document.getElementById("tb-crumb");if(_cr)_cr.textContent=btn.textContent.trim();const _tbdt=document.querySelector(".tb-dt");if(_tbdt)_tbdt.style.display=(pid==="p7"||pid==="p6"||pid==="p5"||pid==="p8"||pid==="p9"||pid==="p10"||pid==="p11"||pid==="p12")?"none":"";const _hs=document.getElementById("dt-hist-section");if(_hs)_hs.style.display=(pid==="p2")?"block":"none";window.scrollTo(0,0);if(pid==="p2"){if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}}if(pid==="p3"&&!P3){try{const _p3el=document.getElementById("p3data");let _p3v=JSON.parse((_p3el&&_p3el.textContent)||"[]");if(!_p3v.length){const _r=await fetch("data_abc.json",{cache:"no-store"});_p3v=await _r.json();}P3=_p3v;}catch(e){P3=null;}if(P3)await initP3();}if(pid==="p4"&&!P4){P4=JSON.parse(document.getElementById("p4data").textContent);initP4();}
 if(pid==="p5"){if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();else renderZaxira();setTimeout(_zFitTableHeight,0);}
 if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));}const _kirimP=_ensureKirimData();if(!P2){_ensureDailyDemand();let apiData=await _apiBoot();await _ensureP2Data(apiData);await initP2(apiData);}if(!ZITEMS)_buildZItems();await _kirimP;
   // 2026-08-15: qotish tekshiruvida topildi — Zakas'ga har kirishda
@@ -3382,8 +3459,8 @@ if(pid==="p7"){if(!P2||!ZITEMS){await new Promise(r=>requestAnimationFrame(()=>r
   // martalik (`_stockOvLoaded` bilan keshlanadi) — sessiyada Zakas'ga
   // IKKINCHI marta kirilganda ular ALLAQACHON yuklangan, shuning uchun
   // qayta render shart emas.
-  const _zkNeedSecondRender=!_stockOvLoaded;
-  renderZakas();await _ensureStockOverrides();if(_zkNeedSecondRender)renderZakas();}
+  const _zkNeedSecondRender=!_stockOvLoaded||!_zkDraftLoaded;
+  renderZakas();await Promise.all([_ensureStockOverrides(),_ensureZkDraft()]);if(_zkNeedSecondRender)renderZakas();_zkDraftStartPoll();}
 if(pid==="p6"){const _kirimP=P8?null:_ensureKirimData();const _supP=P6?null:_ensureSupplierData();if(!P2){await _ensureP2Data();await initP2(null);}if(!ZITEMS&&P2){_buildZItems();}if(_kirimP)await _kirimP;if(_supP){await _supP;initP6();}setTimeout(_spFitTableHeight,0);}
 if(pid==="p8"){if(!P8){await _ensureKirimData();}initP8();}
 if(pid==="p9"){oaInit();}
