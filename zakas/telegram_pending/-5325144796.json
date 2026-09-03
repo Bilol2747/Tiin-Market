@@ -1,0 +1,159 @@
+{
+ "createdAt": "2026-09-03T07:15:43.431Z",
+ "srcFile": "-5325144796_1699_Tiin optom zakaz.xlsx",
+ "supplierId": "d664d014-7640-4478-9b04-9fd2c62ef0dd",
+ "supplierLabel": "ENM INFIN Mas''uliyati cheklangan jamiyat (Bulut)",
+ "items": [
+  {
+   "name": "Qog'ozli Sochiq Bulut 2q 2d",
+   "barcode": "4780108480206",
+   "qty": 15,
+   "price": 96000,
+   "status": "aktiv",
+   "sku": "36422",
+   "id": "55954cf8-01b8-49d4-9169-07e3401b5261",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Salfetka Bulut 1d",
+   "barcode": "4780108480213",
+   "qty": 15,
+   "price": 168000,
+   "status": "aktiv",
+   "sku": "36421",
+   "id": "12ea2713-430f-4526-b56b-a611474d35b6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'ozli sochiq Bulut Dispenser uchun 200d",
+   "barcode": "4780108480190",
+   "qty": 30,
+   "price": 154500,
+   "status": "aktiv",
+   "sku": "31604",
+   "id": "fe7fbda1-d7e3-43a2-8326-1678c03f4d84",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Salfetka Bulut 23x23 100d",
+   "barcode": "4780108480084",
+   "qty": 10,
+   "price": 116000,
+   "status": "aktiv",
+   "sku": "30666",
+   "id": "8a2d5e20-8e01-4a0f-bbee-b92f253a1811",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Salfetka  Bulut 27x27 100d",
+   "barcode": "4780108480398",
+   "qty": 10,
+   "price": 166000,
+   "status": "aktiv",
+   "sku": "30667",
+   "id": "d6969c87-bc15-4d4d-bfa1-e817003a15f2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bulut qog'ozli sochig'i Dispensr 100d",
+   "barcode": "4780108480145",
+   "qty": 6,
+   "price": 270000,
+   "status": "aktiv",
+   "sku": "32730",
+   "id": "8bbb12ff-a329-4d48-93cc-1dc4d0faa5d7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Bulut Sariq 2q 8d",
+   "barcode": "4780108480305",
+   "qty": 10,
+   "price": 127000,
+   "status": "aktiv",
+   "sku": "31393",
+   "id": "73f5992f-732c-4b90-b655-b0bb088331e6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Bulut Ko'k 2q8d",
+   "barcode": "4780108480275",
+   "qty": 15,
+   "price": 97500,
+   "status": "aktiv",
+   "sku": "31394",
+   "id": "5fb0dab6-9251-4f76-b7b9-5110e595b5f9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная бумага Bulut 2 слоя 6 рулонов",
+   "barcode": "4780108480268",
+   "qty": 25,
+   "price": 138000,
+   "status": "aktiv",
+   "sku": "30664",
+   "id": "abf8dd34-a9b9-476f-ab57-c4285551dd80",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona qog'ozi Bulut 2q 6d",
+   "barcode": "4780108480497",
+   "qty": 25,
+   "price": 125000,
+   "status": "aktiv",
+   "sku": "6617",
+   "id": "757db6e1-2b74-4d04-840e-1d3031d32c1c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nam Salfetka Bulut 120d",
+   "barcode": "4780108480534",
+   "qty": 20,
+   "price": 132000,
+   "status": "aktiv",
+   "sku": "7871",
+   "id": "44ab60c3-ac63-47d7-8175-a1f0bc1a7d97",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nam Salfetka Bulut Premium 120d",
+   "barcode": "4780108480527",
+   "qty": 20,
+   "price": 132000,
+   "status": "aktiv",
+   "sku": "7872",
+   "id": "a741ae9a-1dd2-43e8-b2bc-a9b3f36c3861",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nam Salfetka Bulut Baby 120d",
+   "barcode": "4780108480541",
+   "qty": 20,
+   "price": 132000,
+   "status": "aktiv",
+   "sku": "7870",
+   "id": "f0d2aa19-68e1-4d6d-adea-3b0487a32d45",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Salfetka Bulut 2q100d",
+   "barcode": "4780108480435",
+   "qty": 6,
+   "price": 76000,
+   "status": "aktiv",
+   "sku": "33059",
+   "id": "e2951597-4b4c-4121-b942-23c48f2c97fa",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Salfetka Bulut yuz uchun",
+   "barcode": "4780108480428",
+   "qty": 10,
+   "price": 90000,
+   "status": "aktiv",
+   "sku": "33058",
+   "id": "d5bec439-13c0-4a25-b706-d30773c7f6de",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 34258500
+}
