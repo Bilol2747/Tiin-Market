@@ -1,0 +1,69 @@
+{
+ "createdAt": "2026-09-03T05:03:54.984Z",
+ "srcFile": "-5325144796_1685_Счет-фактура-с-НДС(02.09.2026+16_18_41).xlsx",
+ "supplierId": "ffd225da-452a-4dba-911c-7ec809474abd",
+ "supplierLabel": "Green Line Trading (roshen)",
+ "items": [
+  {
+   "name": "Konfet Roshen Коровка 1kg",
+   "barcode": "4823077634116",
+   "qty": 28,
+   "price": 44426,
+   "status": "aktiv",
+   "sku": "287166",
+   "id": "6d47bff2-5bd2-4358-95b4-ee0896d607d7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Marmelad Konfet Roshen Бешеная Пчелка Фрутти 1kg",
+   "barcode": "4823077604492",
+   "qty": 45,
+   "price": 40449,
+   "status": "aktiv",
+   "sku": "16692",
+   "id": "e1ab2dfd-f98c-4563-a769-5f6da482759e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Hard caramel with Milk Coffee 1kg",
+   "barcode": "4823077605376",
+   "qty": 14,
+   "price": 48500,
+   "status": "aktiv",
+   "sku": "5621",
+   "id": "2b0a9e8e-9324-4fb0-8a1d-74b79de06b56",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Bim-Bom 1kg",
+   "barcode": "4823077604294",
+   "qty": 16,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "16690",
+   "id": "bfaef822-8f4a-47e0-9de4-01f10fee82a4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen ''Шипучка'' 1kg",
+   "barcode": "4823077641831",
+   "qty": 14,
+   "price": 43650,
+   "status": "aktiv",
+   "sku": "42983",
+   "id": "ab5436b4-4d1e-4fae-9e3e-9f394ad0560b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Sweet Drop 1kg",
+   "barcode": "4823077604591",
+   "qty": 28,
+   "price": 48500,
+   "status": "aktiv",
+   "sku": "16697",
+   "id": "4dcc2700-d723-4750-b13c-ca0d6a6d92af",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 7001363
+}
