@@ -1,8 +1,18 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "regions": ["bom1"],
   "git": {
     "deploymentEnabled": {
       "telegram-data": false
     }
-  }
+  },
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/v1/(.*)", "destination": "/api/index" }
+  ]
 }
