@@ -7,7 +7,7 @@
     }
   },
   "functions": {
-    "api/index.py": {
+    "api/*.py": {
       "maxDuration": 60,
       "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
     }
