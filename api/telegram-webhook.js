@@ -55,6 +55,51 @@ async function tgCall(method, body) {
 function sendMessage(chatId, text) {
   return tgCall("sendMessage", { chat_id: chatId, text });
 }
+function answerCallbackQuery(id, text) {
+  return tgCall("answerCallbackQuery", { callback_query_id: id, text: text || undefined }).catch(() => {});
+}
+
+// ─── Zakas kuzatuvchi (proaktiv ogohlantirish) holati — Turso, api/zakas-watch.py ──
+// `zakas/telegram_pending/<chat_id>.json` (git-branch orqali) naqshidan ATAYLAB
+// FARQLI: bu yerdagi holat (tugma bosilgach "necha kun?" so'rovi, /sozlamalar)
+// juda qisqa muddatli va tez-tez o'zgaradi - har safar GitHub Actions ishga
+// tushirish (workflow_dispatch + git commit, bir necha soniya) o'rniga to'g'ridan-
+// to'g'ri Turso'ga yengil GET/POST qilinadi (reja: bo'lim 5).
+const WATCH_ENDPOINT = "https://tiin-market.vercel.app/api/zakas-watch";
+async function watchGet(action, params) {
+  const qs = new URLSearchParams({ action, ...(params || {}) });
+  const r = await fetch(`${WATCH_ENDPOINT}?${qs.toString()}`, { cache: "no-store" });
+  const d = await r.json().catch(() => ({}));
+  if (!d.ok) throw new Error(d.error || "zakas-watch GET xato");
+  return d;
+}
+async function watchPost(body) {
+  const r = await fetch(WATCH_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const d = await r.json().catch(() => ({}));
+  if (!d.ok) throw new Error(d.error || "zakas-watch POST xato");
+  return d;
+}
+// Turso vaqtincha ishlamasa ham MAVJUD ha/yo'q tasdiqlash oqimi buzilmasin -
+// pending topilmadi deb hisoblanadi (xato faqat konsolga yoziladi).
+async function getWatchPendingSafe(chatId) {
+  try { const d = await watchGet("pending", { chat_id: String(chatId) }); return d.pending; }
+  catch (e) { console.error("zakas-watch pending o'qilmadi:", e.message); return null; }
+}
+// Guruh chatida oddiy suhbat davom etaveradi - agar foydalanuvchi `/sozlamalar`
+// yozib yoki tugma bosib keyin javob bermay ketsa, "javob kutilmoqda" holati
+// abadiy osilib qolmasligi (va keyingi ALOQASIZ xabarni kun/sozlama deb
+// noto'g'ri tushunib qolmasligi) uchun 10 daqiqadan eskisi E'TIBORGA
+// OLINMAYDI. FAQAT await_days/settings_menu uchun (ular KEYINGI ISTALGAN
+// matnni yutib yuboradi) - "alert_sent" (tugma bosilganda) TTL'siz, chunki
+// unga faqat ANIQ tugma bosilganda murojaat qilinadi, oddiy xabarlarga
+// aralashmaydi (manejer ertalabgi ogohlantirishga peshinda tugma bossa ham
+// muammo yo'q).
+const WATCH_PENDING_TTL_MS = 10 * 60 * 1000;
+function isPendingFresh(pending) {
+  if (!pending) return false;
+  const age = Date.now() - new Date(pending.created_at || 0).getTime();
+  return age >= 0 && age <= WATCH_PENDING_TTL_MS;
+}
 
 async function tgDownloadFile(fileId) {
   const info = await tgCall("getFile", { file_id: fileId });
@@ -129,6 +174,32 @@ module.exports = async function handler(req, res) {
     update = update || {};
 
     const msg = update.message;
+    const cbq = update.callback_query;
+
+    // ── Zakas kuzatuvchi: ta'minotchi tugmasi bosildi ("wsup:<indeks>") ──────
+    if (cbq && cbq.data && cbq.data.startsWith("wsup:")) {
+      const chatId = cbq.message && cbq.message.chat && cbq.message.chat.id;
+      await answerCallbackQuery(cbq.id);
+      if (chatId != null) {
+        try {
+          const idx = cbq.data.slice(5);
+          const pending = await getWatchPendingSafe(chatId);
+          const supplier = pending && pending.kind === "alert_sent" ? pending.token_map[idx] : null;
+          if (!supplier) {
+            await sendMessage(chatId, "Bu tugma eskirgan (yangi ogohlantirish kelgan) - iltimos yangi xabardagi tugmani bosing.");
+          } else {
+            await watchPost({ action: "pending_set", chat_id: String(chatId), kind: "await_days", supplier });
+            await sendMessage(chatId, `🏢 ${supplier}\nNecha kunlik zakas tayyorlaylik? Son yozing (masalan: 20)`);
+          }
+        } catch (e) {
+          console.error("wsup callback xatolik:", e.message);
+          await sendMessage(chatId, `⚠️ Xatolik chiqdi: ${e.message}`);
+        }
+      }
+      res.status(200).json({ ok: true });
+      return;
+    }
+
     // Telegram javobni kutmaydi (webhook - fire and forget), shuning uchun
     // xato bo'lsa ham 200 qaytaramiz - aks holda Telegram qayta-qayta urinib,
     // bir xil xabarni bir necha marta yuborishi mumkin.
@@ -149,6 +220,69 @@ module.exports = async function handler(req, res) {
           await sendMessage(chatId, "Faqat .xlsx/.xls Excel fayl qabul qilaman.");
         } else if (typeof msg.text === "string") {
           const t = msg.text.trim();
+          if (/^\/sozlamalar/i.test(t)) {
+            const s = (await watchGet("settings", { chat_id: String(chatId) })).settings;
+            await watchPost({ action: "pending_set", chat_id: String(chatId), kind: "settings_menu" });
+            await sendMessage(chatId,
+              `⚙️ Zakas kuzatuvchi sozlamalari:\n` +
+              `• Holat: ${s.enabled ? "yoqilgan" : "o'chirilgan"}\n` +
+              `• Chegara: ${s.threshold_days} kun (shu va undan kam qolsa ogohlantiradi)\n` +
+              `• Kategoriya filtri: ${s.watched_categories.length ? s.watched_categories.join(", ") : "hammasi"}\n\n` +
+              `O'zgartirish uchun javob yozing:\n` +
+              `  "5" - chegarani 5 kunga o'zgartirish\n` +
+              `  "kategoriya: suvlar, sut" - faqat shu kategoriyalarni kuzatish\n` +
+              `  "kategoriya: hammasi" - barcha kategoriyani kuzatish\n` +
+              `  "yoqilgan" / "o'chirilgan" - ogohlantirishni yoqish/o'chirish`);
+            res.status(200).json({ ok: true });
+            return;
+          }
+
+          // Kutilayotgan (pending) holat - ha/yo'q tekshiruvidan OLDIN, chunki
+          // "20" kabi son YES_RE/NO_RE'ga tushmaydi va aks holda e'tiborsiz
+          // qoldiriladi.
+          const watchPendingRaw = await getWatchPendingSafe(chatId);
+          const watchPending = isPendingFresh(watchPendingRaw) ? watchPendingRaw : null;
+          if (watchPending && watchPending.kind === "await_days") {
+            const days = parseInt(t, 10);
+            if (Number.isFinite(days) && days > 0 && String(days) === t.replace(/\s+/g, "")) {
+              await watchPost({ action: "pending_clear", chat_id: String(chatId) });
+              await sendMessage(chatId, `⏳ ${watchPending.supplier} uchun ${days} kunlik zakas tayyorlayapman...`);
+              await dispatchWorkflow({
+                chat_id: String(chatId), kind: "pick_supplier",
+                supplier: watchPending.supplier, days: String(days),
+              });
+              res.status(200).json({ ok: true });
+              return;
+            }
+            await sendMessage(chatId, "Iltimos, kun sonini yozing (masalan: 20).");
+            res.status(200).json({ ok: true });
+            return;
+          }
+          if (watchPending && watchPending.kind === "settings_menu") {
+            const low = t.toLowerCase();
+            const catMatch = /^kategoriya\s*:\s*(.+)$/i.exec(t);
+            let reply;
+            if (catMatch) {
+              const raw = catMatch[1].trim();
+              const cats = /^hammasi$/i.test(raw) ? [] : raw.split(",").map(s => s.trim()).filter(Boolean);
+              await watchPost({ action: "settings_set", chat_id: String(chatId), watched_categories: cats });
+              reply = cats.length ? `✅ Kategoriya filtri: ${cats.join(", ")}` : "✅ Kategoriya filtri o'chirildi - endi hammasi kuzatiladi.";
+            } else if (low === "yoqilgan" || low === "o'chirilgan" || low === "ochirilgan") {
+              const enabled = low === "yoqilgan";
+              await watchPost({ action: "settings_set", chat_id: String(chatId), enabled });
+              reply = enabled ? "✅ Ogohlantirish yoqildi." : "✅ Ogohlantirish o'chirildi.";
+            } else if (/^\d+$/.test(t)) {
+              await watchPost({ action: "settings_set", chat_id: String(chatId), threshold_days: parseInt(t, 10) });
+              reply = `✅ Chegara ${t} kunga o'zgartirildi.`;
+            } else {
+              reply = "Tushunmadim. /sozlamalar yozib qayta ko'ring.";
+            }
+            await watchPost({ action: "pending_clear", chat_id: String(chatId) });
+            await sendMessage(chatId, reply);
+            res.status(200).json({ ok: true });
+            return;
+          }
+
           if (YES_RE.test(t)) {
             await dispatchWorkflow({ chat_id: String(chatId), kind: "confirm" });
           } else if (NO_RE.test(t)) {

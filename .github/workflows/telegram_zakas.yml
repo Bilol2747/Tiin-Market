@@ -22,8 +22,17 @@ on:
           - new_file
           - confirm
           - cancel
+          - pick_supplier
       file_path:
         description: "Repo ichidagi Excel fayl yo'li (faqat new_file uchun)"
+        required: false
+        default: ""
+      supplier:
+        description: "Ta'minotchi nomi (faqat pick_supplier uchun - zakas kuzatuvchi tugmasi bosilgach)"
+        required: false
+        default: ""
+      days:
+        description: "Necha kunlik zakas (faqat pick_supplier uchun)"
         required: false
         default: ""
 
@@ -100,7 +109,9 @@ jobs:
             --chat "${{ github.event.inputs.chat_id }}" \
             --kind "${{ github.event.inputs.kind }}" \
             --message-id "${{ github.event.inputs.message_id }}" \
-            --file "${{ github.event.inputs.file_path }}"
+            --file "${{ github.event.inputs.file_path }}" \
+            --supplier "${{ github.event.inputs.supplier }}" \
+            --days "${{ github.event.inputs.days }}"
 
       - name: Token fayllarini tozalash
         if: always()

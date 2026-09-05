@@ -22,10 +22,15 @@ const {
   readOrderFile, lookupAll, priceHistoryIndex, guessSupplier,
   createOrder, verifyOrder, writeProblemExcel, num, myToken,
 } = require('./order_agent.js');
+const { buildSupplierOrder } = require('./watch_agent.js');
 
 const ROOT = path.join(__dirname, '..');
 const PENDING_DIR = path.join(__dirname, 'telegram_pending');
 const API_V1 = 'https://api.7i.uz/api/v1';
+// order_agent.js'dagi bilan bir xil manba - ta'minotchi NOMINI Invan
+// supplier_id'ga o'girish uchun (zakas kuzatuvchida ta'minotchi allaqachon
+// ANIQ - guessSupplier()dagi kirim-tarixi orqali TAXMIN qilish shart emas).
+const SUPPLIER_MAP = require(path.join(ROOT, 'api', '_supplier_id_map.json'));
 
 function arg(name) {
   const i = process.argv.indexOf(name);
@@ -197,6 +202,80 @@ async function handleNewFileInner(chatId, src) {
   }
 }
 
+// ── pick_supplier: zakas kuzatuvchi tugmasi + kun soni → tayyor ro'yxat ────
+// Excel fayldan farqli o'laroq ta'minotchi ALLAQACHON ANIQ (foydalanuvchi
+// tugma orqali tanlagan) - guessSupplier() (kirim tarixidan TAXMIN) shart
+// emas, SUPPLIER_MAP orqali to'g'ridan-to'g'ri Invan supplier_id topiladi.
+// Miqdorlar watch_agent.js'dan (sales_runtime.js'dagi haqiqiy zakas hisobi,
+// qayta yozilmagan) keladi - bu yerda faqat Invan bilan solishtirish bor.
+async function handlePickSupplier(chatId, supplier, days) {
+  await sendMessage(chatId, `🔎 ${supplier} uchun ${days} kunlik zakas hisoblanyapti, Invan'da tekshiryapman...`);
+
+  const supplierId = SUPPLIER_MAP[supplier];
+  if (!supplierId) {
+    await sendMessage(chatId, `❌ "${supplier}" Invan ta'minotchilar xaritasida topilmadi - qo'lda tekshirish kerak.`);
+    return;
+  }
+
+  let items;
+  try {
+    items = await buildSupplierOrder(supplier, days);
+  } catch (e) {
+    await sendMessage(chatId, `⚠️ Zakas ro'yxati tuzilmadi: ${e.message}`);
+    return;
+  }
+  if (!items.length) {
+    await sendMessage(chatId, `Hozircha "${supplier}"dan ${days} kunlik zakas kerak bo'lgan tovar yo'q.`);
+    return;
+  }
+
+  const fileTotal = items.reduce((a, x) => a + x.qty * x.price, 0);
+  const looks = await lookupAll(items);
+  const g = { aktiv: [], noaktiv: [], yoq: [], xato: [], shtrixsiz: [] };
+  items.forEach((it, k) => g[looks[k].status].push({ ...it, ...looks[k] }));
+
+  const ok = [...g.aktiv, ...g.noaktiv];
+  const orderSum = ok.reduce((a, x) => a + x.qty * x.price, 0);
+
+  const lines = [];
+  lines.push(`🏢 ${supplier}`);
+  lines.push(`📦 ${ok.length} ta tovar · ${num(orderSum)} so'm (${days} kunlik zakas)`);
+  if (g.noaktiv.length) lines.push(`⚠️ ${g.noaktiv.length} ta noaktiv (Invan'da yoqish kerak)`);
+  if (g.yoq.length) lines.push(`❌ ${g.yoq.length} ta Invan'da yo'q`);
+  if (g.xato.length) lines.push(`🔌 ${g.xato.length} ta tekshirilmadi (tarmoq xatosi)`);
+  if (g.shtrixsiz.length) lines.push(`⁉️ ${g.shtrixsiz.length} ta shtrix-kodsiz`);
+  lines.push('');
+  lines.push(ok.length ? 'Shu tovarlarga buyurtma yarataymi? Tasdiqlash uchun "ha" deb yozing.' : 'Buyurtmaga tushadigan tovar yo\'q.');
+
+  // writeProblemExcel natija faylini "src" nomidan hosil qiladi (path.dirname/
+  // basename) - ta'minotchi NOMINI to'g'ridan-to'g'ri berish xavfli (ba'zi
+  // nomlarda "/" yoki boshqa maxsus belgi bo'lishi mumkin), shuning uchun
+  // xavfsiz sintetik yo'l ishlatiladi (fayl baribir yuborilgach o'chiriladi).
+  const prob = await writeProblemExcel(path.join(ROOT, 'zakas', `pick_${chatId}_tmp.xlsx`), g);
+  if (prob) lines.push(`📋 Buyurtmaga tushmagan ${prob.count} ta tovar ro'yxatini pastda Excel qilib yuboraman.`);
+
+  if (!ok.length) {
+    await sendMessage(chatId, lines.join('\n'));
+  } else {
+    writePending(chatId, {
+      createdAt: new Date().toISOString(),
+      srcFile: `${supplier} (${days} kunlik zakas)`,
+      supplierId, supplierLabel: supplier,
+      items: ok, fileTotal,
+    });
+    await sendMessage(chatId, lines.join('\n'));
+  }
+
+  if (prob) {
+    try {
+      const buf = fs.readFileSync(prob.path);
+      await sendDocument(chatId, buf, path.basename(prob.path), `Buyurtmaga tushmagan tovarlar (${prob.count} ta)`);
+    } finally {
+      try { fs.unlinkSync(prob.path); } catch { /* allaqachon yo'q bo'lishi mumkin */ }
+    }
+  }
+}
+
 // ── confirm: pending holatdan Invan'da buyurtma yaratish + PDF ─────────────
 async function handleConfirm(chatId) {
   const pending = readPending(chatId);
@@ -256,6 +335,11 @@ async function main() {
   if (kind === 'new_file') return handleNewFile(chatId, filePath);
   if (kind === 'confirm') return handleConfirm(chatId);
   if (kind === 'cancel') return handleCancel(chatId);
+  if (kind === 'pick_supplier') {
+    const supplier = arg('--supplier'), days = arg('--days');
+    if (!supplier || !days) throw new Error('pick_supplier uchun --supplier va --days majburiy');
+    return handlePickSupplier(chatId, supplier, days);
+  }
   throw new Error(`Noma'lum --kind: ${kind}`);
 }
 

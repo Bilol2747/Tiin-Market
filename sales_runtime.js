@@ -7844,3 +7844,25 @@ async function _bgSilentRefresh(){
 // ma'lumotni yangilab turadi, ham funksiyani "issiq" saqlaydi — foydalanuvchi
 // sahifani ochganda sovuq boshlanishni (~20-25s) kutmaydi.
 if(location.protocol!=="file:")setInterval(_bgSilentRefresh,15*60*1000);
+
+// ─── Node.js eksporti (zakas/watch_agent.js uchun) ─────────────────────────
+// Faqat CommonJS muhitida (Node) ishga tushadi - brauzerda `module` yo'q,
+// shuning uchun bu blok hech narsaga ta'sir qilmaydi. Yuqoridagi mantiqning
+// BIR HARFI HAM o'zgartirilmagan - zakas miqdorini Python/Node'da qayta
+// yozish o'rniga (avvalgi 46x xato tajribasi, [[feedback-reuse-not-rewrite-calc-code]])
+// xuddi shu funksiyalar to'g'ridan-to'g'ri chaqiriladi. Chaqiruvchi tomonda
+// (watch_agent.js) `document`/`window`/`location`/`localStorage` uchun sodda
+// stub o'rnatiladi - `location.protocol="file:"` qilib qo'yilsa, yuqoridagi
+// _zkStockOvEndpoint()/_zkDraftEndpoint() kabi funksiyalar AVTOMATIK ravishda
+// production absolute URL (https://tiin-market.vercel.app/...) ishlatadi -
+// xuddi shu fayl lokal file:// orqali ochilganda ishlaydigani kabi.
+if(typeof module!=="undefined"&&module.exports){
+  module.exports={
+    _ensureP2Data,_enrichWithInventory,_buildZItems,_zkBuildSuppliers,
+    krPendingQty,_zkBoxSize,_ensureStockOverrides,_ensureZkDraft,
+    ZK_DEFAULT_TARGET,ZK_BUFFER,ZK_NO_SUPPLIER,ZK_MIN_ORDER,
+    getZItems:()=>ZITEMS,
+    getZkSupTargets:()=>zkSupTargets,
+    setP8:(v)=>{P8=v;},
+  };
+}

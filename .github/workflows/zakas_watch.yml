@@ -1,0 +1,43 @@
+name: Zakas kuzatuvchi (proaktiv ogohlantirish)
+
+# `zakas/watch_agent.js --mode=cron`ni ishga tushiradi - yoqilgan har bir
+# Telegram chat uchun (sozlamalar `zakas_watch_settings`da, Turso, `api/zakas-watch.py`
+# orqali) ABC A/B tovarlardan qaysi biri belgilangan kundan kam qolganini
+# tekshiradi, ta'minotchi bo'yicha guruhlab, yangi/o'zgargan holat uchun
+# inline tugmali xabar yuboradi. Reja: C:\Users\User\.claude\plans\replicated-plotting-hoare.md
+#
+# MUHIM (bosqichma-bosqich ishga tushirish, reja "Qurish tartibi"): bu workflow
+# HOZIRCHA faqat workflow_dispatch bilan qo'lda sinaladi - `schedule:` triggeri
+# pastda IZOHDA qoldirilgan. Webhook'dagi callback_query/pick_supplier oqimi
+# (real Telegram tugma + real Invan buyurtma) qo'lda tekshirilgach, shu izohni
+# olib tashlab haqiqiy jadvalni yoqish kerak.
+on:
+  workflow_dispatch:
+  # Foydalanuvchi so'rovi: kunduzi soat 8:00 dan kechqurun 22:00 gacha
+  # (Toshkent, UTC+5) har 2 soatda - tunda ishlamaydi (kechasi zakas
+  # berilmaydi, ogohlantirish ham keraksiz). UTC'ga o'tkazilganda: 03,05,07,
+  # 09,11,13,15,17 - kuniga 8 marta.
+  # schedule:
+  #   - cron: "0 3,5,7,9,11,13,15,17 * * *"
+
+concurrency:
+  group: zakas-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Repo'ni olish
+        uses: actions/checkout@v4
+
+      - name: Node o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Kuzatuvchini ishga tushirish
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: node zakas/watch_agent.js --mode=cron
