@@ -1,0 +1,45 @@
+# zakas/ — ichki ish vositalari (zakas agenti, shablon quruvchi). Saytga aloqasi
+# yo'q, shuning uchun Vercel'ga yuborilmaydi (aks holda tiin-market.vercel.app/zakas/
+# manzilidan ochiq o'qib bo'lardi). Git'da esa SAQLANADI — himoya uchun.
+zakas/
+
+# DIQQAT: .vercelignore BUTUN deploymentdan chiqarib tashlaydi (statik
+# saytdan ham) — index.html/sales.html/data_history.json/data_abc.json kabi
+# jonli saytga KERAK fayllarni bu yerga qo'shib bo'lmaydi. Faqat backend/app.py
+# funksiyasiga tegishli, saytga aloqasi yo'q ogir fayllar:
+backend/tiin.db
+backend/tiin.db-shm
+backend/tiin.db-wal
+backend/pipeline_cache.pkl
+
+# VAQTINCHA (2026-09-04): yangi Vercel loyihasida Python funksiya bundle
+# hajmi 225MB limitidan oshib ketdi (342MB) - vercel.json'dagi
+# functions."api/index.py".excludeFiles sozlamasi negadir bu loyihada
+# ishlamayapti (Vercel avtomatik "FastAPI framework" rejimiga o'tib,
+# /api fayllarini alohida funksiya sifatida ko'rmay qo'yayotgan bo'lishi
+# mumkin - sababi hali aniqlanmoqda).
+#
+# 2026-09-04 TUZATISH: birinchi urinishda data_daily.json/data_mahsulotlar.json
+# ham shu ro'yxatga qo'shilgan edi - lekin sales_runtime.js'da bularni o'qigan
+# joy try/catch BILAN HIMOYALANMAGAN ekan (data_kirim.json'dan farqli - u
+# jonli API muvaffaqiyatsiz bo'lsa xatoni jimgina ushlaydi) - natijada
+# Mahsulotlar/Zakas kabi KO'P sahifa butunlay ishlamay qoldi (404 -> JSON.parse
+# xatosi -> uncaught exception). Faqat sales_runtime.js'da HECH QAYERDA
+# to'g'ridan-to'g'ri fetch() qilinmaydigan (yoki jonli API + xavfsiz try/catch
+# bilan himoyalangan) haqiqiy arxiv/zaxira fayllarni qoldiramiz:
+data_history_archive_*.json
+data_sales_2025h1.json
+data_sales_2025h2.json
+api/_product_match_index.json
+.pav_cache.json
+arrival_data.json
+supplier_months_cache.json
+data_stock_snapshot.json
+
+# 2026-09-04 QAYTARILDI: data_kirim.json p9 Ombor aylanmasi / p10 Kategoriyalar
+# bo'limlarida 120 kundan eski tannarx hisobi uchun kerak (OA_P8 manbai,
+# jonli /api/v1/kirimdata faqat so'nggi 120 kunni beradi). Bundle 225MB
+# muammosining haqiqiy sababi bu fayl emas, api/auth.py, api/stock-override.py,
+# api/zakas-draft.py'da excludeFiles yo'qligi edi (vercel.json'da tuzatildi) -
+# shuning uchun bu faylni qaytarib ko'ramiz. Agar deploy yana 225MB'dan
+# oshib ketsa, birinchi bo'lib shuni qayta chiqarib tashlash kerak.

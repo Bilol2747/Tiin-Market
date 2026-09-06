@@ -1,0 +1,39 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "regions": ["bom1"],
+  "git": {
+    "deploymentEnabled": {
+      "telegram-data": false
+    }
+  },
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}",
+      "includeFiles": "data_inv_new.json"
+    },
+    "api/auth.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
+    },
+    "api/stock-override.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
+    },
+    "api/zakas-draft.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
+    },
+    "api/zakas-watch.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{**/*.json,**/*.xlsx,**/*.html,**/*.md,**/*.pkl,**/*.db,**/*.db-shm,**/*.db-wal,**/*.xls,**/*.csv,Topshiriq/**,mxik/**,arxiv/**}"
+    },
+    "api/telegram-webhook.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/v1/(.*)", "destination": "/api/index" }
+  ]
+}

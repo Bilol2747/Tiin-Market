@@ -1,0 +1,156 @@
+name: Telegram zakas boti
+
+# api/telegram-webhook.js (Vercel) shu workflow'ni workflow_dispatch orqali
+# chaqiradi — Excel parslash (ExcelJS kerak) va Invan'ga yozish og'ir/xavfli
+# ish, shuning uchun Vercel'da EMAS, shu yerda (real npm install bilan)
+# bajariladi. Reja: C:\Users\User\.claude\plans\crystalline-sauteeing-scone.md
+on:
+  workflow_dispatch:
+    inputs:
+      chat_id:
+        description: "Telegram chat ID"
+        required: true
+      message_id:
+        description: "Telegram message ID (ixtiyoriy, fayl xabari uchun)"
+        required: false
+        default: ""
+      kind:
+        description: "Bajariladigan amal"
+        required: true
+        type: choice
+        options:
+          - new_file
+          - confirm
+          - cancel
+      file_path:
+        description: "Repo ichidagi Excel fayl yo'li (faqat new_file uchun)"
+        required: false
+        default: ""
+
+concurrency:
+  group: telegram-zakas-${{ github.event.inputs.chat_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # `main`ni olish - skriptlar (order_agent.js, telegram_bot_runner.js)
+      # doim shu yerdan eng yangi holatda ishlatiladi.
+      - name: Repo'ni olish (main)
+        uses: actions/checkout@v4
+
+      # Kiruvchi Excel fayl va oldingi "pending" holat `main`da EMAS, alohida
+      # `telegram-data` branch'ida saqlanadi (Vercel'ning `main`ga har commit'da
+      # avtomatik deploy qilishidan qochish uchun - [[project-telegram-zakas-bot]],
+      # 2026-08-01). Shu branch'dagi ikkita papkani joriy working tree'ga tortib
+      # olamiz (bo'lmasa - birinchi ishga tushish, jim o'tkazib yuboriladi).
+      - name: telegram-data holatini tortib olish
+        # Ikkalasi BITTA buyruqda bo'lsa - ulardan biri (masalan hali birinchi
+        # marta ishlatilmagani uchun telegram_pending) mavjud bo'lmasa, butun
+        # checkout ikkalasi uchun ham muvaffaqiyatsiz bo'lib qolardi (2026-08-01
+        # aniqlandi - shu sabab yuklangan Excel "topilmadi" bo'lib chiqqan edi).
+        # Shuning uchun ALOHIDA-ALOHIDA, har biri o'z holicha muvaffaqiyatsiz
+        # bo'lishi mumkin.
+        run: |
+          git fetch origin telegram-data --depth=1
+          git checkout FETCH_HEAD -- zakas/telegram_incoming 2>/dev/null || true
+          git checkout FETCH_HEAD -- zakas/telegram_pending 2>/dev/null || true
+
+      - name: Node o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Kutubxonalarni o'rnatish
+        run: npm install exceljs xlsx --no-save
+
+      - name: Invan token faylini tayyorlash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+        run: printf '%s' "$INVAN_API_TOKEN" > api_token.txt
+
+      # SHAXSIY token (2026-08-04). Ilgari faqat umumiy api_token.txt bo'lgani
+      # uchun bot yaratgan buyurtmalar Invan'da UMUMIY hisob (Murodjon Tursunov)
+      # nomidan chiqardi. zakas/my_token.txt .gitignore'da - runner'ga hech qachon
+      # tushmagan, shuning uchun order_agent.js shaxsiy tokenni topa olmasdi.
+      # Endi u INVAN_MY_TOKEN sirlaridan yoziladi. Sir qo'yilmagan bo'lsa fayl
+      # yaratilmaydi va eski xatti-harakat (umumiy hisob) saqlanadi.
+      - name: Shaxsiy Invan tokenini tayyorlash
+        env:
+          INVAN_MY_TOKEN: ${{ secrets.INVAN_MY_TOKEN }}
+        run: |
+          if [ -n "$INVAN_MY_TOKEN" ]; then
+            printf '%s' "$INVAN_MY_TOKEN" > zakas/my_token.txt
+            echo "Shaxsiy token yozildi - buyurtma shaxsiy hisobdan yaratiladi."
+          else
+            echo "OGOHLANTIRISH: INVAN_MY_TOKEN siri qo'yilmagan -"
+            echo "buyurtma UMUMIY hisob nomidan yaratiladi."
+          fi
+
+      - name: Bot ishga tushirish
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          node zakas/telegram_bot_runner.js \
+            --chat "${{ github.event.inputs.chat_id }}" \
+            --kind "${{ github.event.inputs.kind }}" \
+            --message-id "${{ github.event.inputs.message_id }}" \
+            --file "${{ github.event.inputs.file_path }}"
+
+      - name: Token fayllarini tozalash
+        if: always()
+        run: rm -f api_token.txt zakas/my_token.txt
+
+      # Natijadagi pending/incoming holatni ALOHIDA worktree orqali
+      # `telegram-data` branch'iga commit qilamiz - joriy checkout `main`da
+      # qolaveradi, `main`ga hech narsa yozilmaydi.
+      #
+      # MUHIM: butun papkani "oynalab" (rsync --delete) sinxronlash XATO edi
+      # (2026-08-01 aniqlandi) - agar bu run o'zining lokal nusxasida biror
+      # sababga ko'ra bo'sh/eski holatni ko'rgan bo'lsa (masalan yuqoridagi
+      # checkout muvaffaqiyatsiz bo'lsa), --delete BOSHQA CHAT'LARNING yoki
+      # oldingi holatning faylларини ham o'chirib yuborardi. Shuning uchun
+      # FAQAT shu run tegishli bo'lgan ANIQ ikkita fayl (shu chat'ning pending
+      # holati va shu run qayta ishlagan incoming fayl) maqsadli yangilanadi.
+      - name: telegram-data holatini yangilash
+        if: always()
+        env:
+          CHAT_ID: ${{ github.event.inputs.chat_id }}
+          INCOMING_REL: ${{ github.event.inputs.file_path }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin telegram-data --depth=1
+          git worktree add /tmp/telegram-data FETCH_HEAD
+          mkdir -p "/tmp/telegram-data/zakas/telegram_pending" "/tmp/telegram-data/zakas/telegram_incoming"
+
+          PENDING_REL="zakas/telegram_pending/${CHAT_ID}.json"
+          if [ -f "$PENDING_REL" ]; then
+            cp "$PENDING_REL" "/tmp/telegram-data/$PENDING_REL"
+          else
+            rm -f "/tmp/telegram-data/$PENDING_REL"
+          fi
+          if [ -n "$INCOMING_REL" ]; then
+            rm -f "/tmp/telegram-data/$INCOMING_REL"
+          fi
+
+          cd /tmp/telegram-data
+          git add zakas/telegram_pending zakas/telegram_incoming
+          if git diff --staged --quiet; then
+            echo "O'zgarish yo'q."
+          else
+            git commit -m "Telegram zakas boti: ${{ github.event.inputs.kind }} (chat ${{ github.event.inputs.chat_id }})"
+            for i in 1 2 3; do
+              if git push origin HEAD:telegram-data; then break; fi
+              git fetch origin telegram-data --depth=1
+              git merge -X ours --no-edit FETCH_HEAD
+              sleep 3
+            done
+          fi
+          cd "$GITHUB_WORKSPACE"
+          git worktree remove /tmp/telegram-data --force
