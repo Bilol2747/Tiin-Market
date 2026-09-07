@@ -1,0 +1,109 @@
+{
+ "createdAt": "2026-09-07T08:12:26.617Z",
+ "srcFile": "-5325144796_1780_zakas_POSITI MCHJ2_2026-09-04.xlsx",
+ "supplierId": "9ea100f8-035b-4b52-b5fd-06671d0990e7",
+ "supplierLabel": "POSITI MCHJ",
+ "items": [
+  {
+   "name": "Coca-Cola 1l пэт",
+   "barcode": "4780069000147",
+   "qty": 840,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "2008",
+   "id": "eec9ddf5-b2e9-4a9f-8a61-fbfdfba7f165",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola Tara 250ml стекло",
+   "barcode": "4780069000611",
+   "qty": 360,
+   "price": 2789.97,
+   "status": "aktiv",
+   "sku": "287332",
+   "id": "8a1472a1-e400-42b3-8243-858233eb6891",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Mango-romashka 500ml",
+   "barcode": "4780069000840",
+   "qty": 360,
+   "price": 5448.88,
+   "status": "aktiv",
+   "sku": "1148",
+   "id": "7384798f-6d4c-45a8-b38c-5fad71fb22f6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazli 1l пэт",
+   "barcode": "4780069001120",
+   "qty": 300,
+   "price": 3871.29,
+   "status": "aktiv",
+   "sku": "51011",
+   "id": "bfa26555-8f94-43f2-8f75-4e3b29dcfbe2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Coca-Cola 2l пэт",
+   "barcode": "4780069000734",
+   "qty": 240,
+   "price": 14730,
+   "status": "aktiv",
+   "sku": "29867",
+   "id": "6b414816-5bb9-40dc-a400-706b5d32f486",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazsiz 1l пэт",
+   "barcode": "4780069001137",
+   "qty": 180,
+   "price": 3871.29,
+   "status": "aktiv",
+   "sku": "51010",
+   "id": "3886d453-4f41-499f-a624-8616544ab832",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bonaqua gazsiz 1,5l пэт",
+   "barcode": "4780069000093",
+   "qty": 120,
+   "price": 4747.97,
+   "status": "aktiv",
+   "sku": "1157",
+   "id": "c54d81e0-07a2-4cb6-93a2-dc4695b2d305",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Mango Romashka 1l",
+   "barcode": "4780069000321",
+   "qty": 72,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "1700",
+   "id": "df45e641-c965-4a67-8adf-dc3caa9c4d3f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Mango Ananas 1,5l",
+   "barcode": "4780069001151",
+   "qty": 60,
+   "price": 11622.56,
+   "status": "aktiv",
+   "sku": "7881",
+   "id": "6c13436d-b8fa-482d-aff3-7a3bf97de92e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fuse Tea Арбуза 1л",
+   "barcode": "4780069001298",
+   "qty": 36,
+   "price": 8523.78,
+   "status": "aktiv",
+   "sku": "53632",
+   "id": "61f727f4-546f-4f25-a044-2c2c567295fe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 17707058.64
+}
