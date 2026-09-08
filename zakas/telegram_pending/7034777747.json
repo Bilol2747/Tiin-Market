@@ -1,0 +1,1030 @@
+{
+ "createdAt": "2026-09-08T08:02:27.085Z",
+ "srcFile": "''FIRSTGROUP'' MCHJ (№36/1697-S от 05.01.2023г) (Zewa.Libresse.Libero) (20 kunlik zakas)",
+ "supplierId": "a01ab1af-3ddb-4c9f-9815-ec3842b41181",
+ "supplierLabel": "''FIRSTGROUP'' MCHJ (№36/1697-S от 05.01.2023г) (Zewa.Libresse.Libero)",
+ "items": [
+  {
+   "name": "Salfetka Zewa Deluxe 90d 3q",
+   "barcode": "4006670128002",
+   "qty": 72,
+   "price": 23130,
+   "status": "aktiv",
+   "sku": "3607",
+   "id": "7002a920-7975-43b0-8b79-17ce50e3cfad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Zewa Deluxe 10d 3q b/a",
+   "barcode": "7310791268002",
+   "qty": 60,
+   "price": 3150,
+   "status": "aktiv",
+   "sku": "779",
+   "id": "53be0500-cffb-44cc-8aab-6afba337ac33",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Delicate Care 3q 8d",
+   "barcode": "7322541171739",
+   "qty": 56,
+   "price": 53025,
+   "status": "aktiv",
+   "sku": "31498",
+   "id": "890afd5c-2155-4df0-ae58-f0263264fc51",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бумажные Платочки Zewa Deluxe 10шт",
+   "barcode": "7322540061468",
+   "qty": 40,
+   "price": 3150,
+   "status": "aktiv",
+   "sku": "33604",
+   "id": "49182fe1-f106-4203-a00f-2bf5cd663d01",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kunlik Prokladka Libresse Ultra Large+ Goodnight 16d",
+   "barcode": "7322540960273",
+   "qty": 35,
+   "price": 33400,
+   "status": "aktiv",
+   "sku": "35746",
+   "id": "7f225d11-0fc1-437d-b8f7-4c66b7f094c4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Libresse 28d",
+   "barcode": "7310791255255",
+   "qty": 30,
+   "price": 22950,
+   "status": "aktiv",
+   "sku": "4086",
+   "id": "2c7be4cd-9bd4-49ee-a007-c14401ecfd43",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Jasmin 3q 8d",
+   "barcode": "7322541171753",
+   "qty": 28,
+   "price": 53025,
+   "status": "aktiv",
+   "sku": "31494",
+   "id": "d328de4b-2631-49cf-9f57-955e54eb2727",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Libresse 8 Ultra Large",
+   "barcode": "7322540960235",
+   "qty": 25,
+   "price": 17730,
+   "status": "aktiv",
+   "sku": "35745",
+   "id": "3b6ac8dd-6d39-4ae9-91c5-33bf549d8124",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Libresse Dailies Fresh Extra Long 24d",
+   "barcode": "7322540062656",
+   "qty": 25,
+   "price": 22950,
+   "status": "aktiv",
+   "sku": "45828",
+   "id": "cb5021fc-2ecb-4ecc-bc08-896da6e14a09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Libresse Maxi Tungi 6tomchi 10d",
+   "barcode": "7322540576474",
+   "qty": 24,
+   "price": 18990,
+   "status": "aktiv",
+   "sku": "10175",
+   "id": "22f4ca9b-abf5-4181-af33-fd13a9ce5423",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gigiyenik Prokladkalar Classic Protection Regular Libresse 9d",
+   "barcode": "7322541233390",
+   "qty": 20,
+   "price": 12200,
+   "status": "aktiv",
+   "sku": "10177",
+   "id": "c5b58e1f-aff6-494b-b4b9-1ccad6333eae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Libresse Ultra 20d",
+   "barcode": "7310791245607",
+   "qty": 18,
+   "price": 30060,
+   "status": "aktiv",
+   "sku": "4674",
+   "id": "1afa304d-02fa-49b0-b538-58139d7ae6ec",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gigiyenik Prokladka Libresse Natural 20d",
+   "barcode": "7322540306378",
+   "qty": 18,
+   "price": 13680,
+   "status": "aktiv",
+   "sku": "39342",
+   "id": "aa428bac-162a-47f0-8d8a-209decad6b53",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Libresse Dailies 40d",
+   "barcode": "7322540306392",
+   "qty": 18,
+   "price": 24660,
+   "status": "aktiv",
+   "sku": "39344",
+   "id": "ea9d0525-dcef-464f-bf04-b53bec1d7e42",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Libresse Ultra Long 16d",
+   "barcode": "7322540388442",
+   "qty": 16,
+   "price": 30060,
+   "status": "aktiv",
+   "sku": "17750",
+   "id": "96d59799-5adf-4564-89dd-a645e6071847",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tungi Prokladka Libresse 20d",
+   "barcode": "7322540576450",
+   "qty": 14,
+   "price": 32310,
+   "status": "aktiv",
+   "sku": "22673",
+   "id": "e33c416e-c05e-44db-932b-769a36bcc4e3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бумажные Полотенца Zewa Jumbo 1шт",
+   "barcode": "7322541191706",
+   "qty": 12,
+   "price": 51935,
+   "status": "aktiv",
+   "sku": "34302",
+   "id": "e17eef39-f795-44fb-bad3-c7b4634cdeea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gigiyenik Prokladkalar Libresse Classic Protection Long 8d",
+   "barcode": "7322541233512",
+   "qty": 11,
+   "price": 12200,
+   "status": "aktiv",
+   "sku": "10178",
+   "id": "6ddebf45-bcb2-4e51-80dd-64c3fb837ef1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ch. liniya skorab dlya lisa 50ml persik",
+   "barcode": "4600702062687",
+   "qty": 10,
+   "price": 17300,
+   "status": "aktiv",
+   "sku": "3734",
+   "id": "3bb273eb-1a8c-4f73-a6de-f3dbe4c22039",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Baby Dove Hair 400ml",
+   "barcode": "8710908657979",
+   "qty": 8,
+   "price": 49646.83,
+   "status": "aktiv",
+   "sku": "50273",
+   "id": "44fc2f30-8563-4da7-b57a-bc9d58b8bdba",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar Kattalar Uchun Tena Slip Plus Large 30d",
+   "barcode": "7322541118932",
+   "qty": 7,
+   "price": 286020,
+   "status": "aktiv",
+   "sku": "39341",
+   "id": "062add06-77d6-449a-aeed-5db4d5dc6852",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Sochiq Zewa Premium Extra Long 2q 2d",
+   "barcode": "7322541192864",
+   "qty": 6,
+   "price": 41700,
+   "status": "aktiv",
+   "sku": "37047",
+   "id": "c63aa2c5-f372-4ac2-bc38-5b3f326e7bad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kunlik Prokladkalar Libresse Normal Duo 32d",
+   "barcode": "7322540510713",
+   "qty": 6,
+   "price": 20600,
+   "status": "aktiv",
+   "sku": "22676",
+   "id": "49b0b680-0037-440b-a4c6-7291e4637b53",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для лица Чистая Линия Интенсивный питательный Ночной 40мл",
+   "barcode": "4600702080674",
+   "qty": 6,
+   "price": 13900,
+   "status": "aktiv",
+   "sku": "29455",
+   "id": "550bd66a-1270-4972-b6d1-844319ebc0e5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Shaftoli 4d 3q",
+   "barcode": "9011111035769",
+   "qty": 4,
+   "price": 30793,
+   "status": "aktiv",
+   "sku": "17822",
+   "id": "92d344c8-8a25-4a76-b31a-716a3bdacb4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для Лица Чистая Линия Гиалурон Глубокое Увлажнение 40мл",
+   "barcode": "8720182994363",
+   "qty": 4,
+   "price": 13900,
+   "status": "aktiv",
+   "sku": "37701",
+   "id": "978feb34-523b-46c7-8df0-d83776023c35",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Lavanda 3q 8d",
+   "barcode": "7322541171777",
+   "qty": 3,
+   "price": 53025,
+   "status": "aktiv",
+   "sku": "31493",
+   "id": "5fa41eda-5dcd-4d9a-82ce-b65572a430df",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabiiy Prokladka Libresse 10d",
+   "barcode": "7322540344059",
+   "qty": 3,
+   "price": 17730,
+   "status": "aktiv",
+   "sku": "17748",
+   "id": "d81b632d-19ce-49d2-8aa9-07acfd828b8b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Libresse Natural Care Normal 20d",
+   "barcode": "7322540137613",
+   "qty": 3,
+   "price": 23490,
+   "status": "aktiv",
+   "sku": "28561",
+   "id": "94beb5e2-eab5-4776-95cd-e63dd33ddf22",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob To'plam Qora Marvarid Faollashtiruvchi Krem ​​25ml  25ml",
+   "barcode": "4605922037651",
+   "qty": 3,
+   "price": 75900,
+   "status": "aktiv",
+   "sku": "52195",
+   "id": "67a3dfc6-9499-48c4-8c18-5b6bb15774ec",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovg'a To'plam CAMAY DESIR 190ml+250ml",
+   "barcode": "4605922039709",
+   "qty": 3,
+   "price": 70400,
+   "status": "aktiv",
+   "sku": "2883221",
+   "id": "c8e3e5a7-03b9-4f5d-b5d0-41454809dc23",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovg'a To'plam Camay Meva-Gul 250+250+250ml",
+   "barcode": "4605922039846",
+   "qty": 3,
+   "price": 60000,
+   "status": "aktiv",
+   "sku": "2883219",
+   "id": "5cd519d1-f9e2-4a2e-bc48-ca8873d09e7c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель для полости рта Лесной бальзам Детский Защита от кариеса с 7лет 400мл",
+   "barcode": "8720633007819",
+   "qty": 3,
+   "price": 25670,
+   "status": "aktiv",
+   "sku": "48377",
+   "id": "1cee428d-02fe-494e-a3d1-dc4f8d44fc28",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Og'iz Chayish Vositasi Лесной бальзам Bolalar Uchun 250ml",
+   "barcode": "8714100799499",
+   "qty": 3,
+   "price": 15810,
+   "status": "aktiv",
+   "sku": "2883121",
+   "id": "29381805-29b9-48bb-9e73-cd0fe5736e3f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Yuz va Ko'z Krem Чистая Линия Yoshartiruvchi 40ml",
+   "barcode": "4605922032205",
+   "qty": 3,
+   "price": 13900,
+   "status": "aktiv",
+   "sku": "2883116",
+   "id": "7e3ad3f0-a272-4962-bd35-d204c226002a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Ro'molcha Zewa Deluxe Design 10d",
+   "barcode": "7322540043716",
+   "qty": 3,
+   "price": 2835,
+   "status": "aktiv",
+   "sku": "33605",
+   "id": "a10e4e0e-eb45-4cae-bc25-b649c8479fee",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Camomile Comfort 3q 8d",
+   "barcode": "7322541171708",
+   "qty": 21,
+   "price": 53025,
+   "status": "aktiv",
+   "sku": "31499",
+   "id": "7282ec48-230c-473c-996a-016a27cbe100",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Zewa Deluxe Design 3q150d",
+   "barcode": "7322541685564",
+   "qty": 21,
+   "price": 34500,
+   "status": "aktiv",
+   "sku": "43404",
+   "id": "7f9eaeb6-2576-43b7-bc0b-8fc453161152",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Krem Qo'l Uchun Бархатные ручки Oziqlantiruvchi Tungi 80ml",
+   "barcode": "4600702035438",
+   "qty": 15,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "17684",
+   "id": "761041bc-d97e-49ee-a4a1-f0a6b52e30cf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бархатные Ручки Крем для рук Регенерирующий 80мл",
+   "barcode": "4600702088618",
+   "qty": 15,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "2883229",
+   "id": "fdac5eca-b6e6-4203-bcfd-bc665bc7d240",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "B. ruchki yumshatuvchi qo'l kremi 80ml",
+   "barcode": "4600702066425",
+   "qty": 15,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "17685",
+   "id": "67415b67-4d1d-495c-9279-8c7a67429f02",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Deluxe Cashmere Peach 3q 8d",
+   "barcode": "7322541171791",
+   "qty": 14,
+   "price": 53025,
+   "status": "aktiv",
+   "sku": "31500",
+   "id": "7d5b3f47-4ae1-40bb-b2f4-35e940cb623e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Krem Qo'l Uchun Бархатные ручки Makadamii Hashamati 80ml",
+   "barcode": "4600702091748",
+   "qty": 14,
+   "price": 10608,
+   "status": "aktiv",
+   "sku": "52191",
+   "id": "9b30884a-b3d7-4348-a24e-94f0052ec883",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Sochiq Zewa Wisch 2d",
+   "barcode": "7322540973112",
+   "qty": 13,
+   "price": 57933.18,
+   "status": "aktiv",
+   "sku": "37054",
+   "id": "5b016047-84ae-4370-8cb7-8d12bc52a117",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем-бальзам Бархатные ручки для рук 45мл",
+   "barcode": "8714100710456",
+   "qty": 13,
+   "price": 10671,
+   "status": "aktiv",
+   "sku": "9752",
+   "id": "f5ae1ac2-02a3-4add-868a-ab0dbd1b2614",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бархатные ручки Крем для рук Комплексный 80мл",
+   "barcode": "4600702026009",
+   "qty": 13,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "2883225",
+   "id": "c88352f5-b7f1-4ca4-93e7-5c4038c4065a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Qog'oz Sochiq Zewa Wisch&Weg Original 2r",
+   "barcode": "4006670363151",
+   "qty": 12,
+   "price": 45900,
+   "status": "aktiv",
+   "sku": "18100",
+   "id": "30d51e28-30c8-43c8-98e8-50f8c6bfc2b5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Libresse Dailies style 32d",
+   "barcode": "7322540083934",
+   "qty": 12,
+   "price": 13860,
+   "status": "aktiv",
+   "sku": "10186",
+   "id": "b17d3f74-7827-472d-baf1-6b354db5eed6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Zewa Just 5q 6d",
+   "barcode": "7322541189314",
+   "qty": 11,
+   "price": 80500,
+   "status": "aktiv",
+   "sku": "39378",
+   "id": "d0592d67-a6d6-497e-8f1c-0ff01aa54515",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Zewa Deluxe Jasmine Blossom 4шт",
+   "barcode": "7322542174074",
+   "qty": 10,
+   "price": 30000,
+   "status": "aktiv",
+   "sku": "42555",
+   "id": "eac0fb49-1082-4ebe-8a00-fb36338dc76e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для рук Бархатные Ручки для всей семьи 200мл",
+   "barcode": "8714100708408",
+   "qty": 10,
+   "price": 23000,
+   "status": "aktiv",
+   "sku": "9753",
+   "id": "d515e711-1689-4396-b720-2eb2357e2ce9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бархатные ручки Крем для рук питательный 80мл",
+   "barcode": "4600702025972",
+   "qty": 10,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "2883227",
+   "id": "c488cc60-b7a0-42ed-8fa0-6a5326ab242c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бархатные ручки Крем для рук Увлажняющий 80мл",
+   "barcode": "4600702025996",
+   "qty": 10,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "2883226",
+   "id": "79fa0861-dbdd-4e88-ba2b-28ff4c46b4a2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Детская зубная паста Лесной бальзам от 7 лет 50мл",
+   "barcode": "8714100749166",
+   "qty": 10,
+   "price": 13685,
+   "status": "aktiv",
+   "sku": "29334",
+   "id": "013941e1-312e-41df-b280-7b5a1528c0cd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tungi Prokladkalar Libresse 7d",
+   "barcode": "7322540611236",
+   "qty": 8,
+   "price": 13700,
+   "status": "aktiv",
+   "sku": "3197",
+   "id": "7d64d51f-045f-4587-94cf-a9a06f79d824",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gigiyenik Prokladkalar Libresse Natural Care Ultra Clip Normal 3mm 10d",
+   "barcode": "7322540523300",
+   "qty": 8,
+   "price": 13700,
+   "status": "aktiv",
+   "sku": "10179",
+   "id": "d00f9862-d661-4b68-8a20-796923a6111d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kunlik Prokladkalar \"LIBRESSE\" Kun Sofligi 30d",
+   "barcode": "7322540678642",
+   "qty": 8,
+   "price": 19170,
+   "status": "aktiv",
+   "sku": "10184",
+   "id": "77744733-5aec-44c5-af34-e6d06f10dd66",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovg'a To'plam Camay Magique 250ml",
+   "barcode": "4605922039716",
+   "qty": 8,
+   "price": 29100,
+   "status": "aktiv",
+   "sku": "51184",
+   "id": "049972d3-b075-4718-86e1-a1683dcc7f0f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подарочный набор Camay Цветы граната 250мл",
+   "barcode": "4605922031741",
+   "qty": 8,
+   "price": 29100,
+   "status": "aktiv",
+   "sku": "49163",
+   "id": "a201f33b-c579-4c87-8eba-e4fe4e0ec5e9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tish Pasta Лесной Бальзам Minerallar Bilan Oqartirish 113gr",
+   "barcode": "4605922005919",
+   "qty": 7,
+   "price": 9435,
+   "status": "aktiv",
+   "sku": "2883117",
+   "id": "ea96b5ea-8c52-4066-83e8-7025bbd2afdd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Krem Бархатные Ручки Yuz Qo'l va Tana Uchun 160ml",
+   "barcode": "4605922031475",
+   "qty": 6,
+   "price": 25000,
+   "status": "aktiv",
+   "sku": "52192",
+   "id": "6a040b82-8008-436c-ac2b-b30a6b826bea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники Libero 7 Comfort 16-26кг 38шт",
+   "barcode": "7322541757131",
+   "qty": 5,
+   "price": 172550,
+   "status": "aktiv",
+   "sku": "40826",
+   "id": "aae329a9-c064-473f-9d4c-30c5a2856f49",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подарочный набор Чистая Линия Beauty Protection",
+   "barcode": "8720633012097",
+   "qty": 5,
+   "price": 63300,
+   "status": "aktiv",
+   "sku": "51185",
+   "id": "f846be6d-0335-4a2b-aff9-164d893b99d2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бархатные Ручки Крем для рук Защитный 80мл",
+   "barcode": "4600702025989",
+   "qty": 5,
+   "price": 8970,
+   "status": "aktiv",
+   "sku": "2883228",
+   "id": "fee99f86-2877-4053-b8f6-e0ee41d0cd47",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Детская зубная паста Лесной бальзам от 2 лет 50мл",
+   "barcode": "8714100749401",
+   "qty": 5,
+   "price": 13685,
+   "status": "aktiv",
+   "sku": "29333",
+   "id": "b8d6d9ab-f0bc-4754-ab0c-f38cd9e9bb4c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar-Trusiklar Libero Ліберо 7 16-26kg 16d",
+   "barcode": "7322541090931",
+   "qty": 4,
+   "price": 93120,
+   "status": "aktiv",
+   "sku": "11173",
+   "id": "13635db8-784a-47b1-af67-8194656da5db",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Чистая Линия  Ipak Yorqinlik 400ml",
+   "barcode": "4600702036916",
+   "qty": 4,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "17688",
+   "id": "085eb010-fcf7-4410-a674-f6f997f061dd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Чистая Линия Tartibga Soluvchi 400ml",
+   "barcode": "4600702081978",
+   "qty": 4,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "4393",
+   "id": "e08a8130-0ca4-4859-b0f0-a3029b02e444",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Og'iz Chayish Uchun Vosita Лесной Бальзам Eman va Archa Po'stlog'i 800ml",
+   "barcode": "4605922034407",
+   "qty": 4,
+   "price": 30200,
+   "status": "aktiv",
+   "sku": "52189",
+   "id": "73def2fb-5f6e-4587-9c6a-71c0588ebef0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Libero podguznik 6x22 13-20kg comfort",
+   "barcode": "7322541117065",
+   "qty": 4,
+   "price": 106800,
+   "status": "aktiv",
+   "sku": "17760",
+   "id": "d88e6c7f-8f0f-4fe7-b760-e923922e7fa7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для рук и тела Dove Rich Nourishment Cream 150мл",
+   "barcode": "8886467049491",
+   "qty": 4,
+   "price": 34333.2,
+   "status": "aktiv",
+   "sku": "8241",
+   "id": "7801a0d9-1d50-48b8-861b-e7dfbe2f9ba5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для Лица Чистая Линия Гиалурон-Активатор Интенсивное Увлажнение 40мл",
+   "barcode": "8720182995155",
+   "qty": 4,
+   "price": 13900,
+   "status": "aktiv",
+   "sku": "37703",
+   "id": "5f5db344-0637-4383-97d8-8208aff4e98b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель-Пенка для Умывания Чистая Линия 2в1 Natura 160мл",
+   "barcode": "8714100887042",
+   "qty": 4,
+   "price": 26600,
+   "status": "aktiv",
+   "sku": "42599",
+   "id": "5080c421-ae75-4773-bc9b-4d437ea457eb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для рук Dove с кокосовым маслом и миндальным молочком 75мл",
+   "barcode": "8710447275313",
+   "qty": 4,
+   "price": 28900,
+   "status": "aktiv",
+   "sku": "9754",
+   "id": "4fdf08d5-8e54-49ca-a830-95a3f1911765",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем Дневной Чистая Линия для сухой кожи лица 40мл",
+   "barcode": "4600702080681",
+   "qty": 4,
+   "price": 13900,
+   "status": "aktiv",
+   "sku": "29461",
+   "id": "36e494bb-72f5-4742-a8fd-0ba89eb53bf8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель для полости рта Лесной бальзам Total Морская соль и экстракт ромашка 400мл",
+   "barcode": "8720182993694",
+   "qty": 4,
+   "price": 30200,
+   "status": "aktiv",
+   "sku": "48370",
+   "id": "2a378199-4a19-4aec-9e3b-3b48133e1001",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель для купания Baby Dove Sensitive 200мл",
+   "barcode": "8710908657399",
+   "qty": 4,
+   "price": 38103.75,
+   "status": "aktiv",
+   "sku": "50270",
+   "id": "11a93a45-36ed-4a10-926b-de9676b2d218",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь Чистая линия Интенсивное питание 400мл",
+   "barcode": "8714100828373",
+   "qty": 4,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "49160",
+   "id": "09a8dda9-b162-44ee-ac0e-9ae5891f68bf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Libero podguznik 24sht  2.5kg touch",
+   "barcode": "7322541069999",
+   "qty": 3,
+   "price": 52299,
+   "status": "aktiv",
+   "sku": "17764",
+   "id": "67833a00-927d-489c-a6f9-2f10badbab56",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar  Tena Slip Plus M Kattalar Uchun 30d",
+   "barcode": "7322541118871",
+   "qty": 3,
+   "price": 243720,
+   "status": "aktiv",
+   "sku": "43407",
+   "id": "682d2abb-c6ad-4816-b0e2-1f5c3de62c13",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Zewa Everyday 100d 2q",
+   "barcode": "7322540043464",
+   "qty": 3,
+   "price": 24400,
+   "status": "aktiv",
+   "sku": "3388",
+   "id": "079e4c41-1ba3-49c2-b426-327e0b8c7a3c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar-Trusiklar Libero 6 13-20kg 18d",
+   "barcode": "7322541090238",
+   "qty": 3,
+   "price": 93120,
+   "status": "aktiv",
+   "sku": "11172",
+   "id": "cb19e3bb-f64c-4621-be90-73be4bbf2043",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar Libero New Born 1 2-5kg 24d",
+   "barcode": "7322541197562",
+   "qty": 3,
+   "price": 57417.25,
+   "status": "aktiv",
+   "sku": "10173",
+   "id": "c08e167c-c7dc-4d2d-a0c3-ba465b9fa628",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tish Pasta Happy Moments Дракоша Клубника Детская 60ml",
+   "barcode": "4600702023046",
+   "qty": 3,
+   "price": 14300,
+   "status": "aktiv",
+   "sku": "3536",
+   "id": "20495ece-4da8-4576-9a3b-91fb33263159",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suyuq Sovun Absolut Bolalar Uchun Chereda 250gr",
+   "barcode": "4601313010739",
+   "qty": 3,
+   "price": 15111.17,
+   "status": "aktiv",
+   "sku": "3403",
+   "id": "83e7f744-d1ce-4675-a56a-bbcaca3d6efe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tish Pasta Лесной бальзам Organik Yog'lar va Aloe Bilan 75ml",
+   "barcode": "8714100865446",
+   "qty": 3,
+   "price": 15470,
+   "status": "aktiv",
+   "sku": "2883118",
+   "id": "a0885e05-f864-4091-9ccb-0b88dfdfaa0d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Чистая Линия  Kepekka Qarshi Sochlar Uchun Mentol va Yalpiz 400ml",
+   "barcode": "4605922037095",
+   "qty": 3,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "52190",
+   "id": "b163a2b3-bdbf-48a9-b652-b6f790ca5d81",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Krem Бархатные ручки Universal Qo'l va Tana Uchun 150ml",
+   "barcode": "8714100817193",
+   "qty": 3,
+   "price": 26800,
+   "status": "aktiv",
+   "sku": "52193",
+   "id": "65f6ea55-b13f-4fce-a1e4-532ef0d9de17",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dush Geli Baby Dove Tinchlantiruvchi 400ml",
+   "barcode": "8717163858226",
+   "qty": 3,
+   "price": 58081.38,
+   "status": "aktiv",
+   "sku": "50274",
+   "id": "7a9d661c-86d5-4c28-bb96-1cfdd667ca10",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель для купания Baby Dove увлажнение без запаха 400мл",
+   "barcode": "8710908657535",
+   "qty": 3,
+   "price": 59600,
+   "status": "aktiv",
+   "sku": "50271",
+   "id": "fac26915-a5b6-4323-bfb1-be85dc4268da",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь Чистая Линия против выпадения волос 400мл",
+   "barcode": "8714100717509",
+   "qty": 3,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "37693",
+   "id": "eeef1d96-3ec9-4803-ad80-fcae8e1762b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем для рук Dove с маслом авокадо и экстрактом календулы 75мл",
+   "barcode": "8710447275306",
+   "qty": 3,
+   "price": 28900,
+   "status": "aktiv",
+   "sku": "9755",
+   "id": "e70eb58d-6e8c-448f-9ee7-113bcd9aef09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель для купания Baby Dove Deram Care 400мл",
+   "barcode": "8710847952876",
+   "qty": 3,
+   "price": 80008.1,
+   "status": "aktiv",
+   "sku": "50277",
+   "id": "dac3055a-c5d8-496c-af30-df4598a5f83a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь Чистая Линия Березовый для всей семьи 400мл",
+   "barcode": "4600702089745",
+   "qty": 3,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "37692",
+   "id": "d172d5e5-9a92-4a11-ae27-fc3a894b178e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель для купания Baby Dove для чувствительной кожи 200мл",
+   "barcode": "8710908657122",
+   "qty": 3,
+   "price": 38103.75,
+   "status": "aktiv",
+   "sku": "50269",
+   "id": "99c81caa-7909-4133-9dc1-522283285e36",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель Чистая линия для интимной гигиены 250мл",
+   "barcode": "8714100844373",
+   "qty": 3,
+   "price": 18800,
+   "status": "aktiv",
+   "sku": "48366",
+   "id": "91f37a6e-dca0-43d4-957b-2eec9d804c01",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники Libero 4 Comfort 7-11кг 80шт",
+   "barcode": "7322541756820",
+   "qty": 3,
+   "price": 270300,
+   "status": "aktiv",
+   "sku": "35743",
+   "id": "7428b13a-abf7-4149-b544-f68c9f368840",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель для рта Лесной Бальзам Total с Морской солью 400мл",
+   "barcode": "8720182994721",
+   "qty": 3,
+   "price": 30200,
+   "status": "aktiv",
+   "sku": "48369",
+   "id": "595243ba-1fa8-4478-a52c-bfe348e6836f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь-Бальзам для волос Чистая Линия шелковистые локоны 400мл",
+   "barcode": "8720633005631",
+   "qty": 3,
+   "price": 20060,
+   "status": "aktiv",
+   "sku": "48368",
+   "id": "3251f978-75d9-4c6a-bd56-d5f3a9d1654d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ополаскиватель для полости рта Лесной бальзам Total Таежные ягоды 400мл",
+   "barcode": "8720633008274",
+   "qty": 3,
+   "price": 30200,
+   "status": "aktiv",
+   "sku": "48376",
+   "id": "30872299-a2c1-4c1a-9953-975132cd973a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетки Zewa Deluxe Aroma Collection 3сл 60шт",
+   "barcode": "7322541095417",
+   "qty": 3,
+   "price": 22998.67,
+   "status": "aktiv",
+   "sku": "38673",
+   "id": "2b36674d-7b97-4cfc-adfe-50510a06fccf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гель для душа Camay Вишня и Миндальное молочко 400мл",
+   "barcode": "4605922032847",
+   "qty": 3,
+   "price": 35278,
+   "status": "aktiv",
+   "sku": "9325",
+   "id": "07af2725-da2f-4c9a-9b41-a956b592bf03",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 31942797.740000006,
+ "source": "watch"
+}
