@@ -1,0 +1,239 @@
+{
+ "createdAt": "2026-09-08T10:49:42.051Z",
+ "srcFile": "-5325144796_1845_Счет-фактура-с-НДС(07.09.2026+19_06_19).xlsx",
+ "supplierId": "ffd225da-452a-4dba-911c-7ec809474abd",
+ "supplierLabel": "Green Line Trading (roshen)",
+ "items": [
+  {
+   "name": "Pechenye Roshen Butter Cookies Yog'li Klassik 140gr",
+   "barcode": "4823077648106",
+   "qty": 84,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "51758",
+   "id": "5e86374e-5f6e-42b6-abe5-79949e18f43b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Butter Cookies Cocoa 140gr",
+   "barcode": "4823077648113",
+   "qty": 60,
+   "price": 12416,
+   "status": "aktiv",
+   "sku": "51756",
+   "id": "e2c93788-b551-4115-bfca-f3b7d8dd67b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen esmeralda biskiviti 150gr",
+   "barcode": "4823077633348",
+   "qty": 16,
+   "price": 9700,
+   "status": "aktiv",
+   "sku": "20291",
+   "id": "4b8e6f04-f2fd-4144-a63f-a815b1fa5dcc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Lovita Jelly Olcha 420gr",
+   "barcode": "4823077636059",
+   "qty": 21,
+   "price": 25608,
+   "status": "aktiv",
+   "sku": "14304",
+   "id": "ed104ffb-4131-474e-ab23-f1e603afb018",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Roshen Orange Lovita 420gr",
+   "barcode": "4823077636110",
+   "qty": 14,
+   "price": 25608,
+   "status": "aktiv",
+   "sku": "14305",
+   "id": "7f8064c4-ec7f-4cc2-a991-65571b9ba68b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen Lovita qulupnayli pechenyesi 420gr",
+   "barcode": "4823077636073",
+   "qty": 14,
+   "price": 25608,
+   "status": "aktiv",
+   "sku": "14306",
+   "id": "261d431a-115b-4089-9c5b-bd8978f26620",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen Wafers kakao-sutli vaflisi 216gr",
+   "barcode": "4823077632112",
+   "qty": 16,
+   "price": 12028,
+   "status": "aktiv",
+   "sku": "2876387",
+   "id": "60a06e61-6387-400c-8d65-3f1a4e193ee4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen Wafers sutli vaflisi 216gr",
+   "barcode": "4823077625589",
+   "qty": 32,
+   "price": 12028,
+   "status": "aktiv",
+   "sku": "23164",
+   "id": "27227676-c4e5-40a1-8809-f642cfa28972",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vafli Roshen kokos va bodom 216gr",
+   "barcode": "4823077640988",
+   "qty": 32,
+   "price": 12028,
+   "status": "aktiv",
+   "sku": "39384",
+   "id": "6da106aa-1a2e-4f22-833c-4fc49744e4da",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen marmelad konfeti 1kg",
+   "barcode": "4823077605215",
+   "qty": 20,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "16686",
+   "id": "3b8a6dd1-9667-4753-ac9b-f11502d227b7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Barbaris 1kg",
+   "barcode": "4823077607493",
+   "qty": 24,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "4800",
+   "id": "61b8fc91-0a66-4da0-a51c-0894e686f5cd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen Dyushes so'rg'ichlari 1kg",
+   "barcode": "4823077607530",
+   "qty": 8,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "4801",
+   "id": "fafe3143-2928-42fc-b38d-5b89d898d46b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Карамель Roshen Juice mix 1кг",
+   "barcode": "4823077604317",
+   "qty": 8,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "16707",
+   "id": "577eca83-f320-4fba-8350-e8ded9cddf25",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Sitrus Miks 1kg",
+   "barcode": "4823077604331",
+   "qty": 14,
+   "price": 36375,
+   "status": "aktiv",
+   "sku": "4939",
+   "id": "f5089495-2a61-4db9-8493-c459d8421d85",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen ''Шипучка'' 1kg",
+   "barcode": "4823077641831",
+   "qty": 14,
+   "price": 43650,
+   "status": "aktiv",
+   "sku": "42983",
+   "id": "ab5436b4-4d1e-4fae-9e3e-9f394ad0560b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Butter Milk 1kg",
+   "barcode": "4823077628054",
+   "qty": 32,
+   "price": 46075,
+   "status": "aktiv",
+   "sku": "16698",
+   "id": "bc9c8ffb-f1ac-4ed7-b965-c9ba46660c7e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Карамельные леденцы Roshen с коктейльными вкусами 920гр",
+   "barcode": "4823077630743",
+   "qty": 8.28,
+   "price": 46075,
+   "status": "aktiv",
+   "sku": "21988",
+   "id": "bd23f1c2-9fa2-4cbc-8359-7cc4d199563e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen Lollipops karameli lolipoplari 920gr",
+   "barcode": "4823077630736",
+   "qty": 8.28,
+   "price": 46075,
+   "status": "aktiv",
+   "sku": "21987",
+   "id": "5f2334c9-4509-4de5-9ff6-cd30130845ac",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Roshen yogurtli konfetlari 1kg",
+   "barcode": "4823077627200",
+   "qty": 32,
+   "price": 46075,
+   "status": "aktiv",
+   "sku": "16699",
+   "id": "65fe90c8-809a-4b8c-962b-72f62899b558",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Batoncha Roshen Double Peanuts  Araxis 39gr",
+   "barcode": "4823077639852",
+   "qty": 120,
+   "price": 5044,
+   "status": "aktiv",
+   "sku": "8709",
+   "id": "ba890b87-8740-4ef4-994a-406658234db4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Qora Shokolad 154gr",
+   "barcode": "4823077611940",
+   "qty": 16,
+   "price": 34920,
+   "status": "aktiv",
+   "sku": "16668",
+   "id": "1185436b-f6fd-4c6c-82bb-34d3e024dfbb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Assortiment 145gr",
+   "barcode": "4823077611933",
+   "qty": 16,
+   "price": 34920,
+   "status": "aktiv",
+   "sku": "16667",
+   "id": "7498c7e3-6cdd-4857-b741-3ed1f0a67f9b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Konfet Roshen Shokolad 145gr",
+   "barcode": "4823077625879",
+   "qty": 16,
+   "price": 34920,
+   "status": "aktiv",
+   "sku": "16666",
+   "id": "fa301760-453c-4fee-b0b0-7ff2475fa9b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 15469948
+}
