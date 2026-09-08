@@ -1,0 +1,69 @@
+{
+ "createdAt": "2026-09-08T04:47:07.725Z",
+ "srcFile": "-5325144796_1805_TIIN OPTOM 2.xlsx",
+ "supplierId": "2c8d418e-2f72-45be-aa46-eef6b05a1ec5",
+ "supplierLabel": "Yana medikal (milo)",
+ "items": [
+  {
+   "name": "Мыло Lu'sob For Man 100гр",
+   "barcode": "8809055047839",
+   "qty": 15,
+   "price": 21960,
+   "status": "aktiv",
+   "sku": "50785",
+   "id": "57e24f0c-13e3-4fbc-90e0-0198da5b61de",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovun Lu'sob lavender 100gr",
+   "barcode": "8809055042179",
+   "qty": 30,
+   "price": 16400,
+   "status": "aktiv",
+   "sku": "20952",
+   "id": "3ebce71e-4448-4c0b-b0a6-97dc03e447ca",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Lusob Whitening Soup sovuni 100gr",
+   "barcode": "8809055047419",
+   "qty": 30,
+   "price": 21960,
+   "status": "aktiv",
+   "sku": "39042",
+   "id": "b2ab17e8-9610-4c88-917b-123f3799664b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло Lu'sob 3D Premium 4шт к/у",
+   "barcode": "8809055047860",
+   "qty": 5,
+   "price": 75610,
+   "status": "aktiv",
+   "sku": "50786",
+   "id": "0ff45904-9ddd-4a30-9809-407914b042b3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovun Lu'sob k.Zaytun 100gr",
+   "barcode": "8809055042209",
+   "qty": 30,
+   "price": 16400,
+   "status": "aktiv",
+   "sku": "2126",
+   "id": "09900fad-1c7d-4546-8511-b0b41c24ccb2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло Lu'sob Charcoal Защита Кожи 100гр",
+   "barcode": "8809055042117",
+   "qty": 10,
+   "price": 19800,
+   "status": "aktiv",
+   "sku": "39044",
+   "id": "a988991f-7caf-4e19-b13c-8fe8ff789ffc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 2548250
+}
