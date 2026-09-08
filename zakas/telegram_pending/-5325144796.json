@@ -1,0 +1,479 @@
+{
+ "createdAt": "2026-09-08T08:06:03.941Z",
+ "srcFile": "-5325144796_1820_Накладная+2012(08.09.2026+12_49_08).xlsx",
+ "supplierId": "3781ac76-b942-4cd8-b98a-af43a9b92765",
+ "supplierLabel": "''COSMO WORLD'' MCHJ",
+ "items": [
+  {
+   "name": "Солнцезащитный крем Dr.Heal Sun cream with Vitamin E SPF80 150мл",
+   "barcode": "4620149644819",
+   "qty": 14,
+   "price": 30912,
+   "status": "aktiv",
+   "sku": "30259",
+   "id": "4c405e68-a252-4bd8-85ed-b9d3c2a85523",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло Dr.Rashel Интимное 100гр",
+   "barcode": "6926503418194",
+   "qty": 6,
+   "price": 21888,
+   "status": "aktiv",
+   "sku": "49133",
+   "id": "5cfad48b-eebe-41e0-9a4b-935fbde1c562",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло Dr.Rashel Интимное 100гр",
+   "barcode": "6926503418200",
+   "qty": 6,
+   "price": 21888,
+   "status": "aktiv",
+   "sku": "49133",
+   "id": "5cfad48b-eebe-41e0-9a4b-935fbde1c562",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло Dr.Rashel Интимное 100гр",
+   "barcode": "6926503418187",
+   "qty": 6,
+   "price": 21888,
+   "status": "aktiv",
+   "sku": "49133",
+   "id": "5cfad48b-eebe-41e0-9a4b-935fbde1c562",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Маска для лица Dr. Rashel Отшелушивающая 120мл",
+   "barcode": "6971764150864",
+   "qty": 6,
+   "price": 23328,
+   "status": "aktiv",
+   "sku": "8675",
+   "id": "a6b915ea-1a64-4d44-a013-fc72bd40c0af",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Отшелушивающая маска с бамбуковым углем Collagen & charcoals peel off mask 100мл",
+   "barcode": "6948996211571",
+   "qty": 6,
+   "price": 22560,
+   "status": "aktiv",
+   "sku": "49707",
+   "id": "3f758c86-9df6-4dd0-8810-eb6e043a1801",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем Dr. Rashel для тела отбеливающий Black Whitening Cream 100мл",
+   "barcode": "6971764150970",
+   "qty": 6,
+   "price": 18912,
+   "status": "aktiv",
+   "sku": "18214",
+   "id": "00942a79-f422-4975-b56b-44a2cfb723f4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Очищающий мусс Dr.Rashel с витамином С 125мл",
+   "barcode": "6971764151465",
+   "qty": 6,
+   "price": 33504,
+   "status": "aktiv",
+   "sku": "18098",
+   "id": "b2180ffb-e454-4cba-a368-faa6ee60a2a7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мусс для лица Dr.Rashel Hyaluronic Acid Очищаючий 125 мл",
+   "barcode": "6971764151533",
+   "qty": 6,
+   "price": 33504,
+   "status": "aktiv",
+   "sku": "18097",
+   "id": "46b547f6-0e07-45a7-a134-498677bfa0d1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Estelin yuz uchun niqob 25gr",
+   "barcode": "6971764151557",
+   "qty": 5,
+   "price": 7296,
+   "status": "aktiv",
+   "sku": "49134",
+   "id": "d7f5d4d2-ffc7-4cf3-b69c-fc40b46ddb25",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мусс для лица Dr.Rashel Collagen Essence Cleansing Mousse 120мл",
+   "barcode": "6971764151588",
+   "qty": 6,
+   "price": 33504,
+   "status": "aktiv",
+   "sku": "18298",
+   "id": "ac7a8a8c-4a00-41fa-b279-cfb6d5a77644",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Estelin yuz uchun niqob 25gr",
+   "barcode": "6971764151618",
+   "qty": 5,
+   "price": 7296,
+   "status": "aktiv",
+   "sku": "49134",
+   "id": "d7f5d4d2-ffc7-4cf3-b69c-fc40b46ddb25",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Estelin yuz uchun niqob 25gr",
+   "barcode": "6971764151670",
+   "qty": 5,
+   "price": 7296,
+   "status": "aktiv",
+   "sku": "49134",
+   "id": "d7f5d4d2-ffc7-4cf3-b69c-fc40b46ddb25",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154817",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154824",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154831",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154848",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154855",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bombochka Dr. Rashel Bath",
+   "barcode": "6971764154862",
+   "qty": 12,
+   "price": 17856,
+   "status": "aktiv",
+   "sku": "49016",
+   "id": "d58f0367-f34a-4410-b9d7-7e5f0dfc2ec6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Маска для глаз Dr.Rashel 24K Gold Collagen Hydrogel 60шт",
+   "barcode": "6971764155432",
+   "qty": 3,
+   "price": 34944,
+   "status": "aktiv",
+   "sku": "8682",
+   "id": "bee98862-f177-4e7c-9a5f-c4f5a020f942",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гидрогелевые патчи для глаз Dr.Rashel Vitamin C",
+   "barcode": "6971764155456",
+   "qty": 3,
+   "price": 34944,
+   "status": "aktiv",
+   "sku": "50733",
+   "id": "6be4b692-f8ac-4f91-a1db-eeff978218fc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Ko'z Uchun Dr.Rashel HA Gidrogelli Namlantiruvchi 60d",
+   "barcode": "6971764155463",
+   "qty": 3,
+   "price": 34944,
+   "status": "aktiv",
+   "sku": "8684",
+   "id": "06757c5a-27eb-4bf1-b13c-6c7d7c850171",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь-краска для волос Dr.Rashel Collagen & Argan oil hair color shampoo Dark brown 400мл",
+   "barcode": "6971764155777",
+   "qty": 12,
+   "price": 49440,
+   "status": "aktiv",
+   "sku": "46370",
+   "id": "bb4893e6-28c1-43ef-832e-78df09536718",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dr.Rashel шампунь и краска для волос с коллагеном 25мл",
+   "barcode": "6971764155807",
+   "qty": 12,
+   "price": 24768,
+   "status": "aktiv",
+   "sku": "48936",
+   "id": "11249362-7c4f-4589-b0ca-9cd691563224",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dr.Rashel yuz uchun niqobi",
+   "barcode": "6971764155937",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "49137",
+   "id": "f7cccf64-3ae5-412c-9ce1-14af8cebdf09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dr.Rashel yuz uchun niqobi",
+   "barcode": "6971764155944",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "49137",
+   "id": "f7cccf64-3ae5-412c-9ce1-14af8cebdf09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dr.Rashel yuz uchun niqobi",
+   "barcode": "6971764155951",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "49137",
+   "id": "f7cccf64-3ae5-412c-9ce1-14af8cebdf09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dr.Rashel yuz uchun niqobi",
+   "barcode": "6971764155968",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "49137",
+   "id": "f7cccf64-3ae5-412c-9ce1-14af8cebdf09",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Dr.Rashel Vitamin C Brightening & Anti-Aging 28gr",
+   "barcode": "6971764156637",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "50968",
+   "id": "9ab4ba75-fb65-47fd-bbfd-11b18adc77da",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Estelin qarishga qarshi yuz niqobi 25gr",
+   "barcode": "6971764153056",
+   "qty": 5,
+   "price": 7968,
+   "status": "aktiv",
+   "sku": "45563",
+   "id": "9bbd861e-83b2-40c5-9f33-ad17cb0d7031",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun 10D Hyaluronic Acid &Vitamin B5 Hydrating Mask 25gr",
+   "barcode": "6971764159294",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52406",
+   "id": "78cc81e1-6c78-4f4a-9cbf-6a58ed156cae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun 3X Vitamin C & Arbutin 25gr",
+   "barcode": "6971764159300",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52411",
+   "id": "694cc6c6-175f-4fa3-b6ca-a1200f430a41",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Niacinamide & Glutathione Whitening 25gr",
+   "barcode": "6971764159317",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52412",
+   "id": "618e1e32-21ff-4d3a-8a22-cd64264a62e2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun 5X Ceramide & Asiaticum Repairing Mask 25gr",
+   "barcode": "6971764159324",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52418",
+   "id": "7eb8619e-091b-4a7c-b72b-46f6fdc7b205",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Retinol & Multi Peptide Youth Renewal 25gr",
+   "barcode": "6971764159331",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52419",
+   "id": "c7e45162-3251-422e-855a-3f5884870f80",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Collagen & Caviar Extra-Firming 25gr",
+   "barcode": "6971764159348",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52420",
+   "id": "6fcf65f8-6c84-4fa7-95a2-64b0e88cadc2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Yuz Uchun Niqob Tea Tree & Aloe Vera Soothing 25gr",
+   "barcode": "6971764159379",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "52425",
+   "id": "2d8d2fe0-177a-4150-b9a1-bb1ac991bfb1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Rice & Wheat Glowing Mask 25ml",
+   "barcode": "6971764159386",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "51761",
+   "id": "97b78944-8a95-46df-96c1-4b0078ef6f49",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Bamboo Charcoal & Lactose Acid Deep Cleaning 25ml",
+   "barcode": "6971764159393",
+   "qty": 5,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "51762",
+   "id": "6feb6bb0-76fe-4255-9c05-3472f92ef7b4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Niqob Yuz Uchun Grape Seed & Hyaluronic Acid Antioxidant 25ml",
+   "barcode": "6971764159409",
+   "qty": 10,
+   "price": 6816,
+   "status": "aktiv",
+   "sku": "51763",
+   "id": "3b732341-c458-474b-a92f-08b8dbde7a2e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Прелесть Extra Fresh Professional 200ml",
+   "barcode": "4600104036125",
+   "qty": 12,
+   "price": 40300,
+   "status": "aktiv",
+   "sku": "24634",
+   "id": "c4322e66-f90b-4705-a886-043577fa33d8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Quruq Shampun Прелесть Volume Lift Professional 200ml",
+   "barcode": "4600104036118",
+   "qty": 12,
+   "price": 38688,
+   "status": "aktiv",
+   "sku": "24635",
+   "id": "e33f8764-d80b-4972-b9d6-40ee82905926",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шампунь сухой ПРЕЛЕСТЬ Professional Invisiwear 200мл",
+   "barcode": "4600104040702",
+   "qty": 12,
+   "price": 39424,
+   "status": "aktiv",
+   "sku": "11981",
+   "id": "06085659-024f-4b72-a688-0c69471a8132",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сухой Шампунь Прелесть Professional Inviswear 200мл",
+   "barcode": "4600104039980",
+   "qty": 12,
+   "price": 39424,
+   "status": "aktiv",
+   "sku": "2878054",
+   "id": "78916a14-ca42-478b-bdf7-70a8da7ecd33",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Лак для волос Прелесть Ultra Power 300мл",
+   "barcode": "4600104032530",
+   "qty": 6,
+   "price": 40224,
+   "status": "aktiv",
+   "sku": "23034",
+   "id": "8696d47e-3a64-45c3-bef0-9215446a5bf5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Лак для волос Прелесть Эффект памяти 300мл",
+   "barcode": "4600104027130",
+   "qty": 6,
+   "price": 40224,
+   "status": "aktiv",
+   "sku": "22994",
+   "id": "75dbbacf-da79-41a9-989a-0f21e5d47bd2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мусс для волос Прелесть Professional Объем СФ 200мл",
+   "barcode": "4600104028700",
+   "qty": 5,
+   "price": 33100,
+   "status": "aktiv",
+   "sku": "28203",
+   "id": "e22d393a-909d-4662-a2af-da5872143da8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 8190092
+}
