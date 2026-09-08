@@ -359,4 +359,12 @@ async function main() {
   throw new Error(`Noma'lum --kind: ${kind}`);
 }
 
-main().catch(e => { console.error('XATOLIK:', e.message); process.exit(1); });
+// `watch_agent.js` orqali `sales_runtime.js` (brauzer uchun yozilgan fayl)
+// yuklanadi - u top-levelda bir nechta setInterval (fon-yangilanish, auth
+// tekshiruvi va h.k.) ishga tushiradi. Bular Node'ning event loop'ini
+// ABADIY band qilib turadi - muvaffaqiyatli tugagandan keyin ham process
+// o'zi to'xtamay, GitHub Actions'ning 15 daqiqalik job chegarasigacha
+// "osilib" qolar edi (2026-09-08 aniqlandi: bitta faylni ochish ~1 daqiqa
+// olgan bo'lsa-da, keyingi run navbatga tiqilib, soatlab kutdirgan edi).
+// process.exit() aniq chaqirilishi shart - ishi tugagach darhol chiqadi.
+main().then(() => process.exit(0)).catch(e => { console.error('XATOLIK:', e.message); process.exit(1); });
