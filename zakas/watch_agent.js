@@ -69,8 +69,24 @@ _installDomStubs();
 const path = require('path');
 const RT = require(path.join(__dirname, '..', 'sales_runtime.js'));
 
+// Node fetch'ida standart timeout yo'q - tarmoq/server javob bermay qolsa
+// so'rov ABADIY osilib qoladi (2026-09-07, telegram_zakas.yml runlari shu
+// sabab 15 daqiqalik job chegarasigacha "osilib" qolgan edi, order_agent.js
+// bilan bir xil tuzatish).
+const API_TIMEOUT_MS = 20000;
+async function fetchTimeout(url, opts) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  catch (e) {
+    if (e.name === 'AbortError') throw new Error(`So'rov ${API_TIMEOUT_MS / 1000}s ichida javob bermadi (timeout): ${url}`);
+    throw e;
+  }
+  finally { clearTimeout(t); }
+}
+
 async function fetchJson(url) {
-  const r = await fetch(url, { cache: 'no-store' });
+  const r = await fetchTimeout(url, { cache: 'no-store' });
   if (!r.ok) throw new Error(`${url} -> HTTP ${r.status}`);
   return r.json();
 }
@@ -143,20 +159,22 @@ async function watchGet(action, params) {
   return d;
 }
 async function watchPost(body) {
-  const r = await fetch(WATCH_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const r = await fetchTimeout(WATCH_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const d = await r.json().catch(() => ({}));
   if (!d.ok) throw new Error(d.error || 'zakas-watch POST xato');
   return d;
 }
 
 // ── Telegram (tgCall/sendMessage - telegram_bot_runner.js bilan bir xil naqsh) ──
+// ALOHIDA "Zakas kuzatuvchi" boti (@zakas_controller_bot) - Excel yuklaydigan
+// eski bot bilan ARALASHTIRILMAYDI (foydalanuvchi so'rovi, 2026-09-05).
 function botToken() {
-  const t = process.env.TELEGRAM_BOT_TOKEN;
-  if (!t) throw new Error('TELEGRAM_BOT_TOKEN o\'rnatilmagan');
+  const t = process.env.TELEGRAM_ZAKAS_BOT_TOKEN;
+  if (!t) throw new Error('TELEGRAM_ZAKAS_BOT_TOKEN o\'rnatilmagan');
   return t;
 }
 async function tgCall(method, body) {
-  const r = await fetch(`https://api.telegram.org/bot${botToken()}/${method}`, {
+  const r = await fetchTimeout(`https://api.telegram.org/bot${botToken()}/${method}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}),
   });
   const data = await r.json().catch(() => ({}));

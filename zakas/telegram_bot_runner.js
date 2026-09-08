@@ -20,7 +20,7 @@ const fs = require('fs');
 const path = require('path');
 const {
   readOrderFile, lookupAll, priceHistoryIndex, guessSupplier,
-  createOrder, verifyOrder, writeProblemExcel, num, myToken,
+  createOrder, verifyOrder, writeProblemExcel, num, myToken, fetchTimeout,
 } = require('./order_agent.js');
 const { buildSupplierOrder } = require('./watch_agent.js');
 
@@ -37,14 +37,26 @@ function arg(name) {
   return i > 0 ? process.argv[i + 1] : '';
 }
 
+// Ikki bot bor: eski (Excel yuklaydigan) va yangi ("Zakas kuzatuvchi",
+// @zakas_controller_bot) - foydalanuvchi so'rovi bilan ATAYLAB ARALASHTIRILMAGAN
+// (2026-09-05). Bu skript ikkalasiga ham xizmat qiladi (bitta workflow,
+// telegram_zakas.yml) - qaysi javob qaysi botdan ketishi kerakligini
+// pending holatidagi "source" maydonidan (yoki to'g'ridan-to'g'ri --kind
+// pick_supplier bo'lsa) biladi.
+let _useZakasBot = false;
 function botToken() {
+  if (_useZakasBot) {
+    const t = process.env.TELEGRAM_ZAKAS_BOT_TOKEN;
+    if (!t) throw new Error('TELEGRAM_ZAKAS_BOT_TOKEN o\'rnatilmagan');
+    return t;
+  }
   const t = process.env.TELEGRAM_BOT_TOKEN;
   if (!t) throw new Error('TELEGRAM_BOT_TOKEN o\'rnatilmagan');
   return t;
 }
 
 async function tgCall(method, body) {
-  const r = await fetch(`https://api.telegram.org/bot${botToken()}/${method}`, {
+  const r = await fetchTimeout(`https://api.telegram.org/bot${botToken()}/${method}`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}),
   });
   const data = await r.json().catch(() => ({}));
@@ -65,7 +77,7 @@ async function sendDocument(chatId, buf, filename, caption) {
   fd.append('chat_id', String(chatId));
   if (caption) fd.append('caption', caption);
   fd.append('document', new Blob([buf], { type: MIME[ext] || 'application/octet-stream' }), filename);
-  const r = await fetch(`https://api.telegram.org/bot${botToken()}/sendDocument`, { method: 'POST', body: fd });
+  const r = await fetchTimeout(`https://api.telegram.org/bot${botToken()}/sendDocument`, { method: 'POST', body: fd });
   const data = await r.json().catch(() => ({}));
   if (!data.ok) throw new Error(`Telegram sendDocument -> ${JSON.stringify(data).slice(0, 300)}`);
   return data.result;
@@ -79,7 +91,7 @@ function invanToken() {
 }
 
 async function getOrderPdfLink(orderId) {
-  const r = await fetch(`${API_V1}/supplier_order_pdf/${orderId}`, {
+  const r = await fetchTimeout(`${API_V1}/supplier_order_pdf/${orderId}`, {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + invanToken(), 'Content-Type': 'application/json', Timezone: '300' },
     body: '{}',
@@ -209,6 +221,7 @@ async function handleNewFileInner(chatId, src) {
 // Miqdorlar watch_agent.js'dan (sales_runtime.js'dagi haqiqiy zakas hisobi,
 // qayta yozilmagan) keladi - bu yerda faqat Invan bilan solishtirish bor.
 async function handlePickSupplier(chatId, supplier, days) {
+  _useZakasBot = true;
   await sendMessage(chatId, `🔎 ${supplier} uchun ${days} kunlik zakas hisoblanyapti, Invan'da tekshiryapman...`);
 
   const supplierId = SUPPLIER_MAP[supplier];
@@ -262,6 +275,7 @@ async function handlePickSupplier(chatId, supplier, days) {
       srcFile: `${supplier} (${days} kunlik zakas)`,
       supplierId, supplierLabel: supplier,
       items: ok, fileTotal,
+      source: 'watch',
     });
     await sendMessage(chatId, lines.join('\n'));
   }
@@ -283,6 +297,7 @@ async function handleConfirm(chatId) {
     await sendMessage(chatId, 'Hozir tasdiqlash kutilayotgan buyurtma yo\'q — avval Excel fayl tashlang.');
     return;
   }
+  if (pending.source === 'watch') _useZakasBot = true;
   await sendMessage(chatId, '⏳ Invan\'da buyurtma yaratyapman...');
 
   const g = { aktiv: pending.items, noaktiv: [] };
@@ -311,7 +326,7 @@ async function handleConfirm(chatId) {
 
   try {
     const link = await getOrderPdfLink(created.orderId);
-    const pdf = await fetch(link).then(r => r.arrayBuffer());
+    const pdf = await fetchTimeout(link).then(r => r.arrayBuffer());
     await sendDocument(chatId, Buffer.from(pdf), `PO${created.po || created.orderId}.pdf`, pending.supplierLabel);
   } catch (e) {
     await sendMessage(chatId, `⚠️ PDF yuborib bo'lmadi: ${e.message} (buyurtma o'zi yaratildi, Invan'dan qo'lda oling)`);
@@ -322,6 +337,7 @@ async function handleConfirm(chatId) {
 
 async function handleCancel(chatId) {
   const pending = readPending(chatId);
+  if (pending && pending.source === 'watch') _useZakasBot = true;
   clearPending(chatId);
   await sendMessage(chatId, pending ? '❌ Bekor qilindi.' : 'Hozir bekor qiladigan narsa yo\'q edi.');
 }

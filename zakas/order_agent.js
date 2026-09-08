@@ -122,10 +122,28 @@ async function doLogin(phoneRaw, password) {
   console.log(`   Token saqlandi: ${path.relative(ROOT, MY_TOKEN_PATH)} (git'ga tushmaydi)`);
 }
 
+// Node'ning built-in fetch'ida standart timeout YO'Q - Invan biror so'rovga
+// javob bermay tursa (tarmoq/server muammosi), va'da ABADIY osilib qoladi.
+// GitHub Actions'da bu butun workflow'ni 15 daqiqalik job chegarasigacha
+// to'xtatib qo'yadi, concurrency navbatini butunlay tiqib qo'yadi (2026-09-07,
+// Telegram zakas boti soatlab "sekin" ishlagandek ko'ringan haqiqiy sabab shu
+// edi). 20 soniyalik chegara - muammo bo'lsa tezda xato beriladi, abadiy emas.
+const API_TIMEOUT_MS = 20000;
+async function fetchTimeout(url, opts) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  catch (e) {
+    if (e.name === 'AbortError') throw new Error(`So'rov ${API_TIMEOUT_MS / 1000}s ichida javob bermadi (timeout): ${url}`);
+    throw e;
+  }
+  finally { clearTimeout(t); }
+}
+
 async function apiPost(url, { params, body, token: tok } = {}) {
   const u = new URL(url);
   for (const [k, v] of Object.entries(params || {})) u.searchParams.set(k, v);
-  const r = await fetch(u, { method: 'POST', headers: H(tok), body: JSON.stringify(body || {}) });
+  const r = await fetchTimeout(u, { method: 'POST', headers: H(tok), body: JSON.stringify(body || {}) });
   const text = await r.text();
   let parsed; try { parsed = JSON.parse(text); } catch { parsed = text; }
   if (!r.ok) {
@@ -157,8 +175,13 @@ async function readOrderFile(src) {
 function columnReport(hdr) {
   const p = hdr.pick;
   console.log('  Ustunlar — nomi: ' + p.name + ' | shtrix: ' + (p.barcode || '(yo\'q)'));
-  console.log('             soni: ' + p.qty + ' | narx: ' + p.price.join('  →  '));
+  const narxLabel = p.price.length ? p.price.join('  →  ')
+    : p.finalSum ? p.finalSum + ' (jami summa/soni)'
+    : p.sumOnly ? p.sumOnly + ' (jami summa/soni)'
+    : '(fayl narxsiz — Invan oxirgi kirim narxidan taxminiy to\'ldiriladi)';
+  console.log('             soni: ' + p.qty + ' | narx: ' + narxLabel);
   if (p.price.length > 1) console.log('             (bir necha narx ustuni — har qatorda eng o\'ngdagi to\'ldirilgani olinadi, ya\'ni aksiya narxi ustun)');
+  if (p.finalSum) console.log('             💡 "' + p.finalSum + '" (chegirmali yakuniy summa) topildi — narx shundan (summa/soni) hisoblanadi, "' + p.price.join(', ') + '" ustuni chegirmagacha bo\'lgan narx sifatida e\'tiborga OLINMAYDI.');
   if (p.qtyOther.length) console.log('             ⚠️  soni uchun boshqa nomzod ham bor edi: ' + p.qtyOther.join(', '));
   if (p.ambiguousQty) console.log('             ⚠️  SONI ustuni TAXMINIY tanlandi — pastdagi summa tekshiruvini albatta ko\'ring!');
   if (p.ambiguousName) console.log('             ⚠️  NOM ustuni taxminiy tanlandi.');
@@ -214,6 +237,22 @@ function priceHistoryIndex() {
   const bySku = new Map();
   for (const [sku, v] of Object.entries(skus)) bySku.set(String(sku), v);
   return bySku;
+}
+
+// Narx manbada yo'q pozitsiyalarni Invan'dagi oxirgi kirim narxi bilan taxminiy
+// to'ldiradi. Ilgari faqat rasmdan qo'lda kiritilgan --items-json uchun kerak edi
+// (rasmda narx bo'lmaydi); 2026-09-05 "tiiin avto zakas.xlsx"da narx ustuni
+// UMUMAN yo'q Excel fayl ham uchradi, shuning uchun umumiy funksiyaga chiqarildi.
+async function fillMissingPrices(items) {
+  const hist = priceHistoryIndex();
+  for (const it of items) {
+    if (it.price == null) {
+      const look = await lookupBarcode(it.barcode);
+      const h = look.sku && hist ? hist.get(String(look.sku)) : null;
+      it.price = h && h.last_cost ? h.last_cost : 0;
+      it.priceGuessed = true;
+    }
+  }
 }
 
 // Ta'minotchini FAYLDAN emas, TOVARLARDAN aniqlaydi: fayldagi tovarlar ilgari
@@ -523,21 +562,8 @@ async function main() {
     src = path.isAbsolute(itemsJsonArg) ? itemsJsonArg : path.join(__dirname, itemsJsonArg);
     const raw = JSON.parse(fs.readFileSync(src, 'utf8'));
     console.log('Manba (qo\'lda kiritilgan ro\'yxat):', path.basename(src), `— ${raw.length} ta tovar`);
-    const hist = priceHistoryIndex();
-    items = [];
-    for (const d of raw) {
-      let price = d.price, priceGuessed = false;
-      if (price == null) {
-        // Narx berilmagan - Invan'dan shtrix bo'yicha topib, o'sha SKU'ning
-        // oxirgi kirim narxini olamiz. Bu TAXMIN, real narx bilan farq qilishi
-        // mumkin - shuning uchun hisobotda alohida ogohlantiriladi.
-        const look = await lookupBarcode(d.barcode);
-        const h = look.sku && hist ? hist.get(String(look.sku)) : null;
-        price = h && h.last_cost ? h.last_cost : 0;
-        priceGuessed = true;
-      }
-      items.push({ name: d.name, barcode: d.barcode, qty: d.qty, price, priceGuessed });
-    }
+    items = raw.map(d => ({ name: d.name, barcode: d.barcode, qty: d.qty, price: d.price }));
+    await fillMissingPrices(items);
     fileTotalKnown = false; // manbada "jami" yo'q - summa tekshiruvi qilinmaydi
   } else {
     const fileArg = process.argv[2] && !process.argv[2].startsWith('--') ? process.argv[2] : null;
@@ -550,6 +576,10 @@ async function main() {
     console.log('Fayl:', path.basename(src));
     var parsed = await readOrderFile(src);
     items = parsed.data.map(d => ({ name: d.name, barcode: d.barcode, qty: d.qty, price: d.price }));
+    if (items.some(it => it.price == null)) {
+      await fillMissingPrices(items);
+      fileTotalKnown = false; // narx Invan'dan taxmin qilingani uchun fayl jamisi bilan solishtirish ma'nosiz
+    }
   }
 
   // Ta'minotchi faylidagi shtrix-kod xatosini tuzatish:
@@ -568,13 +598,12 @@ async function main() {
     if (n !== map.size) console.log(`  ⚠️  --fix-bc: ${map.size} ta juft berildi, ${n} tasi qo'llandi (qolganining shtrixi faylda topilmadi)`);
   }
   const fileTotal = items.reduce((a, x) => a + x.qty * x.price, 0);
-  if (itemsJsonArg) {
-    const guessedN = items.filter(it => it.priceGuessed).length;
-    if (guessedN) console.log(`  ⚠️  Manbada narx yo'q edi — ${guessedN} ta tovarga OXIRGI KIRIM narxi qo'llandi (taxminiy, real narx bilan farq qilishi mumkin).`);
-  } else {
+  if (!itemsJsonArg) {
     console.log(`Varaq "${parsed.sheet}" — ${items.length} ta tovar, soni yozilmagani uchun ${parsed.skippedNoQty} ta tashlandi.`);
     columnReport(parsed.hdr);
   }
+  const guessedN = items.filter(it => it.priceGuessed).length;
+  if (guessedN) console.log(`  ⚠️  ${itemsJsonArg ? 'Manbada' : 'Faylda'} narx yo'q edi — ${guessedN} ta tovarga OXIRGI KIRIM narxi qo'llandi (taxminiy, real narx bilan farq qilishi mumkin).`);
 
   console.log('\nInvan\'da tekshirilmoqda (shtrix-kod bo\'yicha, aktiv+noaktiv)...');
   const looks = await lookupAll(items);
@@ -592,6 +621,11 @@ async function main() {
   }
 
   const g = report(items, looks, fileTotal);
+  // --exclude-noaktiv: noaktiv tovarlar buyurtmaga QO'SHILMAYDI (faqat Invan'da
+  // aktivlashtirilgandan keyin alohida buyurtma qilinadi). Ular baribir yuqorida
+  // report() orqali ko'rsatildi va writeProblemExcel() gAll'dan (bu o'zgarishdan
+  // oldin) allaqachon yozilgan, shuning uchun "chiqmaganlar" faylida qoladi.
+  if (process.argv.includes('--exclude-noaktiv')) g.noaktiv = [];
   priceReport(g, hist);
   if (sup) {
     console.log(`\n  🏢 TA'MINOTCHI (tovarlarning oxirgi kirimidan aniqlandi):`);
@@ -668,7 +702,7 @@ async function main() {
 module.exports = {
   readOrderFile, lookupBarcode, lookupAll, priceHistoryIndex, guessSupplier,
   createOrder, verifyOrder, writeProblemExcel, monitor, findSuppliers,
-  num, statusName, isReturn, myToken,
+  num, statusName, isReturn, myToken, fetchTimeout,
 };
 
 if (require.main === module) {
