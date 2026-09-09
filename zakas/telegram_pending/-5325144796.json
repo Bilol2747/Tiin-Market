@@ -1,0 +1,59 @@
+{
+ "createdAt": "2026-09-09T05:32:28.521Z",
+ "srcFile": "-5325144796_1897_zakas_LAIT GRAS 1101 от 21.06.2022г_2026-09-07.xlsx",
+ "supplierId": "5d35b503-9286-4077-b017-2a7d7feb13e0",
+ "supplierLabel": "LAIT GRAS 1101 от 21.06.2022г",
+ "items": [
+  {
+   "name": "Gazsiz Suv Nestle 500ml",
+   "barcode": "4780100650102",
+   "qty": 600,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "746",
+   "id": "895398c3-7a11-40b0-863f-e2512a10a09c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Nestle 500ml",
+   "barcode": "4780100650010",
+   "qty": 180,
+   "price": 2500,
+   "status": "aktiv",
+   "sku": "747",
+   "id": "cfd9816c-0b41-4851-943c-6410b29eeedc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Nestle 1.5l",
+   "barcode": "4780100650027",
+   "qty": 120,
+   "price": 4167,
+   "status": "aktiv",
+   "sku": "986",
+   "id": "4dd99643-8e57-41a5-a00f-2660d7a6e06e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Nestle 1l",
+   "barcode": "4780100650430",
+   "qty": 120,
+   "price": 3333,
+   "status": "aktiv",
+   "sku": "877",
+   "id": "b24abef3-32d3-4e44-a027-65b6d8e22a13",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Nestle 1l",
+   "barcode": "4780100650454",
+   "qty": 120,
+   "price": 3333,
+   "status": "aktiv",
+   "sku": "876",
+   "id": "a87ed6c5-cd96-4172-8044-650e3f7c5c71",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 3249960
+}
