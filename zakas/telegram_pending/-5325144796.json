@@ -1,0 +1,179 @@
+{
+ "createdAt": "2026-09-09T05:17:16.994Z",
+ "srcFile": "-5325144796_1889_zakas_NATURAL JUICE MCHJ_2026-09-07.xlsx",
+ "supplierId": "afdb7f2f-204f-4245-a646-d69cc1c8acee",
+ "supplierLabel": "NATURAL JUICE MCHJ",
+ "items": [
+  {
+   "name": "Сочная Долина Olma  200ml",
+   "barcode": "4780032051176",
+   "qty": 810,
+   "price": 2580.32,
+   "status": "aktiv",
+   "sku": "34852",
+   "id": "c08e80d0-5ce4-426d-ac68-001d9bbece75",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Miks Meva 200ml",
+   "barcode": "4780032051220",
+   "qty": 420,
+   "price": 2580.32,
+   "status": "aktiv",
+   "sku": "34842",
+   "id": "6fc8326d-c2ca-4766-a729-33eb36593911",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долинa Qulupnay-Banan 200ml",
+   "barcode": "4780032052630",
+   "qty": 270,
+   "price": 2580.32,
+   "status": "aktiv",
+   "sku": "34300",
+   "id": "8c3a7579-ba13-41b7-9788-8f97682e665f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pro 100 Sok Olma 200ml",
+   "barcode": "4780032051107",
+   "qty": 270,
+   "price": 2245.25,
+   "status": "aktiv",
+   "sku": "47488",
+   "id": "dba75587-7daf-4350-9837-a59771d431ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Olma-Banan 200ml",
+   "barcode": "4780032052661",
+   "qty": 270,
+   "price": 2580.32,
+   "status": "aktiv",
+   "sku": "44072",
+   "id": "c4269de0-e965-4ee1-af36-505ece7aa3bf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Olma 125ml тетра пак",
+   "barcode": "4780032051770",
+   "qty": 200,
+   "price": 1475.73,
+   "status": "aktiv",
+   "sku": "34848",
+   "id": "29169a1c-ea14-44f7-a7f7-9e5eca1c4b5e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Shahtoli 125ml тетра пак",
+   "barcode": "4780032051794",
+   "qty": 200,
+   "price": 1475.73,
+   "status": "aktiv",
+   "sku": "9542",
+   "id": "5e9733ba-fea7-4d9c-9301-932d404ab959",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Olcha 125ml тетра пак",
+   "barcode": "4780032051787",
+   "qty": 200,
+   "price": 1475.73,
+   "status": "aktiv",
+   "sku": "52038",
+   "id": "073cbe8b-72e2-405d-9112-b9947c57eee5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Apelsin 1l",
+   "barcode": "4780032050322",
+   "qty": 120,
+   "price": 13255.05,
+   "status": "aktiv",
+   "sku": "26210",
+   "id": "f5a7840e-9236-4c96-adec-f72f6e49899f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sharbat Viko Olma пэт 250ml",
+   "barcode": "4780032053187",
+   "qty": 120,
+   "price": 4666.4,
+   "status": "aktiv",
+   "sku": "53415",
+   "id": "8742815a-4d88-489a-9b9e-9e4d73f6606e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Up Multifrukt 125ml тетра пак",
+   "barcode": "4780032051817",
+   "qty": 100,
+   "price": 1499.33,
+   "status": "aktiv",
+   "sku": "34845",
+   "id": "11e4f6f6-c7a8-413a-af43-e3d43a80e8e6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nektar Viko Ananas 250ml",
+   "barcode": "4780032053217",
+   "qty": 96,
+   "price": 4958.05,
+   "status": "aktiv",
+   "sku": "53412",
+   "id": "19a5b335-f323-4ac0-a638-30d0600d1637",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "VIKO Premium Apelsin 1l",
+   "barcode": "4780032050957",
+   "qty": 60,
+   "price": 17962,
+   "status": "aktiv",
+   "sku": "34849",
+   "id": "2d01d823-2785-4e54-8056-478aae94b358",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik MUZY Anor 450ml",
+   "barcode": "4780032052913",
+   "qty": 60,
+   "price": 6399.53,
+   "status": "aktiv",
+   "sku": "49903",
+   "id": "f4dd7edc-f4b2-4b7e-b059-dd452c2b6012",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nektar Viko Anor 250ml",
+   "barcode": "4780032053200",
+   "qty": 60,
+   "price": 5833,
+   "status": "aktiv",
+   "sku": "53414",
+   "id": "0ca728a8-c2f9-4319-96e0-c5dd22198576",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Банан и Яблоко 1l",
+   "barcode": "4780032052685",
+   "qty": 36,
+   "price": 9802.8,
+   "status": "aktiv",
+   "sku": "42153",
+   "id": "603e5959-ce59-4682-9c17-24b4549867b9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сочная Долина Qora Smorodina 1l",
+   "barcode": "4780032050377",
+   "qty": 24,
+   "price": 10480.83,
+   "status": "aktiv",
+   "sku": "35463",
+   "id": "2ba2496d-e579-429c-96e4-5f7de2d3280b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 11251414.220000003
+}
