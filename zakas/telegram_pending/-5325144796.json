@@ -1,0 +1,49 @@
+{
+ "createdAt": "2026-09-09T05:00:22.174Z",
+ "srcFile": "-5325144796_1881_zakas_''AION_BEVERAGES''_MCHJ_№TA_2024_02_000032_от_06_02_2024_2026.xlsx",
+ "supplierId": "86c85eec-c21c-465c-bae7-abd5e21bda20",
+ "supplierLabel": "''AION BEVERAGES'' MCHJ (№TA-2024-02/000032 от 06.02.2024) (Gorilla)",
+ "items": [
+  {
+   "name": "Energetik Ichimlik Gorilla 450ml",
+   "barcode": "4870022003305",
+   "qty": 480,
+   "price": 9996,
+   "status": "aktiv",
+   "sku": "2625",
+   "id": "712a48a9-7d60-4b01-8b09-edd07625e8d3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Energetik Ichimlik Gorilla Mango-Kokos 450ml",
+   "barcode": "4870022003312",
+   "qty": 120,
+   "price": 9996,
+   "status": "aktiv",
+   "sku": "40985",
+   "id": "45e253b7-6227-4ac9-aef4-19738dcc7f1d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Energetik Ichimlik Gorilla Ultimate 450ml",
+   "barcode": "4870022003794",
+   "qty": 72,
+   "price": 9996,
+   "status": "aktiv",
+   "sku": "40986",
+   "id": "72592e63-b0e3-497d-84b3-260e12dad3a2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Energetik Ichimlik Gorilla Anor-Malina 450ml",
+   "barcode": "4870022003572",
+   "qty": 24,
+   "price": 9996,
+   "status": "aktiv",
+   "sku": "9284",
+   "id": "681e4115-07cc-4f48-a0f8-8d16b032365e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 6957216
+}
