@@ -1,0 +1,229 @@
+{
+ "createdAt": "2026-09-09T09:01:21.779Z",
+ "srcFile": "-5325144796_1920_Накладная-№3(2007)(08.09.2026+22_46_49).xlsx",
+ "supplierId": "bacb1c28-3052-42bb-a1b5-bfc08fab829e",
+ "supplierLabel": "CANDY MIX  MCHJ (Bolci Договор № 182 от 27.03.2025)",
+ "items": [
+  {
+   "name": "Shokolad To'plam Bolçi Butik Altın Spesiyal Çikolata Kutu 190g",
+   "barcode": "8684568300301",
+   "qty": 14,
+   "price": 145000,
+   "status": "aktiv",
+   "sku": "54675",
+   "id": "fe98d7cd-90c9-4e92-ab49-ec5945500d04",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Bolci Orange Floral 250gr",
+   "barcode": "8684568300424",
+   "qty": 12,
+   "price": 225000,
+   "status": "aktiv",
+   "sku": "53862",
+   "id": "8988a276-5fc0-40c4-8caf-002af0f0c0f4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Bolci BiMola Mix 210gr",
+   "barcode": "8697437855581",
+   "qty": 15,
+   "price": 150000,
+   "status": "aktiv",
+   "sku": "32732",
+   "id": "d71c0a35-6ccf-4817-92df-982f8d276593",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Sovg'a To'plam Bolci Miracle Red Box 308gr",
+   "barcode": "8697437859374",
+   "qty": 12,
+   "price": 205000,
+   "status": "aktiv",
+   "sku": "39502",
+   "id": "e0ea82e1-32b0-4ee9-a25b-aa3526e5aa06",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Bolci Pistachio Kadayif Filled Milk Chocolate 256gr",
+   "barcode": "8684568302244",
+   "qty": 20,
+   "price": 230000,
+   "status": "aktiv",
+   "sku": "50214",
+   "id": "c9be906e-6d68-493a-93f6-ea12efc83bc6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad To'plam Bolci Superfine Mix Luxusních Pralinek 190gr",
+   "barcode": "8684568300370",
+   "qty": 14,
+   "price": 140000,
+   "status": "aktiv",
+   "sku": "54676",
+   "id": "2ea63d0b-2232-4b1b-adf3-8db4f3274da7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad To'plam Bolci Assorted Chocolate Pralines 130gr",
+   "barcode": "8684568303968",
+   "qty": 10,
+   "price": 176000,
+   "status": "aktiv",
+   "sku": "54679",
+   "id": "edc62ca9-7102-4e45-aad6-7fb5d1533005",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Les Palets de La Mere Poulard 500gr",
+   "barcode": "3472860404514",
+   "qty": 12,
+   "price": 150000,
+   "status": "aktiv",
+   "sku": "53859",
+   "id": "5ecd1494-5078-42d3-ac95-4128dbdd9ebd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Les Crandes Galettes de La Mere Poulard 202gr",
+   "barcode": "3472860405672",
+   "qty": 12,
+   "price": 90000,
+   "status": "aktiv",
+   "sku": "53855",
+   "id": "ea0376cf-e51b-4666-80e8-3ebd2b7db754",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye La Mère Poulard Apple Caramel Cookies 200gr",
+   "barcode": "3472860405764",
+   "qty": 12,
+   "price": 90000,
+   "status": "aktiv",
+   "sku": "54674",
+   "id": "bc370841-9882-425c-be4b-0b17a16f70dc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Les Sables de La Mere Poulard White 400gr",
+   "barcode": "3472860405696",
+   "qty": 12,
+   "price": 150000,
+   "status": "aktiv",
+   "sku": "53863",
+   "id": "753b9901-c2b4-4de5-82be-7d8e800f3943",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Selection La Mere Poulard 750gr",
+   "barcode": "3472860404576",
+   "qty": 12,
+   "price": 200000,
+   "status": "aktiv",
+   "sku": "53860",
+   "id": "c6715cfb-3e6e-4fa0-b976-e7979cd165a6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad To'plam Socado Praline 200gr",
+   "barcode": "8000017194794",
+   "qty": 8,
+   "price": 210000,
+   "status": "aktiv",
+   "sku": "54677",
+   "id": "6f336922-7ceb-4225-b850-fd1b572da1c4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad To'plam Socado Milan 200gr",
+   "barcode": "8000017194732",
+   "qty": 8,
+   "price": 225000,
+   "status": "aktiv",
+   "sku": "53861",
+   "id": "a86abdef-7307-4a9c-a1af-a7a64a08190d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad To'plam Socado Verona Dal 1975 200gr",
+   "barcode": "8000017194800",
+   "qty": 8,
+   "price": 210000,
+   "status": "aktiv",
+   "sku": "54678",
+   "id": "0668220b-a2bd-4637-8dc1-ea53f9c04402",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Зоохрум 300gr",
+   "barcode": "4607044553385",
+   "qty": 30,
+   "price": 15000,
+   "status": "aktiv",
+   "sku": "2875642",
+   "id": "63fd4351-94db-47db-ae33-5c7009f5be2f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кременкульское Зоохрум pechenyesi 200gr",
+   "barcode": "4607044554764",
+   "qty": 42,
+   "price": 18000,
+   "status": "aktiv",
+   "sku": "2875644",
+   "id": "86b165fa-df53-4364-962a-1a564b22cd04",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Зоохрум saryog'li pechenyesi 200gr",
+   "barcode": "4607044554993",
+   "qty": 42,
+   "price": 23000,
+   "status": "aktiv",
+   "sku": "2875645",
+   "id": "ac0954c3-e683-4739-95d2-fc45a5feea91",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Кременкульское 285gr",
+   "barcode": "4607044555549",
+   "qty": 50,
+   "price": 13500,
+   "status": "aktiv",
+   "sku": "29085",
+   "id": "462f53f1-7949-471f-b1f0-3ef2de9f71e5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "СКАЗ ОТ МАРИИ pechenyesi 300gr",
+   "barcode": "4607044554870",
+   "qty": 30,
+   "price": 15000,
+   "status": "aktiv",
+   "sku": "2875643",
+   "id": "a1573c99-8d7a-4df3-88c0-617387af923f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Сказ от Марии 220gr",
+   "barcode": "4607044554399",
+   "qty": 48,
+   "price": 8800,
+   "status": "aktiv",
+   "sku": "2879152",
+   "id": "5f9e00e0-ffdf-4f98-995d-4b80cf7cfca3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Шоколадные конфеты Bolci Miracle 308гр",
+   "barcode": "8697437852344",
+   "qty": 12,
+   "price": 205000,
+   "status": "noaktiv",
+   "sku": "46940",
+   "id": "14e7f4d5-5ee4-450d-b81a-db0ac7a9d608",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 100648798.3
+}
