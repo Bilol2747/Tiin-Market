@@ -1,0 +1,159 @@
+{
+ "createdAt": "2026-09-09T04:31:36.947Z",
+ "srcFile": "-5325144796_1865_zakas_''SMART_GLOBAL_DISTRIBUTION''_MCHJ_№215_от_14_01_2022г_Ch.xlsx",
+ "supplierId": "2e712f72-c2b2-40c1-a8e0-9a20b94ed4b0",
+ "supplierLabel": "''SMART GLOBAL DISTRIBUTION'' MCHJ (№215 от 14.01.2022г) (Chernogolovka Rich Dobriy)",
+ "items": [
+  {
+   "name": "Suv Chortoq Gazli 330ml",
+   "barcode": "4780051070066",
+   "qty": 1200,
+   "price": 6753.6,
+   "status": "aktiv",
+   "sku": "1875",
+   "id": "2f6156e7-d69a-43d6-a4ae-b93f0e5be6ca",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq gazlangan 500ml стекло",
+   "barcode": "4780051070011",
+   "qty": 1200,
+   "price": 9002.71,
+   "status": "aktiv",
+   "sku": "2248",
+   "id": "5c40af5f-02a3-4328-9f67-308b3d8b69de",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Chortoq (Butilka)250ml",
+   "barcode": "4780051070158",
+   "qty": 960,
+   "price": 5260.51,
+   "status": "aktiv",
+   "sku": "12058",
+   "id": "ff72f2a2-2e91-4981-940f-b6c97f366f33",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz SuvChortoq 1.5l",
+   "barcode": "4780051070448",
+   "qty": 180,
+   "price": 11669,
+   "status": "aktiv",
+   "sku": "41295",
+   "id": "1fbfeb22-f16c-4267-8665-b389c82d80d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Chortoq Premium 330ml",
+   "barcode": "4780051070721",
+   "qty": 120,
+   "price": 11251.8,
+   "status": "aktiv",
+   "sku": "8289",
+   "id": "debc100b-0586-4789-b499-6acda260cdf5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Limon 330ml",
+   "barcode": "4780051070127",
+   "qty": 120,
+   "price": 6753.6,
+   "status": "aktiv",
+   "sku": "16128",
+   "id": "0628de5b-847e-47fc-889a-7699c12277cf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Mineral Gazli Suv Chortoq 1l",
+   "barcode": "4780051070431",
+   "qty": 80,
+   "price": 9170,
+   "status": "aktiv",
+   "sku": "41294",
+   "id": "d5d1d759-9a59-4858-aa82-4df9f3b02aad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Rayxon 330ml",
+   "barcode": "4780051070691",
+   "qty": 60,
+   "price": 6753.6,
+   "status": "aktiv",
+   "sku": "8293",
+   "id": "4d7f5f2b-84e1-44fb-9352-d79492e9e7bb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Chortoq Suv Premium 500ml",
+   "barcode": "4780051070745",
+   "qty": 60,
+   "price": 14250.6,
+   "status": "aktiv",
+   "sku": "8291",
+   "id": "2b7fe0de-3e55-4fd0-b82f-c8b443d0f174",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Ichimlik Limonhis Limon 250ml",
+   "barcode": "4780142660022",
+   "qty": 60,
+   "price": 9170,
+   "status": "aktiv",
+   "sku": "8349",
+   "id": "545c6503-c5b8-4357-87c9-7f19f29e8ec5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Limon Yalpiz 330ml",
+   "barcode": "4780051070134",
+   "qty": 24,
+   "price": 6753.61,
+   "status": "aktiv",
+   "sku": "16125",
+   "id": "29d2d055-cc56-466e-ad9a-ed3b527c54c4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Laym 330ml",
+   "barcode": "4780051070110",
+   "qty": 24,
+   "price": 6753.61,
+   "status": "aktiv",
+   "sku": "16130",
+   "id": "b1460f57-a6b5-4f4f-a93d-9c773bb23c9e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Напиток Черноголовка Дюшес 500мл",
+   "barcode": "4780111553423",
+   "qty": 24,
+   "price": 4166.67,
+   "status": "aktiv",
+   "sku": "1073",
+   "id": "fec035d9-8ebb-42c9-b659-0fda3c926a7c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Dyushes 2l",
+   "barcode": "4780111553454",
+   "qty": 18,
+   "price": 10833.33,
+   "status": "aktiv",
+   "sku": "27512",
+   "id": "0b00973f-3ca5-4e02-8454-902044a04d4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Buratino 1.5l",
+   "barcode": "4780049961222",
+   "qty": 12,
+   "price": 8333.33,
+   "status": "aktiv",
+   "sku": "2020",
+   "id": "c3a736a5-a108-4b01-893a-89d5b1d8ee0c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 31481954.860000003
+}
