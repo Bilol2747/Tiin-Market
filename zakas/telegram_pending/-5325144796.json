@@ -1,0 +1,109 @@
+{
+ "createdAt": "2026-09-16T16:09:33.715Z",
+ "srcFile": "-5325144796_2068_tiinn.xlsx",
+ "supplierId": "5d8cdcdc-60de-4c47-bedf-2d28fc709e96",
+ "supplierLabel": "Aurex Group (SELEN LUX Бумага)",
+ "items": [
+  {
+   "name": "Selen salfetka 100sht",
+   "barcode": "4780017060025",
+   "qty": 100,
+   "price": 6050,
+   "status": "aktiv",
+   "sku": "23729",
+   "id": "2e3fd7a6-03ca-4ec3-984d-aab4fa8de173",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gala salfetka 100sht",
+   "barcode": "4780017060148",
+   "qty": 120,
+   "price": 3495,
+   "status": "aktiv",
+   "sku": "23731",
+   "id": "05887edd-d581-4aa7-ae42-10dd216940ba",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетка Polo 23*23 100шт",
+   "barcode": "4780017060421",
+   "qty": 120,
+   "price": 3386,
+   "status": "aktiv",
+   "sku": "21555",
+   "id": "f8d0cd30-56d4-429f-8d59-476ff49a7083",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетки Selen Авто 50шт",
+   "barcode": "4780017060926",
+   "qty": 150,
+   "price": 6756,
+   "status": "aktiv",
+   "sku": "5186",
+   "id": "444065cf-be6c-4b02-977a-f19d198fa479",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетки Selen Premium 80шт",
+   "barcode": "4780017060032",
+   "qty": 40,
+   "price": 6480,
+   "status": "aktiv",
+   "sku": "5150",
+   "id": "139b69cf-f98a-498e-9a1f-69becab4e1c2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Selen 150d 2q",
+   "barcode": "4780017060193",
+   "qty": 120,
+   "price": 10236,
+   "status": "aktiv",
+   "sku": "23732",
+   "id": "ce843c5b-8321-47ba-aa8d-7bcf6e1a1a51",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Влажные Салфетки Selen 120шт",
+   "barcode": "4780017060797",
+   "qty": 240,
+   "price": 10192,
+   "status": "aktiv",
+   "sku": "5168",
+   "id": "149eaf49-dbf3-4e3b-8e81-4778cdd5cd70",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Бумажные полотенца Selen Z 200шт",
+   "barcode": "4780017060094",
+   "qty": 600,
+   "price": 10789,
+   "status": "aktiv",
+   "sku": "5187",
+   "id": "f8e7f223-8fac-4991-b4e2-d6ff870a9721",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sochiq Selen Bolajon 1rulon",
+   "barcode": "4780017060728",
+   "qty": 90,
+   "price": 14888,
+   "status": "aktiv",
+   "sku": "23735",
+   "id": "f38a533b-8953-4b0a-b3ae-ff9af995fb6a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sochiq Selen Bolajon 1rulon",
+   "barcode": "4780017060728",
+   "qty": 90,
+   "price": 14888,
+   "status": "aktiv",
+   "sku": "23735",
+   "id": "f38a533b-8953-4b0a-b3ae-ff9af995fb6a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 31061926.6
+}
