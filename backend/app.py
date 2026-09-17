@@ -492,7 +492,44 @@ def _live_invdata():
         raw = metrics.get(entry.get("sku"))
         if raw:
             entry.update(json.loads(raw))
+            _apply_live_delta(entry)
     return inv
+
+
+def _apply_live_delta(entry):
+    """`calcStock`ni JONLI holatga keltiradi — butun tarixni qayta yurmasdan
+    (2026-09-17, Bilol so'rovi: "boshidan hisoblash shart emas, oxirgi
+    hisoblangandan keyingi kirim/sotuvni qo'shsin").
+
+    Og'ir model (backend_p_calc_stock.py) kuniga 2 marta ishlaydi va o'sha
+    paytdagi Invan qoldig'ini `calcBaseA` sifatida yozib qo'yadi. Shu yerda
+    esa faqat farq qo'llanadi:
+
+        calcStock_hozir = calcStock_asos + (Invan_hozir - calcBaseA)
+
+    NEGA ISHLAYDI: Invan'ning absolyut soni ishonchsiz (arvoh qoldiq) —
+    aynan shuning uchun calcStock modeli bor. Lekin uning O'ZGARISHI
+    haqiqiy: har sotuv va kirim Invan qoldig'ini harakatga keltiradi.
+    Ya'ni model topgan TO'G'RI asosga Invan'ning ishonchli HARAKATINI
+    qo'shamiz.
+
+    NARXI: nol. Invan mahsulot ro'yxati (`a` maydoni) shu so'rovda
+    ALLAQACHON olingan — qo'shimcha so'rov ham, qayta hisob ham yo'q.
+
+    Qo'lda tuzatilgan tovarlarda (`ovEffective`) ham xuddi shu farq
+    qo'llanadi — u endi calcStock bilan bir xil hisobdan keladi.
+    """
+    base_a = entry.get("calcBaseA")
+    live_a = entry.get("a")
+    if base_a is None or live_a is None:
+        return
+    delta = live_a - base_a
+    if delta == 0:
+        return
+    for key in ("calcStock", "ovEffective"):
+        val = entry.get(key)
+        if val is not None:
+            entry[key] = round(max(0.0, val + delta), 2)
 
 
 @app.get("/api/v1/invdata")

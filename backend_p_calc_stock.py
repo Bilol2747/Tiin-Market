@@ -1412,7 +1412,7 @@ def _apply_calc_stock(calc_by_sku, root=ROOT, verbose=True):
         return 0
     inv = json.loads(inv_path.read_text(encoding="utf-8"))
     CALC_KEYS = ("calcStock", "calcConf", "calcEvidence", "calcAnchor", "calcRule",
-                 "lkQty", "lkSold", "lkDate", "ovEffective")
+                 "lkQty", "lkSold", "lkDate", "ovEffective", "calcBaseA")
     matched = 0
     for iv in inv.values():
         if not isinstance(iv, dict):
@@ -1436,6 +1436,16 @@ def _apply_calc_stock(calc_by_sku, root=ROOT, verbose=True):
                 iv["calcEvidence"] = res["evidence"]
                 iv["calcAnchor"] = res["anchor"]
                 iv["calcRule"] = res["rule"]
+                # ASOS NUQTASI (2026-09-17, Bilol so'rovi: "hisob ham 15
+                # daqiqada yangilansin, lekin boshidan qayta hisoblamasin").
+                # Shu HISOB QILINGAN PAYTDAGI Invan qoldig'ini yozib qo'yamiz.
+                # Keyin jonli qatlam (backend/app.py) butun tarixni qayta
+                # yurmasdan, faqat farqni qo'llaydi:
+                #     hisob_hozir = calcStock + (invan_hozir - calcBaseA)
+                # Invan'ning ABSOLYUT soni ishonchsiz (arvoh qoldiq), lekin
+                # uning O'ZGARISHI haqiqiy - har sotuv/kirim uni harakatga
+                # keltiradi. Qo'shimcha so'rov ham, qayta hisob ham kerak emas.
+                iv["calcBaseA"] = iv.get("a")
             _lk = res.get("lk")
             if _lk:
                 iv["lkQty"] = _lk["qty"]
