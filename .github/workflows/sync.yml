@@ -140,7 +140,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config pull.rebase false
-          git add sales.html index.html data_daily.json data_mahsulotlar.json data_inv_new.json data_supplier.json data_kirim.json data_stock_snapshot.json supplier_months_cache.json data_history.json data_monthly_rev.json data_abc.json data_firmalar.json .pav_cache.json
+          git add sales.html index.html data_daily.json data_mahsulotlar.json data_inv_new.json data_supplier.json data_kirim.json data_stock_snapshot.json supplier_months_cache.json data_history.json data_monthly_rev.json data_abc.json data_firmalar.json .pav_cache.json .stock_ov_cache.json
           if git diff --staged --quiet; then
             echo "O'zgarish yo'q, commit qilinmaydi."
           else
@@ -173,12 +173,19 @@ jobs:
           # squash o'z Vercel deployini hosil qilib, kunlik limitni tez
           # tugatardi. 2026-08-10: asosiy pipeline o'zi kuniga 2 martaga
           # tushirilgani uchun (06:00/18:00 UTC), squash HAR ishga
-          # tushishda bajarilaveradi - jami kuniga atigi 2x2=4 ta deploy,
-          # hech qanday kvota xavfi yo'q.
+          # tushishda bajarilaveradi.
+          #
+          # 2026-09-11: squash commiti mazmunan oldingisi bilan AYNAN bir xil
+          # (faqat tarix siqiladi, fayllar o'zgarmaydi - yuqoridagi
+          # `git diff --quiet` shuni kafolatlaydi), shuning uchun uni deploy
+          # qilish 100% bekor ish edi. Oxirgi 8 kunda 29 ta shunday bekor
+          # deploy yasalgan va Vercel saqlash kvotasini yegan. Endi commit
+          # xabariga `[vercel skip]` qo'shiladi - Vercel bunday commitni
+          # deploy qilmaydi, repo siqish foydasi esa saqlanib qoladi.
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           CUR=$(git rev-parse HEAD)
-          NEW=$(git commit-tree "$CUR^{tree}" -m "Git tarixini avtomatik siqish (squash) - $(date -u +%Y-%m-%dT%H:%M:%SZ)")
+          NEW=$(git commit-tree "$CUR^{tree}" -m "Git tarixini avtomatik siqish (squash) - $(date -u +%Y-%m-%dT%H:%M:%SZ) [vercel skip]")
           if ! git diff --quiet "$CUR" "$NEW"; then
             echo "OGOHLANTIRISH: squash oldi-keyin fayllar solishtiruvida farq bor - xavfsizlik uchun bekor qilindi."
             exit 0

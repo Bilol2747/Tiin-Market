@@ -58,7 +58,7 @@ bilan zakas hisoblanishini tanlaydi - bu modul FAQAT ma'lumot tayyorlaydi,
 zakas formulasining o'ziga (qulflangan) mutlaqo tegmaydi.
 """
 import json
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -176,12 +176,71 @@ STALE_ASSORT_GAP_MULT = 1.5
 # Oziq-ovqat bo'lmaganlarda tabiiy tanaffus himoyasi bu yerda ham ishlaydi.
 QUIET_STOCK_DAYS = 90
 
+# --- "HISOBSIZ QOLGANLAR" qoidasi SINAB KO'RILGAN VA OLIB TASHLANGAN
+# (2026-08-06 qo'shilgan, 2026-08-07 qayta tekshiruvda olib tashlandi).
+# G'oyasi: yuqoridagi qoidalardan keyin ham "—" qolgan tovarlarni (2026 da
+# sotilgan, kirim yo'q) qo'shimcha 30/90 kunlik chegara bilan 0 qilish. Lekin
+# tekshirilganda bu qoidaning UCHALA holati ham (kirim yo'q / eski kirim /
+# 2026-kirimsiz) allaqachon "kirimsiz" (NOKIRIM_STALE_DAYS=180 yoki
+# STALE_ASSORT_DAYS=90) va "eskirgan-assortiment" (STALE_ASSORT_DAYS=90)
+# qoidalari tomonidan ko'rilgan populyatsiya ekani aniqlandi - yangi hech
+# qanday tovarni "ko'rmadi", faqat o'sha qoidalarning (isbotlangan,
+# STALE_ASSORT_GAP_MULT bilan mavsumiy-tovar himoyali) chegarasini pastroq
+# (30/90) va himoyasiz raqamga almashtirib, ularning natijasini bekor qilib
+# yuborardi - masalan mavsumiy shampun (91 kun jim, 229 kunlik tabiiy
+# tanaffusi bor - yuqoridagi qoida bilan himoyalangan) shu qoida bilan
+# baribir 0'ga tushib qolardi. Foyda bermagani uchun olib tashlandi.
+
+# --- QO'LDA TASDIQLANGAN ISTISNOLAR (foydalanuvchi tomonidan jismonan
+# tekshirilgan, hisob xato chiqqan alohida SKU'lar). Modeldan chiqadigan
+# har qanday qiymatdan ustun turadi. Kam bo'lishi kerak - faqat aniq
+# tasdiqlangan holatlar uchun. ---
+MANUAL_ZERO_OVERRIDE = {
+    "34924": "2026-08-07, foydalanuvchi tasdiqladi - tovar aslida tugagan",
+}
+
+# --- MAQSADLI KENGAYTIRILGAN HISOB RO'YXATI (2026-08-08, foydalanuvchi qarori) ---
+# 1,761+3,178 (4,939 noyob SKU, elakda qolgan) guruhini foydalanuvchi
+# ko'rsatmasi bilan qayta hisobladik: har SKU o'zining ENG BIRINCHI kirim
+# sanasidan (2025-02-26 gacha, data_sales_2025h1.json bilan kengaytirilgan)
+# boshlab, kunlik clamp'siz (`_walk_clamp_ext`/`_walk_with_pauses_ext`,
+# faqat yakuniy natija 0'dan past emas) qayta yurildi. Shundan YANGI hisob
+# Invan bilan mos (farq<=3) chiqqan 967 tasi - "eski hisob xato, Invan
+# to'g'riroq" (foydalanuvchi xulosasi).
+#
+# MUHIM (2026-08-08, foydalanuvchi tuzatishi): bu STATIK qiymat sifatida
+# emas, balki SKU RO'YXATI sifatida saqlanadi - har build'da (har ~30
+# daqiqada) QAYTA HISOBLANADI, xuddi qolgan tovarlar kabi. Shunda kelgusi
+# kirim/sotuv bu 967 tani ham to'g'ri yangilab boradi ("muzlab qolmaydi").
+# BUTUN KATALOGGA emas, FAQAT shu 967 SKU'ga qo'llanadi (foydalanuvchi
+# talabi) - qolgan ~17,000+ tovar standart `_walk_clamp`/`_walk_with_pauses`
+# (eski, reverted mantiq, 2026-08-07 commit 27d2732) bilan hisoblanaveradi.
+_targeted_path = ROOT / "targeted_extended_skus.json"
+if _targeted_path.exists():
+    TARGETED_EXTENDED_SKUS = set(json.loads(_targeted_path.read_text(encoding="utf-8")))
+else:
+    TARGETED_EXTENDED_SKUS = set()
+
+# Qo'lda tuzatish (stock_overrides, api/stock-override.py) ro'yxatining oxirgi
+# MUVAFFAQIYATLI o'qilgan nusxasi (2026-09-16, Bilol so'rovi: tarmoq/Turso
+# vaqtincha ishlamay qolsa ham, allaqachon kiritilgan tuzatishlar bitta build
+# davomida "yo'qolib qolmasin"). Git'da saqlanadi - `.pav_cache.json` bilan
+# bir xil naqsh (sync.yml'ning git add ro'yxatiga ham qo'shilgan).
+_OV_CACHE_PATH = ROOT / ".stock_ov_cache.json"
+
 # --- PAUZA ICHIDAGI ESKI KIRIM (2026-08-04, foydalanuvchi topilmasi) ---
 # Tugash deb tan olingan pauza ICHIDA kelgan kirim, agar pauza oxirigacha
 # shuncha kundan ortiq sotilmay tursa - u ham arvoh deb tashlanadi (batafsil
 # izoh va isbotlar _walk_with_pauses ichida). 90 kun: 3 oy davomida bitta ham
 # sotilmagan kirim javonda turgan bo'lishi mumkin emas.
 KIRIM_PAUZA_ESKI_MAX = 90
+
+# Oxirgi partiya to'liq sotilgan (balansdan mustaqil dalil) - kamida shuncha
+# kun jimlik talab qilinadi (2026-08-07).
+OVERSOLD_MIN_GAP = 7
+# Ortiqcha sotuv kamida shuncha donadan ko'p bo'lishi kerak - 1-2-3 donalik
+# shovqin bilan chalkashtirmaslik uchun (2026-08-08, foydalanuvchi tuzatishi).
+OVERSOLD_MARGIN = 3
 
 # Oziq-ovqat kategoriyalari (data_inv_new.json'dagi catTop maydoni).
 FOOD_CATEGORIES = {
@@ -216,6 +275,18 @@ def _day_idx(iso_str, base_date):
     return (_utc_date(iso_str) - base_date).days
 
 
+def _parse_dt(iso_str):
+    """ISO timestamp -> timezone-aware datetime (soat/daqiqasi bilan, TASHLAB
+    YUBORILMAYDI - `_utc_date()`dan farqli). Faqat SUTKA ICHIDA (bir xil kunda)
+    ikkita voqeaning qaysi OLDIN/KEYIN bo'lganini solishtirish uchun kerak
+    (qo'lda tuzatish kuni kelgan kirim - pastga qarang). Vaqt yo'q/naive bo'lsa
+    UTC deb olinadi."""
+    dt = datetime.fromisoformat(str(iso_str).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def _kirim_by_day(kirim_skus, sku, base_date, total_days):
     """{kun_idx: dona} - faqat Received, [base_date, base_date+total_days) ichida."""
     out = {}
@@ -237,7 +308,14 @@ def _kirim_by_day(kirim_skus, sku, base_date, total_days):
 def _walk_clamp(k_by_day, sales_arr, start_idx, end_idx):
     """start_idx (birinchi kirim kuni) dan end_idx (exclusive) gacha kunlik
     balans yuritadi - manfiyga tushsa 0'ga qaytaradi. Qaytaradi:
-    (yakuniy_stok, clamp_hodisalari_soni, start_idx'dan OLDIN sotilgan dona)."""
+    (yakuniy_stok, clamp_hodisalari_soni, start_idx'dan OLDIN sotilgan dona).
+
+    UMUMIY populyatsiya uchun ASOSIY (standart) yo'l - 2026-08-07 dagi
+    "kunlik clamp" bugi FAQAT `_walk_clamp_ext`/`_walk_with_pauses_ext`
+    (maqsadli, alohida ro'yxatdagi SKU'lar uchun) da tuzatilgan, bu yerda
+    ATAYLAB eski xatti-harakat saqlanadi (2026-08-07, foydalanuvchi qarori:
+    "manfiyga tushadigan hisoblashni faqat men ko'rsatgan tovarlarga qo'lla,
+    boshqasiga tegma")."""
     bal = 0.0
     clamp_events = 0
     for i in range(start_idx, end_idx):
@@ -250,6 +328,48 @@ def _walk_clamp(k_by_day, sales_arr, start_idx, end_idx):
     for i in range(0, min(start_idx, len(sales_arr))):
         sold_before += sales_arr[i] or 0
     return bal, clamp_events, sold_before
+
+
+def _walk_clamp_ext(k_by_day, sales_arr, start_idx, end_idx):
+    """`_walk_clamp` ning KENGAYTIRILGAN (clamp'siz) versiyasi - FAQAT
+    maqsadli SKU ro'yxati (2026-08-08, 4,939 guruh) uchun ishlatiladi.
+
+    MUHIM (2026-08-07 da tuzatilgan bug): AVVAL har kuni manfiyga tushganda
+    darhol 0'ga qaytarilardi. Bu KECH HUJJATLASHTIRILGAN kirimni (masalan
+    firma katta buyurtma bergan, kirim esa hujjat bilan bir necha kundan
+    keyin rasmiylashtirilgan) noto'g'ri "tugash" deb hisoblab, taqchillikni
+    yo'qotib yuborardi - keyin kelgan kirim 0 dan boshlab qo'shilib, sun'iy
+    shishirilgan qoldiq hosil qilardi.
+
+    Isbot (SKU 51884 "un aslxan 3kg", foydalanuvchi Invan hisobotidan
+    ko'rsatgan): 2026-02-20 kuni bitta firma buyurtmasi 7,242 dona sotib
+    ketgan, balans o'sha payt ~900 edi. Eski kod darhol 0'ga tushirib,
+    keyingi 5 ta kirimni (jami ~9,800) 0 dan boshlab qo'shib, 8,049
+    ko'rsatardi. Invan'ning o'z "Stock in/out" hisoboti esa (Invan bu yerda
+    clamp qilmaydi) yakuniy -96 ko'rsatgan - bu bizning CLAMP QILINMAGAN
+    hisobimiz bilan (kirim-sotuv, hech qachon 0'ga majburlanmasdan) AYNAN
+    bir xil chiqdi. Katalogda 949 ta SKU'da 50+ donalik farq, jami 7.75
+    mlrd so'mlik sun'iy shishish topilgan.
+
+    Tuzatish: kunlik clamp OLIB TASHLANDI - balans manfiyga tushishi mumkin
+    (bu "kech kirim kutilayotgan qarz" degani), keyingi kirim o'zi to'ldiradi.
+    FAQAT YAKUNIY natija ko'rsatish uchun 0'dan pastga tushmaydi (manfiy
+    stok ko'rsatib bo'lmaydi) - foydalanuvchi ko'rsatmasi: "manfiyga
+    kirib ketadigan qilsak manfiylar ko'payadi, bo'lmaydi".
+
+    Qaytaradi: (yakuniy_stok [>=0], eng_past_manfiy_chegara, start_idx'dan
+    OLDIN sotilgan dona)."""
+    bal = 0.0
+    min_bal = 0.0
+    for i in range(start_idx, end_idx):
+        s = sales_arr[i] if i < len(sales_arr) else 0
+        bal += k_by_day.get(i, 0) - (s or 0)
+        if bal < min_bal:
+            min_bal = bal
+    sold_before = 0.0
+    for i in range(0, min(start_idx, len(sales_arr))):
+        sold_before += sales_arr[i] or 0
+    return max(0.0, bal), min_bal, sold_before
 
 
 def _winsor_rate(sales, lo, hi):
@@ -317,9 +437,9 @@ def _walk_with_pauses(sales, k_by_day, first_k, natural_max, total_days,
     tuzatadi (2026-07-29, SKU 38198): Invan arvoh 92 ni yangi kelgan 600
     ga QO'SHIB 692 qilib yuborgan edi - to'g'risi 600.
 
-    Qaytaradi: (yakuniy_balans, reset_soni, oxirgi_reset_ma'lumoti)
-      oxirgi_reset: {"idx","gap","ratio","tail"} yoki None.
-      "tail"=True - jimlik HOZIR ham davom etyapti (ya'ni tovar bugun tugagan).
+    UMUMIY populyatsiya uchun ASOSIY (standart) yo'l - FAQAT/kunlik clamp
+    bugi `_walk_with_pauses_ext`da tuzatilgan (2026-08-08, maqsadli SKU
+    ro'yxati uchun). Bu yerda ATAYLAB eski xatti-harakat saqlanadi.
     """
     bal = 0.0
     resets = 0
@@ -338,6 +458,117 @@ def _walk_with_pauses(sales, k_by_day, first_k, natural_max, total_days,
             j += 1
         gap = j - a
         bal0 = bal
+        lo = max(first_k, a - PAUSE_LOOKBACK)
+        rate, p_kun = _winsor_rate(sales, lo, a) if (a - lo) >= 14 else (0.0, 0.0)
+        lo_r = max(first_k, a - PAUSE_RECENT_WIN)
+        if (a - lo_r) >= 7:
+            r_recent, p_recent = _winsor_rate(sales, lo_r, a)
+            if r_recent > rate:
+                rate, p_kun = r_recent, max(p_kun, p_recent)
+        cover = (bal0 / rate) if rate > 0 else float("inf")
+        if p_kun <= 0:
+            p_rand = 1.0
+        elif p_kun >= 1:
+            p_rand = 0.0
+        else:
+            p_rand = (1 - p_kun) ** gap
+        ratio = gap / max(cover, 0.5) if rate > 0 else 0.0
+        fire = (rate > 0 and ratio >= PAUSE_MIN_RATIO
+                and p_rand < PAUSE_P_MAX)
+        stale = False
+        if not fire and rate > 0 and gap >= PAUSE_STALE_DAYS \
+                and gap > natural_max * PAUSE_STALE_MULT:
+            fire = True
+            stale = True
+        quiet = False
+        if not fire and gap >= QUIET_STOCK_DAYS:
+            if is_food or gap > natural_max * STALE_ASSORT_GAP_MULT:
+                fire = True
+                quiet = True
+        if fire:
+            resets += 1
+            last = {"idx": a, "gap": gap, "ratio": ratio, "tail": j >= total_days,
+                    "bal0": bal0, "rate": rate, "cover": cover, "stale": stale, "quiet": quiet}
+            bal = 0.0
+        for d in range(a, min(j, total_days)):
+            q = k_by_day.get(d, 0)
+            if q and fire and (j - d) > KIRIM_PAUZA_ESKI_MAX:
+                continue
+            bal += q
+        i = j
+    return bal, resets, last
+
+
+def _walk_with_pauses_ext(sales, k_by_day, first_k, natural_max, total_days,
+                      is_food=True):
+    """`_walk_with_pauses` ning KENGAYTIRILGAN (clamp'siz + oxirgi-partiya
+    dalili bilan) versiyasi - FAQAT maqsadli SKU ro'yxati (2026-08-08,
+    4,939 guruh) uchun ishlatiladi.
+
+    Har pauza (ketma-ket sotuvsiz kunlar) OXIRIDA so'raladi:
+        pauza boshidagi zaxira shu pauzani oxirigacha yetkaza olarmidi?
+            qoplama = zaxira / kunlik_sotuv
+    Yetkaza olmasa VA jimlik shu tovar uchun g'ayrioddiy bo'lsa - zaxira
+    pauza ichida TUGAGAN: balans 0 ga tushiriladi va SHUNDAN KEYIN o'sha
+    pauzadagi kirim ustiga qo'shiladi.
+
+    Aynan shu tartib (avval 0, keyin kirim) foydalanuvchi topgan xatoni
+    tuzatadi (2026-07-29, SKU 38198): Invan arvoh 92 ni yangi kelgan 600
+    ga QO'SHIB 692 qilib yuborgan edi - to'g'risi 600.
+
+    Qaytaradi: (yakuniy_balans, reset_soni, oxirgi_reset_ma'lumoti)
+      oxirgi_reset: {"idx","gap","ratio","tail"} yoki None.
+      "tail"=True - jimlik HOZIR ham davom etyapti (ya'ni tovar bugun tugagan).
+
+    MUHIM (2026-08-07 da tuzatilgan bug, _walk_clamp'dagi bilan bir xil
+    sabab): FAOL SOTUV kunlarida AVVAL har manfiy dipda darhol 0'ga
+    qaytarilardi - bu kech hujjatlashtirilgan kirimni (firma katta
+    buyurtma bergan, kirim keyinroq rasmiylashtirilgan) noto'g'ri
+    "tugash" deb hisoblab, taqchillikni yo'qotib yuborardi (SKU 51884
+    "un aslxan 3kg" - 949 ta SKU'da 7.75 mlrd so'mlik sun'iy shishish).
+    Endi FAOL SOTUV kunlarida balans manfiyga tushishi mumkin ("kech
+    kirim kutilayotgan qarz"). PAUZA-asosidagi tugash aniqlash (pastda,
+    ratio/qoplama testi) O'ZGARTIRILMAGAN - u alohida, mustaqil dalilga
+    asoslanadi va manfiy bal0'ni ham to'g'ri qayta ishlaydi (cover
+    manfiy bo'lsa max(cover,0.5) orqali darhol past qoplama sifatida
+    baholanadi - qarz + jimlik ikkalasi birga bo'lsa, tugash haqiqiy
+    ehtimoli yuqori)."""
+    bal = 0.0
+    resets = 0
+    last = None
+    # OXIRGI PARTIYA KUZATUVI (2026-08-07, foydalanuvchi topilmasi): balansdan
+    # MUSTAQIL uchinchi dalil. Agar ENG OXIRGI kirimdan beri sotilgan miqdor
+    # o'sha kirimning o'zidan ko'p/teng bo'lsa - bu javon bo'sh ekanining
+    # isboti, "cover"/"ratio" hisob-kitobi (eski, tekshirilmagan zanjirdan
+    # kelgan balansga tayanadi) buni ko'ra olmasligi mumkin. Isbot (SKU
+    # 2880829 "pirojenoye barni shokolad"): oxirgi kirim 200 dona, shundan
+    # beri 264 sotilgan (kirimdan ko'p!), lekin balans (eski zanjirdan) 1136
+    # ko'rsatib, "68 kunlik jimlik 140 kunga yetadi" deb hisoblardi.
+    last_k_idx = None
+    sold_since_k = 0.0
+    i = first_k
+    while i < total_days:
+        if sales[i]:
+            bal += k_by_day.get(i, 0) - sales[i]
+            if k_by_day.get(i, 0):
+                last_k_idx = i
+                sold_since_k = 0.0
+            sold_since_k += sales[i]
+            i += 1
+            continue
+        a = i
+        j = i
+        while j < total_days and not sales[j]:
+            j += 1
+        gap = j - a
+        bal0 = bal
+        # MUHIM (2026-08-08, foydalanuvchi tuzatishi): ortiqcha sotuv KAMIDA
+        # OVERSOLD_MARGIN donadan ko'p bo'lishi kerak - shovqin (1-2-3 dona)
+        # bilan chalkashtirmaslik uchun. Agar ortiqcha KATTA bo'lsa, bu shunchaki
+        # "oxirgi partiya tugadi" emas - bu AVVALGI kirim(lar)dan ham qoldiq
+        # bor edi va u ham sotilib ketgan degani (ko'proq dalil, kamroq emas).
+        oversold = (last_k_idx is not None and k_by_day.get(last_k_idx, 0) > 0
+                    and sold_since_k - k_by_day[last_k_idx] > OVERSOLD_MARGIN)
         lo = max(first_k, a - PAUSE_LOOKBACK)
         rate, p_kun = _winsor_rate(sales, lo, a) if (a - lo) >= 14 else (0.0, 0.0)
         # To'xtash PAYTIDAGI talab: qisqa oyna uzoq o'rtachadan tez bo'lsa,
@@ -377,7 +608,17 @@ def _walk_with_pauses(sales, k_by_day, first_k, natural_max, total_days,
         # YETARLI ekani tasdiqlandi: SKU 2496 (Nescafe, jismonan ~112 dona
         # turgan) ratio=0.25 bo'lgani uchun baribir tegilmaydi - ya'ni uni
         # natural_max emas, qoplama nisbati himoya qilar ekan.
-        fire = (rate > 0 and ratio >= PAUSE_MIN_RATIO
+        # MUHIM (2026-08-07, _walk_clamp'dagi tuzatish bilan bog'liq): bal0
+        # MANFIY bo'lsa (kech hujjatlashtirilgan kirim kutilayotgan "qarz" -
+        # yuqoridagi izohga qarang), "qoplama" tushunchasining o'zi ma'nosiz
+        # bo'lib qoladi - cover = bal0/rate manfiy chiqib, max(cover,0.5)
+        # orqali sun'iy ravishda "deyarli nol qoplama"ga aylanadi va HATTO
+        # 3-4 kunlik oddiy dam olish kuni ham "tugash" deb hisoblanib,
+        # qarzni yo'qotib yuboradi - aynan tuzatilgan bugni boshqa yo'ldan
+        # qaytaradi. Shuning uchun bal0<0 bo'lganda RATIO-asosidagi fire
+        # o'chiriladi - faqat pastdagi ABSOLYUT muddat testlari (stale/quiet,
+        # qoplamadan mustaqil) qo'llanadi.
+        fire = (bal0 >= 0 and rate > 0 and ratio >= PAUSE_MIN_RATIO
                 and p_rand < PAUSE_P_MAX)
         # Zaxira raqamiga bog'liq bo'lmagan qo'shimcha dalil: jimlik mutlaq
         # uzun VA tovarning o'z tabiiy pauzasidan ancha uzun bo'lsa, qoldiq
@@ -407,6 +648,12 @@ def _walk_with_pauses(sales, k_by_day, first_k, natural_max, total_days,
             if is_food or gap > natural_max * STALE_ASSORT_GAP_MULT:
                 fire = True
                 quiet = True
+        # OXIRGI PARTIYA TUGAGAN (2026-08-07): balansdan mustaqil uchinchi
+        # dalil (yuqorida bal0/last_k_idx yonidagi izohga qarang). Kamida
+        # OVERSOLD_MIN_GAP kunlik jimlik talab qilinadi - bir-ikki kunlik
+        # tabiiy tanaffusda ishlamasin.
+        if not fire and oversold and gap >= OVERSOLD_MIN_GAP:
+            fire = True
         if fire:
             resets += 1
             # bal0/rate/cover - faqat HISOBOT uchun (tekshiruv Excel'i shu
@@ -436,7 +683,7 @@ def _walk_with_pauses(sales, k_by_day, first_k, natural_max, total_days,
                 continue          # o'lik davrda kelib, o'zi ham sotilmay qolgan
             bal += q
         i = j
-    return bal, resets, last
+    return max(0.0, bal), resets, last
 
 
 def _check_time_alignment(hist, old, kirim, new_base, hist_base, hist_days, verbose=True):
@@ -551,11 +798,13 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
 
     active_skus = set()
     food_sku = set()          # oziq-ovqat (tabiiy tanaffus himoyasidan ozod)
+    inv_stock = {}            # sku -> Invan'ning o'z qoldig'i ("a" maydoni)
     for nm, iv in inv.items():
         if isinstance(iv, dict):
             sk = str(iv.get("sku") or "").strip()
             if sk:
                 active_skus.add(sk)
+                inv_stock[sk] = iv.get("a")
                 if _is_food(iv.get("catTop") or "", iv.get("cat") or "", nm):
                     food_sku.add(sk)
 
@@ -609,8 +858,21 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
 
         signal1 = sold_before > 0
         signal2 = (final_2026 == 0) and (last60 >= LAST60_MIN_UNITS)
+        # signal3 (2026-08-07, foydalanuvchi topilmasi): 2026-only hisob
+        # to'liq (2025-07) hisobdan KATTA chiqsa - bu 2026-yilgi BIRINCHI
+        # kirimdan OLDIN katta sotuv bo'lganini bildiradi (masalan firma
+        # buyurtmasi, kirim esa kech hujjatlashtirilgan - odatda yil
+        # almashinuvida uchraydi). 2026-only hisob o'sha sotuvni "ko'rmaydi"
+        # (undan keyin boshlanadi), shuning uchun sun'iy katta chiqadi.
+        # Isbot: SKU 51884 "un aslxan 3kg" - 2026-02-20 da 7,242 dona
+        # sotilgan, birinchi 2026 kirimi esa 2026-02-24 (undan KEYIN).
+        # 2026-only=8,049 (xato), 2025-07=0 (Invan'ning o'z -96 bilan mos,
+        # 0'ga tekislangan). To'liq hisob har doim KAMROQ yoki teng bo'lishi
+        # kerak (ko'proq tarixni ko'radi, hech narsa yo'qotmaydi) - katta
+        # chiqishi mumkin emas, shuning uchun signal3 xavfsiz.
+        signal3 = final_2026 > final_full
 
-        if signal1 or signal2:
+        if signal1 or signal2 or signal3:
             final, clamp_events, anchor_idx, source = final_full, clamp_full, first_k_full, "2025-07"
         else:
             final, clamp_events, anchor_idx, source = final_2026, clamp_2026, first_k_2026 + offset, "2026"
@@ -662,11 +924,12 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
                 #
                 # Baza: pauza qoidasisiz sof clamp (to'liq oyna, birinchi
                 # kirimdan). Aynan shu qoidaning o'z hissasini ko'rsatadi.
+                # _walk_clamp bilan bir xil (2026-08-07): kunlik clamp yo'q,
+                # faqat yakuniy natija 0'dan pastga tushmaydi.
                 _plain = 0.0
                 for _d in range(first_k_all, total_days):
                     _plain += k_full.get(_d, 0) - full_sales[_d]
-                    if _plain < 0:
-                        _plain = 0.0
+                _plain = max(0.0, _plain)
                 changed = abs(p_final - _plain) >= 1
                 final = p_final
                 clamp_events = p_resets
@@ -912,6 +1175,108 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
     if verbose:
         print(f"  {len(lk):,} mahsulotga 'oxirgi kirimdan qolgan' (qolgan/kelgan) hisoblandi"
               f" (shundan {n_lk_only:,} tasida calcStock yo'q - faqat shu ko'rsatkich)")
+
+    # ─── QO'LDA TUZATISH (OVERRIDE) — endi to'g'ridan-to'g'ri calcStock'ning
+    # O'ZIGA yoziladi (2026-09-16, Bilol qarori). AVVAL alohida "ovEffective"
+    # degan PARALEL yo'nalish edi - shu sabab uni har yangi joyga (frontend/
+    # backend) alohida ULASH kerak bo'lardi va aynan shu turdagi "backend
+    # to'g'ri hisoblagan, lekin ko'rinishga yetib bormagan" xatosi ikki marta
+    # takrorlandi (2026-08-19/20, 2026-09-14). Endi menejer jismonan sanagan
+    # son shu SKU uchun ENG ISHONCHLI KIRIM-ANCHOR sifatida qaraladi va
+    # yuqoridagi asosiy model bilan AYNAN BIR XIL `_walk_clamp()` yordamida
+    # bugungi kungacha yuriladi - natija bevosita calcStock/calcConf/
+    # calcAnchor/calcRule'ga yoziladi. Bu bilan calcStock'ni O'QIYDIGAN har
+    # qanday joy (hozirgi va KELAJAKDAGI) tuzatishni AVTOMATIK ko'radi -
+    # alohida ulash unutilib qolish xavfi endi yo'q. `ovEffective` maydoni
+    # ESKI frontend kodi bilan moslik uchun saqlanadi, lekin endi shunchaki
+    # calcStock'ning nusxasi (ikkalasi ham AYNAN bitta hisobdan keladi).
+    #
+    # Tarmoq/Turso vaqtincha ishlamasa - oxirgi MUVAFFAQIYATLI o'qilgan
+    # ro'yxat mahalliy keshdan (`_OV_CACHE_PATH`, git'da saqlanadi) olinadi,
+    # shuning uchun bitta build'ning tarmoq xatosi bilan hech qanday tuzatish
+    # "yo'qolib" qolmaydi (avvalgi xavf: fetch muvaffaqiyatsiz bo'lsa
+    # `overrides={}` bo'lib, BARCHA tuzatish shu build uchun butunlay
+    # o'chib qolardi).
+    n_ov = 0
+    overrides = None
+    try:
+        import requests
+        _ov_resp = requests.get("https://tiin-market.vercel.app/api/stock-override", timeout=15)
+        if _ov_resp.ok:
+            overrides = _ov_resp.json().get("overrides", {})
+    except Exception as e:
+        if verbose:
+            print(f"  ! stock-override tarmoq xatosi: {e}")
+    if overrides is not None:
+        try:
+            _OV_CACHE_PATH.write_text(json.dumps(overrides, ensure_ascii=False), encoding="utf-8")
+        except Exception:
+            pass
+    else:
+        try:
+            overrides = (json.loads(_OV_CACHE_PATH.read_text(encoding="utf-8"))
+                         if _OV_CACHE_PATH.exists() else {})
+            if verbose:
+                print(f"  ! stock-override javob bermadi - keshdan {len(overrides):,} ta tuzatish ishlatildi")
+        except Exception:
+            overrides = {}
+    for sku, ov in overrides.items():
+        if sku not in active_skus or not ov.get("updated_at"):
+            continue
+        try:
+            ov_day = _day_idx(ov["updated_at"], new_base)
+        except (ValueError, TypeError):
+            continue
+        if ov_day < 0 or ov_day >= total_days:
+            continue  # tuzatish oynadan tashqarida - hisoblab bo'lmaydi
+        # Asosiy tsikldagi `full_sales` bilan bir xil qurilma (821-828
+        # qatorlar) - alohida nusxa, chunki bu SKU asosiy tsiklda umuman
+        # ishlanmagan bo'lishi mumkin (masalan "kirimsiz"/"eskirgan-assortiment"
+        # yo'liga tushgan yoki natijaga umuman tushmagan tovar).
+        full_sales_ov = [0.0] * total_days
+        for ds, q in (old_daily.get(sku) or {}).items():
+            di = (date.fromisoformat(ds) - new_base).days
+            if 0 <= di < offset:
+                full_sales_ov[di] += q
+        hist_arr_ov = d_map.get("sku:" + sku) or []
+        for i, q in enumerate(hist_arr_ov):
+            if q and i < hist_days:
+                full_sales_ov[offset + i] += q
+        # Tuzatish KUNIDAGI real kirim (2026-09-17, Bilol topilmasi: "nega
+        # o'sha kunlik kirim inobatga olinmaydi"): SOAT/DAQIQA bo'yicha
+        # solishtiriladi - jismoniy sanashdan OLDIN kelgan kirim allaqachon
+        # sanalgan songa kirgan deb hisoblanadi (qo'shilmaydi, aks holda
+        # 2 marta hisoblanib ketardi), sanashdan KEYIN kelgan kirim esa
+        # (masalan ertalab sanaldi, kechqurun yangi tovar keldi) alohida
+        # QO'SHILADI - yo'qolib qolmaydi. Boshqa kunlardagi kirim bunga
+        # tegishli emas - ular k_by_day_ov'da o'zgarishsiz qoladi.
+        try:
+            ov_dt = _parse_dt(ov["updated_at"])
+        except (ValueError, TypeError):
+            continue
+        same_day_after = 0.0
+        for a in (kirim_skus.get(sku, {}).get("arrivals") or []):
+            if a.get("status") != "Received" or not a.get("date"):
+                continue
+            try:
+                a_dt = _parse_dt(a["date"])
+            except (ValueError, TypeError):
+                continue
+            if a_dt.date() == ov_dt.date() and a_dt > ov_dt:
+                same_day_after += a.get("qty") or 0
+        k_by_day_ov = dict(_kirim_by_day(kirim_skus, sku, new_base, total_days))
+        k_by_day_ov[ov_day] = (ov.get("value") or 0) + same_day_after
+        final_ov, clamp_ov, _ = _walk_clamp(k_by_day_ov, full_sales_ov, ov_day, total_days)
+        entry = result.setdefault(sku, {})
+        entry["stock"] = round(final_ov, 2)
+        entry["conf"] = "yuqori"
+        entry["evidence"] = clamp_ov
+        entry["anchor"] = (new_base + timedelta(days=ov_day)).isoformat()
+        entry["rule"] = "qolda-tuzatish"
+        entry["ovEffective"] = entry["stock"]
+        n_ov += 1
+    if verbose:
+        print(f"  {n_ov:,}/{len(overrides):,} faol qo'lda-tuzatish calcStock'ga to'g'ridan-to'g'ri qo'llandi")
         n_calc = sum(1 for v in result.values() if v["stock"] is not None)
         n_hi = sum(1 for v in result.values() if v["conf"] == "yuqori")
         n_mid = sum(1 for v in result.values() if v["conf"] == "o'rta")
@@ -923,6 +1288,119 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
         print(f"  {n_stale_as:,} mahsulot 'eskirgan assortiment' (2026 da kirim yo'q, {STALE_ASSORT_DAYS}+ kun jim) -> 0")
         print(f"  {n_nokirim:,} mahsulot 'kirimsiz' (kirim yozuvi yo'q, {NOKIRIM_STALE_DAYS}+ kun jim) -> 0")
         print(f"  {n_eskikirim:,} mahsulot 'eski-kirim' (kirimi 2025-07 dan oldin, {STALE_ASSORT_DAYS}+ kun jim) -> 0")
+
+    # ─── INVAN=0 + 90 KUN SOTUVSIZ (2026-08-07, foydalanuvchi qarori) ──────
+    # "oddiy" qoidali tovarlar orasida hisob >0 ko'rsatib turgan, lekin Invan
+    # o'zi mustaqil ravishda 0 deb hisoblagan va 90+ kundan beri sotilmagan
+    # tovarlar - ikkita mustaqil dalil (Invan + uzoq sotuvsizlik) birlashsa,
+    # bizning "hech qachon reset ishlamagan" uzun zanjirimizdan ko'ra
+    # ishonchliroq. Faqat rule=="oddiy" bo'lganlarga tegadi (boshqa qoidalar
+    # allaqachon o'z dalili bilan hisoblangan).
+    n_invan0 = 0
+    for sku in active_skus:
+        r = result.get(sku)
+        if not r or r.get("rule") != "oddiy" or not r.get("stock"):
+            continue
+        a_val = inv_stock.get(sku)
+        if a_val != 0:
+            continue
+        hist_arr = d_map.get("sku:" + sku) or []
+        sold = [i for i in range(len(hist_arr)) if hist_arr[i]]
+        if not sold:
+            continue
+        gap_now = (hist_days - 1) - sold[-1]
+        if gap_now < 90:
+            continue
+        r["stock"] = 0.0
+        r["rule"] = "invan-nol-90kun"
+        r["conf"] = "yuqori"
+        r["evidence"] = 0
+        n_invan0 += 1
+    if verbose:
+        print(f"  {n_invan0:,} mahsulot 'invan-nol-90kun' (Invan=0 + 90+ kun sotuvsiz) -> 0")
+
+    for sku, note in MANUAL_ZERO_OVERRIDE.items():
+        # sku result'da hali yo'q bo'lsa ham (masalan hech qanday avtomatik
+        # qoida uni topmagan, "—" bo'lib turgan) yozuv ochib beriladi - qo'lda
+        # tasdiqlangan fakt har qanday holatda ham qo'llanishi kerak, aks
+        # holda bu istisno jimgina hech narsaga ta'sir qilmay qolib ketardi.
+        if sku in result:
+            result[sku]["stock"] = 0.0
+            result[sku]["rule"] = "qolda-tugagan"
+            result[sku]["conf"] = "yuqori"
+            result[sku]["evidence"] = 0
+        else:
+            result[sku] = {"stock": 0.0, "conf": "yuqori", "evidence": 0,
+                           "anchor": date.today().isoformat(), "rule": "qolda-tugagan"}
+        if verbose:
+            print(f"  ! QO'LDA ISTISNO: SKU {sku} -> 0 ({note})")
+
+    # --- MAQSADLI KENGAYTIRILGAN HISOB (2026-08-08) - DINAMIK, har build'da
+    # qayta hisoblanadi (2026-01-01 emas, 2025-02-26 dan - H1-2025 ma'lumoti
+    # bilan), _walk_clamp_ext/_walk_with_pauses_ext (clamp'siz) bilan. ---
+    n_ext = 0
+    if TARGETED_EXTENDED_SKUS:
+        ext_base = date(2025, 2, 26)
+        h1_path = root / "data_sales_2025h1.json"
+        h1_daily = json.loads(h1_path.read_text(encoding="utf-8")).get("daily", {}) if h1_path.exists() else {}
+        ext_offset1 = (WINDOW_2025H2_START - ext_base).days     # h1 -> h2 chegara
+        ext_offset2 = (hist_base - WINDOW_2025H2_START).days     # h2 -> hist chegara
+        ext_total = ext_offset1 + ext_offset2 + hist_days
+
+        for sku in TARGETED_EXTENDED_SKUS:
+            if sku in MANUAL_ZERO_OVERRIDE:
+                continue    # qat'iy 0 istisnosi ustunroq
+            k = {}
+            for a in ((kirim_skus.get(sku) or {}).get("arrivals") or []):
+                if a.get("status") != "Received" or not a.get("qty") or not a.get("date"):
+                    continue
+                di = (_utc_date(a["date"]) - ext_base).days
+                if 0 <= di < ext_total:
+                    k[di] = k.get(di, 0) + a["qty"]
+            if not k:
+                continue
+            fk = min(k)
+
+            fs = [0.0] * ext_total
+            for ds, q in (h1_daily.get(sku) or {}).items():
+                di = (date.fromisoformat(ds) - ext_base).days
+                if 0 <= di < ext_offset1:
+                    fs[di] += q
+            for ds, q in (old_daily.get(sku) or {}).items():
+                di = (date.fromisoformat(ds) - ext_base).days
+                if ext_offset1 <= di < ext_offset1 + ext_offset2:
+                    fs[di] += q
+            hist_arr = d_map.get("sku:" + sku) or []
+            for i, q in enumerate(hist_arr):
+                if q:
+                    di = ext_offset1 + ext_offset2 + i
+                    if di < ext_total:
+                        fs[di] += q
+
+            is_food = sku in food_sku
+            sold_idx = [i for i in range(fk, ext_total) if fs[i]]
+            if len(sold_idx) >= 2:
+                nat = _natural_max_gap(fs, k, fk, sold_idx[-1])
+                final, resets, last = _walk_with_pauses_ext(fs, k, fk, nat, ext_total, is_food=is_food)
+            else:
+                final, resets, _ = _walk_clamp_ext(k, fs, fk, ext_total)
+                last = None
+            anchor_date = ext_base + timedelta(days=(last["idx"] if last else fk))
+
+            if sku in result:
+                result[sku]["stock"] = round(final, 2)
+                result[sku]["rule"] = "maqsadli-kengaytirilgan"
+                result[sku]["conf"] = "yuqori"
+                result[sku]["evidence"] = resets
+                result[sku]["anchor"] = anchor_date.isoformat()
+            else:
+                result[sku] = {"stock": round(final, 2), "conf": "yuqori", "evidence": resets,
+                               "anchor": anchor_date.isoformat(), "rule": "maqsadli-kengaytirilgan"}
+            n_ext += 1
+    if verbose and n_ext:
+        print(f"  {n_ext:,} mahsulot 'maqsadli-kengaytirilgan' (2026-08-08, 4,939 guruhdan 967, "
+              f"H1-2025 bilan kengaytirilgan, clamp'siz, DINAMIK) bilan qayta hisoblandi")
+
     return result
 
 
@@ -934,7 +1412,7 @@ def _apply_calc_stock(calc_by_sku, root=ROOT, verbose=True):
         return 0
     inv = json.loads(inv_path.read_text(encoding="utf-8"))
     CALC_KEYS = ("calcStock", "calcConf", "calcEvidence", "calcAnchor", "calcRule",
-                 "lkQty", "lkSold", "lkDate")
+                 "lkQty", "lkSold", "lkDate", "ovEffective")
     matched = 0
     for iv in inv.values():
         if not isinstance(iv, dict):
@@ -965,6 +1443,11 @@ def _apply_calc_stock(calc_by_sku, root=ROOT, verbose=True):
                 iv["lkDate"] = _lk["date"]
             else:
                 iv.pop("lkQty", None); iv.pop("lkSold", None); iv.pop("lkDate", None)
+            _ovEff = res.get("ovEffective")
+            if _ovEff is not None:
+                iv["ovEffective"] = _ovEff
+            else:
+                iv.pop("ovEffective", None)
             matched += 1
         else:
             for k in CALC_KEYS:
