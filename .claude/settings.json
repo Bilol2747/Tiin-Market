@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(python -c $script)",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_patch_runtime.py\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\build_all.py\" --sales \"sotuv_hafta_test.xlsx\" --products \"������ \\(6\\).xlsx\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_verify_p1.py\")",
+      "PowerShell(python \"C:\\\\Tiim Market Base Loyihasi\\\\_verify_rev.py\")"
+    ]
+  }
+}
