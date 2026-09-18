@@ -130,6 +130,14 @@ jobs:
       - name: Butun saytni qayta qurish
         env:
           INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          # 2026-09-17: calcStock hisoblashda jiddiy vaqt-bo'shlig'i topilsa
+          # (backend_p_calc_stock.py) ogohlantirish yuborish uchun -
+          # health_check.yml'dagi bilan bir xil admin bot/chat. Ikkalasi
+          # ham GitHub repo Settings -> Secrets'da o'rnatilishi kerak;
+          # o'rnatilmagan bo'lsa ogohlantirish shunchaki yuborilmaydi
+          # (build davom etadi, hech narsa buzilmaydi).
+          TG_ALERT_BOT_TOKEN: ${{ secrets.TG_ALERT_BOT_TOKEN }}
+          TG_ALERT_CHAT_ID: ${{ secrets.TG_ALERT_CHAT_ID }}
         run: python build_all_from_api.py
 
       # 2026-08-15: "Zakas ko'rsatkichlarini Turso'ga e'lon qilish"
@@ -148,7 +156,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git config pull.rebase false
-          git add sales.html index.html data_daily.json data_mahsulotlar.json data_inv_new.json data_supplier.json data_kirim.json data_stock_snapshot.json supplier_months_cache.json data_history.json data_monthly_rev.json data_abc.json data_firmalar.json data_calc_baseline.json .pav_cache.json
+          git add sales.html index.html data_daily.json data_mahsulotlar.json data_inv_new.json data_supplier.json data_kirim.json data_stock_snapshot.json supplier_months_cache.json data_history.json data_monthly_rev.json data_abc.json data_firmalar.json data_calc_baseline.json .pav_cache.json .stock_ov_cache.json
           # 2026-08-21: data_history.json GitHub'ning 100MB chegarasidan oshib push
           # rad etilgani uchun endi eski oylar alohida arxiv fayllarga chiqariladi
           # (history_archive.py) - ular ham commit qilinishi kerak, bo'lmasa har

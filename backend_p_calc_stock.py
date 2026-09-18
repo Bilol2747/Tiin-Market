@@ -58,7 +58,8 @@ bilan zakas hisoblanishini tanlaydi - bu modul FAQAT ma'lumot tayyorlaydi,
 zakas formulasining o'ziga (qulflangan) mutlaqo tegmaydi.
 """
 import json
-from datetime import date, datetime, timedelta
+import os
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import history_archive
@@ -223,6 +224,13 @@ if _targeted_path.exists():
 else:
     TARGETED_EXTENDED_SKUS = set()
 
+# Qo'lda tuzatish (stock_overrides, api/stock-override.py) ro'yxatining oxirgi
+# MUVAFFAQIYATLI o'qilgan nusxasi (2026-09-16, Bilol so'rovi: tarmoq/saqlash
+# joyi vaqtincha ishlamay qolsa ham, allaqachon kiritilgan tuzatishlar bitta
+# build davomida "yo'qolib qolmasin"). Git'da saqlanadi - `.pav_cache.json`
+# bilan bir xil naqsh (sync.yml'ning git add ro'yxatiga ham qo'shilgan).
+_OV_CACHE_PATH = ROOT / ".stock_ov_cache.json"
+
 # --- PAUZA ICHIDAGI ESKI KIRIM (2026-08-04, foydalanuvchi topilmasi) ---
 # Tugash deb tan olingan pauza ICHIDA kelgan kirim, agar pauza oxirigacha
 # shuncha kundan ortiq sotilmay tursa - u ham arvoh deb tashlanadi (batafsil
@@ -250,6 +258,26 @@ FOOD_SUBCATEGORIES = {"Детское питание"}
 FOOD_NAME_HINTS = ("корм", "yem")
 
 
+def _alert_telegram(msg):
+    """Jiddiy hisoblash xatosida ogohlantiradi - `health_check.yml`dagi BIR
+    XIL admin bot/chat (mavjud ogohlantirish kanali), yangi infratuzilma
+    emas. Token/chat_id fayl ichiga QATTIQ YOZILMAYDI - muhit
+    o'zgaruvchisidan olinadi (`sync.yml`da o'rnatiladi), o'rnatilmagan
+    bo'lsa (masalan lokal test) shunchaki jim o'tkaziladi. Tarmoq xato
+    bersa ham build to'xtamasin - bu ikkinchi darajali ogohlantirish."""
+    token = os.environ.get("TG_ALERT_BOT_TOKEN", "").strip()
+    chat_id = os.environ.get("TG_ALERT_CHAT_ID", "").strip()
+    if not token or not chat_id:
+        return
+    try:
+        import requests
+        requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": msg}, timeout=10)
+    except Exception:
+        pass
+
+
 def _is_food(cat_top, cat_sub, name):
     if cat_top in FOOD_CATEGORIES or cat_sub in FOOD_SUBCATEGORIES:
         return True
@@ -268,6 +296,17 @@ def _utc_date(iso_str):
 
 def _day_idx(iso_str, base_date):
     return (_utc_date(iso_str) - base_date).days
+
+
+def _parse_dt(iso_str):
+    """ISO timestamp -> timezone-aware datetime (soat/daqiqasi bilan, TASHLAB
+    YUBORILMAYDI - `_utc_date()`dan farqli). Faqat SUTKA ICHIDA (bir xil kunda)
+    ikkita voqeaning qaysi OLDIN/KEYIN bo'lganini solishtirish uchun kerak
+    (qo'lda tuzatish kuni kelgan kirim). Vaqt yo'q/naive bo'lsa UTC deb olinadi."""
+    dt = datetime.fromisoformat(str(iso_str).replace("Z", "+00:00"))
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt
 
 
 def _kirim_by_day(kirim_skus, sku, base_date, total_days):
@@ -774,6 +813,15 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
     if not _check_time_alignment(hist, old, kirim, new_base, hist_base, hist_days, verbose):
         if verbose:
             print("  ! vaqt qatorida jiddiy muammo - calcStock QAYTA HISOBLANMADI")
+        # 2026-09-17 (Bilol so'rovi): avval bu holat FAQAT GitHub Actions
+        # logiga yozilardi - hech kim ko'rmasdan kunlab davom etishi mumkin
+        # edi. health_check.yml'dagi bilan bir xil kanal orqali ogohlantiradi.
+        _alert_telegram(
+            "⚠️ Tiin Market: calcStock (\"Hisob\" ustuni) qayta "
+            "hisoblanmadi - sotuv tarixida vaqt bo'shlig'i topildi. Eski "
+            "qiymat saqlanib qoldi (xavfsiz), lekin tuzatilmaguncha "
+            "yangilanmaydi. GitHub Actions logini tekshiring."
+        )
         return {}
 
     kirim_skus = kirim.get("skus", {})
@@ -1160,15 +1208,46 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
         print(f"  {len(lk):,} mahsulotga 'oxirgi kirimdan qolgan' (qolgan/kelgan) hisoblandi"
               f" (shundan {n_lk_only:,} tasida calcStock yo'q - faqat shu ko'rsatkich)")
 
+    # ─── QO'LDA TUZATISH (OVERRIDE) — endi to'g'ridan-to'g'ri calcStock'ning
+    # O'ZIGA yoziladi (2026-09-16/17, Bilol qarori). AVVAL alohida "ovEffective"
+    # degan PARALEL yo'nalish edi - shu sabab uni har yangi joyga (frontend/
+    # backend) alohida ULASH kerak bo'lardi va aynan shu turdagi "backend
+    # to'g'ri hisoblagan, lekin ko'rinishga yetib bormagan" xatosi ikki marta
+    # takrorlandi (2026-08-19/20, 2026-09-14). Endi menejer jismonan sanagan
+    # son shu SKU uchun ENG ISHONCHLI KIRIM-ANCHOR sifatida qaraladi va
+    # yuqoridagi asosiy model bilan AYNAN BIR XIL `_walk_clamp()` yordamida
+    # bugungi kungacha yuriladi - natija bevosita calcStock/calcConf/
+    # calcAnchor/calcRule'ga yoziladi. `ovEffective` maydoni ESKI frontend
+    # kodi bilan moslik uchun saqlanadi, lekin endi shunchaki calcStock'ning
+    # nusxasi.
+    #
+    # Tarmoq/saqlash joyi (Blob) vaqtincha ishlamasa - oxirgi MUVAFFAQIYATLI
+    # o'qilgan ro'yxat mahalliy keshdan (`_OV_CACHE_PATH`, git'da saqlanadi)
+    # olinadi, shuning uchun bitta build'ning tarmoq xatosi bilan hech qanday
+    # tuzatish "yo'qolib" qolmaydi.
     n_ov = 0
+    overrides = None
     try:
         import requests
         _ov_resp = requests.get("https://tiin-market.vercel.app/api/stock-override", timeout=15)
-        overrides = _ov_resp.json().get("overrides", {}) if _ov_resp.ok else {}
+        if _ov_resp.ok:
+            overrides = _ov_resp.json().get("overrides", {})
     except Exception as e:
-        overrides = {}
         if verbose:
-            print(f"  ! stock-override o'qib bo'lmadi ({e}) - ovEffective hisoblanmadi")
+            print(f"  ! stock-override tarmoq xatosi: {e}")
+    if overrides is not None:
+        try:
+            _OV_CACHE_PATH.write_text(json.dumps(overrides, ensure_ascii=False), encoding="utf-8")
+        except Exception:
+            pass
+    else:
+        try:
+            overrides = (json.loads(_OV_CACHE_PATH.read_text(encoding="utf-8"))
+                         if _OV_CACHE_PATH.exists() else {})
+            if verbose:
+                print(f"  ! stock-override javob bermadi - keshdan {len(overrides):,} ta tuzatish ishlatildi")
+        except Exception:
+            overrides = {}
     for sku, ov in overrides.items():
         if sku not in active_skus or not ov.get("updated_at"):
             continue
@@ -1177,27 +1256,50 @@ def recompute_calc_stock_from_history(root=ROOT, verbose=True):
         except (ValueError, TypeError):
             continue
         if ov_day < 0 or ov_day >= total_days:
-            continue
-        k_full_ov = _kirim_by_day(kirim_skus, sku, new_base, total_days)
-        kirim_since = sum(q for d, q in k_full_ov.items() if d > ov_day)
-        sold_since = 0.0
+            continue  # tuzatish oynadan tashqarida - hisoblab bo'lmaydi
+        # Asosiy tsikldagi `full_sales` bilan bir xil qurilma - alohida
+        # nusxa, chunki bu SKU asosiy tsiklda umuman ishlanmagan bo'lishi
+        # mumkin (masalan "kirimsiz"/"eskirgan-assortiment" yo'liga tushgan).
+        full_sales_ov = [0.0] * total_days
         for ds, q in (old_daily.get(sku) or {}).items():
             di = (date.fromisoformat(ds) - new_base).days
-            if ov_day < di < offset:
-                sold_since += q
+            if 0 <= di < offset:
+                full_sales_ov[di] += q
         hist_arr_ov = d_map.get("sku:" + sku) or []
-        start_i = max(0, ov_day + 1 - offset)
-        for i in range(start_i, min(len(hist_arr_ov), hist_days)):
-            sold_since += hist_arr_ov[i] or 0
-        eff = max(0.0, (ov.get("value") or 0) + kirim_since - sold_since)
-        entry = result.get(sku)
-        if entry is None:
-            entry = result[sku] = {"stock": None, "conf": None, "evidence": None,
-                                    "anchor": None, "rule": None}
-        entry["ovEffective"] = round(eff, 2)
+        for i, q in enumerate(hist_arr_ov):
+            if q and i < hist_days:
+                full_sales_ov[offset + i] += q
+        # Tuzatish KUNIDAGI real kirim SOAT/DAQIQA bo'yicha solishtiriladi:
+        # sanashdan OLDIN kelgan kirim allaqachon sanalgan songa kirgan deb
+        # hisoblanadi (qo'shilmaydi), sanashdan KEYIN (o'sha kunning o'zida)
+        # kelgan kirim esa ALOHIDA qo'shiladi.
+        try:
+            ov_dt = _parse_dt(ov["updated_at"])
+        except (ValueError, TypeError):
+            continue
+        same_day_after = 0.0
+        for a in (kirim_skus.get(sku, {}).get("arrivals") or []):
+            if a.get("status") != "Received" or not a.get("date"):
+                continue
+            try:
+                a_dt = _parse_dt(a["date"])
+            except (ValueError, TypeError):
+                continue
+            if a_dt.date() == ov_dt.date() and a_dt > ov_dt:
+                same_day_after += a.get("qty") or 0
+        k_by_day_ov = dict(_kirim_by_day(kirim_skus, sku, new_base, total_days))
+        k_by_day_ov[ov_day] = (ov.get("value") or 0) + same_day_after
+        final_ov, clamp_ov, _ = _walk_clamp(k_by_day_ov, full_sales_ov, ov_day, total_days)
+        entry = result.setdefault(sku, {})
+        entry["stock"] = round(final_ov, 2)
+        entry["conf"] = "yuqori"
+        entry["evidence"] = clamp_ov
+        entry["anchor"] = (new_base + timedelta(days=ov_day)).isoformat()
+        entry["rule"] = "qolda-tuzatish"
+        entry["ovEffective"] = entry["stock"]
         n_ov += 1
     if verbose:
-        print(f"  {n_ov:,}/{len(overrides):,} faol qo'lda-tuzatish uchun ovEffective (jonli-yangilangan) hisoblandi")
+        print(f"  {n_ov:,}/{len(overrides):,} faol qo'lda-tuzatish calcStock'ga to'g'ridan-to'g'ri qo'llandi")
         n_calc = sum(1 for v in result.values() if v["stock"] is not None)
         n_hi = sum(1 for v in result.values() if v["conf"] == "yuqori")
         n_mid = sum(1 for v in result.values() if v["conf"] == "o'rta")
