@@ -1,0 +1,129 @@
+{
+ "createdAt": "2026-09-18T15:22:45.571Z",
+ "srcFile": "-5325144796_2089_tiin optom nakladnoy.xlsx",
+ "supplierId": "c8314237-e790-4787-852d-6304fb120639",
+ "supplierLabel": "''BAGAJAT'' MCHJ (№9-002 от 05.01.2023г) (Chocotella hot lunch)",
+ "items": [
+  {
+   "name": "Shokolad Pasta Chococream Yong'oq 200gr",
+   "barcode": "4780033020584",
+   "qty": 32,
+   "price": 20100,
+   "status": "aktiv",
+   "sku": "35471",
+   "id": "92a5d2eb-cb89-4629-9c1e-1c79c7c81e19",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Chococream yong'oqli shokolad pastasi 300gr",
+   "barcode": "4780033020034",
+   "qty": 24,
+   "price": 28200,
+   "status": "aktiv",
+   "sku": "3893",
+   "id": "9b9adc79-646d-4b61-bab1-a954ae1b00d7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Chococream shokolad pastsi 300gr",
+   "barcode": "4780033020591",
+   "qty": 24,
+   "price": 28200,
+   "status": "aktiv",
+   "sku": "44078",
+   "id": "eb6dcb16-5775-4cf6-a0c6-fec6df11a852",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokoladli Pasta ChocoCream 500gr",
+   "barcode": "4780033020539",
+   "qty": 32,
+   "price": 41000,
+   "status": "aktiv",
+   "sku": "12335",
+   "id": "bf74d231-c696-4b0b-a701-0862fa552432",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokolad Pasta Chococream Yong'oq 600gr",
+   "barcode": "4780033020096",
+   "qty": 24,
+   "price": 46750,
+   "status": "aktiv",
+   "sku": "5079",
+   "id": "b4e8d6b2-1bcf-4a82-89ae-82e8a44fcb74",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokoladli Pasta Chococream Yong'oq 900gr",
+   "barcode": "4780033020133",
+   "qty": 32,
+   "price": 67000,
+   "status": "aktiv",
+   "sku": "5573",
+   "id": "a1cd6e56-7016-4baa-8b3c-aaab80a54132",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokoladli Pasta N'Medov Chocotella 330gr",
+   "barcode": "4780033020140",
+   "qty": 24,
+   "price": 34550,
+   "status": "aktiv",
+   "sku": "4271",
+   "id": "00780646-3d3c-47f6-8463-fddb3f761140",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kreker Two Bite Choco Sandwich 32gr",
+   "barcode": "4780033020607",
+   "qty": 48,
+   "price": 1600,
+   "status": "aktiv",
+   "sku": "46693",
+   "id": "4bde57ff-969a-4dd4-9688-e4d68ca9fc9d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vafli Choco Chips Sut Shokoladli 80gr",
+   "barcode": "4780029511935",
+   "qty": 24,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "38431",
+   "id": "b98a9a56-f1a4-4d4e-8747-3fb424c31301",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pechenye Sladok Qaymoq 500gr",
+   "barcode": "4780033020713",
+   "qty": 8,
+   "price": 20700,
+   "status": "aktiv",
+   "sku": "46688",
+   "id": "7b9ebddc-04ca-4908-b9a0-6b87ca7e3b31",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Печенье Sladok неженка в белой глазури 500гр",
+   "barcode": "4780033020836",
+   "qty": 8,
+   "price": 20700,
+   "status": "aktiv",
+   "sku": "46690",
+   "id": "4fcfa9bf-c956-4c2f-88e8-a8b9230e8004",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shokoladli Batoncha Strobar Max 60g",
+   "barcode": "4780029511379",
+   "qty": 36,
+   "price": 6300,
+   "status": "noaktiv",
+   "sku": "2877638",
+   "id": "f6d3428e-b7cc-4b22-94dd-ca124391f9ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 8403600
+}
