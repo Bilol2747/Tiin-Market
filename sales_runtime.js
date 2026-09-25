@@ -2303,7 +2303,7 @@ const ZKA_MAX_ORDER_MULT=3;
 // 7-14 kunlik "to'ldirish" (CAN) zonasida zakas BERILMAYDI - yaqinda yetkazilgan tovarga darhol yana zakas
 // chiqmasin (sirka: kecha 24 kelgan, sotilmagan, 11.6 kunga yetadi -> 28 zakas chiqayotgan edi). MUST (<7 kun)
 // zonasi ta'sirlanmaydi - kirim kichik bo'lib tez tugasa, zakas baribir chiqadi.
-const ZKA_FRESH_KIRIM_DAYS=7;
+const ZKA_FRESH_KIRIM_DAYS=5;
 // "OXIRGI KIRIM YETADIMI" TEKSHIRUVI (2026-09-24, Bilol): kirim necha kunga yetishi OXIRGI KIRIMDAN
 // BERI haqiqiy sotuv tezligi (lkSold/o'tgan kun) bilan baholanadi - 30 kunlik o'rtacha bilan emas
 // (60 dona kirim 12 kunda 37 sotilgan = 3.1/kun -> ~19 kun, 30 kunlik 4.46 bilan 13.5 kun chiqib

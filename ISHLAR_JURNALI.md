@@ -4,7 +4,7 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
-**Yangi kirim himoyasi (2026-09-25, Bilol):** oxirgi kirim 7 kundan (`ZKA_FRESH_KIRIM_DAYS`) kam oldin kelgan bo'lsa, 7-14 kunlik CAN zonasida zakas BERILMAYDI (`_zkaCompute`); MUST (<7 kun) zonasi ta'sirlanmaydi. Sabab: sirka kecha 24 kelgan, sotilmagan, 11.6 kunga yetadi -> "kirim 15 kunga yetmaydi" qoidasi zaxirani 25 kunga to'ldirib 28 zakas chiqargan. Ta'siri (1 kunlik ma'lumotda): 3320 zakas qatorining 113 tasi (3.4%). Sayt, Export va doimiy nazorat bir xil `_zkaCompute` ishlatadi. Lokal `backend_p_zakas_auto.py` (repo'da YO'Q) yangilanmagan.
+**Yangi kirim himoyasi (2026-09-25, Bilol):** oxirgi kirim 5 kundan (`ZKA_FRESH_KIRIM_DAYS`, kirim sanasidan boshlab hisoblanadi: 0-4 kun oldin) kam oldin kelgan bo'lsa, 7-14 kunlik CAN zonasida zakas BERILMAYDI (`_zkaCompute`); MUST (<7 kun) zonasi ta'sirlanmaydi. Sabab: sirka kecha 24 kelgan, sotilmagan, 11.6 kunga yetadi -> "kirim 15 kunga yetmaydi" qoidasi zaxirani 25 kunga to'ldirib 28 zakas chiqargan. Ta'siri (1 kunlik ma'lumotda): 3320 zakas qatorining 87 tasi (2.6%). Sayt, Export va doimiy nazorat bir xil `_zkaCompute` ishlatadi. Lokal `backend_p_zakas_auto.py` (repo'da YO'Q) yangilanmagan.
 
 ## 2026-09-25 — Zakas: "Oxirgi kirim" rejimida QOLGAN KUN/KUNLIK/HOLAT kirimga moslandi; rejim har kirishda "Oxirgi kirim"
 
