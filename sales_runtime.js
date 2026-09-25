@@ -2248,7 +2248,8 @@ function _zkInvanOrdersUrl(isProd){
 // muddat chetlab o'tilib qolmasin. Shu limitdan o'tgan "Open" buyurtma Zakas
 // UCHUN (FAQAT shu yerda - Kirim/p8 bo'limidagi haqiqiy status buzilmaydi)
 // endi yo'q hisoblanadi, tovar oddiy formulaga qaytadi.
-const KR_OPEN_PO_ZAKAS_LIMIT_DAYS=30;
+// 2026-09-25 (Bilol): 30 -> 15 kun. Open/New buyurtma shuncha kundan keyin ham kelmasa, tovar zakasga qaytadi.
+const KR_OPEN_PO_ZAKAS_LIMIT_DAYS=15;
 // QABUL BOSHLANGAN BUYURTMA qoidasi (2026-09-24, Bilol): buyurtmadan kamida bitta tovar
 // haqiqatan qabul qilingan (qator qty>0) bo'lsa, undagi kelmagan tovarlar QAYTA KELMAYDI -
 // "Open" hisoblanmaydi va keyingi zakasga qaytib tushadi. Open/New holati buyurtma
