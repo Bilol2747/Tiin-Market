@@ -1042,9 +1042,14 @@ let zkDepth="normal";  // "normal" = muntazam zakas (30 kunlik) | "chuqur" = avv
 // state saqlanmaydi, chunki lkQty/lkSold har buildda backend_p_calc_stock.py
 // tomonidan qaytadan hisoblanadi, shuning uchun frontend ham har safar "toza"
 // bootstrap qiladi, alohida holat fayli kerak emas). FAQAT Muntazam (chuqur emas)
-// bo'limga qo'llanadi - "STOK" ustuni, HOLAT belgisi ikkala rejimda ham o'zgarmaydi
-// (faqat ZAKAS soni, demak Export/Import/summalar ham shundan kelib chiqib o'zgaradi).
-let zkCalcMode="stock";  // "stock" | "kirim"
+// bo'limga qo'llanadi - "STOK" ustuni ikkala rejimda ham o'zgarmaydi; firma jadvalidagi
+// QOLGAN KUN/KUNLIK O'RTACHA/HOLAT esa "Oxirgi kirim"da zkaDays/zkaSpeed/zkaSignal'dan
+// ko'rsatiladi (2026-09-25). r.daysLeft/r.signal (stok asosli) qatorda o'zgarmay qoladi.
+// Sukut "kirim" va SAQLANMAYDI (2026-09-25, Bilol): har kirishda "Oxirgi kirim" bilan ochiladi,
+// "Stok" faqat shu sessiyada qo'lda tanlansa amal qiladi (localStorage'dan tiklanmaydi).
+// Node'da (zakas/watch_agent.js - Telegram agent sukut rejimga tayanadi) avvalgidek "stock" -
+// uning natijalari bu o'zgarish bilan jimgina almashib qolmasin.
+let zkCalcMode=(typeof module!=="undefined"&&module.exports)?"stock":"kirim";  // "stock" | "kirim"
 // "Hujjatdan buyurtma" (2026-07-24, foydalanuvchi so'rovi): ta'minotchidan kelgan tayyor
 // hujjatni (накладная va h.k.) TO'LIQ katalog bo'yicha moslashtirib, fayldagi soni/narxni
 // AYNAN olib Invan'ga yuboradi - avtomatik hisoblangan (avg30) zakasdan farqli. Mavjud
@@ -1073,7 +1078,7 @@ zkRowChecked=_zkLoad("zk_row_checked");
 zkSupFilter=_zkLoadStr("zk_sup_filter","");
 zkMode=_zkLoadStr("zk_mode","list");
 zkDepth=_zkLoadStr("zk_depth","normal");
-zkCalcMode=_zkLoadStr("zk_calc_mode","stock");
+try{localStorage.removeItem("zk_calc_mode");}catch(e){}  // eski saqlangan tanlov tozalanadi
 zkPageTab=_zkLoadStr("zk_page_tab","auto");
 zkFileSupplier=_zkLoadStr("zk_file_supplier","");
 zkFileRows=_zkLoadArr("zk_file_rows");
@@ -1082,7 +1087,6 @@ function _zkSaveViewState(){try{
   localStorage.setItem("zk_sup_filter",zkSupFilter);
   localStorage.setItem("zk_mode",zkMode);
   localStorage.setItem("zk_depth",zkDepth);
-  localStorage.setItem("zk_calc_mode",zkCalcMode);
   localStorage.setItem("zk_page_tab",zkPageTab);
 }catch(e){}}
 function _zkSyncCalcModeBtns(){
@@ -1093,6 +1097,7 @@ function _zkSyncCalcModeBtns(){
 function zkSetCalcMode(mode){
   if(zkCalcMode===mode)return;
   zkCalcMode=mode;
+  zkRowOrder={};  // QOLGAN KUN bo'yicha saralash yangi rejim qiymatlari bilan qayta tuzilsin
   _zkSaveViewState();
   _zkSyncCalcModeBtns();
   renderZakas();
@@ -2350,7 +2355,7 @@ function _zkaBuildSupplierResetDays(){
 }
 function _zkaCompute(v,velocity,pendingQty,resetDays){
   resetDays=resetDays||ZKA_REF_RESET_DAYS;
-  if(v.lkQty==null||!v.lkDate||!(velocity>0))return{orderQty:0,qolgan:null,qolganKunlar:null};
+  if(v.lkQty==null||!v.lkDate||!(velocity>0))return{orderQty:0,qolgan:null,qolganKunlar:null,zkaSpeed:null};
   const lkQty=Number(v.lkQty),lkSold=Number(v.lkSold||0);
   // "Reference" (oxirgi kirim miqdori) sanity-tekshiruvi: "agar hozir yana shuncha
   // buyurtma qilsak, necha kunga yetardi" - FAQAT buyurtma HAJMINI (reference)
@@ -2376,7 +2381,7 @@ function _zkaCompute(v,velocity,pendingQty,resetDays){
   // xil (krPendingQty), qayta zakas berilmaydi.
   // "Qolgan kun" ham "kirim yetadimi" bilan BIR XIL tezlikda (vCheck: kirimdan beri, ishonchsiz bo'lsa
   // 30 kunlik) - ikki qadam bir-biriga zid bo'lmasligi uchun (2026-09-24, Bilol).
-  if(pendingQty>0)return{orderQty:0,qolgan,qolganKunlar:qolgan/vCheck};
+  if(pendingQty>0)return{orderQty:0,qolgan,qolganKunlar:qolgan/vCheck,zkaSpeed:vCheck};
   const qolganKunlar=qolgan/vCheck;
   let orderQty=0;
   if(qolganKunlar<ZKA_MUST_ORDER_DAYS)orderQty=reference;
@@ -2386,7 +2391,7 @@ function _zkaCompute(v,velocity,pendingQty,resetDays){
   if((jami/velocity)>ZKA_REF_MAX_DAYS)orderQty=Math.max(0,resetDays*velocity-qolgan);
   if(lkQty>0){const _cap=v.kg?ZKA_MAX_ORDER_MULT*lkQty:Math.floor(ZKA_MAX_ORDER_MULT*lkQty);if(orderQty>_cap)orderQty=_cap;}
   orderQty=v.kg?Math.round(orderQty*100)/100:Math.ceil(orderQty);
-  return{orderQty,qolgan,qolganKunlar};
+  return{orderQty,qolgan,qolganKunlar,zkaSpeed:vCheck};
 }
 // "Oxirgi kirim" rejimi uchun karobka/blok o'lchami (2026-09-23, Bilol so'rovi) -
 // mavjud `_zkBoxSize()`dan FARQI: BUTUN tarix o'rniga FAQAT SO'NGGI 6 marta haqiqiy
@@ -2559,16 +2564,20 @@ function _zkBuildSuppliers(depth){
       if(!v.kg&&orderQty>0&&orderQty<ZK_MIN_ORDER){minAdd=ZK_MIN_ORDER-orderQty;orderQty=ZK_MIN_ORDER;}
       // "Oxirgi kirim" rejimi (zkSetCalcMode) - yuqoridagi calcStock-asosli orderQty
       // BUTUNLAY chetlab o'tiladi, _zkaCompute() (backend_p_zakas_auto.py ko'chirmasi)
-      // natijasi ishlatiladi. STOK/QOLGAN KUN/HOLAT ustunlari (stock/daysLeft/signal)
-      // ATAYLAB O'ZGARTIRILMAYDI - foydalanuvchi so'rovi: "bu stok hozirgidek turaveradi",
+      // natijasi ishlatiladi. stock/daysLeft/signal maydonlari ATAYLAB O'ZGARTIRILMAYDI
+      // (jadval ko'rinishi uchun alohida zkaDays/zkaSpeed/zkaSignal) - "bu stok hozirgidek turaveradi",
       // faqat ZAKAS (demak Export/Import/summalar ham shundan) rejimga qarab almashadi.
       // FAQAT Muntazam bo'limda (chuqur - pav asosida, bu formula uchun mo'ljallanmagan).
-      let _zkaQolganKunlar=null;
+      let _zkaQolganKunlar=null,_zkaSpeed=null,_zkaSignal=null;
       if(zkCalcMode==="kirim"&&!chuqur){
         const _resetDays=(_supResetDays&&_supResetDays[sup])||ZKA_REF_RESET_DAYS;
         const _zkaRes=_zkaCompute(v,_da,pendingQty,_resetDays);
         orderQty=_zkaRes.orderQty;
         _zkaQolganKunlar=_zkaRes.qolganKunlar;
+        _zkaSpeed=_zkaRes.zkaSpeed;
+        // Firma jadvalidagi HOLAT (faqat ko'rinish, 2026-09-25): zkaDays bo'yicha MUST/CAN/yetarli.
+        // r.signal/r.daysLeft (stokka bog'liq) o'zgarmaydi - boshqa joylar ularni ishlatishi mumkin.
+        if(_zkaQolganKunlar!=null)_zkaSignal=_zkaQolganKunlar<ZKA_MUST_ORDER_DAYS?"kritik":_zkaQolganKunlar<ZKA_CAN_ORDER_DAYS?"urgent":"normal";
         minAdd=0;
         // C tovar filtri (2026-09-24, Bilol): zabc="C" va backend `ck`=0 (kam sotiladigan: 30 kunda
         // <10 kun sotilgan, tezligi <1/kun, tugab qolmagan) - zakas BERILMAYDI. `ck` yo'q bo'lsa
@@ -2646,7 +2655,7 @@ function _zkBuildSuppliers(depth){
       const costManual=_costOv!=null&&_costOv.base===rawCost;
       const rcost=costManual?_costOv.val:rawCost;
       const rcostApprox=costManual?false:!!v.rcostApprox;
-      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",ck:v.ck!=null?v.ck:null,cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,zkaDays:_zkaQolganKunlar,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
+      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",ck:v.ck!=null?v.ck:null,cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,zkaDays:_zkaQolganKunlar,zkaSpeed:_zkaSpeed,zkaSignal:_zkaSignal,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
     }).sort((a,b)=>{
       // zkRowOrder depth+supplier bo'yicha kalitlanadi - Muntazam va Chuqur bo'limlari
       // BIR XIL supplier nomi ostida BUTUNLAY BOSHQA tovarlarga ega bo'lishi mumkin,
@@ -2658,6 +2667,12 @@ function _zkBuildSuppliers(depth){
       const _dk=(chuqur?"chuqur:":"normal:")+sup;
       const ord=zkRowOrder[_dk];if(ord){const ia=ord.indexOf(a.key),ib=ord.indexOf(b.key);return(ia>=0?ia:9999)-(ib>=0?ib:9999);}
       const k=zkSortKey||"orderQty";let va=a[k],vb=b[k];
+      // "Oxirgi kirim" rejimi (Muntazam): QOLGAN KUN/KUNLIK O'RTACHA jadvalda ko'ringan qiymat bo'yicha.
+      // zkaDays yo'q (kirim ma'lumoti yo'q) qatorlar har ikki yo'nalishda oxirida.
+      if(zkCalcMode==="kirim"&&!chuqur){
+        if(k==="daysLeft"){va=a.zkaDays;vb=b.zkaDays;if(va==null||vb==null)return(va==null)-(vb==null);}
+        else if(k==="dailyAvg"){va=a.zkaSpeed??a.dailyAvg;vb=b.zkaSpeed??b.dailyAvg;}
+      }
       if(k==="name"){va=va||"";vb=vb||"";return zkSortAsc?va.localeCompare(vb,"ru"):vb.localeCompare(va,"ru");}
       if(k==="abc"){const o={A:0,B:1,C:2};va=o[va]??3;vb=o[vb]??3;return zkSortAsc?va-vb:vb-va;}
       va=va??0;vb=vb??0;return zkSortAsc?va-vb:vb-va;
@@ -3184,23 +3199,25 @@ function _zkAutoClearMarks(sup){
 }
 // Ta'minotchining "Oxirgi kirim" formulasi bo'yicha yuboriladigan tovarlari. Sahifadagi
 // Stok/Oxirgi kirim tanlovidan MUSTAQIL - har doim Oxirgi kirim (zkCalcMode vaqtincha).
+// Saralash keshi (zkRowOrder) ham tiklanadi - QOLGAN KUN endi rejimga bog'liq, Stok rejimida
+// turgan jadvalga kirim tartibi "yopishib" qolmasin (2026-09-25).
 function _zkAutoRowsFor(sup){
-  const prev=zkCalcMode;zkCalcMode="kirim";
+  const prev=zkCalcMode,prevOrd=prev!=="kirim"?{...zkRowOrder}:null;zkCalcMode="kirim";
   try{
     const s=_zkBuildSuppliers("normal").find(x=>x.sup===sup);
     return s?s.rows.filter(r=>r.orderQty>0&&r.sku):[];
-  }finally{zkCalcMode=prev;}
+  }finally{zkCalcMode=prev;if(prevOrd)zkRowOrder=prevOrd;}
 }
 // Barcha ta'minotchilarning BARCHA qatorlari (orderQty=0 ham) - BIR marta hisoblab {sup:rows}.
 // Faqat zakas/auto_control.js (doimiy nazorat) ishlatadi - har firma uchun alohida _zkBuildSuppliers()
 // chaqirmaslik uchun. Hisob _zkAutoRowsFor bilan AYNAN bir xil (kirim rejimi, Muntazam bo'lim).
 function _zkAutoAllRowsMap(){
-  const prev=zkCalcMode;zkCalcMode="kirim";
+  const prev=zkCalcMode,prevOrd=prev!=="kirim"?{...zkRowOrder}:null;zkCalcMode="kirim";
   try{
     const m={};
     _zkBuildSuppliers("normal").forEach(s=>{m[s.sup]=s.rows;});
     return m;
-  }finally{zkCalcMode=prev;}
+  }finally{zkCalcMode=prev;if(prevOrd)zkRowOrder=prevOrd;}
 }
 // ─── FIRMA TELEFON RAQAMI (SMS uchun) - yuborishdan OLDIN ko'rsatiladi (2026-09-24, Bilol) ───
 // Invan'dagi firma kartochkasidan (api/invan-order.js action:"phones", faqat shaxsiy token bilan).
@@ -3709,17 +3726,23 @@ function renderZakas(){
         const _col=_r<=0?"#E24B4A":(_r<=r.lkQty*0.2?"#EF9F27":"#1D9E75");
         lkTxt=`<span title="${esc(_tt)}" style="font-size:12.5px;white-space:nowrap"><span style="color:#bbb">${_f(r.lkQty)}/</span><b style="color:${_col}">${_f(_r)}</b></span>`;
       }
-      const dTxt=r.dailyAvg>0?(r.kg?r.dailyAvg.toFixed(2):Math.round(r.dailyAvg*10)/10)+" "+u:"—";
-      const dlTxt=r.daysLeft!=null?r.daysLeft:"—";
+      // "Oxirgi kirim" rejimi (Muntazam): QOLGAN KUN = zkaDays ((lkQty-lkSold)/vCheck), KUNLIK = shu
+      // formuladagi tezlik (vCheck) - qatorda ikkalasi o'zaro mos. Stok rejimida avvalgidek (daysLeft).
+      // Pastga yaxlitlanadi (6.6 -> 6, qizil) - HOLAT chegaralari (<7, <14) bilan mos; manfiy -> 0.
+      const _kv=zkCalcMode==="kirim"&&zkDepth!=="chuqur";
+      const _dSp=_kv&&r.zkaSpeed!=null?r.zkaSpeed:r.dailyAvg;
+      const dTxt=_dSp>0?(r.kg?_dSp.toFixed(2):Math.round(_dSp*10)/10)+" "+u:"—";
+      const dlTxt=_kv?(r.zkaDays!=null?Math.max(0,Math.floor(r.zkaDays)):"—"):(r.daysLeft!=null?r.daysLeft:"—");
       const oqRaw=r.kg?r.orderQty:r.orderQty;
       const isManual=zkRowQty[r.key]!=null;
-      const sl=sigLbl[r.signal]||["dot-normal",r.signal||"—"];
+      const _zkaSl={kritik:["dot-kritik","MUST: <"+ZKA_MUST_ORDER_DAYS+" kun (oxirgi kirim)"],urgent:["dot-urgent","CAN: "+ZKA_MUST_ORDER_DAYS+"-"+ZKA_CAN_ORDER_DAYS+" kun (oxirgi kirim)"],normal:["dot-normal",ZKA_CAN_ORDER_DAYS+"+ kun (oxirgi kirim)"]};
+      const sl=_kv?(_zkaSl[r.zkaSignal]||null):(sigLbl[r.signal]||["dot-normal",r.signal||"—"]);
       // Bosilganda Kirim (p8) bo'limidagi kabi shu tovarning TO'LIQ kirim tarixini
       // ko'rsatadi (zkOpenKirimDetail) - foydalanuvchi so'rovi (2026-08-18): "Open"
       // buyurtma haqiqiy kelmaydigan bo'lsa, buni Zakas'ning o'zidan (Kirim bo'limiga
       // alohida o'tmasdan) darhol tekshirib ko'rish uchun.
       const _krClick=r.sku?` onclick="event.stopPropagation();zkOpenKirimDetail('${esc(String(r.sku))}')" style="cursor:pointer"`:"";
-      const statusCell=r.pendingQty>0?`<span class="zk-open-badge"${_krClick} title="${r.pendingQty.toLocaleString()} dona yo'lda - ${t("zk_kr_click_tt")}">Open</span>`:`<span class="status-dot ${sl[0]}"${_krClick} title="${esc(sl[1])}"></span>`;
+      const statusCell=r.pendingQty>0?`<span class="zk-open-badge"${_krClick} title="${r.pendingQty.toLocaleString()} dona yo'lda - ${t("zk_kr_click_tt")}">Open</span>`:(sl?`<span class="status-dot ${sl[0]}"${_krClick} title="${esc(sl[1])}"></span>`:`<span style="color:#bbb" title="Oxirgi kirim ma'lumoti yo'q">—</span>`);
       // Narx: eng ishonchli tannarx (haqiqiy kirim tarixi, topilmasa katalog fallback -
       // build_prev_avg.py: recompute_current_cost()). Taxminiy bo'lsa (kirim tarixi hali
       // yo'q - yangi tovar) "≈" bilan belgilanadi va tooltip'da tushuntiriladi.

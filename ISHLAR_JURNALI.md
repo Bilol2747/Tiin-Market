@@ -4,6 +4,12 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
+## 2026-09-25 — Zakas: "Oxirgi kirim" rejimida QOLGAN KUN/KUNLIK/HOLAT kirimga moslandi; rejim har kirishda "Oxirgi kirim"
+
+`sales_runtime.js`, faqat firma sahifasi jadvali (Muntazam). (A) `zkCalcMode==="kirim"`da: QOLGAN KUN = `zkaDays` (pastga yaxlitlanadi, manfiy -> 0, null -> "—"), KUNLIK O'RTACHA = `zkaSpeed` (`_zkaCompute` qaytaradigan `vCheck`), HOLAT = `zkaSignal` (<7 qizil `dot-kritik`, 7-14 to'q sariq `dot-urgent`, qolgani yashil; kirim ma'lumoti yo'q -> "—"). QOLGAN KUN/KUNLIK saralash shu qiymatlar bilan (null oxirida); rejim almashganda saralash keshi (`zkRowOrder`) tozalanadi. `r.daysLeft`/`r.signal` qatorda O'ZGARMAGAN (stok asosli). STOK ustuni va Stok rejimi avvalgidek. Tezkor ro'yxat, firmalar ro'yxati, Export `daysLeft`/`signal`ni umuman ishlatmaydi (faqat `orderQty`). (B) `zkCalcMode` boshlang'ich "kirim", localStorage'ga yozilmaydi/o'qilmaydi (eski `zk_calc_mode` o'chiriladi). Node'da (`zakas/watch_agent.js` - Telegram) sukut "stock" qoldirildi, natijalari o'zgarmasin. Mock sinov (Node vm, tarmoqsiz): MUST/CAN/OK/kirimsiz qatorlar, saralash, Stok rejimi, localStorage. `sales_runtime.js?v=` yangilandi.
+
+---
+
 ## 2026-09-25 — Zakas: firma ichidagi Export faqat shu firmani yuklaydi
 
 `exportZakasCSV()` (`sales_runtime.js`): firma sahifasi ochiq bo'lsa (`zkMode==="detail"&&zkSupFilter`) faqat shu firmaning belgilangan qatorlari eksport qilinadi. Avval avto-belgi (`_zkIsChecked`) tufayli barcha firmalar fayllari yuklanib ketardi. Ro'yxat rejimidagi Export o'zgarmadi. Import (`zkImportBarcodes`) va Invan'ga yuborish (`zkSendToInvan`) tekshirildi — ikkalasi allaqachon `zkSupFilter` bilan cheklangan, xato yo'q. Mock sinov: ro'yxat -> A,B,C; firma B ichida -> B. `sales_runtime.js?v=` yangilandi.
