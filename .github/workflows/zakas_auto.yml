@@ -43,6 +43,7 @@ jobs:
             data_mahsulotlar.json
             zakas/watch_agent.js
             zakas/auto_control.js
+            api/_supplier_id_map.json
           sparse-checkout-cone-mode: false
 
       - name: Node o'rnatish

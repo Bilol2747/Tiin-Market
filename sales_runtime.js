@@ -2646,7 +2646,7 @@ function _zkBuildSuppliers(depth){
       const costManual=_costOv!=null&&_costOv.base===rawCost;
       const rcost=costManual?_costOv.val:rawCost;
       const rcostApprox=costManual?false:!!v.rcostApprox;
-      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,zkaDays:_zkaQolganKunlar,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
+      return {key,name:v.name,sku:v.sku,bc:v.bc||[],abc:v.zabc||"",ck:v.ck!=null?v.ck:null,cat:v.cat,catTop:v.catTop||"",kg:v.kg,stock,dailyAvg:_da,daysLeft:_dl,zkaDays:_zkaQolganKunlar,adj,zakasDays,orderQty,minAdd,boxAdd,boxSize,signal:v.signal,price:_zkPriceOf(v),rcost,rcostApprox,rawCost,costManual,pendingQty,calcStock:v.calcStock,calcConf:v.calcConf,calcEvidence:v.calcEvidence,calcAnchor:v.calcAnchor,calcRule:v.calcRule,calcOverride:_ov||null,ovEffective:v.ovEffective!=null?v.ovEffective:null,lkQty:v.lkQty,lkSold:v.lkSold,lkDate:v.lkDate,invanStock:v.stock||0,stockMode:useCalcStock?"calc":"invan"};
     }).sort((a,b)=>{
       // zkRowOrder depth+supplier bo'yicha kalitlanadi - Muntazam va Chuqur bo'limlari
       // BIR XIL supplier nomi ostida BUTUNLAY BOSHQA tovarlarga ega bo'lishi mumkin,
@@ -3081,12 +3081,23 @@ async function _zkAutoFirmsCall(action,extra){
     return j&&j.ok?j:null;
   }catch(e){return null;}
 }
+// Serverdagi ro'yxat (oxirgi get/set javobi) - "hammasini olib tashlash" faqat SHU nomlarni yuboradi
+// (lokal "Hammasini tanlash" 700+ nomi server chegarasidan (500) oshib, butun so'rov rad etilardi).
+let _zkAutoServerFirms=null;
+function _zkAutoApplyServerFirms(firms){
+  const next=new Set(firms);
+  // Serverdan chiqib ketgan (boshqa qurilmada olib tashlangan) nomlar lokal belgidan ham tushadi;
+  // serverdagilar belgilanadi. Faqat lokal "Hammasini tanlash" belgilari tegilmaydi.
+  if(_zkAutoServerFirms)_zkAutoServerFirms.forEach(n=>{if(!next.has(n))zkAutoEnabled.delete(n);});
+  next.forEach(n=>zkAutoEnabled.add(n));
+  _zkAutoServerFirms=next;_zkAutoSaveEnabled();
+}
 async function _zkAutoFirmsLoad(){
   if(_zkAutoFirmsLoaded)return;
   const j=await _zkAutoFirmsCall("get");
   _zkAutoFirmsLoaded=true;
   if(!j||!Array.isArray(j.firms))return;
-  zkAutoEnabled=new Set(j.firms);_zkAutoSaveEnabled();   // server - haqiqat manbai (qurilmalar orasida bir xil)
+  zkAutoEnabled=new Set(j.firms);_zkAutoServerFirms=new Set(j.firms);_zkAutoSaveEnabled();   // server - haqiqat manbai (qurilmalar orasida bir xil)
   try{_zkRenderAutoPanel();}catch(e){}
 }
 // AVTOMATIK YUBORISH KALITI (2026-09-24, Bilol): nazorat sukut bo'yicha FAQAT hisobot beradi.
@@ -3115,9 +3126,20 @@ async function zkAutoModeToggle(){
   _zkRenderAutoPanel();
 }
 // changes: {"Firma": true|false}. true = nazoratga olindi, false = chiqarildi. Muvaffaqiyatni qaytaradi.
+// Server bitta so'rovda ko'pi bilan 500 ta o'zgarish qabul qiladi - 400 talik bo'laklarga bo'linadi.
+// Javobdagi `firms` - haqiqat (lokal belgilar shunga moslanadi).
+const ZK_AUTO_SYNC_CHUNK=400;
 async function _zkAutoFirmsSync(changes){
-  const j=await _zkAutoFirmsCall("set",{changes});
-  return !!j;
+  const names=Object.keys(changes);
+  let okAll=true;
+  for(let i=0;i<names.length;i+=ZK_AUTO_SYNC_CHUNK){
+    const part={};names.slice(i,i+ZK_AUTO_SYNC_CHUNK).forEach(n=>{part[n]=changes[n];});
+    const j=await _zkAutoFirmsCall("set",{changes:part});
+    if(!j||!Array.isArray(j.firms)){okAll=false;continue;}
+    _zkAutoApplyServerFirms(j.firms);
+  }
+  try{_zkRenderAutoPanel();}catch(e){}
+  return okAll;
 }
 // Butun katalogdagi (Muntazam+Chuqur, ikkalasi ham) barcha ta'minotchi nomlari -
 // _zkBuildSuppliers() bilan bir xil supOf() qoidasi (noma'lum -> ZK_NO_SUPPLIER).
@@ -3310,7 +3332,9 @@ function zkAutoSelectAll(checked,el){
   if(!confirm(warnMsg)){if(el)el.checked=!checked;return;}
   if(checked){zkAutoEnabled=new Set(all);}
   else{
-    const _rm={};[...zkAutoEnabled].forEach(sp=>{_zkAutoClearMarks(sp);_rm[sp]=false;});zkAutoEnabled=new Set();
+    // Serverga FAQAT serverda bor nomlar yuboriladi (server ro'yxati noma'lum bo'lsa - lokal belgilar, bo'laklab).
+    const _rm={};[...zkAutoEnabled].forEach(sp=>_zkAutoClearMarks(sp));
+    [...(_zkAutoServerFirms||zkAutoEnabled)].forEach(sp=>{_rm[sp]=false;});zkAutoEnabled=new Set();
     if(Object.keys(_rm).length)_zkAutoFirmsSync(_rm).then(ok=>{if(!ok){zkAutoMsg="Diqqat: nazorat ro'yxati serverda tozalanmadi (server javob bermadi).";try{_zkRenderAutoPanel();}catch(e){}}});
   }
   _zkAutoSaveEnabled();zkAutoMsg="";

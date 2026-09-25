@@ -175,6 +175,7 @@ module.exports = async function handler(req, res) {
         if (hasSend) data.send = body.send;
         if (hasMax) data.max_sum = maxSum;
         data.by = String(body.by || "").trim().slice(0, 120);
+        data.uid = String(user.uid || "");   // kim o'zgartirgani - imzolangan tokendan (mijoz `by`iga ishonilmaydi)
         data.at = new Date().toISOString();
         try {
           await writeState(data, sha, `Zakas nazorati: rejim (send=${data.send}, max_sum=${data.max_sum})`, MODE_FILE);
@@ -206,7 +207,10 @@ module.exports = async function handler(req, res) {
       for (const name of Object.keys(changes)) {
         const firm = String(name).trim();
         if (!firm || firm.length > 200) continue;
-        if (changes[name] === true) data.firms[firm] = { by, at: now };
+        // `at` - zakas/auto_control.js shu Toshkent kuni qo'lda (katakcha bilan) buyurtma berilgan deb,
+        // firmani bugun avtomatik yubormaydi (jonli kirim ma'lumoti 15+ daqiqa kechikadi).
+        // `uid` - imzolangan sessiya tokenidan (`by` - faqat ko'rsatish uchun ism, mijozdan keladi).
+        if (changes[name] === true) data.firms[firm] = { by, uid: String(user.uid || ""), at: now };
         else if (changes[name] === false) delete data.firms[firm];
       }
       if (Object.keys(data.firms).length > MAX_FIRMS) { res.status(400).json({ ok: false, error: "firmalar soni chegaradan oshdi" }); return; }

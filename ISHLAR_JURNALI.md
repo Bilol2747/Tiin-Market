@@ -4,34 +4,23 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
-## 2026-09-25 — KEYINGI ISH (bulut sessiya uchun topshiriq): doimiy nazorat kodini tuzatish
+## 2026-09-25 — Doimiy nazorat kodi tuzatildi (8 topilma + hisobot bo'limlari) — PR, kalit HAMON O'CHIQ
 
-**Kontekst:** doimiy zakas nazorati main'da (`zakas/auto_control.js`, `api/zakas-auto-firms.js`, `sales_runtime.js` dagi "Avtomatik zakas" paneli, `.github/workflows/zakas_auto.yml`) - to'liq tavsif pastdagi 2026-09-24 bo'limida ("DOIMIY ZAKAS NAZORATI"). Hozir FAQAT HISOBOT rejimida, SMS yuborish KALITI (`auto-data` branch'idagi `zakas_auto_mode.json`) O'CHIQ. Mustaqil tekshiruv (b60f418 ustida) 8 ta topilma chiqardi - **kalit yoqilishidan OLDIN hammasi tuzatilishi shart**, chunki yoqilsa haqiqiy buyurtma + ta'minotchiga SMS ketadi (SMS qaytarib bo'lmaydi).
+Mustaqil tekshiruvdagi 8 topilma bitta paketda tuzatildi (`zakas/auto_control.js`, `api/zakas-auto-firms.js`, `sales_runtime.js`, `zakas_auto.yml`). Kalit (`zakas_auto_mode.json`) tegilmadi. Alohida branch + PR (main'ga push qilinmagan).
 
-**Topshiriq:** quyidagilarni bitta paket qilib tuzat, mock bilan sina.
+- **1. Qo'lda buyurtmadan keyin:** `firms[sup].at` (API `set true` vaqti) Toshkent kuni == bugun -> firma bugun avtomatik yuborilmaydi. (Bot/Invan orqali qo'lda buyurtma `at`ni yangilamaydi - bu hali qamralmagan.)
+- **2. Ledger tartibi:** buyurtmadan OLDIN `status:'inflight'` yoziladi, natija `results`ga ledger'dan OLDIN, `ledgerUpsert()` 409/422'da qayta o'qib 3 martagacha urinadi. Inflight yozilmasa buyurtma ketmaydi; buyurtmadan keyin ledger yozilmasa inflight qoladi (bugunga blok), job qizil.
+- **3.** Kalit har buyurtmadan oldin qayta o'qiladi (`readMode()`), `send!==true` -> to'xtaydi; `max_sum` ham yangilanadi.
+- **4.** Frontend: "hammasini olib tashlash" faqat serverdagi nomlarni yuboradi (`_zkAutoServerFirms`), 400 talik bo'laklar; `set` javobidagi `firms` haqiqat (`_zkAutoApplyServerFirms`).
+- **5.** Ketma-ket 2 tarmoq xatosi -> to'xtaydi; umumiy dedlayn 10 daq (`ZAKAS_AUTO_DEADLINE_MS`); telefon so'rovi 30s; `invanCall` timeout javob tanasini ham qamraydi; Telegram 20s.
+- **6.** `!j.ok` va `token_expired` ham ledger'ga `failed` (bugunga blok). Oxirgi 7 kundagi `inflight/unknown/partial/failed` har run hisobotda "Hal qilinmagan" bo'limida.
+- **7.** `!(ageMin<=90)` (NaN = eskirgan). Kalit yoqiq, lekin yuborib bo'lmasa (token yo'q/eskirgan) exit 1.
+- **8.** Token bo'sh -> `sendPhase` istisno; dedup nom YOKI supplier_id bo'yicha (workflow sparse-checkout'ga `api/_supplier_id_map.json` qo'shildi); summa chegarasi `sumMax` (tannarx yo'q -> sotuv narxi), narxsiz tovar bo'lsa va chegara qo'yilgan bo'lsa yuborilmaydi; API `firms[..].uid` va `mode.uid` imzolangan tokendan; `data_mahsulotlar.json` yangiligi eng oxirgi `ld` bo'yicha (2 kundan eski -> yuborilmaydi).
+- **Hisobot (buyurtma mantig'iga tegilmadi):** `dropped` endi faqat `zabc=C && ck=0` ni chiqaradi (qatorga `ck` qo'shildi); yangi bo'limlar: kirim ma'lumoti yo'q + sotuv bor + qoldiq<=0; ochiq PO bor lekin <=0 kun; C-filtr tufayli tugaganlar soni. Real ma'lumotda (530 firma, `--all`): buyurtma natijalari o'zgarmadi (0 farq), dropped=0 (MUST'dagi zakassizlar hammasi PO'da yoki C-filtrda), 145 / 415 / 580.
+- **Sinov (hammasi soxta fetch, haqiqiy so'rov 0):** sendPhase 25 tekshiruv (oddiy, telefon yo'q, kuniga 1 ta nom+sid, qo'lda buyurtma, inflight, ko'prik tarmoq xatosi, javobsiz buyurtma, token yo'q, ledger 409 x2/x10, ledger buyurtmadan keyin yozilmadi, kalit run o'rtasida o'chdi, !ok, partial, token_expired, summa chegarasi, cap, hisobot); `main()` 4 holat (kalit o'chiq -> exit 0; noto'g'ri `published_at` va token yo'q -> exit 1, Invan'ga 0 so'rov; dedlayn); API `uid`; frontend 730 o'zgarish -> 400+330. Sinov skriptlari repo'ga qo'shilmagan.
+- `sales_runtime.js?v=` yangilandi.
 
-Yuqori:
-1. Qo'lda (sayt katakchasi/bot/Invan) buyurtmadan keyin avtomat 2-buyurtma+SMS yuborishi mumkin: jonli kirimdata 15 daq+ kechikadi, ledger'da qo'lda buyurtma yo'q. Tuzatish: `firms[sup].at` (api `set true` vaqti) Toshkent kuni == bugun bo'lsa firmani o'tkazib yubor (yoki API `set true` ledger'ga `status:'manual'` yozsin).
-2. Ledger buyurtmadan KEYIN yoziladi (`sendPhase`): PUT 409/timeout/runner yiqilsa buyurtma ketgan, ledger yo'q, `results` bo'sh; "Re-run" takroriy SMS. Tuzatish: buyurtmadan OLDIN ledger'ga `inflight` yoz; `results.push`ni ledger yozuvidan oldin qil; ledger PUT'da 409'da qayta o'qib 2-3 marta urin.
-
-O'rta:
-3. Kalit run o'rtasida qayta o'qilmaydi - har buyurtmadan oldin `zakas_auto_mode.json`ni qayta o'qi, `send!==true` bo'lsa to'xta.
-4. "Hammasini tanlash" -> "olib tashlash": `changes` 700+ ta > `MAX_CHANGES=500` -> API 400, server ro'yxati tozalanmaydi. Tuzatish: uncheck-all'da faqat SERVERDA bor nomlarni yubor (yoki chunk qil); `set` javobidagi `firms`ni haqiqat deb qabul qil (`_zkAutoFirmsSync` hozir faqat `!!j` qaytaradi).
-5. Ko'prik osilsa `phones` bosqichida "hammasini to'xtat" yo'q (har firma 60-90s, 11+ firma > 15 daq job timeout). Tuzatish: ketma-ket 2 tarmoq xatosidan keyin `break` + umumiy dedlayn (~10 daq); `sendTelegram` fetch'iga timeout.
-6. `!j.ok` (buyurtma yaratilgan, keyin xato) ledger'siz - har 3 soatda bo'sh "New" qoralama; `partial` ertasiga jimgina qoladi. Tuzatish: `failed` ham ledger'ga yoz (bugunga blok); `partial/failed` ni har run hisobotda "hal qilinmagan" deb qayta ko'rsat.
-7. `published_at` noto'g'ri sana -> `NaN>90` false = "yangi" (fail-open): `if(!(ageMin<=STALE_MINUTES)) stale=true`. Kalit yoqiq, lekin token yo'q/ma'lumot eskirgan bo'lsa exit 0 (yashil) - `mode.send===true && !sendInfo.enabled` bo'lsa exit 1.
-
-Past:
-8. `sendPhase` boshida `if(!token) throw` (`invan_token` bo'sh bo'lsa `api/invan-order.js` UMUMIY statik tokenga o'tib yaratadi); ledger firma NOMI bo'yicha - `api/_supplier_id_map.json`da 2 juft nom bitta supplier_id'ga tushadi -> supplier_id bo'yicha dedup; `f.sum` narxsiz tovarni 0 deb sanaydi (max_sum past baholanadi); `by` mijozdan keladi (token `uid`ini yoz); `data_mahsulotlar.json` yoshi tekshirilmaydi.
-
-Hisobotga qo'shish (buyurtma mantig'iga TEGMA): jimgina o'tib ketadigan guruhlar uchun alohida bo'limlar - (a) `zkaDays==null` (lkQty/lkDate yo'q) sotuvi bor va qoldiq<=0; (b) Open/New PO bor lekin <=0 kun (yetkazilmagan PO tugashni yashiradi); (c) C-sinf tugaganlar (hech bo'lmasa soni). `dropped` bo'limi amalda o'lik (`abc==='C'` HAMMA C'ni chiqaradi, faqat ck=0 emas) - tuzat.
-
-**Qoidalar (bu topshiriq uchun):**
-- Kalitni YOQMA, `zakas_auto_mode.json`ga tegma; Invan/Vercel/Telegram'ga HAQIQIY so'rov yuborma - hammasini soxta (mock) fetch bilan sina (soxta GitHub Contents API + soxta `/api/invan-order`: kalit o'chiq, telefon yo'q, kuniga 1 ta, qo'lda buyurtmadan keyin, ledger `inflight`, ko'prik osilishi, token yo'q, ledger PUT 409).
-- `main`ga TO'G'RIDAN-TO'G'RI push qilma: alohida branch + BITTA push + PR (foydalanuvchi ko'rib chiqadi; har push Vercel'da deploy ochadi).
-- `sales_runtime.js` o'zgarsa `index.html` va `sales.html` dagi `sales_runtime.js?v=` raqamini yangila (kesh).
-- Har o'zgarishdan keyin `node --check`; `zakas/auto_control.js` hisobot rejimi haqiqiy ma'lumot bilan (`node zakas/auto_control.js --all` faqat hisobot) hamon ishlashini tekshir.
-- Oxirida ushbu jurnal va `KODLAR_XARITASI.md` ni yangila. Til: o'zbek, qisqa.
+**Kalitni yoqishdan oldin qolgan:** bot/Invan orqali qo'lda buyurtma (1-band to'liq emas), `partial/failed` yozuvlarni "hal qilindi" deb belgilash mexanizmi yo'q (7 kun hisobotda turadi).
 
 ---
 
