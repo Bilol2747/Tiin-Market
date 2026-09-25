@@ -2299,6 +2299,11 @@ const ZKA_MUST_ORDER_DAYS=7,ZKA_CAN_ORDER_DAYS=14,ZKA_REF_MIN_DAYS=15,ZKA_REF_MA
 // kichik" deb 25-30 kunlik sotuvga oshirardi (6 dona kelgan tovarga 36 dona zakas). Kirim shu
 // chegara bilan bosqichma-bosqich o'sadi (6 -> 18 -> ...) va o'zi barqarorlashadi.
 const ZKA_MAX_ORDER_MULT=3;
+// YANGI KIRIM HIMOYASI (2026-09-25, Bilol): oxirgi kirim ZKA_FRESH_KIRIM_DAYS kundan kam oldin kelgan bo'lsa,
+// 7-14 kunlik "to'ldirish" (CAN) zonasida zakas BERILMAYDI - yaqinda yetkazilgan tovarga darhol yana zakas
+// chiqmasin (sirka: kecha 24 kelgan, sotilmagan, 11.6 kunga yetadi -> 28 zakas chiqayotgan edi). MUST (<7 kun)
+// zonasi ta'sirlanmaydi - kirim kichik bo'lib tez tugasa, zakas baribir chiqadi.
+const ZKA_FRESH_KIRIM_DAYS=7;
 // "OXIRGI KIRIM YETADIMI" TEKSHIRUVI (2026-09-24, Bilol): kirim necha kunga yetishi OXIRGI KIRIMDAN
 // BERI haqiqiy sotuv tezligi (lkSold/o'tgan kun) bilan baholanadi - 30 kunlik o'rtacha bilan emas
 // (60 dona kirim 12 kunda 37 sotilgan = 3.1/kun -> ~19 kun, 30 kunlik 4.46 bilan 13.5 kun chiqib
@@ -2367,11 +2372,11 @@ function _zkaCompute(v,velocity,pendingQty,resetDays){
   // tasdiqlangan) 56 kelib 56 sotilgan, ya'ni 0 qolgan bo'lsa ham "20 kunlik zaxira
   // bor" deb ZAKAS=0 berardi - aslida zudlik bilan zakas kerak edi).
   let reference=lkQty;
-  let vCheck=velocity;
+  let vCheck=velocity,dSince=null;
   const _lkp=String(v.lkDate).slice(0,10).split("-").map(Number);
   if(_lkp.length===3&&_lkp[0]){
     const _t=new Date();
-    const dSince=Math.round((Date.UTC(_t.getFullYear(),_t.getMonth(),_t.getDate())-Date.UTC(_lkp[0],_lkp[1]-1,_lkp[2]))/86400000);
+    dSince=Math.round((Date.UTC(_t.getFullYear(),_t.getMonth(),_t.getDate())-Date.UTC(_lkp[0],_lkp[1]-1,_lkp[2]))/86400000);
     if(dSince>=ZKA_LAST_KIRIM_MIN_DAYS&&dSince<=ZKA_LAST_KIRIM_MAX_DAYS&&lkSold>0&&lkSold<lkQty)vCheck=lkSold/dSince;
   }
   const days=reference/vCheck;
@@ -2385,7 +2390,7 @@ function _zkaCompute(v,velocity,pendingQty,resetDays){
   const qolganKunlar=qolgan/vCheck;
   let orderQty=0;
   if(qolganKunlar<ZKA_MUST_ORDER_DAYS)orderQty=reference;
-  else if(qolganKunlar<ZKA_CAN_ORDER_DAYS)orderQty=reference-qolgan;
+  else if(qolganKunlar<ZKA_CAN_ORDER_DAYS)orderQty=(dSince!=null&&dSince>=0&&dSince<ZKA_FRESH_KIRIM_DAYS)?0:reference-qolgan;
   orderQty=Math.max(0,orderQty);
   const jami=qolgan+orderQty;
   if((jami/velocity)>ZKA_REF_MAX_DAYS)orderQty=Math.max(0,resetDays*velocity-qolgan);
