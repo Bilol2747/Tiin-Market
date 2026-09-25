@@ -19,6 +19,9 @@
 //   secret'i berilgan bo'lsa VA jonli ma'lumot yangi bo'lsa - "zakas berishga tushgan" firmaga
 //   HAQIQIY buyurtma yaratiladi, Open qilinadi va ta'minotchiga SMS yuboriladi (sayt katakchasi
 //   bilan AYNAN bir xil yo'l: api/invan-order.js, finalize:true, Bilolning shaxsiy Invan hisobidan).
+//   Qo'lda Invan'da berilgan buyurtma ustidan 2-chi buyurtma bo'lmasin: kalit yoqiq bo'lsa, Invan'dan eng yangi
+//   buyurtmalar real vaqtda olinadi (INVAN_API_TOKEN, faqat o'qish); jonli ma'lumotga hali yetib kelmagan (snapshot
+//   vaqtidan 15 daq oldindan keyingi) buyurtmasi bor firma shu safar o'tkazib yuboriladi. Tekshirib bo'lmasa - yuborilmaydi.
 //   Xavfsizlik: firma kuniga 1 ta buyurtma (ledger: zakas_auto_ledger.json, Toshkent kuni);
 //   Invan'da telefon raqami yo'q firmaga YUBORILMAYDI (SMS ketmasdi); summa chegarasi
 //   (mode.max_sum, 0 = chegarasiz) oshsa - qo'lda tasdiqlash uchun o'tkazib yuboriladi;
@@ -294,6 +297,30 @@ async function invanCall(body, ms) {
   } finally { clearTimeout(t); }
 }
 
+// Invan'dan ENG YANGI buyurtmalar (real vaqtda; jonli ma'lumot saytga 15-20 daq kechikadi). Qo'lda Invan'da
+// berilgan buyurtma ustidan avtomat 2-chi buyurtma bermasligi uchun (2026-09-25). Statik integratsiya tokeni
+// (INVAN_API_TOKEN - live_data.yml ishlatadigan secret) bilan, faqat O'QISH. Yangi->eski tartibda, 1 ta so'rov.
+const INVAN_INTEGRATION_URL = process.env.INVAN_INTEGRATION_URL || 'https://api.7i.uz/integration/v1';
+const INVAN_LAG_MARGIN_MS = 15 * 60000;   // snapshot tuzilayotgan paytdagi buyurtmalar ham hisobga olinsin
+async function fetchRecentInvanOrders(token) {
+  const r = await timedFetch(`${INVAN_INTEGRATION_URL}/supplier_order?page=1&limit=300`, {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ filters: [] }),
+  }, 45000);
+  if (!r.ok) throw new Error(`Invan supplier_order HTTP ${r.status}`);
+  const j = await r.json();
+  if (!j || !Array.isArray(j.data)) throw new Error('Invan supplier_order javobi kutilgan shaklda emas');
+  const latestBySid = new Map();
+  let oldest = Infinity;
+  for (const o of j.data) {
+    const t = Date.parse(o && o.created_at);
+    if (!(t > 0)) continue;
+    if (t < oldest) oldest = t;
+    const sid = o.supplier && o.supplier.id;
+    if (sid && (!latestBySid.has(sid) || latestBySid.get(sid) < t)) latestBySid.set(sid, t);
+  }
+  return { latestBySid, oldest, count: j.data.length };
+}
+
 async function readMode() {
   const m = (await ghReadJson(MODE_FILE, () => ({ send: false, max_sum: 0 }))).data;
   return { send: m.send === true, max_sum: Number(m.max_sum) > 0 ? Number(m.max_sum) : 0 };
@@ -354,6 +381,12 @@ async function sendPhase(res, mode, warnings, results, ctx) {
     }
     const sid = supplierIdOf(f.sup);
     if (ledgerHasToday(L, f.sup, sid, day)) { skip(f, 'bugun allaqachon buyurtma berilgan (kuniga 1 ta)'); continue; }
+    // Invan'da (real vaqtda) saytdagi jonli ma'lumotga hali yetib kelmagan yangi buyurtma bo'lsa - o'tkazib yuboriladi
+    // (kimdir Invan'da qo'lda zakas bergan; keyingi ishga tushishda u "Open" bo'lib saytda ko'rinadi).
+    if (ctx.invanLatest && sid) {
+      const lastT = ctx.invanLatest.get(sid);
+      if (lastT && lastT > ctx.cutoffMs) { skip(f, `Invan'da yaqinda (${new Date(lastT).toISOString().slice(11, 16)} UTC) buyurtma berilgan, sayt ma'lumotiga hali yetib kelmagan - keyingi safar`); continue; }
+    }
     const fe = firms[f.sup];
     if (fe && fe.at && tashkentDay(fe.at) === day) { skip(f, 'bugun saytda (katakcha bilan) qo\'lda buyurtma berilgan — avtomatik yuborilmaydi'); continue; }
     if (made >= maxOrders) { skip(f, `bir ishga tushishdagi chegara (${maxOrders} ta buyurtma) — keyingi safar`); continue; }
@@ -498,11 +531,23 @@ async function main() {
   else if (!freshKnown || stale) why = 'jonli ma\'lumot yangiligi tasdiqlanmadi';
   else if (productsStale) why = 'mahsulotlar ma\'lumoti eskirgan';
   else if (isAll) why = '--all sinov rejimi';
+  // Invan'dagi eng yangi buyurtmalar (real vaqtda) - tekshirib bo'lmasa YUBORILMAYDI (fail-closed).
+  let invanRecent = null;
+  const cutoffMs = freshKnown ? Date.parse(meta.published_at) - INVAN_LAG_MARGIN_MS : NaN;
+  if (!why) {
+    if (!process.env.INVAN_API_TOKEN) why = 'INVAN_API_TOKEN berilmagan (Invan buyurtmalarini tekshirib bo\'lmaydi)';
+    else {
+      try {
+        invanRecent = await fetchRecentInvanOrders(process.env.INVAN_API_TOKEN);
+        if (!(invanRecent.oldest <= cutoffMs)) why = `Invan buyurtmalari (${invanRecent.count} ta) jonli ma'lumot vaqtini to'liq qamramadi`;
+      } catch (e) { why = `Invan buyurtmalarini tekshirib bo'lmadi: ${e.message}`; }
+    }
+  }
   const sendInfo = { enabled: !why, why, results: [] };
   const runIds = new Set();
   let fatal = null;
   if (sendInfo.enabled) {
-    try { await sendPhase(res, mode, warnings, sendInfo.results, { firms: firmsMap, runIds }); }
+    try { await sendPhase(res, mode, warnings, sendInfo.results, { firms: firmsMap, runIds, invanLatest: invanRecent && invanRecent.latestBySid, cutoffMs }); }
     catch (e) { fatal = e; warnings.push(`Yuborish jarayoni XATO bilan to'xtadi: ${e.message}`); }
   }
 

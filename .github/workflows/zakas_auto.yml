@@ -54,6 +54,8 @@ jobs:
       - name: Nazoratni ishga tushirish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Invan buyurtmalarini real vaqtda o'qish (faqat o'qish; live_data.yml ishlatadigan secret) - qo'lda buyurtma bilan to'qnashmaslik uchun.
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
           # Yuborish uchun (kalit yoqilganda): Bilolning shaxsiy Invan tokeni. Berilmasa - faqat hisobot.
           INVAN_PERSONAL_TOKEN: ${{ secrets.INVAN_PERSONAL_TOKEN }}
           # Ikkalasi ham berilsa - hisobot Telegramga yuboriladi. Berilmasa faqat job summary.
