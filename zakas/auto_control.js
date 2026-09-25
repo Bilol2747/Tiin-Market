@@ -36,10 +36,13 @@
 //   mahsulotlar  - repo'dagi data_mahsulotlar.json (Actions checkout, main)
 //   invdata/kirimdata/meta - live-data-latest tag'i (har 15 daqiqada yangilanadi)
 //   firmalar     - auto-data branch'idagi zakas_auto_firms.json
+//   istisno      - auto-data branch'idagi zakas_auto_exclude.json (2026-09-25): saytda firma sahifasida
+//                  belgisi olib tashlangan tovarlar FAQAT o'sha Toshkent kuni avtomat buyurtmaga kirmaydi
+//                  (day !== bugun bo'lsa e'tiborsiz). O'qib bo'lmasa - yuborilmaydi (faqat hisobot).
 //
 // Ishlatilishi:
 //   node zakas/auto_control.js [--firms-file f.json] [--products f.json] [--invdata f.json|url]
-//        [--kirim f.json|url] [--meta f.json|url] [--out hisobot.json] [--all (sinov: hamma firma)]
+//        [--kirim f.json|url] [--meta f.json|url] [--exclude-file f.json] [--out hisobot.json] [--all (sinov: hamma firma)]
 // Muhit: TELEGRAM_BOT_TOKEN + ZAKAS_AUTO_REPORT_CHAT_ID berilsa - hisobot Telegramga ham
 // yuboriladi (berilmasa faqat konsol + GitHub job summary).
 // ─────────────────────────────────────────────────────────────────
@@ -52,6 +55,7 @@ const RT = require(path.join(__dirname, '..', 'sales_runtime.js'));
 const RAW = 'https://raw.githubusercontent.com/Bilol2747/Tiin-Market';
 const DEFAULTS = {
   'firms-file': `${RAW}/auto-data/zakas_auto_firms.json`,
+  'exclude-file': `${RAW}/auto-data/zakas_auto_exclude.json`,
   invdata: `${RAW}/live-data-latest/live/invdata.json`,
   kirim: `${RAW}/live-data-latest/live/kirimdata.json`,
   meta: `${RAW}/live-data-latest/live/meta.json`,
@@ -213,6 +217,16 @@ function buildReport(res, warnings, when, sendInfo, unresolved) {
     poF.forEach(r => L.push(`- ${r.sup}: ${r.poHiddenCount} ta (${r.poHidden.slice(0, 3).map(i => i.name).join('; ')}${r.poHiddenCount > 3 ? '; …' : ''})`));
     L.push('');
   }
+  const exF = res.filter(r => r.excludedCount > 0);
+  if (exF.length) {
+    L.push('## 🚫 Bugungi istisno (saytda belgisi olib tashlangan — bugun avtomat buyurtmaga kirmaydi)');
+    exF.forEach(r => {
+      L.push(`- ${r.sup}: bugun ${r.excludedCount} ta tovar istisno${r.excludedMust.length ? ` (${r.excludedMust.length} tasi MUST — 7 kundan kam qolgan!)` : ''}${r.allExcluded ? ' — firmaning HAMMA zakas tovari istisno, yuborilmaydi' : ''}`);
+      r.excludedMust.slice(0, 10).forEach(i => L.push(`    - ⚠️ ${i.name} — ${dayTxt(i.days)}${i.days != null && i.days > 0 ? ' qolgan' : ''}`));
+      if (r.excludedMust.length > 10) L.push(`    - … yana ${r.excludedMust.length - 10} ta MUST`);
+    });
+    L.push('');
+  }
   const cOutTotal = res.reduce((a, r) => a + (r.cOutCount || 0), 0);
   if (cOutTotal) {
     L.push(`## ⚪ C-filtr: tugagan, lekin kam sotilgani uchun zakas berilmaydigan tovarlar — ${cOutTotal} ta (${res.filter(r => r.cOutCount > 0).length} firmada)`);
@@ -275,6 +289,7 @@ async function ghWriteJson(file, data, sha, message) {
 
 const LEDGER_FILE = 'zakas_auto_ledger.json';
 const MODE_FILE = 'zakas_auto_mode.json';
+const EXCLUDE_FILE = 'zakas_auto_exclude.json';
 const tashkentDay = d => (d ? new Date(d) : new Date()).toLocaleDateString('en-CA', { timeZone: 'Asia/Tashkent' });
 const OPEN_STATUSES = new Set(['inflight', 'unknown', 'partial', 'failed']);
 
@@ -465,6 +480,33 @@ async function sendPhase(res, mode, warnings, results, ctx) {
   return results;
 }
 
+// Bugungi istisno xaritasi {firma: Set(sku)} - FAQAT doc.day === bugun (Toshkent) bo'lsa; aks holda bo'sh.
+function excludeMapFor(doc, day) {
+  const out = {};
+  if (!doc || doc.day !== day || !doc.firms || typeof doc.firms !== 'object') return out;
+  for (const [sup, skus] of Object.entries(doc.firms)) {
+    if (Array.isArray(skus) && skus.length) out[sup] = new Set(skus.map(x => String(x)));
+  }
+  return out;
+}
+// Istisno tovarlar evaluateFirm'ga berishdan OLDIN chiqariladi - holat (send/wait), summa, tovarlar soni
+// va max_sum tekshiruvi qolgan tovarlar bo'yicha. Hamma zakas tovari istisno bo'lsa - status 'none'.
+// Istisno qilingan MUST tovarlar hisobotda alohida ko'rsatiladi ("tugab qolmasin" nazorati).
+function evaluateWithExclude(sup, allRows, exSet) {
+  if (!exSet || !exSet.size) return Object.assign(evaluateFirm(sup, allRows), { excludedCount: 0, excludedMust: [], allExcluded: false });
+  const isEx = r => r.sku != null && exSet.has(String(r.sku));
+  const exRows = allRows.filter(isEx);
+  const r = evaluateFirm(sup, allRows.filter(x => !isEx(x)));
+  const MUST = RT.ZKA_MUST_ORDER_DAYS;
+  const exOrder = exRows.filter(x => x.orderQty > 0);
+  r.excludedCount = exRows.length;
+  r.excludedMust = exRows.filter(x => x.zkaDays != null && x.zkaDays < MUST)
+    .sort((a, b) => a.zkaDays - b.zkaDays)
+    .map(x => ({ sku: String(x.sku), name: x.name, qty: x.orderQty || 0, days: Math.round(x.zkaDays * 10) / 10 }));
+  r.allExcluded = exOrder.length > 0 && r.orderCount === 0;
+  return r;
+}
+
 // data_mahsulotlar.json yangiligi: fayl ichida sana yo'q (git tarixi siqiladi) - eng oxirgi sotuv sanasi (`ld`).
 function productsNewestDay(p2) {
   let max = '';
@@ -483,9 +525,14 @@ async function main() {
     ? ghReadJson('zakas_auto_firms.json', () => ({ firms: {} })).then(x => x.data)
     : loadJson(src('firms-file'), true);
   const modePromise = haveGh ? readMode() : Promise.resolve({ send: false, max_sum: 0 });
-  const [firmsDoc, mode, p2, invdata, kirim, meta] = await Promise.all([
+  // Bugungi istisno: o'qib bo'lmasa xato sifatida qaytadi (fail-closed: shu safar yuborilmaydi).
+  const excludePromise = ((haveGh && !arg('exclude-file'))
+    ? ghReadJson(EXCLUDE_FILE, () => ({})).then(x => x.data)
+    : loadJson(src('exclude-file'), true)).then(d => ({ doc: d }), e => ({ err: e }));
+  const [firmsDoc, mode, excl, p2, invdata, kirim, meta] = await Promise.all([
     firmsPromise,
     modePromise,
+    excludePromise,
     loadJson(src('products')),
     loadJson(src('invdata')),
     loadJson(src('kirim')),
@@ -517,10 +564,12 @@ async function main() {
 
   const map = RT._zkAutoAllRowsMap();
   if (isAll) enrolled = Object.keys(map).sort((a, b) => a.localeCompare(b, 'ru'));   // faqat tahlil/sinov uchun
+  const exclude = excludeMapFor(excl.doc, tashkentDay());
+  if (excl.err) warnings.push(`Bugungi istisno ro'yxatini (zakas_auto_exclude.json) o'qib bo'lmadi: ${excl.err.message} — shu safar hech narsa yuborilmaydi.`);
   const res = [];
   for (const sup of enrolled) {
     if (!(sup in map)) { warnings.push(`"${sup}" nazoratda, lekin zakas ma'lumotida topilmadi (nomi o'zgargan bo'lishi mumkin).`); continue; }
-    res.push(evaluateFirm(sup, map[sup]));
+    res.push(evaluateWithExclude(sup, map[sup], exclude[sup]));
   }
 
   // Yuborish faqat: kalit yoqilgan + shaxsiy token bor + GitHub yozish huquqi bor + ma'lumot yangi + --all emas
@@ -531,6 +580,7 @@ async function main() {
   else if (!freshKnown || stale) why = 'jonli ma\'lumot yangiligi tasdiqlanmadi';
   else if (productsStale) why = 'mahsulotlar ma\'lumoti eskirgan';
   else if (isAll) why = '--all sinov rejimi';
+  else if (excl.err) why = 'bugungi istisno ro\'yxatini o\'qib bo\'lmadi';
   // Invan'dagi eng yangi buyurtmalar (real vaqtda) - tekshirib bo'lmasa YUBORILMAYDI (fail-closed).
   let invanRecent = null;
   const cutoffMs = freshKnown ? Date.parse(meta.published_at) - INVAN_LAG_MARGIN_MS : NaN;
@@ -567,7 +617,7 @@ async function main() {
   const out = arg('out');
   if (out) fs.writeFileSync(out, JSON.stringify({ when, stale, productsStale, warnings, send: sendInfo, unresolved, firms: res }, null, 2));
 
-  const notable = res.some(r => r.status === 'send') || res.some(r => r.droppedCount > 0) || sendInfo.results.length > 0 || unresolved.length > 0;
+  const notable = res.some(r => r.status === 'send') || res.some(r => r.droppedCount > 0) || res.some(r => r.excludedMust && r.excludedMust.length > 0) || sendInfo.results.length > 0 || unresolved.length > 0;
   if (notable) {
     try { if (await sendTelegram(report)) console.log('(Telegramga yuborildi)'); }
     catch (e) { console.error('Telegram xatosi:', e.message); }
@@ -578,7 +628,7 @@ async function main() {
   if (mode.send === true && !sendInfo.enabled && !isAll) { console.error(`Yuborish kaliti yoqiq, lekin yuborilmadi: ${why}`); process.exitCode = 1; }
 }
 
-module.exports = { evaluateFirm, sendPhase, buildReport, productsNewestDay, main };
+module.exports = { evaluateFirm, evaluateWithExclude, excludeMapFor, sendPhase, buildReport, productsNewestDay, main };
 if (require.main === module) {
   main().then(() => process.exit(process.exitCode || 0)).catch(e => { console.error('XATOLIK:', e && e.stack || e); process.exit(1); });
 }

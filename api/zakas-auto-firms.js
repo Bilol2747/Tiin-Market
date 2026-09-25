@@ -20,6 +20,12 @@
 // zakas/auto_control.js haqiqatan buyurtma yaratadi, Open qiladi va SMS yuboradi.
 // Kalitni faqat ADMIN o'zgartira oladi (action "mode_set"); o'qish - har qanday kirgan foydalanuvchi.
 //
+// BUGUNGI ISTISNO (2026-09-25, Bilol): firma sahifasida qatordan belgi olib tashlangan tovarlar
+// (action "exclude") xuddi shu branch'dagi `zakas_auto_exclude.json`ga yoziladi:
+// {"day":"YYYY-MM-DD","firms":{"<firma>":["sku",...]}}. `day` - SERVER qo'yadi (Toshkent kuni);
+// saqlangan kun bugundan farq qilsa yozuv bo'sh xaritadan boshlanadi (ertasiga o'zi tozalanadi).
+// zakas/auto_control.js faqat day === bugun bo'lsa hisobga oladi.
+//
 // XAVFSIZLIK: har so'rov sessiya tokeni bilan (api/auth.py dagi HMAC-SHA256
 // token, SESSION_SECRET bilan bir xil imzo) - tokensiz/muddati o'tgan so'rov 401.
 // Bu ro'yxat keyinchalik AVTOMATIK buyurtma yuborishga asos bo'ladi, shuning uchun
@@ -38,6 +44,9 @@ const GITHUB_API = "https://api.github.com";
 const DATA_BRANCH = "auto-data";
 const DATA_FILE = "zakas_auto_firms.json";
 const MODE_FILE = "zakas_auto_mode.json";
+const EXCLUDE_FILE = "zakas_auto_exclude.json";
+const MAX_EXCLUDE_SKUS = 500;
+const tashkentDay = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Tashkent" });
 const MAX_CHANGES = 500;
 const MAX_FIRMS = 1000;
 
@@ -109,6 +118,15 @@ async function readMode() {
   const st = await readFile(MODE_FILE, () => ({ send: false, max_sum: 0 }));
   st.data.send = st.data.send === true;
   st.data.max_sum = Number(st.data.max_sum) > 0 ? Number(st.data.max_sum) : 0;
+  return st;
+}
+
+// Bugungi istisno ro'yxati: saqlangan kun bugun emas bo'lsa - bo'sh xaritadan boshlanadi.
+async function readExclude(day) {
+  const st = await readFile(EXCLUDE_FILE, () => ({ day, firms: {} }));
+  if (st.data.day !== day || typeof st.data.firms !== "object" || st.data.firms === null || Array.isArray(st.data.firms)) {
+    st.data = { day, firms: {} };
+  }
   return st;
 }
 
@@ -188,7 +206,46 @@ module.exports = async function handler(req, res) {
       }
       throw lastMErr || new Error("Yozib bo'lmadi");
     }
-    if (action !== "set") { res.status(400).json({ ok: false, error: "action: get, set, mode_get yoki mode_set" }); return; }
+    if (action === "exclude") {
+      // {"firm": "Firma A", "skus": ["123", ...]} - firmaning BUGUNGI istisno ro'yxatini ALMASHTIRADI (bo'sh = o'chadi).
+      const firm = String(body.firm || "").trim();
+      if (!firm || firm.length > 200) { res.status(400).json({ ok: false, error: "firm kerak" }); return; }
+      if (!Array.isArray(body.skus)) { res.status(400).json({ ok: false, error: "skus (ro'yxat) kerak" }); return; }
+      if (body.skus.length > MAX_EXCLUDE_SKUS) { res.status(400).json({ ok: false, error: "skus juda ko'p" }); return; }
+      const skus = [];
+      for (const x of body.skus) {
+        if (typeof x !== "string" && typeof x !== "number") { res.status(400).json({ ok: false, error: "sku satr bo'lishi kerak" }); return; }
+        const v = String(x).trim();
+        if (!v || v.length > 60) { res.status(400).json({ ok: false, error: "sku 1-60 belgi bo'lishi kerak" }); return; }
+        if (!skus.includes(v)) skus.push(v);
+      }
+      // Faqat hozir nazoratda turgan firma (boshqa nomlar bilan faylni to'ldirib bo'lmasin).
+      const { data: fdata } = await readState();
+      if (!Object.prototype.hasOwnProperty.call(fdata.firms, firm)) { res.status(400).json({ ok: false, error: "firma doimiy nazoratda emas" }); return; }
+      await ensureBranch();
+      let lastXErr = null;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const day = tashkentDay();
+        const { sha, data } = await readExclude(day);
+        const prev = JSON.stringify(data.firms[firm] || []);
+        if (skus.length) data.firms[firm] = skus; else delete data.firms[firm];
+        if (prev === JSON.stringify(skus)) {   // o'zgarish yo'q - commit qilinmaydi (eski kunning fayli baribir hisobga olinmaydi)
+          res.status(200).json({ ok: true, day, firm, count: skus.length });
+          return;
+        }
+        data.updated_at = new Date().toISOString();
+        try {
+          await writeState(data, sha, `Zakas nazorati: bugungi istisno (${firm}: ${skus.length} ta)`, EXCLUDE_FILE);
+          res.status(200).json({ ok: true, day, firm, count: skus.length });
+          return;
+        } catch (e) {
+          lastXErr = e;
+          if (e.status !== 409 && e.status !== 422) throw e;
+        }
+      }
+      throw lastXErr || new Error("Yozib bo'lmadi");
+    }
+    if (action !== "set") { res.status(400).json({ ok: false, error: "action: get, set, exclude, mode_get yoki mode_set" }); return; }
 
     // {"changes": {"Firma A": true, "Firma B": false}} - true = nazoratga olinadi, false = chiqariladi.
     const changes = body.changes;

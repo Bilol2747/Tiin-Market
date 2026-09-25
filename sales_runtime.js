@@ -1018,7 +1018,10 @@ function zkSaveManual(){try{
   localStorage.setItem("zk_row_checked",JSON.stringify(zkRowChecked));
   localStorage.setItem("zk_row_stockmode",JSON.stringify(zkRowStockMode));
   localStorage.setItem("zk_ignore_open_po",JSON.stringify(zkIgnoreOpenPo));
-}catch(e){}}
+}catch(e){}
+// zkRowChecked o'zgaradigan HAMMA joy (qator/sarlavha katakchasi, tezkor panel, Tozalash, Invan'ga
+// yuborishdan keyin) shu funksiyani chaqiradi - doimiy nazoratning bugungi istisnosi shu yerdan.
+try{_zkAutoExclSchedule();}catch(e){}}
 // Kategoriya/Subkategoriya filtri - bitta supplier ichida ko'rib chiqilayotganda, MUNTAZAM
 // va CHUQUR bo'limlari o'rtasida UMUMIY (ikkalasiga ham qo'llanadi), lekin supplier
 // almashtirilganda yoki ro'yxatga qaytilganda tozalanadi (foydalanuvchi so'rovi, 2026-07-21).
@@ -3213,6 +3216,35 @@ function _zkAutoRowsFor(sup){
     const s=_zkBuildSuppliers("normal").find(x=>x.sup===sup);
     return s?s.rows.filter(r=>r.orderQty>0&&r.sku):[];
   }finally{zkCalcMode=prev;if(prevOrd)zkRowOrder=prevOrd;}
+}
+// ─── BUGUNGI ISTISNO (2026-09-25, Bilol) ───
+// Nazoratdagi firma sahifasida qatordan belgi olib tashlansa, shu tovar doimiy nazoratning avtomatik
+// buyurtmasidan ham chiqariladi - FAQAT BUGUN (Toshkent kuni; server `day` qo'yadi, ertasiga o'zi
+// qaytadi, saytdagi belgilar ham har kuni yangidan boshlanadi). api/zakas-auto-firms.js "exclude"
+// firmaning bugungi ro'yxatini ALMASHTIRADI. UI bloklanmaydi, xato faqat konsolga yoziladi.
+let _zkAutoExclTimer=null;
+const _zkAutoExclPending=new Set(),_zkAutoExclSent={};   // "kun|firma" -> oxirgi yuborilgan ro'yxat
+function _zkAutoExclSchedule(){
+  if(typeof module!=="undefined"&&module.exports)return;   // Node (doimiy nazorat) - kerak emas
+  if(!(zkMode==="detail"&&zkSupFilter&&zkAutoEnabled.has(zkSupFilter)))return;   // faqat ochiq, nazoratdagi firma
+  _zkAutoExclPending.add(zkSupFilter);
+  clearTimeout(_zkAutoExclTimer);
+  _zkAutoExclTimer=setTimeout(_zkAutoExclFlush,1500);
+}
+async function _zkAutoExclFlush(){
+  const sups=[..._zkAutoExclPending];_zkAutoExclPending.clear();
+  const day=new Date().toLocaleDateString("en-CA",{timeZone:"Asia/Tashkent"});
+  for(const sup of sups){
+    if(!zkAutoEnabled.has(sup))continue;
+    try{
+      const skus=[...new Set(_zkAutoRowsFor(sup).filter(r=>!_zkIsChecked(r)).map(r=>String(r.sku)))].slice(0,500);
+      const k=day+"|"+sup,sig=JSON.stringify(skus);
+      if(_zkAutoExclSent[k]===sig)continue;
+      const j=await _zkAutoFirmsCall("exclude",{firm:sup,skus});
+      if(j)_zkAutoExclSent[k]=sig;
+      else console.warn(`Doimiy nazorat: "${sup}" bugungi istisnosi saqlanmadi (server javob bermadi)`);
+    }catch(e){console.warn("Doimiy nazorat istisnosi xatosi:",e);}
+  }
 }
 // Barcha ta'minotchilarning BARCHA qatorlari (orderQty=0 ham) - BIR marta hisoblab {sup:rows}.
 // Faqat zakas/auto_control.js (doimiy nazorat) ishlatadi - har firma uchun alohida _zkBuildSuppliers()
