@@ -1,0 +1,73 @@
+name: Doimiy zakas nazorati
+
+# Sayt zakas sahifasida katakcha belgilangan (nazoratga olingan) firmalarni tekshiradi:
+# firma "zakas berishga tushdi"mi (kamida bitta tovar 7 kundan kam qolgan), yoki hali
+# kutayotgan (faqat 7-14 kun zonasi). Tafsilot va qoidalar: zakas/auto_control.js boshidagi izoh.
+#
+# REJIM: sukut bo'yicha FAQAT HISOBOT (Invan'ga hech narsa yuborilmaydi). Haqiqiy buyurtma+SMS
+# yuborish YUBORISH KALITI yoqilgandagina ishlaydi: `auto-data` branch'idagi zakas_auto_mode.json
+# {"send": true} (sayt zakas sahifasi -> Avtomatik zakas paneli -> "Yoqish" tugmasi, faqat admin)
+# VA `INVAN_PERSONAL_TOKEN` secret'i berilgan bo'lsa. Kalitni o'chirish - shu panel orqali.
+#
+# JADVAL: Toshkent vaqti bilan 08:17, 11:17, 14:17, 17:17, 20:17 (UTC 03:17, 06:17, 09:17, 12:17, 15:17) - har 3 soatda, faqat
+# kunduzi (kechasi ta'minotchilarga SMS ketmasligi uchun; tovar 7 kundan kam qolganda ushlanadi,
+# kechasi 12 soatlik tanaffus xavfsiz). GitHub cron ba'zan 10-30 daqiqa kechikadi - bu normal.
+#
+# Vercel'ga deyarli tegmaydi: hisob GitHub Actions'da, ma'lumot raw.githubusercontent.com'dan
+# (faqat yuborish yoqilganda buyurtma uchun api/invan-order.js chaqiriladi - sayt katakchasi bilan bir xil yo'l).
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3,6,9,12,15 * * *"
+
+concurrency:
+  group: zakas-auto-control
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # ledger (zakas_auto_ledger.json) `auto-data` branch'iga yoziladi
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      TZ: Asia/Tashkent
+    steps:
+      # Faqat kerakli fayllar (butun repo - katta HTML'lar bilan - kerak emas)
+      - name: Repo'ni olish (main, faqat kerakli fayllar)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            sales_runtime.js
+            data_mahsulotlar.json
+            zakas/watch_agent.js
+            zakas/auto_control.js
+            api/_supplier_id_map.json
+          sparse-checkout-cone-mode: false
+
+      - name: Node o'rnatish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Nazoratni ishga tushirish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Invan buyurtmalarini real vaqtda o'qish (faqat o'qish; live_data.yml ishlatadigan secret) - qo'lda buyurtma bilan to'qnashmaslik uchun.
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          # Yuborish uchun (kalit yoqilganda): Bilolning shaxsiy Invan tokeni. Berilmasa - faqat hisobot.
+          INVAN_PERSONAL_TOKEN: ${{ secrets.INVAN_PERSONAL_TOKEN }}
+          # Ikkalasi ham berilsa - hisobot Telegramga yuboriladi. Berilmasa faqat job summary.
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          ZAKAS_AUTO_REPORT_CHAT_ID: ${{ vars.ZAKAS_AUTO_REPORT_CHAT_ID }}
+        run: node zakas/auto_control.js --out zakas_auto_report.json
+
+      - name: Hisobot faylini saqlash
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zakas-auto-report
+          path: zakas_auto_report.json
+          if-no-files-found: ignore
+          retention-days: 7
