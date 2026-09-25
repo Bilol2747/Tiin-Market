@@ -9,7 +9,7 @@ name: Doimiy zakas nazorati
 # {"send": true} (sayt zakas sahifasi -> Avtomatik zakas paneli -> "Yoqish" tugmasi, faqat admin)
 # VA `INVAN_PERSONAL_TOKEN` secret'i berilgan bo'lsa. Kalitni o'chirish - shu panel orqali.
 #
-# JADVAL: Toshkent vaqti bilan 08, 11, 14, 17, 20 (UTC 03, 06, 09, 12, 15) - har 3 soatda, faqat
+# JADVAL: Toshkent vaqti bilan 08:17, 11:17, 14:17, 17:17, 20:17 (UTC 03:17, 06:17, 09:17, 12:17, 15:17) - har 3 soatda, faqat
 # kunduzi (kechasi ta'minotchilarga SMS ketmasligi uchun; tovar 7 kundan kam qolganda ushlanadi,
 # kechasi 12 soatlik tanaffus xavfsiz). GitHub cron ba'zan 10-30 daqiqa kechikadi - bu normal.
 #
@@ -18,7 +18,7 @@ name: Doimiy zakas nazorati
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3,6,9,12,15 * * *"
+    - cron: "17 3,6,9,12,15 * * *"
 
 concurrency:
   group: zakas-auto-control
