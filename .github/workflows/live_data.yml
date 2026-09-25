@@ -1,0 +1,87 @@
+name: Jonli ma'lumotni nashr qilish (Vercel'siz)
+
+# `_live_invdata()`/`_live_kirimdata()`ni (backend/app.py, O'ZGARISHSIZ - shu
+# yerda faqat import qilinadi) har 15 daqiqada shu yerda (GitHub Actions,
+# repo PUBLIC bo'lgani uchun bepul/cheksiz) hisoblab, natijani `live-data-latest`
+# TAG'iga (branch EMAS - quyidagi izohga qarang) yozadi.
+#
+# SABAB (2026-09-23): frontend avval shu ikki ma'lumotni to'g'ridan-to'g'ri
+# Vercel serverless funksiyadan (`/api/v1/invdata`, `/api/v1/kirimdata`)
+# olardi - bu Vercel'ning "Fast Origin Transfer" (CDN<->Compute) oylik
+# kvotasini (Hobby, 10GB) bir necha kunda tugatib qo'ygan edi. Endi bu
+# hisob Vercel'dan butunlay TASHQARIDA qilinadi, natija esa raw.githubusercontent.com
+# orqali static fayl sifatida o'qiladi (sales_api_client.js) - Vercel
+# Compute UMUMAN ishlamaydi.
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: live-data-publish
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Repo'ni olish (main)
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install "fastapi>=0.115" "libsql-client>=0.3.1" "openpyxl>=3.1" "requests>=2.31" "cryptography>=42"
+
+      # Kirim tarixi keshi (kirim_state.json) - Vercel Blob o'rniga Actions
+      # keshida saqlanadi (BLOB_READ_WRITE_TOKEN Vercel'da "Sensitive" -
+      # qayta o'qib bo'lmaydi, GitHub'ga berib bo'lmaydi). Kesh bo'lmasa
+      # (birinchi ishga tushish) - jim o'tkaziladi, to'liq 120 kundan
+      # boshlanadi. Fayl ~25MB va har safar o'zgaradi - git'ga yozilsa repo
+      # kuniga yuzlab MB'ga shishardi.
+      - name: Oldingi kirim keshini tiklash
+        uses: actions/cache@v4
+        with:
+          path: /tmp/live_out/kirim_state.json
+          key: kirim-state-${{ github.run_id }}
+          restore-keys: kirim-state-
+
+      - name: Jonli ma'lumotni hisoblash
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python -u backend/publish_live_data.py /tmp/live_out
+
+      # Natija `live-data-latest` TAG'iga yoziladi. BRANCH emas: branch'ga har push
+      # Vercelda bitta "CANCELED" deploy yozuvi yaratadi (96/kun - Hobby'ning 100
+      # deploy/kun limitiga hisoblanib, haqiqiy deploylarni bloklashi mumkin);
+      # tag push'i esa Vercelda UMUMAN yozuv yaratmaydi (2026-09-24 sinaldi). Fayllar ~57MB va har safar o'zgaradi - oddiy commit tarixi
+      # kuniga ~1GB'ga shishirib yuborardi, shuning uchun har safar BITTA
+      # yangi commit (tarixsiz) sifatida almashtiriladi. Bu branch'da hech
+      # kim qo'lda ishlamaydi, faqat shu workflow yozadi (concurrency guruhi
+      # bir vaqtda faqat bittasini kafolatlaydi) - hech narsa yo'qolmaydi.
+      - name: live-data-latest tag'ini yangilash
+        run: |
+          rm -rf /tmp/live-data-wt && mkdir -p /tmp/live-data-wt/live
+          cp /tmp/live_out/invdata.json /tmp/live_out/kirimdata.json /tmp/live_out/meta.json /tmp/live-data-wt/live/
+          cd /tmp/live-data-wt
+          git init -q -b live-data
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add live
+          git commit -q -m "Jonli ma'lumot: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          for i in 1 2 3; do
+            if git push --force origin HEAD:refs/tags/live-data-latest; then exit 0; fi
+            sleep 5
+          done
+          echo "3 marta urinishdan keyin ham push bo'lmadi."
+          exit 1
