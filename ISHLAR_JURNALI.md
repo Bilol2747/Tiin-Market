@@ -4,6 +4,12 @@ Bu fayl oxirgi qilingan/qilinayotgan ishlarni qisqa yozib boradi — yangi chatd
 
 ---
 
+## 2026-09-25 — Zakas: firma ichidagi Export faqat shu firmani yuklaydi
+
+`exportZakasCSV()` (`sales_runtime.js`): firma sahifasi ochiq bo'lsa (`zkMode==="detail"&&zkSupFilter`) faqat shu firmaning belgilangan qatorlari eksport qilinadi. Avval avto-belgi (`_zkIsChecked`) tufayli barcha firmalar fayllari yuklanib ketardi. Ro'yxat rejimidagi Export o'zgarmadi. Import (`zkImportBarcodes`) va Invan'ga yuborish (`zkSendToInvan`) tekshirildi — ikkalasi allaqachon `zkSupFilter` bilan cheklangan, xato yo'q. Mock sinov: ro'yxat -> A,B,C; firma B ichida -> B. `sales_runtime.js?v=` yangilandi.
+
+---
+
 ## 2026-09-25 — Doimiy nazorat kodi tuzatildi (8 topilma + hisobot bo'limlari) — PR, kalit HAMON O'CHIQ
 
 Mustaqil tekshiruvdagi 8 topilma bitta paketda tuzatildi (`zakas/auto_control.js`, `api/zakas-auto-firms.js`, `sales_runtime.js`, `zakas_auto.yml`). Kalit (`zakas_auto_mode.json`) tegilmadi. Alohida branch + PR (main'ga push qilinmagan).

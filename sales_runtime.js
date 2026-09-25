@@ -3883,8 +3883,15 @@ async function exportZakasCSV(){
   // belgilangan qatorni yo'qotmaydi - key'lar depth bilan prefikslangani uchun
   // (normal:/chuqur:) bir xil mahsulot ikki marta hisoblanib qolmaydi (har bir
   // mahsulot faqat BITTA depth doirasiga tushadi, _zkBuildSuppliers'dagi inScope()).
+  // Firma sahifasi ICHIDA (bitta supplier ochiq) - FAQAT shu firmaning belgilangan
+  // qatorlari eksport qilinadi. Avto-belgi (_zkIsChecked) barcha firmalarning zakasi bor
+  // tovarlarini sukut bo'yicha belgilaydi, filtrsiz hamma firma fayllari yuklanib ketardi
+  // (foydalanuvchi topilmasi, 2026-09-25). Ro'yxat rejimida xatti-harakat o'zgarmagan.
+  const _onlySup=(zkMode==="detail"&&zkSupFilter)?zkSupFilter:null;
   const supN=_zkBuildSuppliers("normal"),supC=_zkBuildSuppliers("chuqur");
-  const ok=await _zkExportInvanTemplate([...supN,...supC]);
+  let sups=[...supN,...supC];
+  if(_onlySup)sups=sups.filter(s=>s.sup===_onlySup);
+  const ok=await _zkExportInvanTemplate(sups);
   if(!ok)alert(t("zk_no_selection"));
 }
 async function exportStockXLSX(){
