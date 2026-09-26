@@ -1,0 +1,120 @@
+name: Pipeline sog'ligini tekshirish
+
+# sync.yml'dan MUSTAQIL, alohida workflow — agar asosiy sinxronizatsiya
+# biror joyda qotib qolsa (masalan Turso/Invan API muammosi tufayli, 90
+# daqiqagacha "ishlayapti" ko'rinib hech qanday signal bermaydi), bu
+# workflow shuni alohida payqab, Telegram orqali xabar beradi.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Repo'ni checkout qilish
+        uses: actions/checkout@v4
+
+      - name: Oxirgi commit vaqtini tekshirish, kechiksa ogohlantirish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          import os
+          import urllib.request
+          import datetime
+
+          repo = os.environ["REPO"]
+          token = os.environ["GH_TOKEN"]
+
+          req = urllib.request.Request(
+              f"https://api.github.com/repos/{repo}/commits/main",
+              headers={"Accept": "application/vnd.github+json", "Authorization": f"Bearer {token}"},
+          )
+          with urllib.request.urlopen(req, timeout=15) as resp:
+              data = json.load(resp)
+
+          commit_date = datetime.datetime.fromisoformat(
+              data["commit"]["committer"]["date"].replace("Z", "+00:00")
+          )
+          now = datetime.datetime.now(datetime.timezone.utc)
+          age_minutes = (now - commit_date).total_seconds() / 60
+          print(f"Oxirgi commit: {commit_date.isoformat()} ({age_minutes:.0f} daqiqa oldin)")
+
+          # 2026-08-10: asosiy pipeline (sync.yml) endi kuniga 2 marta
+          # (06:00/18:00 UTC, ~12 soatlik oraliq) ishlaydi - avval 90 daqiqa
+          # bo'lgan chegara endi HAR safar yolg'on ogohlantirish yuborardi.
+          # 14 soat (840 daqiqa) - kutilgan 12 soatlik oraliqqa ~2 soat
+          # zaxira bilan.
+          THRESHOLD_MINUTES = 840
+          if age_minutes > THRESHOLD_MINUTES:
+              msg = (
+                  f"⚠️ Tiin Market: avtomatik yangilanish {age_minutes:.0f} daqiqadan "
+                  f"beri ishlamayapti (oxirgi commit: {commit_date.strftime('%Y-%m-%d %H:%M')} UTC). "
+                  f"GitHub Actions'ni tekshiring."
+              )
+              body = json.dumps({"chat_id": "7034777747", "text": msg}).encode()
+              tg_req = urllib.request.Request(
+                  "https://api.telegram.org/bot8626844104:AAHsDzuxGzJqsvnaS42jSHTLriF7A0tUtXg/sendMessage",
+                  data=body,
+                  headers={"Content-Type": "application/json"},
+                  method="POST",
+              )
+              urllib.request.urlopen(tg_req, timeout=15)
+              print("Ogohlantirish Telegram'ga yuborildi.")
+          else:
+              print("Hammasi joyida, oxirgi yangilanish yetarlicha yaqin.")
+          PYEOF
+
+      - name: Telegram zakas bot webhookini tekshirish, o'chib qolgan bo'lsa tiklash
+        # Webhook Telegram tomonidan (sababi aniq emas) vaqti-vaqti bilan
+        # o'z-o'zidan o'chib qolyapti (2026-08-01, 08-10, 08-11 kunlari
+        # kuzatilgan) - shu bois har 30 daqiqada tekshirib, kerak bo'lsa
+        # avtomatik qayta o'rnatiladi, foydalanuvchi qo'lda tuzatishga
+        # muhtoj bo'lmasin.
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          import re
+          import urllib.parse
+          import urllib.request
+
+          # Token faylning o'zidagi mavjud (birinchi step'dagi) havoladan
+          # o'qib olinadi - shu tokenni bu yerda qayta yozib qo'ymaslik uchun.
+          with open(".github/workflows/health_check.yml", encoding="utf-8") as f:
+              _workflow_src = f.read()
+          BOT_TOKEN = re.search(r"api\.telegram\.org/bot([0-9]+:[A-Za-z0-9_-]+)/", _workflow_src).group(1)
+          EXPECTED_URL = "https://tiin-market.vercel.app/api/telegram-webhook"
+
+          def call(method, data=None):
+              url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+              req = urllib.request.Request(
+                  url,
+                  data=urllib.parse.urlencode(data).encode() if data else None,
+                  method="POST" if data else "GET",
+              )
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  return json.load(resp)
+
+          info = call("getWebhookInfo")
+          current_url = info.get("result", {}).get("url", "")
+          print(f"Joriy webhook: {current_url!r}")
+
+          if current_url != EXPECTED_URL:
+              print("Webhook bo'sh/mos emas - tiklanmoqda...")
+              result = call("setWebhook", {"url": EXPECTED_URL})
+              print(f"setWebhook natijasi: {result}")
+
+              msg = (
+                  "🔧 Tiin Market: zakas boti webhooki o'chib qolgan edi, "
+                  "avtomatik tiklandi. Kutib turgan fayllar bo'lsa hozir yetib boradi."
+              )
+              call("sendMessage", {"chat_id": "7034777747", "text": msg})
+          else:
+              print("Webhook joyida, hammasi yaxshi.")
+          PYEOF

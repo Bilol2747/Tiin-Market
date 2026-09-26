@@ -1,0 +1,63 @@
+name: Zakas Telegram xabari
+
+# Zakas (Invan buyurtma) ochilgach "Tiin Analitika" guruhiga SENING nomingdan buyurtma PDF'i va xabar yuboradi
+# (kategoriyali menejerlar ta'minotchiga xabar berishi uchun). Tafsilot: zakas/tg_notify.py.
+# Ishga tushiradi: sayt katakchasi (api/invan-order.js) va avtomat nazorat (zakas/auto_control.js) - workflow_dispatch orqali.
+# Sinov: Actions -> Run workflow -> target=me (xabar guruhga emas, faqat "Saqlangan xabarlar"ga ketadi).
+# Telegram sessiyasi GitHub secret'lar: TELEGRAM_API_ID, TELEGRAM_API_HASH, TELEGRAM_SESSION (alohida yaratilgan StringSession).
+on:
+  workflow_dispatch:
+    inputs:
+      order_no:
+        description: "Invan buyurtma raqami (masalan 21597)"
+        required: true
+      sms:
+        description: "SMS holati: sent | nophone | failed (bo'sh = telefon raqamidan avtomatik)"
+        required: false
+        default: ""
+      target:
+        description: "group = Tiin Analitika guruhi, me = Saqlangan xabarlar (sinov)"
+        required: false
+        default: "group"
+
+# Bir vaqtda BITTA ish: ayni Telegram sessiyasi ikki joyda bir vaqtda ishlatilsa Telegram uni bekor qiladi.
+concurrency:
+  group: zakas-telegram-notify
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # takroriy yuborishga qarshi ro'yxat (auto-data/zakas_tg_posted.json)
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Repo'ni olish (faqat kerakli fayl)
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            zakas/tg_notify.py
+          sparse-checkout-cone-mode: false
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Telethon o'rnatish
+        run: pip install "telethon>=1.36"
+
+      - name: Telegramga yuborish
+        env:
+          # inputs env orqali (shell'ga to'g'ridan-to'g'ri qo'yilmaydi)
+          ORDER_NO: ${{ inputs.order_no }}
+          SMS_STATE: ${{ inputs.sms }}
+          TARGET: ${{ inputs.target }}
+          TG_API_ID: ${{ secrets.TELEGRAM_API_ID }}
+          TG_API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
+          TG_SESSION: ${{ secrets.TELEGRAM_SESSION }}
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          INVAN_PERSONAL_TOKEN: ${{ secrets.INVAN_PERSONAL_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python zakas/tg_notify.py --order-no "$ORDER_NO" --sms "$SMS_STATE" --target "${TARGET:-group}"
