@@ -1,0 +1,359 @@
+{
+ "createdAt": "2026-09-28T05:18:43.047Z",
+ "srcFile": "-5325144796_2212_tiin.xlsx",
+ "supplierId": "e229de6d-5fa0-4915-b8fb-27e4782642d0",
+ "supplierLabel": "LILLYKAY GLOBAL MCHJ",
+ "items": [
+  {
+   "name": "Shampun Kerasys Homme Deep Cleasing Coll 550ml",
+   "barcode": "8801046877388",
+   "qty": 24,
+   "price": 56900,
+   "status": "aktiv",
+   "sku": "14401",
+   "id": "45f83e0b-844e-4082-aeaa-3fa1e1d01335",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Scalp Care 550ml",
+   "barcode": "8801046877395",
+   "qty": 24,
+   "price": 56900,
+   "status": "aktiv",
+   "sku": "2876581",
+   "id": "3b8abc27-1069-4840-ab31-72ad3729b9f8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Man Древесный Аромат 400ml",
+   "barcode": "8801046428504",
+   "qty": 24,
+   "price": 54600,
+   "status": "aktiv",
+   "sku": "7876",
+   "id": "d49e2586-0406-4e28-b4a5-784e3683c277",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Man Травяной Аромат 400ml",
+   "barcode": "8801046428511",
+   "qty": 24,
+   "price": 54600,
+   "status": "aktiv",
+   "sku": "7878",
+   "id": "7a2aab88-8847-4e4a-9be8-298670350889",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kerasys Man sitrusli shampuni 400ml",
+   "barcode": "8801046428542",
+   "qty": 24,
+   "price": 54600,
+   "status": "aktiv",
+   "sku": "7877",
+   "id": "7b1fc830-3359-4b15-ba33-0db110eb4021",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Bosh Terisini Davolovchi 600ml",
+   "barcode": "8801046866214",
+   "qty": 24,
+   "price": 56900,
+   "status": "aktiv",
+   "sku": "287455",
+   "id": "4a325ca5-6a94-4056-bb53-d7928e28986e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Revitalizing Sog'lomlashtiruvchi 600ml",
+   "barcode": "8801046848890",
+   "qty": 24,
+   "price": 56900,
+   "status": "aktiv",
+   "sku": "287464",
+   "id": "61d7515d-d4d0-4fdb-ba1d-fd3f96f19976",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Soch Tiklovchi 600ml",
+   "barcode": "8801046848906",
+   "qty": 24,
+   "price": 56900,
+   "status": "aktiv",
+   "sku": "287462",
+   "id": "afdbda90-7e27-4996-ab6f-ebde3485e4df",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampoo Kerasys Argan Oil 1L",
+   "barcode": "8801046342985",
+   "qty": 24,
+   "price": 105800,
+   "status": "aktiv",
+   "sku": "10744",
+   "id": "77c7f11e-972b-4aaa-bb77-a4359401af7b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Advanced Keratin Bond Moisture 600ml",
+   "barcode": "8801046316603",
+   "qty": 36,
+   "price": 69500,
+   "status": "aktiv",
+   "sku": "2878748",
+   "id": "404ef25c-b8eb-49c5-a028-6ed998331ad8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Repair Ampoule 600ml",
+   "barcode": "8801046316573",
+   "qty": 36,
+   "price": 69500,
+   "status": "aktiv",
+   "sku": "2878746",
+   "id": "21333ba3-2368-4dcc-8a97-7740c5c32fa5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Advanced Ampoule Purifying 600ml",
+   "barcode": "8801046421871",
+   "qty": 36,
+   "price": 69500,
+   "status": "aktiv",
+   "sku": "7224",
+   "id": "b44e2c1b-1002-4ed1-a217-f8bfe8b793d8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Advanced Shampoo Repair 400ml",
+   "barcode": "8801046376638",
+   "qty": 17,
+   "price": 54500,
+   "status": "aktiv",
+   "sku": "54240",
+   "id": "29f1d18f-b957-4a06-8002-bc583a52afda",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос KeraSys Увлажняющий (дой-пак) 500мл",
+   "barcode": "8801046902066",
+   "qty": 30,
+   "price": 40800,
+   "status": "aktiv",
+   "sku": "2878753",
+   "id": "ba5e5424-c47d-41c4-81d6-7edea5421c1c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос KeraSys Восстанавливающий (дой-пак) 500мл",
+   "barcode": "8801046902059",
+   "qty": 30,
+   "price": 40800,
+   "status": "aktiv",
+   "sku": "2878754",
+   "id": "824508b0-dc49-426f-8151-b16d8ef33fb4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Оздоравливающий Kerasys 500мл",
+   "barcode": "8801046902042",
+   "qty": 30,
+   "price": 40800,
+   "status": "aktiv",
+   "sku": "2876580",
+   "id": "d3baa61c-9910-464a-bd93-de9a1ef7660a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Kerasys для лечения кожи головы Deep Cleansing 500мл",
+   "barcode": "8801046395714",
+   "qty": 30,
+   "price": 40800,
+   "status": "aktiv",
+   "sku": "7846",
+   "id": "89c1d4be-b12d-43f4-851e-4c6de8fcfcad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Pure Charming 500ml",
+   "barcode": "8801046396964",
+   "qty": 60,
+   "price": 42400,
+   "status": "aktiv",
+   "sku": "40483",
+   "id": "038ac6c9-291a-4b32-8c9e-3f65c7323382",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun Kerasys Perfume Glam&Stylish Quruq va Sinuvchi sochlar uchun 500ml",
+   "barcode": "8801046396988",
+   "qty": 60,
+   "price": 42400,
+   "status": "aktiv",
+   "sku": "42940",
+   "id": "a86500f1-f61c-489c-8414-590c9da30d27",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kerasys Elegance shampuni 600ml",
+   "barcode": "8801046992715",
+   "qty": 36,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "287470",
+   "id": "6322ba8b-3042-42b4-bf81-fae132197f4c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Romantic 600ml",
+   "barcode": "8801046992708",
+   "qty": 36,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "287463",
+   "id": "e0708bbb-42dd-4bcd-9462-faa546494e81",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Pure Charming 600ml",
+   "barcode": "8801046992722",
+   "qty": 36,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "287469",
+   "id": "650c9f31-2751-4a1b-aa1b-1da3fbddfcc8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Quruq Glamur 600ml",
+   "barcode": "8801046240540",
+   "qty": 36,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "287454",
+   "id": "fa6a8d0f-eddf-424f-9053-a920c01c76da",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun KeraSys Gul Ekstrat 600ml",
+   "barcode": "8801046240557",
+   "qty": 36,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "287459",
+   "id": "7e7aea5c-d9c1-4fc9-8512-eb1b5b77913a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Kerasys Lovely Romantic 600мл",
+   "barcode": "8801046992739",
+   "qty": 24,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "10747",
+   "id": "b32a09bd-4d9a-4bf6-a678-c3376cc43d52",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Kerasys Elegance Sensual 600мл",
+   "barcode": "8801046992746",
+   "qty": 24,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "28668",
+   "id": "a0c56145-f0f2-4d96-9cea-71f4c0fa9666",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер KeraSys для волос Charming 600мл",
+   "barcode": "8801046992753",
+   "qty": 24,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "2877434",
+   "id": "eff4410c-ceb7-4431-99b2-7a9b8ce6b560",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Kerasys Glam&Stylish 600мл",
+   "barcode": "8801046245316",
+   "qty": 24,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "2877435",
+   "id": "b47cb4dc-7aa4-477b-8dac-dc40b4b7770f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Кондиционер для волос Kerasys Blooming Flowery 600 мл",
+   "barcode": "8801046245309",
+   "qty": 24,
+   "price": 58400,
+   "status": "aktiv",
+   "sku": "12720",
+   "id": "44aace36-d54f-4b73-8d3f-5587250ce3f1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovun Kerasys Lovely & Romantic 90gr",
+   "barcode": "8801046321720",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49325",
+   "id": "0f199499-a2d2-4f91-9077-344383acea07",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovun Kerasys Elegance & Sensual 90gr",
+   "barcode": "8801046321744",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49326",
+   "id": "87e267c1-fc58-421d-bd67-0941c1c0b95d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sovun Kerasys Pure & Charming 90gr",
+   "barcode": "8801046321737",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49327",
+   "id": "4abb337d-9a5b-4b54-9f5f-8a7499fa2bb1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sutli Kosmetik Sovun Kerasys 100gr",
+   "barcode": "8801046869697",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49328",
+   "id": "a152203d-dc37-4b63-ae6c-47eaecc5abf6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Мыло косметическое Kerasys Mineral Balance 100гр",
+   "barcode": "8801046869710",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49329",
+   "id": "7b38f393-ee8f-438e-837e-f90e5d6b04fe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kerasys kosmetika sovuni 100gr",
+   "barcode": "8801046869703",
+   "qty": 72,
+   "price": 15100,
+   "status": "aktiv",
+   "sku": "49330",
+   "id": "44f98ca0-7a3a-48be-81c4-2d37de69dc6a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 55758100
+}
