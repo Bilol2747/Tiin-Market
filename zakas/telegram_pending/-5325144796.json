@@ -1,0 +1,89 @@
+{
+ "createdAt": "2026-09-29T13:31:24.095Z",
+ "srcFile": "-5325144796_2222_tiiiin.xlsx",
+ "supplierId": "5d8cdcdc-60de-4c47-bedf-2d28fc709e96",
+ "supplierLabel": "Aurex Group (SELEN LUX Бумага)",
+ "items": [
+  {
+   "name": "Selen salfetka 100sht",
+   "barcode": "4780017060025",
+   "qty": 200,
+   "price": 6050,
+   "status": "aktiv",
+   "sku": "23729",
+   "id": "2e3fd7a6-03ca-4ec3-984d-aab4fa8de173",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gala salfetka 100sht",
+   "barcode": "4780017060148",
+   "qty": 300,
+   "price": 3495,
+   "status": "aktiv",
+   "sku": "23731",
+   "id": "05887edd-d581-4aa7-ae42-10dd216940ba",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Selen polotensa 2sloy 2rulon q",
+   "barcode": "4780017060100",
+   "qty": 75,
+   "price": 10819,
+   "status": "aktiv",
+   "sku": "23733",
+   "id": "9bf21a11-645a-45c0-82df-bc708b3f3779",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная бумага Selen 6рул. 2сл. 15м",
+   "barcode": "4780017060438",
+   "qty": 150,
+   "price": 13000,
+   "status": "aktiv",
+   "sku": "21559",
+   "id": "a651020f-af10-4a78-b57a-9efaaea91cde",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen 6 рулон",
+   "barcode": "4780017060766",
+   "qty": 80,
+   "price": 13978,
+   "status": "aktiv",
+   "sku": "23742",
+   "id": "cfcb40c5-fe3f-4b27-95a1-56a77a2d74b2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen 2-слой 8-рул.",
+   "barcode": "4780017060117",
+   "qty": 5,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23737",
+   "id": "f3c9d3bb-cf82-4183-90db-496109d20adf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen Aroma Chamomile 8рулон",
+   "barcode": "4780017061015",
+   "qty": 5,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23744",
+   "id": "cdc0d5b8-4612-4e24-b7b1-6f564a2cac72",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen Aroma Chamomile 8рулон",
+   "barcode": "4780017061015",
+   "qty": 5,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23744",
+   "id": "cdc0d5b8-4612-4e24-b7b1-6f564a2cac72",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 13009832.5
+}
