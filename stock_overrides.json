@@ -353,6 +353,12 @@
   "updated_by": "Anvar G'aniyev",
   "value": 241.0
  },
+ "44305": {
+  "note": "",
+  "updated_at": "2026-10-03T11:43:36.825255+00:00",
+  "updated_by": "Bilol Ziyodullayev",
+  "value": 6.0
+ },
  "45173": {
   "note": "2026-09-08: Vercel migratsiyasidan keyin tiklandi va sotuv/kirimga qarab yangilandi",
   "updated_at": "2026-09-08T04:53:54.850818+00:00",
