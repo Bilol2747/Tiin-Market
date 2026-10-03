@@ -1,0 +1,39 @@
+{
+ "createdAt": "2026-10-03T09:18:36.845Z",
+ "srcFile": "-5325144796_2251_zakas_''SMART_GLOBAL_DISTRIBUTION''_MCHJ_№215_от_14_01_2022г_Ch.xlsx",
+ "supplierId": "2e712f72-c2b2-40c1-a8e0-9a20b94ed4b0",
+ "supplierLabel": "''SMART GLOBAL DISTRIBUTION'' MCHJ (№215 от 14.01.2022г) (Chernogolovka Rich Dobriy)",
+ "items": [
+  {
+   "name": "Suv Chortoq Gazli butilka 750ml",
+   "barcode": "4780051070073",
+   "qty": 240,
+   "price": 11251.8,
+   "status": "aktiv",
+   "sku": "2887",
+   "id": "0ae4bf32-8f35-4a37-a6d7-154b4fc17b5c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz SuvChortoq 1.5l",
+   "barcode": "4780051070448",
+   "qty": 120,
+   "price": 11669,
+   "status": "aktiv",
+   "sku": "41295",
+   "id": "1fbfeb22-f16c-4267-8665-b389c82d80d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Mineral Gazli Suv Chortoq 1l",
+   "barcode": "4780051070431",
+   "qty": 84,
+   "price": 9170,
+   "status": "aktiv",
+   "sku": "41294",
+   "id": "d5d1d759-9a59-4858-aa82-4df9f3b02aad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 4870992
+}
