@@ -532,5 +532,11 @@
   "updated_at": "2026-09-07T11:53:08.699359+00:00",
   "updated_by": "Bilol Ziyodullayev",
   "value": 0.0
+ },
+ "TEST-CLAUDE": {
+  "note": "",
+  "updated_at": "2026-10-03T11:20:23.583575+00:00",
+  "updated_by": "Claude jonli sinov",
+  "value": 1.0
  }
 }
