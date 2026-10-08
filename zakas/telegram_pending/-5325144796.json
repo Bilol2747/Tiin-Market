@@ -1,0 +1,79 @@
+{
+ "createdAt": "2026-10-08T08:40:54.241Z",
+ "srcFile": "-5325144796_2301_Накладная-№3(2007)(07.10.2026+16_26_55).xlsx",
+ "supplierId": "d050ce93-7f84-4553-aa52-d1430dfae6a0",
+ "supplierLabel": "MCHJ SAM PROFF LINE (Wash Fresh)",
+ "items": [
+  {
+   "name": "Qog'oz Rica Dipelyatsiya Uchun",
+   "barcode": "8021515000547",
+   "qty": 20,
+   "price": 11040,
+   "status": "aktiv",
+   "sku": "52949",
+   "id": "30953725-5936-4340-82d1-5610bd3e619b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vosk Rica Aloe Vera Lipowax 100ml",
+   "barcode": "8021515001728",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "52940",
+   "id": "45158e45-d804-4877-96e7-59154cb962ff",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vosk Rica Azulene Lipowax 100ml",
+   "barcode": "8021515001223",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "52941",
+   "id": "8cd7a7c0-5520-4004-9094-a37d46534186",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Rica Cosmetics Banana Liposoluble Wax | 100ml",
+   "barcode": "8021515001315",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "54751",
+   "id": "d061b017-983f-482d-8e8c-19e55c4c2d80",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vosk Rica Chlorophyll Lipowax 100ml",
+   "barcode": "8021515001216",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "52942",
+   "id": "efb76890-1a0e-4a58-ab15-e7f76147b149",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vosk Rica Honey Lipowax 100ml",
+   "barcode": "8021515001209",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "52943",
+   "id": "731a69e9-436e-45e4-9acb-5e262e8659b1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vosk Rica Olive Oil Lipowax 100ml",
+   "barcode": "8021515001759",
+   "qty": 12,
+   "price": 19412,
+   "status": "aktiv",
+   "sku": "52944",
+   "id": "ba07a0ee-a519-4672-932d-e2ed1fc12a3b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 4855392
+}
