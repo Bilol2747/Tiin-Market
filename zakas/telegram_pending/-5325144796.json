@@ -1,79 +1,49 @@
 {
- "createdAt": "2026-10-08T08:40:54.241Z",
- "srcFile": "-5325144796_2301_Накладная-№3(2007)(07.10.2026+16_26_55).xlsx",
- "supplierId": "d050ce93-7f84-4553-aa52-d1430dfae6a0",
- "supplierLabel": "MCHJ SAM PROFF LINE (Wash Fresh)",
+ "createdAt": "2026-10-09T05:02:24.391Z",
+ "srcFile": "-5325144796_2308_zakas_MCHJ WATER DISTRIBUTION TTZ (Hydrolife)_2026-10-09.xlsx",
+ "supplierId": "2ec7ed94-b863-445a-b482-3c5502855a2a",
+ "supplierLabel": "MCHJ WATER DISTRIBUTION TTZ (Hydrolife)",
  "items": [
   {
-   "name": "Qog'oz Rica Dipelyatsiya Uchun",
-   "barcode": "8021515000547",
-   "qty": 20,
-   "price": 11040,
+   "name": "Hydrolife Gazsiz 500ml",
+   "barcode": "4780012960153",
+   "qty": 600,
+   "price": 1904,
    "status": "aktiv",
-   "sku": "52949",
-   "id": "30953725-5936-4340-82d1-5610bd3e619b",
+   "sku": "642",
+   "id": "ac4eefd7-c950-49a4-9799-1a0575d98178",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Vosk Rica Aloe Vera Lipowax 100ml",
-   "barcode": "8021515001728",
-   "qty": 12,
-   "price": 19412,
+   "name": "Hydrolife Gazsiz 1,5l",
+   "barcode": "4780012960092",
+   "qty": 240,
+   "price": 3164,
    "status": "aktiv",
-   "sku": "52940",
-   "id": "45158e45-d804-4877-96e7-59154cb962ff",
+   "sku": "909",
+   "id": "868f36aa-6765-4dff-88b6-57b4f8f75199",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Vosk Rica Azulene Lipowax 100ml",
-   "barcode": "8021515001223",
-   "qty": 12,
-   "price": 19412,
+   "name": "Hydrolife 10l",
+   "barcode": "4780012960214",
+   "qty": 50,
+   "price": 9996,
    "status": "aktiv",
-   "sku": "52941",
-   "id": "8cd7a7c0-5520-4004-9094-a37d46534186",
+   "sku": "2533",
+   "id": "e7b8af9d-6f87-40bc-bc7f-03215c81f162",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Rica Cosmetics Banana Liposoluble Wax | 100ml",
-   "barcode": "8021515001315",
+   "name": "Qora Ceylon Shaftoli 500ml",
+   "barcode": "4780061970165",
    "qty": 12,
-   "price": 19412,
+   "price": 5012,
    "status": "aktiv",
-   "sku": "54751",
-   "id": "d061b017-983f-482d-8e8c-19e55c4c2d80",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Vosk Rica Chlorophyll Lipowax 100ml",
-   "barcode": "8021515001216",
-   "qty": 12,
-   "price": 19412,
-   "status": "aktiv",
-   "sku": "52942",
-   "id": "efb76890-1a0e-4a58-ab15-e7f76147b149",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Vosk Rica Honey Lipowax 100ml",
-   "barcode": "8021515001209",
-   "qty": 12,
-   "price": 19412,
-   "status": "aktiv",
-   "sku": "52943",
-   "id": "731a69e9-436e-45e4-9acb-5e262e8659b1",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Vosk Rica Olive Oil Lipowax 100ml",
-   "barcode": "8021515001759",
-   "qty": 12,
-   "price": 19412,
-   "status": "aktiv",
-   "sku": "52944",
-   "id": "ba07a0ee-a519-4672-932d-e2ed1fc12a3b",
+   "sku": "1108",
+   "id": "319ac633-98ff-44b8-aa44-dfe6a7616dc6",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   }
  ],
- "fileTotal": 4855392
+ "fileTotal": 2461704
 }
