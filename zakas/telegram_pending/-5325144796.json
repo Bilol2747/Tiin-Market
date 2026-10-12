@@ -1,0 +1,59 @@
+{
+ "createdAt": "2026-10-12T08:12:04.176Z",
+ "srcFile": "-5325144796_2329_zakas_''MERLION_TRADE_INC''_XK_№_R_77_11_от_15_02_2024_RedBull_2026.xlsx",
+ "supplierId": "d266765a-4b79-4ef1-a7f9-df6fb049bed5",
+ "supplierLabel": "''MERLION TRADE INC'' XK (№ R 77-11 от 15.02.2024) (RedBull)",
+ "items": [
+  {
+   "name": "Red Bull 250ml",
+   "barcode": "90415258",
+   "qty": 120,
+   "price": 16286,
+   "status": "aktiv",
+   "sku": "3921",
+   "id": "e25656ac-79cf-407a-b351-30dd865751ad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Red Bull 350ml",
+   "barcode": "9002490223908",
+   "qty": 96,
+   "price": 22612,
+   "status": "aktiv",
+   "sku": "4558",
+   "id": "0301167a-b07b-4d78-9c3c-38b58763f53a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Red Bull Shaftoli 250ml",
+   "barcode": "90493881",
+   "qty": 48,
+   "price": 16286,
+   "status": "aktiv",
+   "sku": "42041",
+   "id": "7b3f5ab4-0e91-4266-b83b-b15c3509329e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Red Bull Sugar Free 250ml",
+   "barcode": "90456039",
+   "qty": 48,
+   "price": 16286,
+   "status": "aktiv",
+   "sku": "43377",
+   "id": "bef54b18-5df9-4066-aa9c-5a630adee623",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Red Bull 473ml",
+   "barcode": "9002490210397",
+   "qty": 48,
+   "price": 27013,
+   "status": "aktiv",
+   "sku": "287399",
+   "id": "468147f4-1944-4b7c-a3de-31b27550cdcb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 6985152
+}
