@@ -1,0 +1,1089 @@
+{
+ "createdAt": "2026-10-14T09:15:30.270Z",
+ "srcFile": "-5325144796_2358_TIIN OPTOM.xlsx",
+ "supplierId": "ba0446d1-a800-4b74-a40f-c621f3694dc1",
+ "supplierLabel": "United distribution (ushastiy nyan bella symphony)",
+ "items": [
+  {
+   "name": "Антиперспирант Deonica for Teens Cool Spirit 125мл",
+   "barcode": "4600104037740",
+   "qty": 1,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24644",
+   "id": "35f0e9e9-f6f4-4c81-a1a7-a3c0ac138d99",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica for Teens Magic Splash 125мл",
+   "barcode": "4600104037733",
+   "qty": 2,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24643",
+   "id": "7472e16b-b25e-4b6c-b65c-9433ee8512c1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica for Teens Pink Rush 125мл",
+   "barcode": "4600104037887",
+   "qty": 3,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24642",
+   "id": "1f9eab8a-0ceb-4814-8bc6-cf19daf5fcbe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Antipersperant Deonica 200ml",
+   "barcode": "4600104035418",
+   "qty": 4,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26723",
+   "id": "892da776-f5b7-4bc6-979b-95ecc2be65fe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant-Antiperspirant Deonica For Men 200ml",
+   "barcode": "4600104037450",
+   "qty": 5,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23002",
+   "id": "8a6b3678-1b6f-4ae5-b568-e4df0c118275",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant Deonica 5в1 Max 200ml",
+   "barcode": "4600104031083",
+   "qty": 6,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23042",
+   "id": "9f162d50-d2cc-489e-a896-8e1c7e28a308",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант Deonica Nature Protection 200мл",
+   "barcode": "4600104029813",
+   "qty": 7,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23003",
+   "id": "b16b800f-7431-43f3-a8bf-87a24857b4ac",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant Deonica Men Nature Protection 200ml",
+   "barcode": "4600104030079",
+   "qty": 8,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23044",
+   "id": "25bd62cb-4583-4de1-9bdc-d3956b0c9b60",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant Deonica Pre-Biotic 200ml",
+   "barcode": "4600104037672",
+   "qty": 9,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26725",
+   "id": "673bd9c0-5054-4664-b331-10beedb01936",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант Deonica Pro-Защита Pure Clean 200мл",
+   "barcode": "4600104029721",
+   "qty": 10,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24638",
+   "id": "c9f3314b-4b5b-4539-a22d-1f7e673e2d68",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант Deonica Антибактериальный Эффект 200мл",
+   "barcode": "4600104035425",
+   "qty": 11,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26724",
+   "id": "fae804ad-69c0-46c6-b8e3-67e2b7f09a31",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica женский Гипоаллергенный No Parfum 200мл",
+   "barcode": "4600104029837",
+   "qty": 12,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24640",
+   "id": "06b42471-4539-4040-a384-e013299e1df8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант женский Легкость пудры Deonica 200мл",
+   "barcode": "4600104032264",
+   "qty": 13,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23041",
+   "id": "aaf94811-ec5b-4b09-ad49-8d2afa1cbd94",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant Deonica Invisible For Men Ko'rinmas 200ml",
+   "barcode": "4600104033391",
+   "qty": 14,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26722",
+   "id": "955be506-2384-430d-9399-cb2b63ca3bd9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica женский Невидимый Clear Aqua 200мл",
+   "barcode": "4600104029844",
+   "qty": 15,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24639",
+   "id": "0f011617-7650-4215-bb55-1e7686f88122",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант-антиперспирант спрей Deonica Нежность шелка 200мл",
+   "barcode": "4600104033704",
+   "qty": 16,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23043",
+   "id": "32d32881-25ff-4c77-a647-37997f8ccf3f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica женский Энергия Витаминов Vitamin Care 200мл",
+   "barcode": "4600104035432",
+   "qty": 17,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24641",
+   "id": "dbb9b717-9a05-4172-a53d-0e60a0e5770d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica женский Невидимая Защита Summer Paradise 150мл",
+   "barcode": "4600104039218",
+   "qty": 18,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26748",
+   "id": "9a9f7a22-fb27-4c5e-b2a7-2be165980b87",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Антиперспирант Deonica женский Невидимый Уход Summer Secrets 150мл",
+   "barcode": "4600104039201",
+   "qty": 19,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26747",
+   "id": "e36536d2-9624-4ff4-b96f-fda9bafbbb4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пена для Бритья Deonica for Men Активная Защита 240мл",
+   "barcode": "4650056499271",
+   "qty": 20,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42509",
+   "id": "d8ecf62f-f4f9-4431-9f22-d3222c3f8721",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пена для бритья Deonica Для чувствительной кожи 240мл",
+   "barcode": "4600104035609",
+   "qty": 21,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23049",
+   "id": "d846711b-90e2-4c80-b98e-989cdbf521dd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ko'pik Soqol Olish Uchun Deonica Комфортное бритье 240ml",
+   "barcode": "4600104035623",
+   "qty": 22,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23051",
+   "id": "03236fd8-3825-45cf-b6a2-66a4b8b1cd08",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пена для бритья Deonica Максимальная защита 240мл",
+   "barcode": "4600104035616",
+   "qty": 23,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23052",
+   "id": "2deb945f-d556-49c6-8a4b-a4087f2ce503",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант-антиперспирант спрей Deonica For Men Energу Shot 150мл",
+   "barcode": "4650056492647",
+   "qty": 24,
+   "price": null,
+   "status": "aktiv",
+   "sku": "21390",
+   "id": "c37327d9-fa27-4b36-9358-86118ff17fd3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dezodorant Deonica Men Power Fresh 150ml",
+   "barcode": "4650056492630",
+   "qty": 25,
+   "price": null,
+   "status": "aktiv",
+   "sku": "21429",
+   "id": "5b9338c4-6e60-4aa6-becd-2750b64d8c52",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Дезодорант спрей Deonica Summer Fantasy 150 мл",
+   "barcode": "4650056492623",
+   "qty": 26,
+   "price": null,
+   "status": "aktiv",
+   "sku": "13650",
+   "id": "37fd4f3f-5a9a-428d-aa4d-fdd203dd7cc2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Сухой Шампунь Deonica for Men Активная Свежесть без Запаха 250мл",
+   "barcode": "4660222720023",
+   "qty": 27,
+   "price": null,
+   "status": "aktiv",
+   "sku": "43402",
+   "id": "7768c107-453a-4030-be71-446adb875c89",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Quruq Shampun Deonica Hidsiz 250ml",
+   "barcode": "4660222720016",
+   "qty": 28,
+   "price": null,
+   "status": "aktiv",
+   "sku": "43401",
+   "id": "b7365731-b0f4-4a85-a621-3200b72368ea",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Лак для Волос Прелесть Сверхсильная Фиксация 200мл",
+   "barcode": "4600104031984",
+   "qty": 29,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26736",
+   "id": "f1ecec17-eb70-468d-893c-b12500cf80b9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Лак для волос Прелесть эластичная фиксация Серый 160мл",
+   "barcode": "4600104010705",
+   "qty": 30,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23033",
+   "id": "9cb20930-1536-4c77-9927-4f8e30d0fd44",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun-Kondisioner Моя прелесть Havo Bulutlari 2si1da 250ml",
+   "barcode": "4600104038006",
+   "qty": 31,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23038",
+   "id": "8b3bf7c7-177e-4e25-8027-05a2e94a3b63",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bolalar Shampuni Моя Прелесть Sirli Malina 250ml",
+   "barcode": "4600104033636",
+   "qty": 32,
+   "price": null,
+   "status": "aktiv",
+   "sku": "22996",
+   "id": "53219b33-65ea-4eac-9f98-d2498d263b94",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun-Gel Bolalar Uchun Моя Прелесть 2в1 Shaftoli 500ml",
+   "barcode": "4600104023569",
+   "qty": 33,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24636",
+   "id": "d4009fe3-1b34-4b97-8ee6-7c598f6a1fc4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Shampun-Kondisioner Моя Прелесть Mevali Miks 2si1da 500ml",
+   "barcode": "4600104034022",
+   "qty": 34,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23035",
+   "id": "4872b9f1-5432-4311-a840-d8800453e085",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Seni Control Extra 15шт",
+   "barcode": "5900516697334",
+   "qty": 35,
+   "price": null,
+   "status": "aktiv",
+   "sku": "286160",
+   "id": "a61b7049-83bf-4159-9c70-c077d438c6a8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Seni Control Mini 15шт",
+   "barcode": "5900516697310",
+   "qty": 36,
+   "price": null,
+   "status": "aktiv",
+   "sku": "286158",
+   "id": "34e5cb82-2911-4695-88ad-25824d06383f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Seni Lady Control Normal 15d",
+   "barcode": "5900516697327",
+   "qty": 37,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2876880",
+   "id": "0aa38c12-2a6e-48c5-a83d-dc7aa0174838",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Seni Control Plus 15d",
+   "barcode": "5900516697358",
+   "qty": 38,
+   "price": null,
+   "status": "aktiv",
+   "sku": "286161",
+   "id": "ed59c09e-7792-45b5-bc6f-e5401a8025a9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Seni Control Super 15шт",
+   "barcode": "5900516697341",
+   "qty": 39,
+   "price": null,
+   "status": "aktiv",
+   "sku": "286159",
+   "id": "0e9df5ff-7bfb-4e33-94e8-785fe991af92",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники-трусики для взрослых Seni Active Normal Medium 10шт",
+   "barcode": "5900516693046",
+   "qty": 40,
+   "price": null,
+   "status": "aktiv",
+   "sku": "10685",
+   "id": "5f07666e-e39e-444e-85f2-ea9adc683744",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники-трусики для взрослых Seni Active Normal Large 10шт",
+   "barcode": "5900516693053",
+   "qty": 41,
+   "price": null,
+   "status": "aktiv",
+   "sku": "10684",
+   "id": "8f244c59-766e-40f9-8672-e61b4110f747",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Yostiqchalar Bella Cotton 100d",
+   "barcode": "5900516403638",
+   "qty": 42,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42091",
+   "id": "5ba9d214-4043-4844-a25b-9607c033eb93",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Tayoqcha Bella Cotton 200d",
+   "barcode": "5900516403706",
+   "qty": 43,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42092",
+   "id": "5bf0039d-2c9f-4240-806e-18c744991dbe",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ватные Палочки Bella Cotton к/у 100шт",
+   "barcode": "5900516403683",
+   "qty": 44,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42094",
+   "id": "1b499aaa-b532-4a01-87aa-fc5ad26069cf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Cotton paxta tayoqchalari 160d",
+   "barcode": "5900516403652",
+   "qty": 45,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42096",
+   "id": "9d422255-41cc-4b3e-9ac1-cc2dc570ad10",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Tayoqcha Bella Cotton 350d",
+   "barcode": "5900516403713",
+   "qty": 46,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42093",
+   "id": "fb050c1b-69ec-44ef-a2ce-4ac95ecf4c22",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxta tayoqchalari Bella Cotton Dumaloq 100d",
+   "barcode": "5900516403690",
+   "qty": 47,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42095",
+   "id": "cd56873d-9a2c-470f-a6f4-1486c3bbf6db",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Baby Happy Ватные палочки с экстрактом ромашки и Д-пантенолом для детей 56шт",
+   "barcode": "5900516402259",
+   "qty": 48,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2878947",
+   "id": "7fb0e21a-ef39-4b69-861f-182a79a140a6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Tayoqcha Bella Baby Happy  Д-Pantenol Bolalar Uchun 56d",
+   "barcode": "5900516402266",
+   "qty": 49,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2878946",
+   "id": "118c0b9f-ebea-428c-8f13-893901aa7072",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Cotton paxtali yostiqcha 120",
+   "barcode": "5900516403775",
+   "qty": 50,
+   "price": null,
+   "status": "aktiv",
+   "sku": "44028",
+   "id": "773a9b6d-7ce8-436e-beeb-1ea8d1e49093",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Yostiqchalar Bella Cotton 100dona",
+   "barcode": "5900516403744",
+   "qty": 51,
+   "price": null,
+   "status": "aktiv",
+   "sku": "44029",
+   "id": "5634d0d7-b6ca-4933-928b-5e756693b32f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Bella for Teens Panty Energy 20шт",
+   "barcode": "5900516311636",
+   "qty": 52,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26206",
+   "id": "15b3ac2b-50bf-4de9-9857-10e32e662ed4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Bella for Teens Panty Relax 20шт",
+   "barcode": "5900516311605",
+   "qty": 53,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26207",
+   "id": "102937c5-b41f-4483-88a4-4f35cfe0459d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella for Teens Panty prokladkalari 20d",
+   "barcode": "5900516311575",
+   "qty": 54,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26208",
+   "id": "7520ead7-1fb7-4626-927b-e6a83f47bf18",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Panty Soft Herbs 20d",
+   "barcode": "5900516312114",
+   "qty": 55,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23090",
+   "id": "a9b7450d-9dc9-49ad-bafa-ca578a9bd492",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Panty prokladkalari 60d",
+   "barcode": "5900516312121",
+   "qty": 56,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23091",
+   "id": "bc474dd9-7b16-4a6f-aad0-6b234c95dab2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Herbs kunlik prokladkalari 20d",
+   "barcode": "5900516312091",
+   "qty": 57,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23088",
+   "id": "dc74cba4-45a5-4f27-9f10-b7ff2713e27a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella kunlik prokladkalari 1kg 60d",
+   "barcode": "5900516312107",
+   "qty": 58,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23089",
+   "id": "8da55b55-12fe-4433-b38b-71d42516ef83",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ежедневные прокладки Bella Panty Sensitive 60шт",
+   "barcode": "5900516311469",
+   "qty": 59,
+   "price": null,
+   "status": "aktiv",
+   "sku": "30761",
+   "id": "004b3dc2-f025-47ba-aa1b-d43ce939c60a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Panty Sensitive Elegance Ежедневные гигиенические прокладки 20шт",
+   "barcode": "5900516311414",
+   "qty": 60,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2878948",
+   "id": "88d6e8ba-9771-4703-b48c-3f44e89d2146",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ежедневные прокладки Bella Panty Aroma Energy 60шт",
+   "barcode": "5900516311544",
+   "qty": 61,
+   "price": null,
+   "status": "aktiv",
+   "sku": "30762",
+   "id": "8cc4cce0-4909-4338-bb72-0eaff2d0ea7e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Bella Panty Aroma Fresh 20шт",
+   "barcode": "5900516311438",
+   "qty": 62,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24526",
+   "id": "bb089bc7-93a9-41df-a3a3-146bffe14b5d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ежедневные прокладки Bella Panty Aroma Fresh 60шт",
+   "barcode": "5900516311520",
+   "qty": 63,
+   "price": null,
+   "status": "aktiv",
+   "sku": "30763",
+   "id": "181a84cf-ae7d-4bb9-901f-5cb2278c793e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Bella Panty Sensitive 20шт",
+   "barcode": "5900516311407",
+   "qty": 64,
+   "price": null,
+   "status": "aktiv",
+   "sku": "286156",
+   "id": "8cb30fac-429f-4967-bfb5-2f0d9172640d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Panty Soft prokladkalari 60d",
+   "barcode": "5900516312015",
+   "qty": 65,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23085",
+   "id": "7564edfa-a7ef-4f43-a21b-0a759d7f3e9f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Послеродовые Bella Mamma 10d",
+   "barcode": "5900516601270",
+   "qty": 66,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23093",
+   "id": "2293c7ea-de67-45f3-a82b-9ca4d475173f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Tampo Super Plus Premium Comfort тампоны без аппликатора 16шт",
+   "barcode": "5900516320324",
+   "qty": 67,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2878950",
+   "id": "a9b3a624-dcf9-42dd-97ef-88a65bae2ec2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Тампоны Bella Tampo Super Plus 8шт",
+   "barcode": "5900516320317",
+   "qty": 68,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23097",
+   "id": "69877838-aff8-4623-9cf8-efbb15e92e20",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Тампоны Bella Tampo Super 8шт",
+   "barcode": "5900516320331",
+   "qty": 69,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26209",
+   "id": "82254944-20c7-4191-8aed-afc0d6063778",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella Tampo Super Premium Comfort тампоны без аппликатора по 16шт",
+   "barcode": "5900516320348",
+   "qty": 70,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2878949",
+   "id": "5bd2263b-730a-4810-8d74-3a0925453c43",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gigiyenik Prokladka Bella Classic 10d",
+   "barcode": "5900516306823",
+   "qty": 71,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2880692",
+   "id": "298c64ac-ed6e-42af-863a-dfbec4a609f3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки гигиенические Bella Classic Nova 10шт",
+   "barcode": "5900516306755",
+   "qty": 72,
+   "price": null,
+   "status": "aktiv",
+   "sku": "21432",
+   "id": "2176fe81-d553-4484-a80b-31de81a45e67",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Herbs Tilia Comfort 10d",
+   "barcode": "5900516304355",
+   "qty": 73,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24529",
+   "id": "23a24265-8d73-4d50-8fa4-9dcda9953419",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Herbs 10d",
+   "barcode": "5900516304348",
+   "qty": 74,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24530",
+   "id": "6f8781e6-a434-48a8-89a8-71007af08686",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки женские Bella Normal 10шт",
+   "barcode": "5900516306724",
+   "qty": 75,
+   "price": null,
+   "status": "aktiv",
+   "sku": "27768",
+   "id": "db10153e-12f2-48c9-b01a-7f3e11c10076",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Normal Maxi 10d",
+   "barcode": "5900516306786",
+   "qty": 76,
+   "price": null,
+   "status": "aktiv",
+   "sku": "11789",
+   "id": "225cf446-68c8-48e9-a3a4-b804bc331bf9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Normal 20d",
+   "barcode": "5900516306731",
+   "qty": 77,
+   "price": null,
+   "status": "aktiv",
+   "sku": "27769",
+   "id": "462ebbd0-0883-45a9-9227-59747316999f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella прокладки женские NOVA Komfort 10шт",
+   "barcode": "5900516306762",
+   "qty": 78,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2880681",
+   "id": "d1fbc000-8d5f-4a68-927e-964fdf6f4291",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Гигиенические прокладки Bella Nova softiplait 10шт",
+   "barcode": "5900516306748",
+   "qty": 79,
+   "price": null,
+   "status": "aktiv",
+   "sku": "21445",
+   "id": "29974215-80b2-4ea7-acbb-7cc8dd75e76b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Nova Maxi 10d",
+   "barcode": "5900516306809",
+   "qty": 80,
+   "price": null,
+   "status": "aktiv",
+   "sku": "2880693",
+   "id": "b35d9142-8d31-41df-a0a0-0e77d157e3c8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella for Teens Ultra Energy 10d",
+   "barcode": "5900516302405",
+   "qty": 81,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24531",
+   "id": "46ae793e-2e97-4c11-8e72-e2deb76a7e8d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella for Teens Ultra Relax 10d",
+   "barcode": "5900516302375",
+   "qty": 82,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24533",
+   "id": "75f20e82-3b1b-4906-bd28-b8277b4dcb01",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella for Teens Ultra Sensitive 10d",
+   "barcode": "5900516302344",
+   "qty": 83,
+   "price": null,
+   "status": "aktiv",
+   "sku": "24532",
+   "id": "ad2be1cb-4c29-40b4-8d2c-feeeac3620af",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra Green 8d",
+   "barcode": "5900516306076",
+   "qty": 84,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23103",
+   "id": "ef162bf8-c8c5-452f-ac0c-379ce4350242",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra 7d",
+   "barcode": "5900516305970",
+   "qty": 85,
+   "price": null,
+   "status": "aktiv",
+   "sku": "39325",
+   "id": "a7a5cb15-fd8e-48f5-945c-a502f662caeb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Bella tungi prokladkalari 7d",
+   "barcode": "5900516306090",
+   "qty": 86,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23094",
+   "id": "e6aa55d6-9a87-4e70-87a6-5468a9d97334",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Ultra Night Soft 14d",
+   "barcode": "5900516305987",
+   "qty": 87,
+   "price": null,
+   "status": "aktiv",
+   "sku": "40395",
+   "id": "2ec345c5-0f22-437f-bb61-9988ce9a7c63",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalar Bella Perfecta Maxi Rose Ultraingichka 16d",
+   "barcode": "5900516306120",
+   "qty": 88,
+   "price": null,
+   "status": "aktiv",
+   "sku": "11788",
+   "id": "0145e9b9-ede1-41e9-b5b7-43916e5c8b9e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfect Ultra night 14d",
+   "barcode": "5900516306106",
+   "qty": 89,
+   "price": null,
+   "status": "aktiv",
+   "sku": "10683",
+   "id": "f77a1a33-cefe-47ac-8efb-518cdf700e74",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra Maxi Blue 16d",
+   "barcode": "5900516305963",
+   "qty": 90,
+   "price": null,
+   "status": "aktiv",
+   "sku": "11785",
+   "id": "b5471e99-556c-4537-872f-f1b26bf72b65",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra 8d",
+   "barcode": "5900516305956",
+   "qty": 91,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23102",
+   "id": "9aa75bd5-73ac-496b-a101-87930b864584",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra Rose Deo Fresh 10d",
+   "barcode": "5900516305918",
+   "qty": 92,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23096",
+   "id": "6e0cd32e-c7eb-4f4c-a080-13c3f3a072a0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladkalari Bella Perfecta Ultra Rose Deo Fresh 20d",
+   "barcode": "5900516305925",
+   "qty": 93,
+   "price": null,
+   "status": "aktiv",
+   "sku": "287316",
+   "id": "efe24b09-8514-47b8-9236-aea19daa3fe3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta 10d",
+   "barcode": "5900516306038",
+   "qty": 94,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23098",
+   "id": "5ab791b4-c43e-405c-9f8d-c248f3822229",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Прокладки Bella Perfecta Ultra Violet Deo Fresh Экономия 20шт",
+   "barcode": "5900516306045",
+   "qty": 95,
+   "price": null,
+   "status": "aktiv",
+   "sku": "287314",
+   "id": "19f52ed1-f150-49b3-b892-945b80b01a28",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Prokladka Bella Perfecta Ultra Rose Deo Fresh 8d",
+   "barcode": "5900516306113",
+   "qty": 96,
+   "price": null,
+   "status": "aktiv",
+   "sku": "13449",
+   "id": "7c394d6a-82cf-4b2c-8508-593138b42bdd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Yostiqchalari E'Vita 100d",
+   "barcode": "5900516039141",
+   "qty": 97,
+   "price": null,
+   "status": "aktiv",
+   "sku": "42512",
+   "id": "73253f25-0677-475d-834b-d117f43c2bda",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Paxtali Yostiqchalar EVita 120d",
+   "barcode": "5900516039158",
+   "qty": 98,
+   "price": null,
+   "status": "aktiv",
+   "sku": "44579",
+   "id": "49485f28-d3ab-4c08-84d8-62bb11342fb7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящий Гель Sanita для Кухонных Плит 500гр",
+   "barcode": "4602984004515",
+   "qty": 99,
+   "price": null,
+   "status": "aktiv",
+   "sku": "25521",
+   "id": "160ab384-9e6b-4569-92ab-fc4991401bc8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sanita Antirjavchina 500gr gel dlya vanna & rokvina",
+   "barcode": "4602984002375",
+   "qty": 100,
+   "price": null,
+   "status": "aktiv",
+   "sku": "285724",
+   "id": "0d80b9ba-0acf-407e-a78d-d5b1db6e9582",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем Sanita для кухни Универсал Зеленый Чай и Лайм 600мл",
+   "barcode": "4602984009176",
+   "qty": 101,
+   "price": null,
+   "status": "aktiv",
+   "sku": "25519",
+   "id": "257bfa3e-6a4e-4c3b-8007-62a55acab8f3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Sanita Universal Limon 600ml",
+   "barcode": "4602984009183",
+   "qty": 102,
+   "price": null,
+   "status": "aktiv",
+   "sku": "35257",
+   "id": "e6e3754f-5bd9-4ef4-85f1-080210ec699f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Sanita Антижир 500ml",
+   "barcode": "4602984004393",
+   "qty": 103,
+   "price": null,
+   "status": "aktiv",
+   "sku": "25520",
+   "id": "12eb4cb7-a458-4ccc-b08a-26284f0bbe16",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Sanitar-gigiyenik vosita Чистин 3в1 750gr",
+   "barcode": "4602984007684",
+   "qty": 104,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23021",
+   "id": "72f15e91-1bc4-4a7a-b27f-251ed62ba6aa",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Чистин Truba Uchun 500ml",
+   "barcode": "4602984007585",
+   "qty": 105,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23073",
+   "id": "3be0603a-83f5-46f3-b632-32bf8fc8e287",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalovchi Vosita Чистин Сток 750ml",
+   "barcode": "4602984009404",
+   "qty": 106,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23074",
+   "id": "c8e451fc-33ef-4f12-aa2f-22174d62e70c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Жидкий Порошок Ушастый Нянь для детского белья 1.2л",
+   "barcode": "4600697020402",
+   "qty": 107,
+   "price": null,
+   "status": "aktiv",
+   "sku": "26767",
+   "id": "8b0a0c3a-e6b4-47b6-b0b5-2d465f04549c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Жидкий Порошок Ушастый Нянь для детского белья 750мл",
+   "barcode": "4600697020396",
+   "qty": 108,
+   "price": null,
+   "status": "aktiv",
+   "sku": "23076",
+   "id": "b6aee71e-b337-41b4-8d38-5dee29fdd2a6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 0
+}
