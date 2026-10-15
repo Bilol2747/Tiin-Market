@@ -1,0 +1,79 @@
+{
+ "createdAt": "2026-10-15T04:21:43.879Z",
+ "srcFile": "-5325144796_2367_321 Накладные 3.2.1(тиин 2).xlsx",
+ "supplierId": "26b30f45-ae0a-4d7f-9420-bc1e506f4ca9",
+ "supplierLabel": "GI-FMCG (Chirton Бытовая Химия)",
+ "items": [
+  {
+   "name": "Tozalovchi Vosita Pol Uchun Chirton Bio Lavanda 1l",
+   "barcode": "4670013301294",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37136",
+   "id": "0b093142-bfbb-44a9-a76a-180e5b8f3c1d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tozalash Vosita Chirton Bio Pol Uchun Laym Yalpiz 1l",
+   "barcode": "4670013301287",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37135",
+   "id": "5d1c5bf4-72ee-48e4-9091-c9c9f76480fa",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Chirton Bio pol tozalash vositasi 1l",
+   "barcode": "4670013300204",
+   "qty": 12,
+   "price": 38530,
+   "status": "aktiv",
+   "sku": "37137",
+   "id": "7d5f3ff9-247b-45ad-a4e4-60ea134785ac",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Bloki Chirton Atlantika Sofligi 45gr",
+   "barcode": "4670013302932",
+   "qty": 48,
+   "price": 14314.06,
+   "status": "aktiv",
+   "sku": "41287",
+   "id": "8cff48b3-c6f2-4067-b702-d7159f28d32f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tabletka Unitaz Uchun Chirton Кубик Альпийская Долина 3х50gr",
+   "barcode": "4607145649925",
+   "qty": 24,
+   "price": 24991.18,
+   "status": "aktiv",
+   "sku": "39416",
+   "id": "8d343ac0-35e1-44fd-b382-1623550a76e5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Antistatik-Sprey Chirton Kiyim Uchun 200ml",
+   "barcode": "4670013301898",
+   "qty": 24,
+   "price": 31363.25,
+   "status": "aktiv",
+   "sku": "39424",
+   "id": "c7480bc9-f6e8-49d5-817e-2ef0b10240e3",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Dog' Ketkazuvchi Chirton 150gr",
+   "barcode": "4607145649581",
+   "qty": 24,
+   "price": 14811.66,
+   "status": "aktiv",
+   "sku": "37125",
+   "id": "4273c8cc-4fac-4290-8ffc-92a046d982ec",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 3782141.04
+}
