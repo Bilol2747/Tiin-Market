@@ -1,0 +1,109 @@
+{
+ "createdAt": "2026-10-16T12:33:53.361Z",
+ "srcFile": "-5325144796_2434_OOO_TIIN_OPTOM.xlsx",
+ "supplierId": "301b0072-784c-4b1c-a1a1-1904f0d24430",
+ "supplierLabel": "''BALTON TRADING (ASIA)'' MCHJ XK (№ НФMIX-10/129 от 22.10.2024) Pine",
+ "items": [
+  {
+   "name": "Подгузники Pine Soft 5 Junior 11-18кг Бебешки 56шт",
+   "barcode": "8699096964154",
+   "qty": 22,
+   "price": 160000,
+   "status": "aktiv",
+   "sku": "33085",
+   "id": "e610e0d4-ed64-447d-b3a7-039c46f6f849",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar-Trusiklar Pine Pants 4 Maxi 9-15kg 18d",
+   "barcode": "8699096965502",
+   "qty": 88,
+   "price": 55500,
+   "status": "aktiv",
+   "sku": "36463",
+   "id": "66d5bb42-1878-4298-a2f9-7b1277a7bd7c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Tagliklar-Trusiklar Pine Pants 4 Maxi 9-15kg 48d",
+   "barcode": "8699096965472",
+   "qty": 15,
+   "price": 140000,
+   "status": "aktiv",
+   "sku": "36464",
+   "id": "f34c9209-8bc6-44a8-8942-da616be505d7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники-Трусики Pine Pants 6 Extra Large 18кг+ 44шт",
+   "barcode": "8699096965366",
+   "qty": 307,
+   "price": 140000,
+   "status": "aktiv",
+   "sku": "36465",
+   "id": "84b55764-ed15-4531-9ed7-3d78e44f6270",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники Pine 3 Soft 4-9кг 30шт",
+   "barcode": "8699096964239",
+   "qty": 3,
+   "price": 64700,
+   "status": "aktiv",
+   "sku": "32572",
+   "id": "c34a6904-2d98-4904-b4b4-50d3475f433c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники Pine 4 Soft 7-14кг 26шт",
+   "barcode": "8699096964246",
+   "qty": 48,
+   "price": 64700,
+   "status": "aktiv",
+   "sku": "32571",
+   "id": "684faeac-8a7c-4810-8a5b-fa07120b5ec0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Подгузники Pine Soft 3 Midi 4-9кг 84шт",
+   "barcode": "8699096964130",
+   "qty": 24,
+   "price": 160000,
+   "status": "aktiv",
+   "sku": "33967",
+   "id": "fa847435-f8d7-47c9-9e3e-f5586761a76b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kondisoner Kiyim Uchun Synergetic Relikt O'rmon 1.5l",
+   "barcode": "4607971455172",
+   "qty": 2,
+   "price": 32466,
+   "status": "aktiv",
+   "sku": "43465",
+   "id": "59aaac65-6f42-4f5b-864d-ed47bed9b49f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kondisioner Kiyim Uchun Synergetic Cheksiz Okean 1.5l",
+   "barcode": "4607971455165",
+   "qty": 6,
+   "price": 32466,
+   "status": "aktiv",
+   "sku": "43464",
+   "id": "d37e0c10-f857-43eb-a42a-928f0d337c03",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kondisioner Kiyim Uchun Synergetic Gipoallaergen 1.5l",
+   "barcode": "4607971455158",
+   "qty": 6,
+   "price": 32466,
+   "status": "aktiv",
+   "sku": "43463",
+   "id": "790a9ac1-fd18-47cb-b1c7-fe0c2e7750b2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 61078224
+}
