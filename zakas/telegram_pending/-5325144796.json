@@ -1,0 +1,329 @@
+{
+ "createdAt": "2026-10-19T15:03:48.930Z",
+ "srcFile": "-5325144796_2456_Tiin.xlsx",
+ "supplierId": "a2270cb5-b693-44b6-9ce2-71a227b74037",
+ "supplierLabel": "Quarter Aspect (Шампунь Vatika)",
+ "items": [
+  {
+   "name": "Хна для Волос Vatika 3.6 Натуральный Burgundy 60гр",
+   "barcode": "6291069701722",
+   "qty": 6,
+   "price": 26488,
+   "status": "aktiv",
+   "sku": "40205",
+   "id": "a87077a0-cbd4-4165-998f-9b05bf81e22e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Краска для Волос Vatika Henna 1 Natural Black 1шт",
+   "barcode": "6291069743913",
+   "qty": 10,
+   "price": 71589,
+   "status": "aktiv",
+   "sku": "43694",
+   "id": "3ced31ae-fb0f-44f3-8b7f-33983ce6baa0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Краска для Волос Vatika Henna 4 Brown 1шт",
+   "barcode": "6291069743920",
+   "qty": 6,
+   "price": 71589,
+   "status": "aktiv",
+   "sku": "43693",
+   "id": "1078aee3-bcca-4025-838a-7e96005cbbe0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Краска для Волос Vatika Henna 4.5 Dark Brown 1шт",
+   "barcode": "6291069743937",
+   "qty": 10,
+   "price": 71589,
+   "status": "aktiv",
+   "sku": "43692",
+   "id": "5aa823eb-6ffb-4556-953c-f287882db193",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Крем-краска Smart с натуральным воском с губкой для обуви чёрный 60мл",
+   "barcode": "8697422827456",
+   "qty": 24,
+   "price": 14218,
+   "status": "aktiv",
+   "sku": "27555",
+   "id": "1aeb2cba-1bc9-429a-87a4-8502c06ef026",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart elite krem 60ml cherniy",
+   "barcode": "8697422822673",
+   "qty": 6,
+   "price": 15639,
+   "status": "aktiv",
+   "sku": "3554",
+   "id": "29057344-6db5-4465-baeb-e5ee1447ca55",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart Hobby gupka cherniy",
+   "barcode": "8697422822604",
+   "qty": 12,
+   "price": 22994,
+   "status": "aktiv",
+   "sku": "4212",
+   "id": "da6bbc52-d1f7-43af-8f2c-e88e870d0d94",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart Hobby gupka besvetniy",
+   "barcode": "8697422821584",
+   "qty": 12,
+   "price": 22994,
+   "status": "aktiv",
+   "sku": "27337",
+   "id": "ef6b9045-494b-4f38-99a6-c27a76b81e86",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Спрей-восстановитель Smart Renovator для замша-нубука чёрный 250мл",
+   "barcode": "8697422822475",
+   "qty": 3,
+   "price": 48469,
+   "status": "aktiv",
+   "sku": "27551",
+   "id": "5c2bb990-f00a-41ba-8e53-393aeac1e366",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Смарт спрей для нубука и замши натуральный 250мл",
+   "barcode": "8697422822215",
+   "qty": 3,
+   "price": 48469,
+   "status": "aktiv",
+   "sku": "10027",
+   "id": "88e8e04c-03d0-45e2-b09a-6b9aff1496e0",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart краска водоотталкивающая жидкая чёрный 75мл",
+   "barcode": "8697422821928",
+   "qty": 12,
+   "price": 12808,
+   "status": "aktiv",
+   "sku": "28209",
+   "id": "416f7239-8ca8-44f3-a30d-bd3741345993",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Краска для обуви Smart Diamond с губкой 75мл",
+   "barcode": "8697422821959",
+   "qty": 6,
+   "price": 12808,
+   "status": "aktiv",
+   "sku": "27549",
+   "id": "725ea505-a78a-4486-b699-1ccc66e1d1bf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart pena ochis. dlya obuv 1250ml sportivniy",
+   "barcode": "8697422823251",
+   "qty": 4,
+   "price": 43736,
+   "status": "aktiv",
+   "sku": "25451",
+   "id": "1faae670-2a59-4310-859e-4682686d3d25",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gubka Oyoqkiyim Uchun Smart Extra Size Black",
+   "barcode": "8697422822932",
+   "qty": 24,
+   "price": 11150,
+   "status": "aktiv",
+   "sku": "2826",
+   "id": "5014dea5-bac7-411a-b0c1-defddab8de07",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Smart Губка для обуви Супер-блеск цвет Бесцветный",
+   "barcode": "8697422822956",
+   "qty": 12,
+   "price": 11150,
+   "status": "aktiv",
+   "sku": "2879028",
+   "id": "277aee80-5344-4aa8-af66-addf8d5e0e60",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Губка Smart для чистки замши и нубука",
+   "barcode": "8697422822635",
+   "qty": 12,
+   "price": 9589,
+   "status": "aktiv",
+   "sku": "27554",
+   "id": "859089e1-bd31-4c82-9caf-3959bfaa1c21",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vilo Promo nabor krem kraska dlya obuvi 60ml cherniy+mini gubka",
+   "barcode": "8697422820624",
+   "qty": 6,
+   "price": 8669,
+   "status": "aktiv",
+   "sku": "2837",
+   "id": "56ad5e5a-65db-47f1-b653-8baea6f04965",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vilo jidkiy krem kraska dlya obuvi 80ml cherniy",
+   "barcode": "8697422820860",
+   "qty": 6,
+   "price": 9985,
+   "status": "aktiv",
+   "sku": "2870",
+   "id": "6aece9d1-d28a-4712-8dde-2f39c8994804",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "ЖИДКАЯ КРАСКА ДЛЯ ОБУВИ VILO (БЕСЦВЕТНЫЙ 80 МЛ)",
+   "barcode": "8697422820891",
+   "qty": 6,
+   "price": 9985,
+   "status": "aktiv",
+   "sku": "2875757",
+   "id": "a699bf08-cc88-46a7-9d4d-c5756ac58fe4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Краска Vilo водоотталкивающая для обуви белый 80мл",
+   "barcode": "8697422820945",
+   "qty": 6,
+   "price": 11113,
+   "status": "aktiv",
+   "sku": "27558",
+   "id": "7d11c51a-6c39-4b65-b6d8-7c422370151d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Губка для обуви Vilo средняя черная",
+   "barcode": "8697422820846",
+   "qty": 24,
+   "price": 8091,
+   "status": "aktiv",
+   "sku": "2878595",
+   "id": "cd5b8a82-5a6d-4d6e-9264-f80725282f6b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gubka Vilo Oyoq Kiyim Uchun Shaffof",
+   "barcode": "8697422821546",
+   "qty": 12,
+   "price": 8091,
+   "status": "aktiv",
+   "sku": "2233",
+   "id": "bbe17a42-8e09-48e6-921c-cbbf68053250",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vilo sprey dlya nubuka i zamshi 200ml bessvetniy",
+   "barcode": "8697422821331",
+   "qty": 3,
+   "price": 43010,
+   "status": "aktiv",
+   "sku": "25464",
+   "id": "3369dbf9-48ce-4ee7-8a05-a11adf9240b4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Vilo mini gubka cherniy",
+   "barcode": "8697422825926",
+   "qty": 24,
+   "price": 7744,
+   "status": "aktiv",
+   "sku": "2113",
+   "id": "14cf2275-87b3-4c78-be0f-32fc26652f82",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Губка д/обуви Vilo для гладкой кожи мини натурал",
+   "barcode": "8697422825933",
+   "qty": 12,
+   "price": 7744,
+   "status": "aktiv",
+   "sku": "2878594",
+   "id": "a57aa22c-3ec7-4b94-929f-cf2730594d10",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Чистящая Губка Vilo для Обуви 1шт",
+   "barcode": "8697422825834",
+   "qty": 12,
+   "price": 10383,
+   "status": "aktiv",
+   "sku": "30173",
+   "id": "363c9163-604b-490e-844b-fe82ff783dcc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "СРЕДСТВО ДЛЯ ОБУВИ \"VILO\" FOR ALL COLOURS",
+   "barcode": "8697422826671",
+   "qty": 12,
+   "price": 9197,
+   "status": "aktiv",
+   "sku": "2877025",
+   "id": "0492c4e8-aedd-4309-8a15-f21eb316c093",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Тряпка для пола Фрекен БОК Степ 1шт",
+   "barcode": "4820048481465",
+   "qty": 30,
+   "price": 16836,
+   "status": "aktiv",
+   "sku": "13996",
+   "id": "1aaac8ef-8c01-412b-a369-856d7ed6a758",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пергамент для выпечки в листах Фрекен Бок 15шт",
+   "barcode": "4820048480741",
+   "qty": 20,
+   "price": 13494,
+   "status": "aktiv",
+   "sku": "13962",
+   "id": "2e5374ef-e906-490a-8c57-b5d19a4b6b52",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Пергамент для выпечки 5м Фрекен Бок",
+   "barcode": "4820048483285",
+   "qty": 30,
+   "price": 14592,
+   "status": "aktiv",
+   "sku": "2882964",
+   "id": "633aeeb2-4c42-4e6b-a6f4-31ddc6a6ed71",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Скребок Фрекен БОК нержавеющий металлический",
+   "barcode": "4820048480765",
+   "qty": 20,
+   "price": 4178,
+   "status": "aktiv",
+   "sku": "13959",
+   "id": "b1aad3e6-b9ca-416f-92a5-e5cd5e45e1e5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетки универсальные перфорированные 38х38см",
+   "barcode": "4823071641714",
+   "qty": 10,
+   "price": 15069,
+   "status": "aktiv",
+   "sku": "2882966",
+   "id": "1b959e02-c9ca-4ab3-8bb5-9021a34c5eaf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 7629762
+}
