@@ -1,0 +1,199 @@
+{
+ "createdAt": "2026-10-21T11:15:27.318Z",
+ "srcFile": "-5325144796_2469_zakas_''SMART_GLOBAL_DISTRIBUTION''_MCHJ_№215_от_14_01_2022г_Ch.xlsx",
+ "supplierId": "2e712f72-c2b2-40c1-a8e0-9a20b94ed4b0",
+ "supplierLabel": "''SMART GLOBAL DISTRIBUTION'' MCHJ (№215 от 14.01.2022г) (Chernogolovka Rich Dobriy)",
+ "items": [
+  {
+   "name": "Gazli Suv Chortoq (Butilka)250ml",
+   "barcode": "4780051070158",
+   "qty": 480,
+   "price": 5260.51,
+   "status": "aktiv",
+   "sku": "12058",
+   "id": "ff72f2a2-2e91-4981-940f-b6c97f366f33",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq gazlangan 500ml стекло",
+   "barcode": "4780051070011",
+   "qty": 480,
+   "price": 9002.7,
+   "status": "aktiv",
+   "sku": "2248",
+   "id": "5c40af5f-02a3-4328-9f67-308b3d8b69de",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Gazli 330ml",
+   "barcode": "4780051070066",
+   "qty": 420,
+   "price": 6753.6,
+   "status": "aktiv",
+   "sku": "1875",
+   "id": "2f6156e7-d69a-43d6-a4ae-b93f0e5be6ca",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Mineral Gazli Suv Chortoq 1l",
+   "barcode": "4780051070431",
+   "qty": 120,
+   "price": 9170,
+   "status": "aktiv",
+   "sku": "41294",
+   "id": "d5d1d759-9a59-4858-aa82-4df9f3b02aad",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Gazlangan (bak) 500ml",
+   "barcode": "4780051070905",
+   "qty": 120,
+   "price": 2998.8,
+   "status": "aktiv",
+   "sku": "41291",
+   "id": "02cd1114-d79a-4929-bdc1-7433119c952f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Chortoq Butilka 500ml",
+   "barcode": "4780051070899",
+   "qty": 120,
+   "price": 4498.2,
+   "status": "aktiv",
+   "sku": "8507",
+   "id": "ce9ed821-fd2e-4a71-b038-75e7bd0f3f85",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz SuvChortoq 1.5l",
+   "barcode": "4780051070448",
+   "qty": 72,
+   "price": 11669,
+   "status": "aktiv",
+   "sku": "41295",
+   "id": "1fbfeb22-f16c-4267-8665-b389c82d80d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Rayxon 330ml",
+   "barcode": "4780051070691",
+   "qty": 48,
+   "price": 6753.58,
+   "status": "aktiv",
+   "sku": "8293",
+   "id": "4d7f5f2b-84e1-44fb-9352-d79492e9e7bb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Limon Yalpiz 330ml",
+   "barcode": "4780051070134",
+   "qty": 48,
+   "price": 6753.61,
+   "status": "aktiv",
+   "sku": "16125",
+   "id": "29d2d055-cc56-466e-ad9a-ed3b527c54c4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Gazsiz (shisha)330ml",
+   "barcode": "4780051070325",
+   "qty": 48,
+   "price": 5985,
+   "status": "aktiv",
+   "sku": "22431",
+   "id": "a636e3e1-8c84-4f2d-86b7-ef148dfa5219",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Laym 330ml",
+   "barcode": "4780051070110",
+   "qty": 48,
+   "price": 6753.58,
+   "status": "aktiv",
+   "sku": "16130",
+   "id": "b1460f57-a6b5-4f4f-a93d-9c773bb23c9e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazli Suv Chortoq 1l",
+   "barcode": "4780051070639",
+   "qty": 42,
+   "price": 3748.51,
+   "status": "aktiv",
+   "sku": "49169",
+   "id": "9067a423-279b-491b-93b6-4ed6a2ef0f03",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Gazsiz (shisha) 500ml",
+   "barcode": "4780051070349",
+   "qty": 36,
+   "price": 9002.71,
+   "status": "aktiv",
+   "sku": "22430",
+   "id": "cebf95ac-1d7d-4c86-a9df-143fc9df9bfa",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Suv Chortoq Limon 330ml",
+   "barcode": "4780051070127",
+   "qty": 36,
+   "price": 6753.6,
+   "status": "aktiv",
+   "sku": "16128",
+   "id": "0628de5b-847e-47fc-889a-7699c12277cf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Напиток Черноголовка Тархун 500мл",
+   "barcode": "4780049961154",
+   "qty": 24,
+   "price": 4166.67,
+   "status": "aktiv",
+   "sku": "1071",
+   "id": "7abfa67a-e6fb-403f-8d8d-51fa5e66defc",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Pyure Бейби Mevali Salat 85gr",
+   "barcode": "4602441019168",
+   "qty": 24,
+   "price": 6666.67,
+   "status": "aktiv",
+   "sku": "52811",
+   "id": "f64355b3-f54c-4cc7-a060-69c6a3865817",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Dyushes 1.5l",
+   "barcode": "4780111553447",
+   "qty": 24,
+   "price": 8333.28,
+   "status": "aktiv",
+   "sku": "2016",
+   "id": "e4af6d99-70d6-4a53-82da-094d517f08e9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gazsiz Suv Chortoq 1l",
+   "barcode": "4780051070417",
+   "qty": 24,
+   "price": 3748.5,
+   "status": "aktiv",
+   "sku": "41293",
+   "id": "100f5586-4f14-4a7a-8eb2-b65b33da28bd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Черноголовка Dyushes 2l",
+   "barcode": "4780111553454",
+   "qty": 12,
+   "price": 10833.29,
+   "status": "aktiv",
+   "sku": "27512",
+   "id": "0b00973f-3ca5-4e02-8454-902044a04d4e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 15187484.700000001
+}
