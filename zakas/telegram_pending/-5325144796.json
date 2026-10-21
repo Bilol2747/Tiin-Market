@@ -1,0 +1,59 @@
+{
+ "createdAt": "2026-10-21T11:39:56.590Z",
+ "srcFile": "-5325144796_2479_Накладная-№3(2007)(21.10.2026+15_57_20).xlsx",
+ "supplierId": "d050ce93-7f84-4553-aa52-d1430dfae6a0",
+ "supplierLabel": "MCHJ SAM PROFF LINE (Wash Fresh)",
+ "items": [
+  {
+   "name": "Gel Kir Yuvish Uchun Wash fresh Universal 3200ml",
+   "barcode": "4780156910144",
+   "qty": 4,
+   "price": 50000,
+   "status": "aktiv",
+   "sku": "51462",
+   "id": "c6f49d07-cdfd-406f-b217-2c68baf3b020",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Wash fresh Universal 5200ml",
+   "barcode": "4780156910151",
+   "qty": 12,
+   "price": 71000,
+   "status": "aktiv",
+   "sku": "51394",
+   "id": "caf2b4a3-9876-467b-8a26-16c201f41170",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gel Kir Yuvish Uchun Wash fresh Universal 3200ml",
+   "barcode": "4780156910137",
+   "qty": 4,
+   "price": 50000,
+   "status": "aktiv",
+   "sku": "51462",
+   "id": "c6f49d07-cdfd-406f-b217-2c68baf3b020",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Kir Yuvish Geli Wash Fresh Okean 5200ml",
+   "barcode": "4780156910120",
+   "qty": 12,
+   "price": 71000,
+   "status": "aktiv",
+   "sku": "51395",
+   "id": "da72a97e-91a9-4d78-80c1-072d270bdacb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gel Kir Yuvish Uchun Wash fresh Universal 3200ml",
+   "barcode": "4780156910113",
+   "qty": 4,
+   "price": 50000,
+   "status": "aktiv",
+   "sku": "51462",
+   "id": "c6f49d07-cdfd-406f-b217-2c68baf3b020",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 8304000.08
+}
