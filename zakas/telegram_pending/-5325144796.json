@@ -1,0 +1,49 @@
+{
+ "createdAt": "2026-11-03T11:45:41.897Z",
+ "srcFile": "-5325144796_2522_zakas_OOO Unimix FMCG_2026-11-03.xlsx",
+ "supplierId": "aa978dec-ac09-494d-a520-2ed2bf11fdef",
+ "supplierLabel": "OOO Unimix FMCG",
+ "items": [
+  {
+   "name": "Barbican Malt Flavour 330ml",
+   "barcode": "6281034007041",
+   "qty": 144,
+   "price": 16490,
+   "status": "aktiv",
+   "sku": "34550",
+   "id": "8549e6d1-33f1-465d-a0ac-436a4bcdfba2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta Exotic 330ml Import",
+   "barcode": "5740700996153",
+   "qty": 48,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "24014",
+   "id": "b99b84ac-a1fa-479a-956b-554149efe4b8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Fanta Qulupnay Kivi 330ml Import",
+   "barcode": "5740700987984",
+   "qty": 48,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "286041",
+   "id": "17bc1126-2544-4619-b057-9daa957188f8",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Fanta Limon 330ml",
+   "barcode": "5449000286932",
+   "qty": 48,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "24012",
+   "id": "e0530bfa-5cf0-44d6-8807-5eaf904ca02d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 3958560
+}
