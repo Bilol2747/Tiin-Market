@@ -1,49 +1,329 @@
 {
- "createdAt": "2026-11-03T11:45:41.897Z",
- "srcFile": "-5325144796_2522_zakas_OOO Unimix FMCG_2026-11-03.xlsx",
- "supplierId": "aa978dec-ac09-494d-a520-2ed2bf11fdef",
- "supplierLabel": "OOO Unimix FMCG",
+ "createdAt": "2026-11-07T09:38:05.054Z",
+ "srcFile": "-5325144796_2531_zakas_RED_STAR_TRADE_Cola_Fanta_germanya_Ogo_мюсли_2026_11_06.xlsx",
+ "supplierId": "b8e3cf31-23cf-4606-971c-34445e10beaf",
+ "supplierLabel": "RED STAR TRADE (Cola Fanta germanya ) Ogo мюсли",
  "items": [
   {
-   "name": "Barbican Malt Flavour 330ml",
-   "barcode": "6281034007041",
-   "qty": 144,
-   "price": 16490,
+   "name": "Coca-Cola Zero Sugar 330ml",
+   "barcode": "5000112554359",
+   "qty": 72,
+   "price": 11000,
    "status": "aktiv",
-   "sku": "34550",
-   "id": "8549e6d1-33f1-465d-a0ac-436a4bcdfba2",
+   "sku": "38198",
+   "id": "54234447-5402-4b18-a9d8-251363565c04",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Fanta Exotic 330ml Import",
-   "barcode": "5740700996153",
-   "qty": 48,
-   "price": 11000,
+   "name": "Gazli Ichimlik Schweppes Indian Tonic 330ml",
+   "barcode": "5997264104252",
+   "qty": 72,
+   "price": 13000,
    "status": "aktiv",
-   "sku": "24014",
-   "id": "b99b84ac-a1fa-479a-956b-554149efe4b8",
+   "sku": "43999",
+   "id": "965d1855-e84d-4f34-8b32-954cba97c264",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Fanta Qulupnay Kivi 330ml Import",
-   "barcode": "5740700987984",
+   "name": "Monster Energy Original 500ml",
+   "barcode": "5061013946001",
    "qty": 48,
-   "price": 11000,
+   "price": 22000,
    "status": "aktiv",
-   "sku": "286041",
-   "id": "17bc1126-2544-4619-b057-9daa957188f8",
+   "sku": "53838",
+   "id": "0b8c768d-55d7-4061-bef7-4027d37ae326",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   },
   {
-   "name": "Ichimlik Fanta Limon 330ml",
-   "barcode": "5449000286932",
+   "name": "Fanta Orange 330ml Import",
+   "barcode": "5449000287038",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "43059",
+   "id": "fc513a42-c85e-49db-b84b-ab8c397da8d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Pepsi Import 330ml",
+   "barcode": "5741000224403",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "38196",
+   "id": "59ec6076-7cf0-4361-8333-d2e34ae003d5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Pepsi Max No Sugar 330ml Import",
+   "barcode": "5741000224427",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "38967",
+   "id": "e03cc71f-33b2-4b36-8092-9f79b259b113",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "DR. PEPPER 0.33л Strawberries & Cream",
+   "barcode": "5904741660026",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "2875052",
+   "id": "120a90b9-9ae1-4325-8144-0caf7527e408",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Kiwi Flavor 290ml",
+   "barcode": "8936225840829",
    "qty": 48,
    "price": 11000,
    "status": "aktiv",
-   "sku": "24012",
-   "id": "e0530bfa-5cf0-44d6-8807-5eaf904ca02d",
+   "sku": "1095",
+   "id": "5802cdaa-9a92-401e-9b9d-f977fbb7b9bb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "DR. PEPPER 0.33л Classic",
+   "barcode": "8435185944009",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "24877",
+   "id": "ca6d132f-ca09-458e-9f93-aa4d1525c44f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "DR. PEPPER 0.33л ZERO Sugar",
+   "barcode": "8435185953711",
+   "qty": 48,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "27104",
+   "id": "4a94033e-d887-4b2e-8455-9d9bdb97f097",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "DR. PEPPER 0.33л Cherry",
+   "barcode": "8435185954626",
+   "qty": 48,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "24871",
+   "id": "7aa7c8f6-7ef6-4a8b-a7c8-e0cf3b3bc3c2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Strawberry Flavor 290ml",
+   "barcode": "8936177702886",
+   "qty": 48,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "1098",
+   "id": "caf8ce1a-9781-4713-a850-d45c5d79a34a",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Melon Flavor 290ml",
+   "barcode": "8936225844971",
+   "qty": 48,
+   "price": 11500,
+   "status": "aktiv",
+   "sku": "1103",
+   "id": "3022558c-e7c9-49b2-a8ea-4de38f93de37",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Schweppes Indian Tonic п/б 850мл",
+   "barcode": "5902860410744",
+   "qty": 30,
+   "price": 21000,
+   "status": "aktiv",
+   "sku": "31795",
+   "id": "b8fba540-8070-47d6-9dd2-0e4bf1e40e3e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik DR. PEPPER Canada Dry Ginger Ale 330ml",
+   "barcode": "8435185954954",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "14216",
+   "id": "5f3169fd-07d6-400e-86a2-23e702e5706b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Nawon Basil Seed Pineapple Juice 290ml",
+   "barcode": "8936225846791",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "46647",
+   "id": "a92545c4-1f28-41a6-8241-930f349226f4",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Watermelon Flavor 290ml",
+   "barcode": "8936177709304",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "1100",
+   "id": "c6f32d16-092e-4e23-8fa7-6a31877dd95d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Orange Flavor 290ml",
+   "barcode": "8936177702879",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "1097",
+   "id": "fef95acf-9827-41d0-b49b-f17662a34167",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Energy Zero CUKRU 500ml",
+   "barcode": "5060896625461",
+   "qty": 24,
+   "price": 22000,
+   "status": "aktiv",
+   "sku": "17457",
+   "id": "a04b60f9-235a-4e13-b554-eae6eed8d85f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Energy Ultra Black 500ml",
+   "barcode": "5060639128709",
+   "qty": 24,
+   "price": 20833.33,
+   "status": "aktiv",
+   "sku": "2875064",
+   "id": "23eb9123-4681-4aa5-a26b-751b45a7b206",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Energy Ultra Zero White 500ml",
+   "barcode": "5060337500258",
+   "qty": 24,
+   "price": 22000,
+   "status": "aktiv",
+   "sku": "52324",
+   "id": "9540adbf-69cf-4536-a841-436f5e8e339d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Schweppes Tonic 330ml",
+   "barcode": "5740700994630",
+   "qty": 24,
+   "price": 15000,
+   "status": "aktiv",
+   "sku": "24875",
+   "id": "0545a3b4-80c5-48ed-9c46-9da58e1b3470",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik DR. PEPPER Vanila Float 330ml",
+   "barcode": "5902860417781",
+   "qty": 24,
+   "price": 12000,
+   "status": "aktiv",
+   "sku": "8633",
+   "id": "05a6d0fc-aff0-459c-ac90-893e66851d03",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Fuze Tea Shaftoli Qora Choy 330ml",
+   "barcode": "57088815",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "8686",
+   "id": "5a423c49-b83f-409c-931c-5318c83d45fb",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Energy Ultra Fiesta Mango 500ml",
+   "barcode": "5060751213826",
+   "qty": 24,
+   "price": 21000,
+   "status": "aktiv",
+   "sku": "52320",
+   "id": "b1487b5c-94b3-4d5f-9a74-1f00cf203fc1",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Mirinda Orange 330ml",
+   "barcode": "5741000232231",
+   "qty": 24,
+   "price": 11000,
+   "status": "aktiv",
+   "sku": "38961",
+   "id": "61664864-1a4f-4fdb-b9c2-cdbad91ab5c5",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Energetik Ichimlik Monster Energy Green Zero Sugar 500ml",
+   "barcode": "5061013940443",
+   "qty": 24,
+   "price": 21000,
+   "status": "aktiv",
+   "sku": "52323",
+   "id": "e5fd1df0-0653-45fd-bd27-1e3363035146",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Choy Fuse Tea Ananas 330ml",
+   "barcode": "5000112664683",
+   "qty": 24,
+   "price": 11700,
+   "status": "aktiv",
+   "sku": "8688",
+   "id": "a9269e3d-336d-49a4-9cbb-b70e94f549f2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Ultra Golden 500ml",
+   "barcode": "5060896623863",
+   "qty": 24,
+   "price": 21000,
+   "status": "aktiv",
+   "sku": "52321",
+   "id": "f4afbfd6-1fc0-465d-8604-59a26ed9a066",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Ichimlik Nawon Basil Seed Drink With Coconut Flavor 290ml",
+   "barcode": "8936225840843",
+   "qty": 24,
+   "price": 11500,
+   "status": "aktiv",
+   "sku": "1104",
+   "id": "9f7fec0b-fc6d-49f5-ad45-78ae9409582c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Monster Energy Cosmic Peach Nitro 500ml",
+   "barcode": "5060947546844",
+   "qty": 24,
+   "price": 21000,
+   "status": "aktiv",
+   "sku": "52322",
+   "id": "5636fe3e-61d9-424f-815a-aed04d2e1eae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Напиток Schweppes Indian Tonic 1.35л",
+   "barcode": "5902860411208",
+   "qty": 12,
+   "price": 35000,
+   "status": "aktiv",
+   "sku": "2876102",
+   "id": "168b3e4a-3e0c-44da-942d-a0f7a8eb3d76",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   }
  ],
- "fileTotal": 3958560
+ "fileTotal": 15786799.92
 }
