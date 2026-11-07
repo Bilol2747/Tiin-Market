@@ -1,0 +1,49 @@
+name: Meva/sabzavot kunlik zakas
+
+# Har kuni kechqurun (ishchilar bozorga ertalabki buyurtmani shu payt
+# yozishadi, Bilol kuzatuviga ko'ra ~20:00-02:00 Toshkent oralig'ida) hisobni
+# Invan'dagi haqiqiy sotuv/qoldiqqa qarab hisoblab, "Tiin ovush laryok manav"
+# guruhiga (alohida, faqat shu ish uchun yaratilgan @tiin_meva_zakas_bot
+# orqali — asl @tiin_market_admin_bot bilan ARALASHIB KETMASLIGI uchun,
+# chunki o'sha bot istalgan guruhdan kelgan .xlsx faylni zakas buyurtma
+# fayli deb qabul qilib yuboradi) PDF+xabar qilib tashlaydi.
+# 2026-10-14, Bilol so'rovi bilan qo'shildi.
+
+on:
+  # GitHub'ning o'z schedule'i soatlab kechikishi mumkin (shu sabab o'chirilgan —
+  # 2026-10-16 da 23:50 workflow_dispatch to'g'ri ishladi, lekin GitHub schedule
+  # ~3 soat kechikib yana ishga tushib, zakasni IKKINCHI marta yubordi).
+  # Aniq vaqt uchun cron-job.org workflow_dispatch'ni shu PAT bilan chaqiradi.
+  workflow_dispatch:
+
+jobs:
+  meva-zakas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Repo'ni olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Kutubxonalarni o'rnatish
+        run: |
+          pip install requests fpdf2 openpyxl
+          sudo apt-get update -qq && sudo apt-get install -y -qq fonts-dejavu-core
+
+      - name: Hisoblash va Telegramga yuborish
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          MEVA_BOT_TOKEN: ${{ secrets.MEVA_BOT_TOKEN }}
+          TIIN_MEVA_CHAT_ID: ${{ secrets.TIIN_MEVA_CHAT_ID }}
+        # Invan API ba'zan timeout beradi — 3 martagacha qayta urinadi
+        run: |
+          for i in 1 2 3; do
+            python -u zakas/meva_zakas.py --send && exit 0
+            echo "Urinish $i muvaffaqiyatsiz, 60s kutib qayta urinadi..."
+            sleep 60
+          done
+          exit 1

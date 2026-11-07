@@ -1,0 +1,41 @@
+name: Meva/sabzavot kunlik sotuv hisoboti
+
+# Har kuni 10:00 (Toshkent) da oldingi kunning to'liq sotuv hisobotini
+# (Excel) Oybek akaning (@TIINOYBEK) shaxsiy chatiga @tiin_meva_zakas_bot
+# orqali yuboradi. 2026-10-15, Bilol so'rovi bilan qo'shildi.
+
+on:
+  # GitHub'ning o'z schedule'i soatlab kechikishi mumkin (shu sabab o'chirilgan —
+  # meva_zakas'da xuddi shu holat IKKINCHI marta yuborishga olib keldi, 2026-10-17).
+  # Aniq vaqt uchun cron-job.org workflow_dispatch'ni shu PAT bilan chaqiradi.
+  workflow_dispatch:
+
+jobs:
+  meva-hisobot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Repo'ni olish
+        uses: actions/checkout@v4
+
+      - name: Python o'rnatish
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Kutubxonalarni o'rnatish
+        run: pip install requests openpyxl
+
+      - name: Hisobotni tayyorlash va yuborish
+        env:
+          INVAN_API_TOKEN: ${{ secrets.INVAN_API_TOKEN }}
+          MEVA_BOT_TOKEN: ${{ secrets.MEVA_BOT_TOKEN }}
+          HISOBOT_CHAT_ID: "7625384481,7034777747"   # Oybek aka (@TIINOYBEK), Bilol
+        # Invan API ba'zan timeout beradi — 3 martagacha qayta urinadi
+        run: |
+          for i in 1 2 3; do
+            python -u zakas/meva_hisobot_kunlik.py --send && exit 0
+            echo "Urinish $i muvaffaqiyatsiz, 60s kutib qayta urinadi..."
+            sleep 60
+          done
+          exit 1
