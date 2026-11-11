@@ -1,0 +1,159 @@
+{
+ "createdAt": "2026-11-11T14:36:00.997Z",
+ "srcFile": "-5325144796_2544_tiiiiinn.xlsx",
+ "supplierId": "5d8cdcdc-60de-4c47-bedf-2d28fc709e96",
+ "supplierLabel": "Aurex Group (SELEN LUX Бумага)",
+ "items": [
+  {
+   "name": "Selen salfetka 100sht",
+   "barcode": "4780017060025",
+   "qty": 250,
+   "price": 6050,
+   "status": "aktiv",
+   "sku": "23729",
+   "id": "2e3fd7a6-03ca-4ec3-984d-aab4fa8de173",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Gala salfetka 100sht",
+   "barcode": "4780017060148",
+   "qty": 300,
+   "price": 3495,
+   "status": "aktiv",
+   "sku": "23731",
+   "id": "05887edd-d581-4aa7-ae42-10dd216940ba",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Салфетка Polo 23*23 100шт",
+   "barcode": "4780017060421",
+   "qty": 250,
+   "price": 3386,
+   "status": "aktiv",
+   "sku": "21555",
+   "id": "f8d0cd30-56d4-429f-8d59-476ff49a7083",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Selen 150d 2q",
+   "barcode": "4780017060193",
+   "qty": 60,
+   "price": 10236,
+   "status": "aktiv",
+   "sku": "23732",
+   "id": "ce843c5b-8321-47ba-aa8d-7bcf6e1a1a51",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Salfetka Selen HoReCa 3q",
+   "barcode": "4780017060933",
+   "qty": 60,
+   "price": 3500,
+   "status": "aktiv",
+   "sku": "23746",
+   "id": "f7461967-7c94-4efd-865c-09d7f84f2bf6",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Влажные Салфетки Selen 120шт",
+   "barcode": "4780017060797",
+   "qty": 120,
+   "price": 10192,
+   "status": "aktiv",
+   "sku": "5168",
+   "id": "149eaf49-dbf3-4e3b-8e81-4778cdd5cd70",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Полотенце Selen Bolajon 30метр 3сл",
+   "barcode": "4780017060896",
+   "qty": 90,
+   "price": 14888,
+   "status": "aktiv",
+   "sku": "53059",
+   "id": "987611c9-cb63-452e-a3ad-0d5b8eae5df2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная бумага Selen 6рул. 2сл. 15м",
+   "barcode": "4780017060438",
+   "qty": 105,
+   "price": 13000,
+   "status": "aktiv",
+   "sku": "21559",
+   "id": "a651020f-af10-4a78-b57a-9efaaea91cde",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen 2-слой 8-рул.",
+   "barcode": "4780017060117",
+   "qty": 40,
+   "price": 24461,
+   "status": "aktiv",
+   "sku": "23737",
+   "id": "f3c9d3bb-cf82-4183-90db-496109d20adf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen 6 рулон",
+   "barcode": "4780017060766",
+   "qty": 50,
+   "price": 13978,
+   "status": "aktiv",
+   "sku": "23742",
+   "id": "cfcb40c5-fe3f-4b27-95a1-56a77a2d74b2",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz  Bamboozy 10d 6q",
+   "barcode": "6955280831698",
+   "qty": 60,
+   "price": 27804,
+   "status": "aktiv",
+   "sku": "52787",
+   "id": "a9e37c6f-5355-4937-aeb1-190e3cb6581b",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Xojatxona Qog'oz Bamboozy втулка 10d 6q",
+   "barcode": "6955280831933",
+   "qty": 60,
+   "price": 29701,
+   "status": "aktiv",
+   "sku": "52788",
+   "id": "1491159d-15bc-4cde-9230-a22c34ed7e7d",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen 2-слой 8-рул.",
+   "barcode": "4780017060117",
+   "qty": 40,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23737",
+   "id": "f3c9d3bb-cf82-4183-90db-496109d20adf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen Aroma Chamomile 8рулон",
+   "barcode": "4780017061015",
+   "qty": 40,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23744",
+   "id": "cdc0d5b8-4612-4e24-b7b1-6f564a2cac72",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Туалетная Бумага Selen Aroma Rose 8рулон",
+   "barcode": "4780017061008",
+   "qty": 40,
+   "price": 24450,
+   "status": "aktiv",
+   "sku": "23739",
+   "id": "2fac672a-301a-4e7d-a0f2-4ee02dffaeae",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 17889500
+}
