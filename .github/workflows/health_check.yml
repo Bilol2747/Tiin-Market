@@ -1,0 +1,96 @@
+name: Pipeline sog'ligini tekshirish
+
+# sync.yml'dan MUSTAQIL, alohida workflow.
+#
+# 2026-09-28: qayta yozildi. Eski tekshiruv faqat "main'dagi oxirgi commit 14
+# soatdan eskimi" deb so'rardi - lekin sync kuniga 2 marta (04:00 va 09:00 UTC),
+# oddiy tungi oraliq 19 soat, ya'ni chegara jadvalga mos emasdi; ustiga sync
+# "muvaffaqiyatli" tugab fayl yangilanmay qolsa (data_ta_qarz.json 08-11 dan
+# jim eskirgan edi) hech narsa sezmasdi.
+#
+# Endi `.github/scripts/health_watch.py` SAYTNING O'ZI xizmat qilayotgan
+# fayllarni sync jadvaliga nisbatan tekshiradi (jonli qatlam, sync/deploy,
+# jim yiqiladigan qadamlar, sayt ochiladimi) va har muammo uchun bitta GitHub
+# Issue (label `pipeline-alert`) ochadi / tiklansa yopadi (+Telegram, TG_BOT_TOKEN
+# bo'lsa). Bir xil skript `live_data.yml` oxirida ham ishlaydi (u har 15 daqiqada
+# ishonchli ishga tushadi; GitHub'ning o'z `schedule` cron'i esa 3-6 soatgacha
+# kechikishi mumkin - shu sabab bu workflow ikkinchi, mustaqil zaxira).
+#
+# Telegram bot tokeni endi kodda EMAS - repo Secrets'dagi TELEGRAM_BOT_TOKEN.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: health-watch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Repo'ni checkout qilish
+        uses: actions/checkout@v4
+
+      - name: Sog'liqni tekshirish (jonli qatlam, sync, fayl yangiligi, sayt)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TG_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: python3 .github/scripts/health_watch.py
+
+      - name: Telegram zakas bot webhookini tekshirish, o'chib qolgan bo'lsa tiklash
+        # Webhook Telegram tomonidan (sababi aniq emas) vaqti-vaqti bilan
+        # o'z-o'zidan o'chib qolyapti (2026-08-01, 08-10, 08-11 kunlari
+        # kuzatilgan) - shu bois davriy tekshirib, kerak bo'lsa
+        # avtomatik qayta o'rnatiladi, foydalanuvchi qo'lda tuzatishga
+        # muhtoj bo'lmasin.
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          python3 - <<'PYEOF'
+          import json
+          import os
+          import sys
+          import urllib.parse
+          import urllib.request
+
+          BOT_TOKEN = os.environ.get("TG_BOT_TOKEN", "").strip()
+          if not BOT_TOKEN:
+              print("TELEGRAM_BOT_TOKEN secret o'rnatilmagan - webhook tekshiruvi o'tkazib yuborildi.")
+              sys.exit(0)
+          EXPECTED_URL = "https://tiin-market.vercel.app/api/telegram-webhook"
+
+          def call(method, data=None):
+              url = f"https://api.telegram.org/bot{BOT_TOKEN}/{method}"
+              req = urllib.request.Request(
+                  url,
+                  data=urllib.parse.urlencode(data).encode() if data else None,
+                  method="POST" if data else "GET",
+              )
+              with urllib.request.urlopen(req, timeout=15) as resp:
+                  return json.load(resp)
+
+          info = call("getWebhookInfo")
+          current_url = info.get("result", {}).get("url", "")
+          print(f"Joriy webhook: {current_url!r}")
+
+          if current_url != EXPECTED_URL:
+              print("Webhook bo'sh/mos emas - tiklanmoqda...")
+              result = call("setWebhook", {"url": EXPECTED_URL})
+              print(f"setWebhook natijasi: {result}")
+
+              msg = (
+                  "🔧 Tiin Market: zakas boti webhooki o'chib qolgan edi, "
+                  "avtomatik tiklandi. Kutib turgan fayllar bo'lsa hozir yetib boradi."
+              )
+              call("sendMessage", {"chat_id": "7034777747", "text": msg})
+          else:
+              print("Webhook joyida, hammasi yaxshi.")
+          PYEOF
