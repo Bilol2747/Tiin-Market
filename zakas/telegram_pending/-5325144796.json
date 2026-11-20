@@ -1,99 +1,19 @@
 {
- "createdAt": "2026-11-20T08:44:21.461Z",
- "srcFile": "-5325144796_2577_TIIN OPTOM.xlsx",
- "supplierId": "ba0446d1-a800-4b74-a40f-c621f3694dc1",
- "supplierLabel": "United distribution (ushastiy nyan bella symphony)",
+ "createdAt": "2026-11-20T14:36:36.419Z",
+ "srcFile": "-5325144796_2582_НУППИ  тиин(2).xlsx",
+ "supplierId": "93b8e9bc-3abc-47df-8311-5d8afb4c7a7a",
+ "supplierLabel": "''ATLANTA EMPIRE'' MCHJ (№33 N от 19.07.2024) (Каша Nuppi)",
  "items": [
   {
-   "name": "Средство от Насекомых Arnest Нео+ Дихлофос без Захапа 140мл",
-   "barcode": "4650056495662",
+   "name": "Nuppi F 3  12oy 600gr",
+   "barcode": "4743150004097",
    "qty": 1,
-   "price": null,
+   "price": 106000,
    "status": "aktiv",
-   "sku": "39320",
-   "id": "c02a16ef-5a63-4672-93d3-0fc32aec66bb",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Arnest o'simliklarga qarshi vositasi 190ml",
-   "barcode": "4650056495679",
-   "qty": 2,
-   "price": null,
-   "status": "aktiv",
-   "sku": "39321",
-   "id": "64b2ac52-1883-483d-b9d9-d821b3dd04b8",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Чистящее средство Sanita Антиналет и Антиржавчина 500мл",
-   "barcode": "4602984025565",
-   "qty": 3,
-   "price": null,
-   "status": "aktiv",
-   "sku": "31458",
-   "id": "4801d9a3-61e8-4a52-8799-4f849fd7a226",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Tozalovchi vosita Sanita Блеск металла 500ml",
-   "barcode": "4602984010424",
-   "qty": 4,
-   "price": null,
-   "status": "aktiv",
-   "sku": "35256",
-   "id": "e4f1f3f4-6945-475e-ae31-271ce501a6ae",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Oqartiruvchi Gel ЧисТин Belizna 950gr",
-   "barcode": "4602984007912",
-   "qty": 6,
-   "price": null,
-   "status": "aktiv",
-   "sku": "23025",
-   "id": "e44bcf66-0e99-4a7f-8cd3-ea8784f9f106",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Чистящее средство ЧисТин для туалета и ванной комнаты 750гр",
-   "barcode": "4602984003235",
-   "qty": 7,
-   "price": null,
-   "status": "aktiv",
-   "sku": "23070",
-   "id": "340dc7f9-a475-4b19-8e0b-1d20ae89ac40",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Чистящее Средство ЧисТин Универсальное 400гр",
-   "barcode": "4602984000425",
-   "qty": 8,
-   "price": null,
-   "status": "aktiv",
-   "sku": "2875997",
-   "id": "998cb7cb-2b93-456c-b6c8-b0029571d229",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Чистин Limonli tozalash vositasi 400gr",
-   "barcode": "4602984002795",
-   "qty": 9,
-   "price": null,
-   "status": "aktiv",
-   "sku": "2875998",
-   "id": "51ce7275-463d-4009-ac13-fabd8e8bf19a",
-   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
-  },
-  {
-   "name": "Tozalovchi Vosita Чистин Olma 400gr",
-   "barcode": "4602984002788",
-   "qty": 12,
-   "price": null,
-   "status": "aktiv",
-   "sku": "2875999",
-   "id": "7c4092c0-06c9-4297-974a-6e397abb473c",
+   "sku": "22004",
+   "id": "3aab0075-8fc2-4220-8211-6c6c2bd44d83",
    "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
   }
  ],
- "fileTotal": 0
+ "fileTotal": 1584000
 }
