@@ -1,0 +1,129 @@
+{
+ "createdAt": "2026-11-28T06:43:23.764Z",
+ "srcFile": "-5325144796_2609_zakas__ZARMS TORG_ MCHJ_2026-11-28.xlsx",
+ "supplierId": "47291219-d6e7-48c1-9c15-dc0e366173d0",
+ "supplierLabel": "\"ZARMS TORG\" MCHJ",
+ "items": [
+  {
+   "name": "Murabbo HiFood Malina Imbir va Asal 900gr",
+   "barcode": "4870237752395",
+   "qty": 18,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54756",
+   "id": "1e63d5ae-73bf-484b-82d6-5e808da64c6c",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Chernika 900gr",
+   "barcode": "4870237751602",
+   "qty": 12,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54759",
+   "id": "6e864f64-6dec-4ec5-9611-90bd2fb65054",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Anjir-Limon Asal Bilan 900gr",
+   "barcode": "4870237753101",
+   "qty": 12,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54762",
+   "id": "4060246e-8b57-4591-bd33-aba4912b38df",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Klyukva 900gr",
+   "barcode": "4870237751473",
+   "qty": 12,
+   "price": 43200,
+   "status": "aktiv",
+   "sku": "54763",
+   "id": "88a88a16-f2cc-420b-8b34-4f362d1d0bc7",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Smarodinali 900gr",
+   "barcode": "4870201150295",
+   "qty": 12,
+   "price": 43200,
+   "status": "aktiv",
+   "sku": "54758",
+   "id": "99a64b20-5149-46c6-9755-fddc5fc0a2dd",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Limon-Imbirli 900gr",
+   "barcode": "4870237750766",
+   "qty": 12,
+   "price": 43200,
+   "status": "aktiv",
+   "sku": "54754",
+   "id": "1a6db882-c9fa-47c4-83f8-9a169669ff8e",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Malinali 900gr",
+   "barcode": "4870201150257",
+   "qty": 12,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54755",
+   "id": "f2e7bc58-28e1-4219-ba97-122e199e9edf",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Imbir Limon Asal 900gr",
+   "barcode": "4870237751725",
+   "qty": 12,
+   "price": 43200,
+   "status": "aktiv",
+   "sku": "54761",
+   "id": "bd40a8ad-3000-4098-a0cf-735d8c3bee66",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Ejemalina 900gr",
+   "barcode": "4870237750803",
+   "qty": 6,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54730",
+   "id": "fe18effc-c280-446b-a2db-097afd8af4f9",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Klyukva Asalli 900gr",
+   "barcode": "4870237751527",
+   "qty": 6,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54732",
+   "id": "7d504a72-90a0-432e-b010-ebceb8ffa838",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Barbaris 900gr",
+   "barcode": "4870237751787",
+   "qty": 6,
+   "price": 40000,
+   "status": "aktiv",
+   "sku": "54729",
+   "id": "f6c0f9da-fe33-422a-bddc-0dc2b9f4243f",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  },
+  {
+   "name": "Murabbo HiFood Oblepixa 900gr",
+   "barcode": "4870237751329",
+   "qty": 6,
+   "price": 43200,
+   "status": "aktiv",
+   "sku": "54757",
+   "id": "8d7dec72-3ec2-4fed-919d-fa4bcc949a20",
+   "type": "8b0bf29c-58e8-4310-8bb1-a1b9771f9c47"
+  }
+ ],
+ "fileTotal": 5212800
+}
