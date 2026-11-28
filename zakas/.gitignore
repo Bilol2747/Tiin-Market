@@ -1,0 +1,16 @@
+# Ta'minotchidan kelgan xomashyo fayllar va ular asosida yaratilgan shablonlar
+# git'ga TUSHMAYDI — ular vaqtinchalik ish materiali, har kuni o'zgaradi va
+# repo hajmini shishiradi (repo hajmi bu loyihada allaqachon muammo bo'lgan).
+#
+# Lekin SKRIPTLAR (build_shablon.js, order_agent.js) git'da SAQLANADI — ular
+# qayta yozib bo'lmaydigan ish, o'chib ketsa tiklab bo'lmaydi.
+*.xls
+*.xlsx
+*.xlsm
+*.csv
+*.pdf
+~$*
+
+# Shaxsiy Invan login tokeni (--login orqali olinadi). Parolning o'zi hech
+# qayerga yozilmaydi - faqat shu token, u ham git'ga tushmasligi shart.
+my_token.txt
